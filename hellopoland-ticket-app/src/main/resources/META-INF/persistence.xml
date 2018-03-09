@@ -14,9 +14,7 @@
 	xsi:schemaLocation="
         http://xmlns.jcp.org/xml/ns/persistence
         http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
-	<persistence-unit name="primary">
-		<class>pl.hellopolandticket.model.Sample</class>
-	
+	<persistence-unit name="primary">	
 		<jta-data-source>java:jboss/datasources/hellopolandticket</jta-data-source>
 		<properties>
 			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
