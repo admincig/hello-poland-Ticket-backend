@@ -1,11 +1,11 @@
-package pl.hellopoland.dao;
+package pl.hellopolandticket.dao;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import pl.hellopoland.model.Sample;
+import pl.hellopolandticket.model.Sample;
 
 @Stateless
 @LocalBean

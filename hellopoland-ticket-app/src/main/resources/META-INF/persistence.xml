@@ -15,7 +15,7 @@
         http://xmlns.jcp.org/xml/ns/persistence
         http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
 	<persistence-unit name="primary">
-		<class>pl.hellopoland.model.Sample</class>
+		<class>pl.hellopolandticket.model.Sample</class>
 	
 		<jta-data-source>java:jboss/datasources/hellopoland</jta-data-source>
 		<properties>

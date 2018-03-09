@@ -1,4 +1,4 @@
-package pl.hellopoland.rest;
+package pl.hellopolandticket.rest;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;

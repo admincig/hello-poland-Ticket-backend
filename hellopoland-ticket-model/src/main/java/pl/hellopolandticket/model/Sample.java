@@ -1,4 +1,4 @@
-package pl.hellopoland.model;
+package pl.hellopolandticket.model;
 
 import java.io.Serializable;
 

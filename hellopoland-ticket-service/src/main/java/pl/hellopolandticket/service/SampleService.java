@@ -1,10 +1,10 @@
-package pl.hellopoland.service;
+package pl.hellopolandticket.service;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import pl.hellopoland.dao.SampleDao;
+import pl.hellopolandticket.dao.SampleDao;
 
 @Stateless
 @LocalBean

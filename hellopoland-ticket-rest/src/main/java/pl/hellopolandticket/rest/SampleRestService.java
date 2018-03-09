@@ -1,4 +1,4 @@
-package pl.hellopoland.rest;
+package pl.hellopolandticket.rest;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -7,7 +7,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
-import pl.hellopoland.service.SampleService;
+import pl.hellopolandticket.service.SampleService;
 
 @Path("/sample")
 @RequestScoped
