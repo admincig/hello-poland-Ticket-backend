@@ -17,7 +17,7 @@
 	<persistence-unit name="primary">
 		<class>pl.hellopolandticket.model.Sample</class>
 	
-		<jta-data-source>java:jboss/datasources/hellopoland</jta-data-source>
+		<jta-data-source>java:jboss/datasources/hellopolandticket</jta-data-source>
 		<properties>
 			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
 			<property name="hibernate.show_sql" value="false" />
