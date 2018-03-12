@@ -1,18 +1,22 @@
 package pl.hellopolandticket.model;
 
+import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table
-public class Sample {
+@Setter
+@Getter
+@NoArgsConstructor
+public class Sample implements Serializable {
 
-  public Sample(String name) {
-    this.name = name;
-  }
+  private static final long serialVersionUID = -1694227181195285997L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,11 +24,9 @@ public class Sample {
 
   private String name;
 
-  public void setName(String name) {
+  @Builder
+  public Sample(String name) {
     this.name = name;
   }
 
-  public String getName() {
-    return name;
-  }
 }

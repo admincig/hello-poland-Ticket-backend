@@ -14,7 +14,9 @@ public class SampleDao {
   private EntityManager entityManager;
 
   public String save() {
-    entityManager.persist(new Sample("Sample"));
+    entityManager.persist(Sample.builder()
+        .name("Sample")
+        .build());
 
     return "Sample";
   }

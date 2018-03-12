@@ -12,7 +12,7 @@ import pl.hellopolandticket.service.SampleService;
 @RequestScoped
 @Consumes(MediaType.APPLICATION_JSON)
 public class SampleRestService {
-	
+
   @Inject
   private SampleService sampleService;
 
