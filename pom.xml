@@ -6,14 +6,14 @@
   <packaging>pom</packaging>
   <name>Hello Poland Ticket</name>
   <description>Hello Poland Ticket backend project</description>
-  
+
   <properties>
 		<maven.compiler.source>9</maven.compiler.source>
 		<maven.compiler.target>9</maven.compiler.target>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-	
+
   <modules>
   	<module>hellopoland-ticket-app</module>
   	<module>hellopoland-ticket-rest</module>
@@ -21,7 +21,7 @@
   	<module>hellopoland-ticket-dao</module>
   	<module>hellopoland-ticket-model</module>
   </modules>
-  
+
   <dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -56,7 +56,7 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>javax</groupId>

@@ -39,7 +39,7 @@
 			<url>https://packages.fream.pl/repository/maven-fream-snapshots</url>
 		</repository>
 	</repositories>
-	
+
 	<build>
 		<plugins>
 			<plugin>
