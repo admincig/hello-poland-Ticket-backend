@@ -5,9 +5,9 @@
   <groupId>pl.hellopoland</groupId>
   <artifactId>hellopoland-ticket</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
   <name>Hello Poland Ticket</name>
   <description>Hello Poland Ticket backend project</description>
+  <packaging>war</packaging>
 
   <properties>
     <maven.compiler.source>9</maven.compiler.source>
@@ -16,55 +16,11 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <modules>
-    <module>hellopoland-ticket-app</module>
-    <module>hellopoland-ticket-rest</module>
-    <module>hellopoland-ticket-service</module>
-    <module>hellopoland-ticket-dao</module>
-    <module>hellopoland-ticket-model</module>
-  </modules>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>pl.hellopoland</groupId>
-        <artifactId>hellopoland-ticket-rest</artifactId>
-        <version>${project.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>pl.hellopoland</groupId>
-        <artifactId>hellopoland-ticket-service</artifactId>
-        <version>${project.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>pl.hellopoland</groupId>
-        <artifactId>hellopoland-ticket-dao</artifactId>
-        <version>${project.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>pl.hellopoland</groupId>
-        <artifactId>hellopoland-ticket-model</artifactId>
-        <version>${project.version}</version>
-        <type>jar</type>
-      </dependency>
-
-      <dependency>
-        <groupId>javax</groupId>
-        <artifactId>javaee-api</artifactId>
-        <version>7.0</version>
-        <scope>provided</scope>
-      </dependency>
-
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
     <dependency>
       <groupId>javax</groupId>
       <artifactId>javaee-api</artifactId>
+      <version>7.0</version>
       <scope>provided</scope>
     </dependency>
 
@@ -74,5 +30,18 @@
       <version>1.16.20</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>pl.hellopoland</groupId>
+      <artifactId>hellopoland-dto</artifactId>
+      <version>0.0.2-SNAPSHOT</version>
+    </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>fream-nexus</id>
+      <url>https://packages.fream.pl/repository/maven-fream-snapshots</url>
+    </repository>
+  </repositories>
 </project>
