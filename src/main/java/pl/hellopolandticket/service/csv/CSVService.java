@@ -34,7 +34,7 @@ public class CSVService {
   }
 
   public void importSightsFromCSV(byte[] sightsCSV) throws IOException {
-    CsvSchema sightSchema = csvMapper.schemaFor(SightCSV.class);
+    CsvSchema sightSchema = csvMapper.schemaFor(SightCSV.class).withNullValue("");
 
     MappingIterator<SightCSV> sightsMappingIterator = csvMapper.readerFor(SightCSV.class)
         .with(sightSchema)
@@ -48,7 +48,7 @@ public class CSVService {
   }
 
   public void importTicketsFromCSV(byte[] ticketsCSV) throws IOException {
-    CsvSchema ticketSchema = csvMapper.schemaFor(TicketCSV.class);
+    CsvSchema ticketSchema = csvMapper.schemaFor(TicketCSV.class).withNullValue("");
 
     MappingIterator<TicketCSV> ticketsMappingIterator = csvMapper.readerFor(TicketCSV.class)
         .with(ticketSchema)
@@ -67,7 +67,7 @@ public class CSVService {
         .price(ticketCSV.getPrice())
         .predefinedDate(ticketCSV.getPredefinedDate())
         .date(ticketCSV.getDate())
-        .sight(sightService.findById(ticketCSV.getSight()))
+        .sight(sightService.findById(ticketCSV.getSightId()))
         .build();
   }
 }

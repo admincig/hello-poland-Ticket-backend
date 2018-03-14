@@ -3,6 +3,7 @@ package pl.hellopolandticket.service.csv.pojo;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.io.Serializable;
 import java.util.Date;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,9 +20,17 @@ public class TicketCSV implements Serializable {
 
   private static final long serialVersionUID = 4461566918374139044L;
 
+  @NotNull
   private String name;
+
+  @NotNull
   private Integer price;
+
+  @NotNull
   private Boolean predefinedDate;
+
   private Date date;
-  private Long sight;
+
+  @NotNull
+  private Long sightId;
 }
