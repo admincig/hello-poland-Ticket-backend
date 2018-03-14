@@ -1,0 +1,55 @@
+package pl.hellopolandticket.service.csv.pojo;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import java.io.Serializable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import pl.hellopolandticket.model.Sight;
+import pl.hellopolandticket.model.SightLocation;
+
+@Setter
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonPropertyOrder(value = {"name", "lead", "description", "mainImageUrl", "email", "latitude",
+    "longitude", "street", "zipCode", "city", "country"})
+public class SightCSV implements Serializable {
+
+  private static final long serialVersionUID = 5421767133423015831L;
+
+  private String name;
+  private String lead;
+  private String description;
+  private String mainImageUrl;
+  private String email;
+  private Double latitude;
+  private Double longitude;
+  private String street;
+  private String zipCode;
+  private String city;
+  private String country;
+
+  public Sight createSight() {
+    SightLocation sightLocation = SightLocation.builder()
+        .latitude(latitude)
+        .longitude(longitude)
+        .street(street)
+        .zipCode(zipCode)
+        .city(city)
+        .country(country)
+        .build();
+
+    return Sight.builder()
+        .name(name)
+        .lead(lead)
+        .description(description)
+        .mainImageUrl(mainImageUrl)
+        .email(email)
+        .sightLocation(sightLocation)
+        .build();
+  }
+}

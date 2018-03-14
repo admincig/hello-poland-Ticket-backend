@@ -4,20 +4,22 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.Sample;
+import pl.hellopolandticket.model.Sight;
 
 @Stateless
 @LocalBean
-public class SampleDao {
+public class SightDao {
 
   @PersistenceContext
   private EntityManager entityManager;
 
-  public String save() {
-    entityManager.persist(Sample.builder()
-        .name("Sample")
-        .build());
+  public Sight persist(Sight sight) {
+    entityManager.persist(sight);
 
-    return "Sample";
+    return sight;
+  }
+
+  public Sight findById(Long sightId) {
+    return entityManager.find(Sight.class, sightId);
   }
 }
