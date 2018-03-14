@@ -18,27 +18,21 @@ public class SightLocation implements Serializable {
 
   private static final long serialVersionUID = 1599586813368109778L;
 
-  @Setter
   @Column(name = "LATITUDE")
   private Double latitude;
 
-  @Setter
   @Column(name = "LONGITUDE")
   private Double longitude;
 
-  @Setter
   @Column(name = "STREET")
   private String street;
 
-  @Setter
   @Column(name = "ZIP_CODE")
   private String zipCode;
 
-  @Setter
   @Column(name = "CITY")
   private String city;
 
-  @Setter
   @Column(name = "COUNTRY")
   private String country;
 
