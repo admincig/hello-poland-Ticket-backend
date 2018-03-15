@@ -12,8 +12,7 @@ import pl.hellopolandticket.service.csv.pojo.TicketCSV;
 import pl.hellopolandticket.service.exception.ImportingDataException;
 
 public class FileToCSVParser {
-
-
+  
   public static List<SightCSV> parseFileToSightsCSVList(byte[] sightsCSVFile) {
     try {
       CsvMapper csvMapper = new CsvMapper();
