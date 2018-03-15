@@ -17,7 +17,7 @@ public class SightService {
     return sightDao.persist(sight);
   }
 
-  public Sight findById(Long id) {
-    return sightDao.findById(id);
+  public Sight findBySightName(String sightName) {
+    return sightDao.findBySightName(sightName);
   }
 }

@@ -2,10 +2,6 @@ package pl.hellopolandticket.service.csv;
 
 import static java.util.stream.Collectors.toList;
 
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import java.io.IOException;
 import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -16,12 +12,11 @@ import pl.hellopolandticket.service.SightService;
 import pl.hellopolandticket.service.TicketService;
 import pl.hellopolandticket.service.csv.pojo.SightCSV;
 import pl.hellopolandticket.service.csv.pojo.TicketCSV;
+import pl.hellopolandticket.service.exception.ImportingDataException;
 
 @Stateless
 @LocalBean
 public class CSVService {
-
-  private final CsvMapper csvMapper;
 
   @Inject
   private SightService sightService;
@@ -29,36 +24,28 @@ public class CSVService {
   @Inject
   private TicketService ticketService;
 
-  public CSVService() {
-    csvMapper = new CsvMapper();
+  public void importSightsFromCSV(List<SightCSV> sightsCSV) {
+    try {
+      List<Sight> sights = sightsCSV.stream()
+          .map(SightCSV::createSight)
+          .collect(toList());
+
+      sights.forEach(sight -> sightService.save(sight));
+    } catch (Exception e) {
+      throw new ImportingDataException();
+    }
   }
 
-  public void importSightsFromCSV(byte[] sightsCSV) throws IOException {
-    CsvSchema sightSchema = csvMapper.schemaFor(SightCSV.class).withNullValue("");
+  public void importTicketsFromCSV(List<TicketCSV> ticketsCSV) {
+    try {
+      List<Ticket> tickets = ticketsCSV.stream()
+          .map(this::createTicketOfTicketCSV)
+          .collect(toList());
 
-    MappingIterator<SightCSV> sightsMappingIterator = csvMapper.readerFor(SightCSV.class)
-        .with(sightSchema)
-        .readValues(sightsCSV);
-
-    List<Sight> sights = sightsMappingIterator.readAll().stream()
-        .map(SightCSV::createSight)
-        .collect(toList());
-
-    sights.forEach(sight -> sightService.save(sight));
-  }
-
-  public void importTicketsFromCSV(byte[] ticketsCSV) throws IOException {
-    CsvSchema ticketSchema = csvMapper.schemaFor(TicketCSV.class).withNullValue("");
-
-    MappingIterator<TicketCSV> ticketsMappingIterator = csvMapper.readerFor(TicketCSV.class)
-        .with(ticketSchema)
-        .readValues(ticketsCSV);
-
-    List<Ticket> tickets = ticketsMappingIterator.readAll().stream()
-        .map(this::createTicketOfTicketCSV)
-        .collect(toList());
-
-    tickets.forEach(ticket -> ticketService.save(ticket));
+      tickets.forEach(ticket -> ticketService.save(ticket));
+    } catch (Exception e) {
+      throw new ImportingDataException();
+    }
   }
 
   private Ticket createTicketOfTicketCSV(TicketCSV ticketCSV) {
@@ -67,7 +54,7 @@ public class CSVService {
         .price(ticketCSV.getPrice())
         .predefinedDate(ticketCSV.getPredefinedDate())
         .date(ticketCSV.getDate())
-        .sight(sightService.findById(ticketCSV.getSightId()))
+        .sight(sightService.findBySightName(ticketCSV.getSightName()))
         .build();
   }
 }

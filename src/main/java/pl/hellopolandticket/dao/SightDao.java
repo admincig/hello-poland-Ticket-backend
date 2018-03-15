@@ -19,7 +19,11 @@ public class SightDao {
     return sight;
   }
 
-  public Sight findById(Long sightId) {
-    return entityManager.find(Sight.class, sightId);
+  public Sight findBySightName(String sightName) {
+    return entityManager
+        .createQuery("from Sight sight where sight.name=:name", Sight.class)
+        .setParameter("name", sightName)
+        .getSingleResult();
   }
+
 }

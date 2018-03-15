@@ -3,6 +3,10 @@ package pl.hellopolandticket.service.csv.pojo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.io.Serializable;
+import javax.annotation.PostConstruct;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,6 +50,13 @@ public class SightCSV implements Serializable {
   private String city;
 
   private String country;
+
+  @PostConstruct
+  public void validate() {
+    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    Validator validator = factory.getValidator();
+    validator.validate(this);
+  }
 
   public Sight createSight() {
     SightLocation sightLocation = SightLocation.builder()
