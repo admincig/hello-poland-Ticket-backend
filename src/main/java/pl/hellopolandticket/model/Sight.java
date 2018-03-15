@@ -31,7 +31,7 @@ public class Sight implements Serializable {
 
   @Setter
   @NotNull
-  @Column(name = "NAME", nullable = false)
+  @Column(name = "NAME", nullable = false, unique = true)
   private String name;
 
   @Setter
