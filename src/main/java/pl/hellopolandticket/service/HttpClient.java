@@ -6,17 +6,20 @@ import static javax.ws.rs.core.HttpHeaders.USER_AGENT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
 import pl.hellopolandticket.service.exception.SendingHttpRequestException;
 
-@Stateless
-@LocalBean
-public class HttpService {
+@SessionScoped
+public class HttpClient implements Serializable {
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
+  private static final long serialVersionUID = 7529870890163651237L;
+
+  @Inject
+  private ObjectMapper objectMapper;
 
   public void sendPostRequestWithAttractionsToURL(String URLPath, Object... attractions) {
     try {

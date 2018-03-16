@@ -1,9 +1,11 @@
 package pl.hellopolandticket.app;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.enterprise.inject.Produces;
 
 @Singleton
 @Startup
@@ -18,6 +20,11 @@ public class Configuration {
     } catch (IOException e) {
       logger.log(System.Logger.Level.WARNING, "Failed to load custom properties", e);
     }
+  }
+
+  @Produces
+  public ObjectMapper objectMapper() {
+    return new ObjectMapper();
   }
 
 }
