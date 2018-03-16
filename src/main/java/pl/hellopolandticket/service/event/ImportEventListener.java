@@ -10,8 +10,6 @@ import pl.hellopolandticket.service.HttpService;
 @LocalBean
 public class ImportEventListener {
 
-  private static final String URLPath = "http://localhost:8080/hellopoland-ticket-0.0.1-SNAPSHOT/v1/sample/sample";
-
   @Inject
   private HttpService httpService;
 
@@ -25,7 +23,8 @@ public class ImportEventListener {
 
   public void ticketsImportEventHandler(@Observes TicketsImportEvent ticketsImportEvent) {
     httpService
-        .sendPostRequestWithAttractionsToURL(URLPath, ticketsImportEvent.getTickets().toArray());
+        .sendPostRequestWithAttractionsToURL(System.getProperty(ATTRACTIONS_UPLOAD_URL_PROPERTY),
+            ticketsImportEvent.getTickets().toArray());
   }
 
 
