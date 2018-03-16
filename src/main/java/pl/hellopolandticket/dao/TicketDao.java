@@ -4,20 +4,19 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.Sample;
+import pl.hellopolandticket.model.Ticket;
 
 @Stateless
 @LocalBean
-public class SampleDao {
+public class TicketDao {
 
   @PersistenceContext
   private EntityManager entityManager;
 
-  public String save() {
-    entityManager.persist(Sample.builder()
-        .name("Sample")
-        .build());
+  public Ticket persist(Ticket ticket) {
+    entityManager.persist(ticket);
 
-    return "Sample";
+    return ticket;
   }
+
 }

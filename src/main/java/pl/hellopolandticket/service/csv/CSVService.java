@@ -1,0 +1,60 @@
+package pl.hellopolandticket.service.csv;
+
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import pl.hellopolandticket.model.Sight;
+import pl.hellopolandticket.model.Ticket;
+import pl.hellopolandticket.service.SightService;
+import pl.hellopolandticket.service.TicketService;
+import pl.hellopolandticket.service.csv.pojo.SightCSV;
+import pl.hellopolandticket.service.csv.pojo.TicketCSV;
+import pl.hellopolandticket.service.exception.ImportingDataException;
+
+@Stateless
+@LocalBean
+public class CSVService {
+
+  @Inject
+  private SightService sightService;
+
+  @Inject
+  private TicketService ticketService;
+
+  public void importSightsFromCSV(List<SightCSV> sightsCSV) {
+    try {
+      List<Sight> sights = sightsCSV.stream()
+          .map(SightCSV::createSight)
+          .collect(toList());
+
+      sights.forEach(sight -> sightService.save(sight));
+    } catch (Exception e) {
+      throw new ImportingDataException();
+    }
+  }
+
+  public void importTicketsFromCSV(List<TicketCSV> ticketsCSV) {
+    try {
+      List<Ticket> tickets = ticketsCSV.stream()
+          .map(this::createTicketOfTicketCSV)
+          .collect(toList());
+
+      tickets.forEach(ticket -> ticketService.save(ticket));
+    } catch (Exception e) {
+      throw new ImportingDataException();
+    }
+  }
+
+  private Ticket createTicketOfTicketCSV(TicketCSV ticketCSV) {
+    return Ticket.builder()
+        .name(ticketCSV.getName())
+        .price(ticketCSV.getPrice())
+        .predefinedDate(ticketCSV.getPredefinedDate())
+        .date(ticketCSV.getDate())
+        .sight(sightService.findBySightName(ticketCSV.getSightName()))
+        .build();
+  }
+}
