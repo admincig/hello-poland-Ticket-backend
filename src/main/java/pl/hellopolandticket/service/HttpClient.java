@@ -41,8 +41,6 @@ public class HttpClient implements Serializable {
 
     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
     httpURLConnection.setRequestMethod("POST");
-    httpURLConnection.setRequestProperty("User-Agent", USER_AGENT);
-    httpURLConnection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
     httpURLConnection.setRequestProperty("Content-Type", "application/json");
     httpURLConnection.setDoOutput(true);
 
