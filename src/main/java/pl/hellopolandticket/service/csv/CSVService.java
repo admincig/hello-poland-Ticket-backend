@@ -3,7 +3,6 @@ package pl.hellopolandticket.service.csv;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
-import javax.ejb.EJBTransactionRolledbackException;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
@@ -43,8 +42,8 @@ public class CSVService {
 
       sights.forEach(sight -> sightService.save(sight));
 
-      sightsImportEvent.fire(createSightsImportEvent(sights));
-    } catch (EJBTransactionRolledbackException e) {
+      sightsImportEvent.fireAsync(createSightsImportEvent(sights));
+    } catch (Exception e) {
       throw new ImportingDataException();
     }
   }
@@ -57,8 +56,8 @@ public class CSVService {
 
       tickets.forEach(ticket -> ticketService.save(ticket));
 
-      ticketsImportEvent.fire(createTicketsImportEvent(tickets));
-    } catch (EJBTransactionRolledbackException e) {
+      ticketsImportEvent.fireAsync(createTicketsImportEvent(tickets));
+    } catch (Exception e) {
       throw new ImportingDataException();
     }
   }

@@ -3,37 +3,35 @@ package pl.hellopolandticket.service;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static javax.ws.rs.core.HttpHeaders.USER_AGENT;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
-import pl.hellopolandticket.service.exception.SendingHttpRequestException;
+import javax.json.bind.JsonbBuilder;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @SessionScoped
 public class HttpClient implements Serializable {
 
   private static final long serialVersionUID = 7529870890163651237L;
 
-  @Inject
-  private ObjectMapper objectMapper;
-
   public void sendPostRequestWithAttractionsToURL(String URLPath, Object... attractions) {
     try {
       HttpURLConnection httpURLConnection = createHttpConnectionWithPostRequestMethod(URLPath);
 
-      String postJsonData = objectMapper.writeValueAsString(attractions);
+      String postJsonData = JsonbBuilder.create().toJson(attractions);
 
       sendPostRequestWithBody(httpURLConnection, postJsonData);
 
       if (!isResponseCodeEqualNoContent(httpURLConnection.getResponseCode())) {
-        throw new SendingHttpRequestException();
+        log.error("Response code doesn't equal expected one. Status: {}",
+            httpURLConnection.getResponseCode());
       }
     } catch (IOException e) {
-      throw new SendingHttpRequestException();
+      log.debug("Sending a post request with attractions exception. {}", e.getMessage());
     }
   }
 
