@@ -14,10 +14,10 @@ import pl.hellopoland.dto.Ticket;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketsImportEvent implements Serializable {
+public class TicketDefinitionsImportEvent implements Serializable {
 
   private static final long serialVersionUID = -6531664193832568648L;
 
-  private List<Ticket> tickets;
+  private List<Ticket> ticketDefinitions;
 
 }

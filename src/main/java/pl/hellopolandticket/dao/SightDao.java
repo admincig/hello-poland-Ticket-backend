@@ -5,6 +5,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import pl.hellopolandticket.model.Sight;
+import pl.hellopolandticket.service.exception.ResourceNotFoundException;
 
 @Stateless
 @LocalBean
@@ -23,7 +24,18 @@ public class SightDao {
     return entityManager
         .createQuery("from Sight sight where sight.name=:name", Sight.class)
         .setParameter("name", sightName)
-        .getSingleResult();
+        .getResultStream()
+        .findFirst()
+        .orElseThrow(ResourceNotFoundException::new);
+  }
+
+  public Sight findById(Long sightId) {
+    return entityManager
+        .createQuery("from Sight sight where sight.id=:id", Sight.class)
+        .setParameter("id", sightId)
+        .getResultStream()
+        .findFirst()
+        .orElseThrow(ResourceNotFoundException::new);
   }
 
 }

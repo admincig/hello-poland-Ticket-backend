@@ -8,11 +8,11 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import pl.hellopolandticket.service.csv.pojo.SightCSV;
-import pl.hellopolandticket.service.csv.pojo.TicketCSV;
+import pl.hellopolandticket.service.csv.pojo.TicketDefinitionCSV;
 import pl.hellopolandticket.service.exception.ImportingDataException;
 
 public class FileToCSVParser {
-  
+
   public static List<SightCSV> parseFileToSightsCSVList(byte[] sightsCSVFile) {
     try {
       CsvMapper csvMapper = new CsvMapper();
@@ -33,20 +33,23 @@ public class FileToCSVParser {
     }
   }
 
-  public static List<TicketCSV> parseFileToTicketsCSVList(byte[] ticketsCSVFile) {
+  public static List<TicketDefinitionCSV> parseFileToTicketDefinitionsCSVList(
+      byte[] ticketDefinitionsCSVFile) {
     try {
       CsvMapper csvMapper = new CsvMapper();
-      CsvSchema ticketSchema = csvMapper.schemaFor(TicketCSV.class).withNullValue("");
+      CsvSchema ticketDefinitionSchema = csvMapper.schemaFor(TicketDefinitionCSV.class)
+          .withNullValue("");
 
-      MappingIterator<TicketCSV> ticketsMappingIterator = csvMapper.readerFor(TicketCSV.class)
-          .with(ticketSchema)
-          .readValues(ticketsCSVFile);
+      MappingIterator<TicketDefinitionCSV> ticketDefinitionsMappingIterator = csvMapper
+          .readerFor(TicketDefinitionCSV.class)
+          .with(ticketDefinitionSchema)
+          .readValues(ticketDefinitionsCSVFile);
 
-      List<TicketCSV> ticketsCSV = ticketsMappingIterator.readAll();
+      List<TicketDefinitionCSV> ticketDefinitionsCSV = ticketDefinitionsMappingIterator.readAll();
 
-      validateCSVObjects(ticketsCSV.toArray());
+      validateCSVObjects(ticketDefinitionsCSV.toArray());
 
-      return ticketsCSV;
+      return ticketDefinitionsCSV;
     } catch (Exception e) {
       throw new ImportingDataException();
     }

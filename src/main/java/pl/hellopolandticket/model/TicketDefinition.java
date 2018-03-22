@@ -1,14 +1,11 @@
 package pl.hellopolandticket.model;
 
 import static javax.persistence.FetchType.EAGER;
-import static pl.hellopolandticket.model.TicketStatus.BOOKED;
 
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,23 +21,17 @@ import lombok.Setter;
 
 @Getter
 @Entity
-@Table(name = "TICKETS")
+@Table(name = "TICKET_DEFINITIONS")
 @EqualsAndHashCode
 @NoArgsConstructor
-public class Ticket implements Serializable {
+public class TicketDefinition implements Serializable {
 
-  private static final long serialVersionUID = 8362327972408128723L;
+  private static final long serialVersionUID = -8863063758760873368L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "TICKET_ID")
+  @Column(name = "TICKET_DEFINITION_ID")
   private Long id;
-
-  @Setter
-  @NotNull
-  @ManyToOne(optional = false, fetch = EAGER)
-  @JoinColumn(name = "SIGHT_ID", nullable = false)
-  private Sight sight;
 
   @Setter
   @NotNull
@@ -53,21 +44,28 @@ public class Ticket implements Serializable {
   private Integer price;
 
   @Setter
+  @NotNull
+  @Column(name = "PREDEFINED_DATE", nullable = false)
+  private Boolean predefinedDate;
+
+  @Setter
   @Column(name = "DATE")
   private Date date;
 
   @Setter
   @NotNull
-  @Enumerated(EnumType.STRING)
-  @Column(name = "TICKET_STATUS", nullable = false)
-  private TicketStatus ticketStatus = BOOKED;
+  @ManyToOne(optional = false, fetch = EAGER)
+  @JoinColumn(name = "SIGHT_ID", nullable = false)
+  private Sight sight;
 
   @Builder
-  public Ticket(Sight sight, String name, Integer price, Date date, TicketStatus ticketStatus) {
-    this.sight = sight;
+  public TicketDefinition(String name, Integer price, Boolean predefinedDate, Date date,
+      Sight sight) {
     this.name = name;
     this.price = price;
+    this.predefinedDate = predefinedDate;
     this.date = date;
-    this.ticketStatus = ticketStatus;
+    this.sight = sight;
   }
+
 }

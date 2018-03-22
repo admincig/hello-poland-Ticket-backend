@@ -19,9 +19,10 @@ public class ImportEventListener {
             sightsImportEvent.getSights().toArray());
   }
 
-  public void ticketsImportEventHandler(@ObservesAsync TicketsImportEvent ticketsImportEvent) {
+  public void ticketsImportEventHandler(
+      @ObservesAsync TicketDefinitionsImportEvent ticketDefinitionsImportEvent) {
     httpClient
         .sendPostRequestWithAttractionsToURL(System.getProperty(ATTRACTIONS_UPLOAD_URL_PROPERTY),
-            ticketsImportEvent.getTickets().toArray());
+            ticketDefinitionsImportEvent.getTicketDefinitions().toArray());
   }
 }

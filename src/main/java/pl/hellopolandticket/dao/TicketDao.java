@@ -18,5 +18,4 @@ public class TicketDao {
 
     return ticket;
   }
-
 }

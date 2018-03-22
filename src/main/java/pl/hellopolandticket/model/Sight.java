@@ -14,6 +14,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.hellopolandticket.service.exception.NoAvailableTicketsException;
 
 @Getter
 @Entity
@@ -55,19 +56,33 @@ public class Sight implements Serializable {
   private String phone;
 
   @Setter
+  @Column(name = "AVAILABLE_TICKETS_NUMBER")
+  private Integer availableTicketsNumber;
+
+  @Setter
   @Embedded
   private SightLocation sightLocation;
 
   @Builder
   public Sight(String name, String lead, String description, String mainImageUrl, String email,
-      String phone, SightLocation sightLocation) {
+      String phone, Integer availableTicketsNumber, SightLocation sightLocation) {
     this.name = name;
     this.lead = lead;
     this.description = description;
     this.mainImageUrl = mainImageUrl;
     this.email = email;
     this.phone = phone;
+    this.availableTicketsNumber = availableTicketsNumber;
     this.sightLocation = sightLocation;
   }
 
+  public void decreaseAvailableTicketsNumber() {
+    if (availableTicketsNumber != null) {
+      if (availableTicketsNumber > 0) {
+        availableTicketsNumber--;
+      } else {
+        throw new NoAvailableTicketsException();
+      }
+    }
+  }
 }

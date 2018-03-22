@@ -16,7 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonPropertyOrder(value = {"name", "price", "predefinedDate", "date", "sightName"})
-public class TicketCSV implements Serializable {
+public class TicketDefinitionCSV implements Serializable {
 
   private static final long serialVersionUID = 4461566918374139044L;
 
