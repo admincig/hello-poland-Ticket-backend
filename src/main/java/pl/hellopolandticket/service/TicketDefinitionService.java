@@ -17,9 +17,4 @@ public class TicketDefinitionService {
   public TicketDefinition save(TicketDefinition ticketDefinition) {
     return ticketDefinitionDao.persist(ticketDefinition);
   }
-
-  public TicketDefinition findById(Long ticketDefinitionId) {
-    return ticketDefinitionDao.findById(ticketDefinitionId);
-  }
-
 }

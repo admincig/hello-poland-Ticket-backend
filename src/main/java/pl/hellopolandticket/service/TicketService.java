@@ -1,45 +1,63 @@
 package pl.hellopolandticket.service;
 
+import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.model.TicketStatus.BOOKED;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import pl.hellopolandticket.dao.TicketDao;
+import pl.hellopolandticket.dao.TicketDefinitionDao;
 import pl.hellopolandticket.model.Sight;
 import pl.hellopolandticket.model.Ticket;
 import pl.hellopolandticket.model.TicketDefinition;
+import pl.hellopolandticket.service.dto.TicketDTO;
+import pl.hellopolandticket.service.dto.TicketDefinitionNumberDTO;
 
 @Stateless
 @LocalBean
 public class TicketService {
 
-  @Inject
+  @EJB
   private TicketDao ticketDao;
 
-  @Inject
-  private SightService sightService;
+  @EJB
+  private TicketDefinitionDao ticketDefinitionDao;
 
-  @Inject
-  private TicketDefinitionService ticketDefinitionService;
+  public List<TicketDTO> bookTicketsForSight(
+      List<TicketDefinitionNumberDTO> ticketDefinitionNumberDTOs) {
 
-  public Ticket bookTicketForSight(Long ticketDefinitionId) {
-    TicketDefinition ticketDefinition = ticketDefinitionService.findById(ticketDefinitionId);
+    List<Ticket> bookedTickets = new ArrayList<>();
 
-    Sight sight = ticketDefinition.getSight();
+    for (TicketDefinitionNumberDTO ticketDefinitionNumberDTO : ticketDefinitionNumberDTOs) {
+      TicketDefinition ticketDefinition = ticketDefinitionDao
+          .findById(ticketDefinitionNumberDTO.getTicketDefinitionId());
 
-    Ticket ticket = Ticket.builder()
-        .sight(sight)
-        .name(ticketDefinition.getName())
-        .price(ticketDefinition.getPrice())
-        .date(new Date())
-        .ticketStatus(BOOKED)
-        .build();
+      Sight sight = ticketDefinition.getSight();
 
-    sight.decreaseAvailableTicketsNumber();
-    sightService.save(sight);
+      for (int i = 0; i < ticketDefinitionNumberDTO.getNumberOfTickets(); i++) {
+        Ticket ticket = Ticket.builder()
+            .sight(sight)
+            .name(ticketDefinition.getName())
+            .price(ticketDefinition.getPrice())
+            .date(new Date())
+            .ticketStatus(BOOKED)
+            .build();
 
-    return ticketDao.persist(ticket);
+        bookedTickets.add(ticket);
+      }
+
+      sight.decreaseAvailableTicketsNumber(bookedTickets.size());
+    }
+
+    ticketDao.persist(bookedTickets);
+
+    return bookedTickets.stream()
+        .map(TicketDTO::ofTicket)
+        .collect(toList());
   }
+
 }

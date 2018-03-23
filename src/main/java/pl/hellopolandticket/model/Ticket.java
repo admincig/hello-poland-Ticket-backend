@@ -1,5 +1,6 @@
 package pl.hellopolandticket.model;
 
+import static java.util.UUID.randomUUID;
 import static javax.persistence.FetchType.EAGER;
 import static pl.hellopolandticket.model.TicketStatus.BOOKED;
 
@@ -62,6 +63,11 @@ public class Ticket implements Serializable {
   @Column(name = "TICKET_STATUS", nullable = false)
   private TicketStatus ticketStatus = BOOKED;
 
+  @Setter
+  @NotNull
+  @Column(name = "SERIAL_NUMBER", nullable = false)
+  private Long serialNumber;
+
   @Builder
   public Ticket(Sight sight, String name, Integer price, Date date, TicketStatus ticketStatus) {
     this.sight = sight;
@@ -69,5 +75,6 @@ public class Ticket implements Serializable {
     this.price = price;
     this.date = date;
     this.ticketStatus = ticketStatus;
+    this.serialNumber = randomUUID().getMostSignificantBits();
   }
 }

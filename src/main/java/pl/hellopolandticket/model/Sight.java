@@ -1,7 +1,9 @@
 package pl.hellopolandticket.model;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,7 +16,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.hellopolandticket.model.converter.AtomicIntegerToIntegerConverter;
 import pl.hellopolandticket.service.exception.NoAvailableTicketsException;
+import pl.hellopolandticket.service.exception.NumberOfTicketsNotPositiveException;
 
 @Getter
 @Entity
@@ -24,6 +28,10 @@ import pl.hellopolandticket.service.exception.NoAvailableTicketsException;
 public class Sight implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
+
+  private static final int UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE = -1;
+
+  private static final int MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE = 0;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,7 +65,8 @@ public class Sight implements Serializable {
 
   @Setter
   @Column(name = "AVAILABLE_TICKETS_NUMBER")
-  private Integer availableTicketsNumber;
+  @Convert(converter = AtomicIntegerToIntegerConverter.class)
+  private AtomicInteger availableTicketsNumber;
 
   @Setter
   @Embedded
@@ -72,17 +81,33 @@ public class Sight implements Serializable {
     this.mainImageUrl = mainImageUrl;
     this.email = email;
     this.phone = phone;
-    this.availableTicketsNumber = availableTicketsNumber;
     this.sightLocation = sightLocation;
+
+    this.availableTicketsNumber =
+        availableTicketsNumber == null ?
+            new AtomicInteger(UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE)
+            : new AtomicInteger(availableTicketsNumber);
   }
 
-  public void decreaseAvailableTicketsNumber() {
-    if (availableTicketsNumber != null) {
-      if (availableTicketsNumber > 0) {
-        availableTicketsNumber--;
+  public void decreaseAvailableTicketsNumber(int numberOfTickets) {
+    if (numberOfTickets <= 0) {
+      throw new NumberOfTicketsNotPositiveException();
+    }
+
+    if (!hasUnlimitedNumberOfTickets()) {
+      if (hasEnoughTickets(numberOfTickets)) {
+        availableTicketsNumber.set(availableTicketsNumber.get() - numberOfTickets);
       } else {
         throw new NoAvailableTicketsException();
       }
     }
+  }
+
+  private boolean hasUnlimitedNumberOfTickets() {
+    return availableTicketsNumber.get() == UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+  }
+
+  private boolean hasEnoughTickets(int numberOfTickets) {
+    return availableTicketsNumber.get() - numberOfTickets >= MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
   }
 }
