@@ -1,12 +1,18 @@
 package pl.hellopolandticket.model;
 
+import static javax.persistence.FetchType.EAGER;
+
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
@@ -41,6 +47,10 @@ public class Sight implements Serializable {
   private String name;
 
   @Setter
+  @Column(name = "DATE")
+  private Date date;
+
+  @Setter
   @Column(name = "LEAD")
   private String lead;
 
@@ -69,9 +79,10 @@ public class Sight implements Serializable {
   private SightLocation sightLocation;
 
   @Builder
-  public Sight(String name, String lead, String description, String mainImageUrl, String email,
-      String phone, Integer availableTicketsNumber, SightLocation sightLocation) {
+  public Sight(String name, Date date, String lead, String description, String mainImageUrl,
+      String email, String phone, Integer availableTicketsNumber, SightLocation sightLocation) {
     this.name = name;
+    this.date = date;
     this.lead = lead;
     this.description = description;
     this.mainImageUrl = mainImageUrl;
