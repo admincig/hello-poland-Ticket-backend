@@ -27,8 +27,8 @@ public class SightDTO {
   private Integer availableTicketsNumber;
   private SightLocation sightLocation;
 
+  private Integer boughtTicketNumber;
   private Integer totalTicketsNumber;
-  private Integer punchedTicketsNumber;
 
   public static SightDTO ofSightOnlyId(Sight sight) {
     return SightDTO.builder()
@@ -36,14 +36,14 @@ public class SightDTO {
         .build();
   }
 
-  public static SightDTO ofSightWithValidAndPunchTickets(Sight sight, int validTicketsNumber,
-      int punchedTicketsNumber) {
+  public static SightDTO ofSightWithBoughtAndTotalTickets(Sight sight, int boughtTicketNumber,
+      int totalTicketsNumber) {
     return SightDTO.builder()
         .id(sight.getId())
         .name(sight.getName())
         .date(sight.getDate())
-        .totalTicketsNumber(validTicketsNumber)
-        .punchedTicketsNumber(punchedTicketsNumber)
+        .boughtTicketNumber(boughtTicketNumber)
+        .totalTicketsNumber(totalTicketsNumber)
         .build();
 
   }

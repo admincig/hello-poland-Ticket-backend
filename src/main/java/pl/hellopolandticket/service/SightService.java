@@ -3,10 +3,9 @@ package pl.hellopolandticket.service;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static pl.hellopolandticket.model.TicketStatus.DELETED;
-import static pl.hellopolandticket.model.TicketStatus.INVALID;
+import static pl.hellopolandticket.model.TicketStatus.BOUGHT;
 import static pl.hellopolandticket.model.TicketStatus.PUNCHED;
-import static pl.hellopolandticket.service.dto.SightDTO.ofSightWithValidAndPunchTickets;
+import static pl.hellopolandticket.service.dto.SightDTO.ofSightWithBoughtAndTotalTickets;
 
 import java.util.List;
 import javax.ejb.LocalBean;
@@ -46,14 +45,14 @@ public class SightService {
   }
 
   private SightDTO toSightDTO(Sight sight) {
-    int validTicketsNumber = ticketDao
-        .countTicketsBySightIdAndTicketStatusNotInTicketStatuses(sight.getId(),
-            asList(INVALID, DELETED)).intValue();
-
-    int punchedTicketsNumber = ticketDao
+    int totalTicketsNumber = ticketDao
         .countTicketsBySightIdAndTicketStatusInTicketStatuses(sight.getId(),
-            singletonList(PUNCHED)).intValue();
+            asList(BOUGHT, PUNCHED)).intValue();
 
-    return ofSightWithValidAndPunchTickets(sight, validTicketsNumber, punchedTicketsNumber);
+    int boughtTicketsNumber = ticketDao
+        .countTicketsBySightIdAndTicketStatusInTicketStatuses(sight.getId(),
+            singletonList(BOUGHT)).intValue();
+
+    return ofSightWithBoughtAndTotalTickets(sight, boughtTicketsNumber, totalTicketsNumber);
   }
 }
