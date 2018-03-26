@@ -24,7 +24,7 @@ public class TicketRestService {
   @POST
   @Path("/book")
   public Response bookTicket(@Valid List<TicketDefinitionNumberDTO> ticketDefinitionNumberDTOs) {
-    List<TicketDTO> ticketDTOs = ticketService.bookTicketsForSight(ticketDefinitionNumberDTOs);
+    List<TicketDTO> ticketDTOs = ticketService.bookTickets(ticketDefinitionNumberDTOs);
 
     return Response.ok(ticketDTOs).build();
   }

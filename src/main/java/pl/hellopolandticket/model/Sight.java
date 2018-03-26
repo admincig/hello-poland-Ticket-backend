@@ -1,9 +1,7 @@
 package pl.hellopolandticket.model;
 
 import java.io.Serializable;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,7 +14,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.hellopolandticket.model.converter.AtomicIntegerToIntegerConverter;
 import pl.hellopolandticket.service.exception.NoAvailableTicketsException;
 import pl.hellopolandticket.service.exception.NumberOfTicketsNotPositiveException;
 
@@ -29,7 +26,7 @@ public class Sight implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
 
-  private static final int UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE = -1;
+  public static final int UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE = -1;
 
   private static final int MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE = 0;
 
@@ -65,8 +62,7 @@ public class Sight implements Serializable {
 
   @Setter
   @Column(name = "AVAILABLE_TICKETS_NUMBER")
-  @Convert(converter = AtomicIntegerToIntegerConverter.class)
-  private AtomicInteger availableTicketsNumber;
+  private Integer availableTicketsNumber;
 
   @Setter
   @Embedded
@@ -84,9 +80,8 @@ public class Sight implements Serializable {
     this.sightLocation = sightLocation;
 
     this.availableTicketsNumber =
-        availableTicketsNumber == null ?
-            new AtomicInteger(UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE)
-            : new AtomicInteger(availableTicketsNumber);
+        availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
+            : availableTicketsNumber;
   }
 
   public void decreaseAvailableTicketsNumber(int numberOfTickets) {
@@ -96,7 +91,7 @@ public class Sight implements Serializable {
 
     if (!hasUnlimitedNumberOfTickets()) {
       if (hasEnoughTickets(numberOfTickets)) {
-        availableTicketsNumber.set(availableTicketsNumber.get() - numberOfTickets);
+        availableTicketsNumber = availableTicketsNumber - numberOfTickets;
       } else {
         throw new NoAvailableTicketsException();
       }
@@ -104,10 +99,10 @@ public class Sight implements Serializable {
   }
 
   private boolean hasUnlimitedNumberOfTickets() {
-    return availableTicketsNumber.get() == UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+    return availableTicketsNumber == UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
   }
 
   private boolean hasEnoughTickets(int numberOfTickets) {
-    return availableTicketsNumber.get() - numberOfTickets >= MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+    return availableTicketsNumber - numberOfTickets >= MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
   }
 }

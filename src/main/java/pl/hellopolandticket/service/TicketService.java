@@ -27,7 +27,7 @@ public class TicketService {
   @EJB
   private TicketDefinitionDao ticketDefinitionDao;
 
-  public List<TicketDTO> bookTicketsForSight(
+  public synchronized List<TicketDTO> bookTickets(
       List<TicketDefinitionNumberDTO> ticketDefinitionNumberDTOs) {
 
     List<Ticket> bookedTickets = new ArrayList<>();
