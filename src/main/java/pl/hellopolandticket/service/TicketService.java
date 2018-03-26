@@ -50,7 +50,8 @@ public class TicketService {
         bookedTickets.add(ticket);
       }
 
-      sight.decreaseAvailableTicketsNumber(bookedTickets.size());
+      sight.decreaseAvailableTicketsNumber(
+          ticketDefinitionNumberDTO.getNumberOfTickets().intValue());
     }
 
     ticketDao.persist(bookedTickets);
