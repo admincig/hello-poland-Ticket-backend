@@ -4,6 +4,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -20,5 +21,11 @@ public class SightRestService {
   @GET
   public Response getSights() {
     return Response.ok(sightService.findAll()).build();
+  }
+
+  @GET
+  @Path("/{sightId}")
+  public Response getById(@PathParam("sightId") Long sightId) {
+    return Response.ok(sightService.findById(sightId)).build();
   }
 }
