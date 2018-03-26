@@ -18,8 +18,8 @@ import pl.hellopolandticket.model.SightLocation;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
-@JsonPropertyOrder(value = {"name", "lead", "description", "mainImageUrl", "email", "latitude",
-    "longitude", "street", "zipCode", "city", "country"})
+@JsonPropertyOrder(value = {"name", "lead", "description", "mainImageUrl", "email", "phone",
+    "latitude", "longitude", "street", "zipCode", "city", "country"})
 public class SightCSV implements Serializable {
 
   private static final long serialVersionUID = 5421767133423015831L;
@@ -34,6 +34,8 @@ public class SightCSV implements Serializable {
   private String mainImageUrl;
 
   private String email;
+
+  private String phone;
 
   private Double latitude;
 
@@ -63,6 +65,7 @@ public class SightCSV implements Serializable {
         .description(description)
         .mainImageUrl(mainImageUrl)
         .email(email)
+        .phone(phone)
         .sightLocation(sightLocation)
         .build();
   }

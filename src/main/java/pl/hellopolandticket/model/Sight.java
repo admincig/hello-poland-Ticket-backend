@@ -51,17 +51,22 @@ public class Sight implements Serializable {
   private String email;
 
   @Setter
+  @Column(name = "PHONE")
+  private String phone;
+
+  @Setter
   @Embedded
   private SightLocation sightLocation;
 
   @Builder
   public Sight(String name, String lead, String description, String mainImageUrl, String email,
-      SightLocation sightLocation) {
+      String phone, SightLocation sightLocation) {
     this.name = name;
     this.lead = lead;
     this.description = description;
     this.mainImageUrl = mainImageUrl;
     this.email = email;
+    this.phone = phone;
     this.sightLocation = sightLocation;
   }
 
