@@ -9,6 +9,7 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.dao.TicketDefinitionDao;
 import pl.hellopolandticket.model.Sight;
@@ -21,10 +22,10 @@ import pl.hellopolandticket.service.dto.TicketDefinitionNumberDTO;
 @LocalBean
 public class TicketService {
 
-  @EJB
+  @Inject
   private TicketDao ticketDao;
 
-  @EJB
+  @Inject
   private TicketDefinitionDao ticketDefinitionDao;
 
   public synchronized List<TicketDTO> bookTickets(
