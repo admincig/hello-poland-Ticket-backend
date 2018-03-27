@@ -3,8 +3,8 @@ package pl.hellopolandticket.service;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static pl.hellopolandticket.model.TicketStatus.BOUGHT;
-import static pl.hellopolandticket.model.TicketStatus.PUNCHED;
+import static pl.hellopolandticket.model.Ticket.Status.BOUGHT;
+import static pl.hellopolandticket.model.Ticket.Status.PUNCHED;
 import static pl.hellopolandticket.service.dto.SightDTO.ofSightWithBoughtAndTotalTickets;
 
 import java.util.List;
