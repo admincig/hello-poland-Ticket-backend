@@ -1,6 +1,5 @@
 package pl.hellopolandticket.service.dto;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +22,7 @@ public class SightDTO {
   private String mainImageUrl;
   private String email;
   private String phone;
-  private AtomicInteger availableTicketsNumber;
+  private Integer availableTicketsNumber;
   private SightLocation sightLocation;
 
   public static SightDTO ofSightOnlyId(Sight sight) {
