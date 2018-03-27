@@ -1,12 +1,11 @@
 package pl.hellopolandticket.service;
 
 import static java.util.stream.Collectors.toList;
-import static pl.hellopolandticket.model.TicketStatus.BOOKED;
+import static pl.hellopolandticket.model.Ticket.Status.BOOKED;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -45,7 +44,7 @@ public class TicketService {
             .name(ticketDefinition.getName())
             .price(ticketDefinition.getPrice())
             .date(new Date())
-            .ticketStatus(BOOKED)
+            .status(BOOKED)
             .build();
 
         bookedTickets.add(ticket);
@@ -62,4 +61,10 @@ public class TicketService {
         .collect(toList());
   }
 
+  public List<TicketDTO> findAll() {
+    return ticketDao.findAll()
+        .stream()
+        .map(TicketDTO::ofTicket)
+        .collect(toList());
+  }
 }

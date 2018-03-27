@@ -1,6 +1,6 @@
 package pl.hellopolandticket.rest.exceptionhandler;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -14,7 +14,7 @@ public class NoAvailableTicketsExceptionHandler implements
 
   @Override
   public Response toResponse(NoAvailableTicketsException e) {
-    return Response.status(BAD_REQUEST).entity(AbstractJSONError.builder()
+    return Response.status(CONFLICT).entity(AbstractJSONError.builder()
         .exception(e.getClass())
         .message(e.getMessage())
         .build()).build();

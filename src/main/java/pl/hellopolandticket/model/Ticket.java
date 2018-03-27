@@ -1,8 +1,8 @@
 package pl.hellopolandticket.model;
 
 import static java.util.UUID.randomUUID;
-import static javax.persistence.FetchType.EAGER;
-import static pl.hellopolandticket.model.TicketStatus.BOOKED;
+import static javax.persistence.FetchType.LAZY;
+import static pl.hellopolandticket.model.Ticket.Status.BOOKED;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -30,6 +30,19 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Ticket implements Serializable {
 
+  public enum Status {
+
+    BOOKED,
+
+    BOUGHT,
+
+    PUNCHED,
+
+    DELETED,
+
+    INVALID
+  }
+
   private static final long serialVersionUID = 8362327972408128723L;
 
   @Id
@@ -39,7 +52,7 @@ public class Ticket implements Serializable {
 
   @Setter
   @NotNull
-  @ManyToOne(optional = false, fetch = EAGER)
+  @ManyToOne(optional = false, fetch = LAZY)
   @JoinColumn(name = "SIGHT_ID", nullable = false)
   private Sight sight;
 
@@ -60,8 +73,8 @@ public class Ticket implements Serializable {
   @Setter
   @NotNull
   @Enumerated(EnumType.STRING)
-  @Column(name = "TICKET_STATUS", nullable = false)
-  private TicketStatus ticketStatus = BOOKED;
+  @Column(name = "STATUS", nullable = false)
+  private Status status = BOOKED;
 
   @Setter
   @NotNull
@@ -69,12 +82,12 @@ public class Ticket implements Serializable {
   private Long serialNumber;
 
   @Builder
-  public Ticket(Sight sight, String name, Integer price, Date date, TicketStatus ticketStatus) {
+  public Ticket(Sight sight, String name, Integer price, Date date, Status status) {
     this.sight = sight;
     this.name = name;
     this.price = price;
     this.date = date;
-    this.ticketStatus = ticketStatus;
+    this.status = status;
     this.serialNumber = randomUUID().getMostSignificantBits();
   }
 }

@@ -1,6 +1,6 @@
 package pl.hellopolandticket.rest.exceptionhandler;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -14,7 +14,7 @@ public class ResourceNotFoundExceptionHandler implements
 
   @Override
   public Response toResponse(ResourceNotFoundException e) {
-    return Response.status(BAD_REQUEST).entity(AbstractJSONError.builder()
+    return Response.status(NOT_FOUND).entity(AbstractJSONError.builder()
         .exception(e.getClass())
         .message(e.getMessage())
         .build()).build();
