@@ -19,9 +19,6 @@ public class TicketDao {
       entityManager.persist(ticket);
     }
 
-    entityManager.flush();
-    entityManager.clear();
-
     return tickets;
   }
 }
