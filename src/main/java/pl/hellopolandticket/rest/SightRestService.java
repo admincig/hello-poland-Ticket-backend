@@ -9,6 +9,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopolandticket.service.SightService;
+import pl.hellopolandticket.service.dto.JsonCollectionWrapper;
 
 @Path("/sights")
 @RequestScoped
@@ -20,7 +21,11 @@ public class SightRestService {
 
   @GET
   public Response getSights() {
-    return Response.ok(sightService.findAll()).build();
+    JsonCollectionWrapper responseBody = JsonCollectionWrapper.builder()
+        .items(sightService.findAll())
+        .build();
+
+    return Response.ok(responseBody).build();
   }
 
   @GET

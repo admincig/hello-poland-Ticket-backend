@@ -43,7 +43,7 @@ public class SightDao {
 
   public List<Sight> findAll() {
     return entityManager
-        .createQuery("from Sight sight JOIN FETCH sight.tickets tickets", Sight.class)
+        .createQuery("from Sight sight", Sight.class)
         .getResultStream()
         .collect(toList());
   }
