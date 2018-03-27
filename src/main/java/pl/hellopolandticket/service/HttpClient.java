@@ -7,21 +7,21 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import javax.enterprise.context.SessionScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.json.bind.JsonbBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@SessionScoped
+@ApplicationScoped
 public class HttpClient implements Serializable {
 
   private static final long serialVersionUID = 7529870890163651237L;
 
-  public void sendPostRequest(String URLPath, Object... objects) {
+  public void sendPostRequest(String URLPath, Object object) {
     try {
       HttpURLConnection httpURLConnection = createHttpConnectionWithPostRequestMethod(URLPath);
 
-      String postJsonData = JsonbBuilder.create().toJson(objects);
+      String postJsonData = JsonbBuilder.create().toJson(object);
 
       sendPostRequestWithBody(httpURLConnection, postJsonData);
 

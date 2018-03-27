@@ -18,13 +18,13 @@ public class ImportEventListener {
   public void sightsImportEventHandler(@ObservesAsync SightsImportEvent sightsImportEvent) {
     httpClient
         .sendPostRequest(System.getProperty(SIGHTS_UPLOAD_URL_PROPERTY),
-            sightsImportEvent.getSights().toArray());
+            sightsImportEvent.getSights());
   }
 
   public void ticketsImportEventHandler(
       @ObservesAsync TicketDefinitionsImportEvent ticketDefinitionsImportEvent) {
     httpClient
         .sendPostRequest(System.getProperty(TICKETS_UPLOAD_URL_PROPERTY),
-            ticketDefinitionsImportEvent.getTicketDefinitions().toArray());
+            ticketDefinitionsImportEvent.getTicketDefinitions());
   }
 }
