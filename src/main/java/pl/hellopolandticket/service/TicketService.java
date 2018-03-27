@@ -60,11 +60,4 @@ public class TicketService {
         .map(TicketDTO::ofTicket)
         .collect(toList());
   }
-
-  public List<TicketDTO> findAll() {
-    return ticketDao.findAll()
-        .stream()
-        .map(TicketDTO::ofTicket)
-        .collect(toList());
-  }
 }
