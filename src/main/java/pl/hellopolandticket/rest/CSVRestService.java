@@ -1,7 +1,7 @@
 package pl.hellopolandticket.rest;
 
 import static pl.hellopolandticket.rest.util.FileToCSVParser.parseFileToSightsCSVList;
-import static pl.hellopolandticket.rest.util.FileToCSVParser.parseFileToTicketsCSVList;
+import static pl.hellopolandticket.rest.util.FileToCSVParser.parseFileToTicketDefinitionsCSVList;
 
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
@@ -13,7 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopolandticket.service.csv.CSVService;
 import pl.hellopolandticket.service.csv.pojo.SightCSV;
-import pl.hellopolandticket.service.csv.pojo.TicketCSV;
+import pl.hellopolandticket.service.csv.pojo.TicketDefinitionCSV;
 
 @Path("/csv")
 @RequestScoped
@@ -34,11 +34,12 @@ public class CSVRestService {
   }
 
   @POST
-  @Path("/tickets")
-  public Response importTicketsFromCSV(byte[] ticketsCSVFile) {
-    List<TicketCSV> ticketsCSV = parseFileToTicketsCSVList(ticketsCSVFile);
+  @Path("/ticket-definitions")
+  public Response importTicketDefinitionsFromCSV(byte[] ticketDefinitionsCSVFile) {
+    List<TicketDefinitionCSV> ticketDefinitionsCSV = parseFileToTicketDefinitionsCSVList(
+        ticketDefinitionsCSVFile);
 
-    csvService.importTicketsFromCSV(ticketsCSV);
+    csvService.importTicketDefinitionsFromCSV(ticketDefinitionsCSV);
 
     return Response.ok().build();
   }

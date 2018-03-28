@@ -4,17 +4,18 @@ import pl.hellopoland.dto.Location;
 import pl.hellopoland.dto.Sight;
 import pl.hellopoland.dto.Ticket;
 import pl.hellopolandticket.model.SightLocation;
+import pl.hellopolandticket.model.TicketDefinition;
 
 public class ModelObjectsToDTOConverter {
 
-  public static Ticket ofTicket(pl.hellopolandticket.model.Ticket ticket) {
+  public static Ticket ofTicket(TicketDefinition ticketDefinition) {
     Ticket ticketDTO = new Ticket();
 
-    ticketDTO.id = ticket.getId();
-    ticketDTO.name = ticket.getName();
-    ticketDTO.price = ticket.getPrice();
-    ticketDTO.predefinedDate = ticket.getPredefinedDate();
-    ticketDTO.date = ticket.getDate();
+    ticketDTO.id = ticketDefinition.getId();
+    ticketDTO.name = ticketDefinition.getName();
+    ticketDTO.price = ticketDefinition.getPrice();
+    ticketDTO.predefinedDate = ticketDefinition.getPredefinedDate();
+    ticketDTO.date = ticketDefinition.getDate();
 
     return ticketDTO;
   }

@@ -8,14 +8,14 @@ import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import pl.hellopolandticket.model.Sight;
-import pl.hellopolandticket.model.Ticket;
+import pl.hellopolandticket.model.TicketDefinition;
 import pl.hellopolandticket.service.SightService;
-import pl.hellopolandticket.service.TicketService;
+import pl.hellopolandticket.service.TicketDefinitionService;
 import pl.hellopolandticket.service.csv.pojo.SightCSV;
-import pl.hellopolandticket.service.csv.pojo.TicketCSV;
+import pl.hellopolandticket.service.csv.pojo.TicketDefinitionCSV;
 import pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.event.SightsImportEvent;
-import pl.hellopolandticket.service.event.TicketsImportEvent;
+import pl.hellopolandticket.service.event.TicketDefinitionsImportEvent;
 import pl.hellopolandticket.service.exception.ImportingDataException;
 
 @Stateless
@@ -26,13 +26,13 @@ public class CSVService {
   private SightService sightService;
 
   @Inject
-  private TicketService ticketService;
+  private TicketDefinitionService ticketDefinitionService;
 
   @Inject
   private Event<SightsImportEvent> sightsImportEvent;
 
   @Inject
-  private Event<TicketsImportEvent> ticketsImportEvent;
+  private Event<TicketDefinitionsImportEvent> ticketDefinitionsImportEvent;
 
   public void importSightsFromCSV(List<SightCSV> sightsCSV) {
     try {
@@ -48,28 +48,29 @@ public class CSVService {
     }
   }
 
-  public void importTicketsFromCSV(List<TicketCSV> ticketsCSV) {
+  public void importTicketDefinitionsFromCSV(List<TicketDefinitionCSV> ticketDefinitionsCSV) {
     try {
-      List<Ticket> tickets = ticketsCSV.stream()
-          .map(this::createTicketOfTicketCSV)
+      List<TicketDefinition> ticketDefinitions = ticketDefinitionsCSV.stream()
+          .map(this::createTicketDefinitionOfTicketDefinitionCSV)
           .collect(toList());
 
-      tickets.forEach(ticket -> ticketService.save(ticket));
+      ticketDefinitions.forEach(ticketDefinition -> ticketDefinitionService.save(ticketDefinition));
 
-      ticketsImportEvent.fireAsync(createTicketsImportEvent(tickets));
+      ticketDefinitionsImportEvent.fireAsync(createTicketsImportEvent(ticketDefinitions));
     } catch (Exception e) {
       throw new ImportingDataException();
     }
   }
 
 
-  private Ticket createTicketOfTicketCSV(TicketCSV ticketCSV) {
-    return Ticket.builder()
-        .name(ticketCSV.getName())
-        .price(ticketCSV.getPrice())
-        .predefinedDate(ticketCSV.getPredefinedDate())
-        .date(ticketCSV.getDate())
-        .sight(sightService.findBySightName(ticketCSV.getSightName()))
+  private TicketDefinition createTicketDefinitionOfTicketDefinitionCSV(
+      TicketDefinitionCSV ticketDefinitionCSV) {
+    return TicketDefinition.builder()
+        .name(ticketDefinitionCSV.getName())
+        .price(ticketDefinitionCSV.getPrice())
+        .predefinedDate(ticketDefinitionCSV.getPredefinedDate())
+        .date(ticketDefinitionCSV.getDate())
+        .sight(sightService.findBySightName(ticketDefinitionCSV.getSightName()))
         .build();
   }
 
@@ -83,13 +84,14 @@ public class CSVService {
         .build();
   }
 
-  private TicketsImportEvent createTicketsImportEvent(List<Ticket> tickets) {
-    List<pl.hellopoland.dto.Ticket> ticketsDTO = tickets.stream()
+  private TicketDefinitionsImportEvent createTicketsImportEvent(
+      List<TicketDefinition> ticketDefinitions) {
+    List<pl.hellopoland.dto.Ticket> ticketsDTO = ticketDefinitions.stream()
         .map(ModelObjectsToDTOConverter::ofTicket)
         .collect(toList());
 
-    return TicketsImportEvent.builder()
-        .tickets(ticketsDTO)
+    return TicketDefinitionsImportEvent.builder()
+        .ticketDefinitions(ticketsDTO)
         .build();
   }
 }

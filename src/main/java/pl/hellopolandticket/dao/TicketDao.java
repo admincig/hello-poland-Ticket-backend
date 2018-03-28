@@ -1,5 +1,6 @@
 package pl.hellopolandticket.dao;
 
+import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -13,10 +14,11 @@ public class TicketDao {
   @PersistenceContext
   private EntityManager entityManager;
 
-  public Ticket persist(Ticket ticket) {
-    entityManager.persist(ticket);
+  public List<Ticket> persist(List<Ticket> tickets) {
+    for (Ticket ticket : tickets) {
+      entityManager.persist(ticket);
+    }
 
-    return ticket;
+    return tickets;
   }
-
 }

@@ -11,17 +11,20 @@ public class ImportEventListener {
   @Inject
   private HttpClient httpClient;
 
-  private static final String ATTRACTIONS_UPLOAD_URL_PROPERTY = "rest.url.attractionsUpload";
+  private static final String SIGHTS_UPLOAD_URL_PROPERTY = "rest.url.sightsUpload";
+
+  private static final String TICKETS_UPLOAD_URL_PROPERTY = "rest.url.ticketsUpload";
 
   public void sightsImportEventHandler(@ObservesAsync SightsImportEvent sightsImportEvent) {
     httpClient
-        .sendPostRequestWithAttractionsToURL(System.getProperty(ATTRACTIONS_UPLOAD_URL_PROPERTY),
-            sightsImportEvent.getSights().toArray());
+        .sendPostRequest(System.getProperty(SIGHTS_UPLOAD_URL_PROPERTY),
+            sightsImportEvent.getSights());
   }
 
-  public void ticketsImportEventHandler(@ObservesAsync TicketsImportEvent ticketsImportEvent) {
+  public void ticketsImportEventHandler(
+      @ObservesAsync TicketDefinitionsImportEvent ticketDefinitionsImportEvent) {
     httpClient
-        .sendPostRequestWithAttractionsToURL(System.getProperty(ATTRACTIONS_UPLOAD_URL_PROPERTY),
-            ticketsImportEvent.getTickets().toArray());
+        .sendPostRequest(System.getProperty(TICKETS_UPLOAD_URL_PROPERTY),
+            ticketDefinitionsImportEvent.getTicketDefinitions());
   }
 }

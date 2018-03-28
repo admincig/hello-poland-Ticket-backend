@@ -14,6 +14,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.hellopolandticket.service.exception.NoAvailableTicketsException;
+import pl.hellopolandticket.service.exception.NumberOfTicketsNotPositiveException;
 
 @Getter
 @Entity
@@ -23,6 +25,10 @@ import lombok.Setter;
 public class Sight implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
+
+  public static final int UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE = -1;
+
+  private static final int MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE = 0;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,12 +61,16 @@ public class Sight implements Serializable {
   private String phone;
 
   @Setter
+  @Column(name = "AVAILABLE_TICKETS_NUMBER")
+  private Integer availableTicketsNumber;
+
+  @Setter
   @Embedded
   private SightLocation sightLocation;
 
   @Builder
   public Sight(String name, String lead, String description, String mainImageUrl, String email,
-      String phone, SightLocation sightLocation) {
+      String phone, Integer availableTicketsNumber, SightLocation sightLocation) {
     this.name = name;
     this.lead = lead;
     this.description = description;
@@ -68,6 +78,31 @@ public class Sight implements Serializable {
     this.email = email;
     this.phone = phone;
     this.sightLocation = sightLocation;
+
+    this.availableTicketsNumber =
+        availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
+            : availableTicketsNumber;
   }
 
+  public void decreaseAvailableTicketsNumber(int numberOfTickets) {
+    if (numberOfTickets <= 0) {
+      throw new NumberOfTicketsNotPositiveException();
+    }
+
+    if (!hasUnlimitedNumberOfTickets()) {
+      if (hasEnoughTickets(numberOfTickets)) {
+        availableTicketsNumber = availableTicketsNumber - numberOfTickets;
+      } else {
+        throw new NoAvailableTicketsException();
+      }
+    }
+  }
+
+  private boolean hasUnlimitedNumberOfTickets() {
+    return availableTicketsNumber == UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+  }
+
+  private boolean hasEnoughTickets(int numberOfTickets) {
+    return availableTicketsNumber - numberOfTickets >= MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+  }
 }

@@ -20,4 +20,8 @@ public class SightService {
   public Sight findBySightName(String sightName) {
     return sightDao.findBySightName(sightName);
   }
+
+  public Sight findById(Long sightId) {
+    return sightDao.findById(sightId);
+  }
 }
