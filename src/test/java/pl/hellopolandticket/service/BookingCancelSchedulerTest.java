@@ -1,72 +1,42 @@
-package de.vogella.jpa.eclipselink.main;
+package pl.hellopolandticket.service;
 
 import static org.junit.Assert.assertTrue;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
-
-import org.junit.Before;
+import javax.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.persistence.UsingDataSet;
+import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import pl.hellopolandticket.dao.SightDao;
+import pl.hellopolandticket.dao.TicketDao;
+import pl.hellopolandticket.dao.TicketDefinitionDao;
+import pl.hellopolandticket.model.Sight;
 
-
+@Slf4j
+@RunWith(Arquillian.class)
 public class BookingCancelSchedulerTest {
 
-  private static final String PERSISTENCE_UNIT_NAME = "JEE6Demo-Persistence";
-  private EntityManagerFactory factory;
+  @Inject
+  private SightService sightService;
 
-  @Before
-  public void setUp() throws Exception {
-    factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
-    EntityManager em = factory.createEntityManager();
-
+  @Deployment
+  public static Archive<WebArchive> createDeployment() {
+    return ShrinkWrap
+        .create(WebArchive.class, "test.war")
+        .addAsManifestResource("META-INF/persistence.xml", "persistence.xml")
+        .addClasses(SightService.class, SightDao.class, TicketDao.class, TicketDefinitionDao.class);
   }
 
   @Test
-  public void checkAvailablePeople() {
+  @UsingDataSet("datasets/sights.yml")
+  public void testCars() {
+    Sight s = sightService.findBySightName("Kolejkowo");
+    assertTrue(true);
 
-    // now lets check the database and see if the created entries are there
-    // create a fresh, new EntityManager
-    EntityManager em = factory.createEntityManager();
-
-    // Perform a simple query for all the Message entities
-    Query q = em.createQuery("select m from Person m");
-
-    // We should have 40 Persons in the database
-    assertTrue(q.getResultList().size() == 40);
-
-    em.close();
-  }
-
-  @Test
-  public void checkFamily() {
-    EntityManager em = factory.createEntityManager();
-    // Go through each of the entities and print out each of their
-    // messages, as well as the date on which it was created
-    Query q = em.createQuery("select f from Family f");
-
-    // We should have one family with 40 persons
-    assertTrue(q.getResultList().size() == 1);
-//    assertTrue(((Family) q.getSingleResult()).getMembers().size() == 40);
-    em.close();
-  }
-
-  @Test(expected = javax.persistence.NoResultException.class)
-  public void deletePerson() {
-    EntityManager em = factory.createEntityManager();
-    // Begin a new local transaction so that we can persist a new entity
-    em.getTransaction().begin();
-    Query q = em
-        .createQuery("SELECT p FROM Person p WHERE p.firstName = :firstName AND p.lastName = :lastName");
-    q.setParameter("firstName", "Jim_1");
-    q.setParameter("lastName", "Knopf_!");
-//    Person user = (Person) q.getSingleResult();
-//    em.remove(user);
-//    em.getTransaction().commit();
-//    Person person = (Person) q.getSingleResult();
-    // Begin a new local transaction so that we can persist a new entity
-
-    em.close();
   }
 }
