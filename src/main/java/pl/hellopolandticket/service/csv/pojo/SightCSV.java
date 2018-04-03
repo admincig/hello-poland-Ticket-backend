@@ -3,6 +3,7 @@ package pl.hellopolandticket.service.csv.pojo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.io.Serializable;
+import java.util.Date;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,7 @@ import pl.hellopolandticket.model.SightLocation;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
-@JsonPropertyOrder(value = {"name", "lead", "description", "mainImageUrl", "email", "phone",
+@JsonPropertyOrder(value = {"name", "date", "lead", "description", "mainImageUrl", "email", "phone",
     "availableTicketsNumber", "latitude", "longitude", "street", "zipCode", "city", "country"})
 public class SightCSV implements Serializable {
 
@@ -26,6 +27,8 @@ public class SightCSV implements Serializable {
 
   @NotNull
   private String name;
+
+  private Date date;
 
   private String lead;
 
@@ -63,6 +66,7 @@ public class SightCSV implements Serializable {
 
     return Sight.builder()
         .name(name)
+        .date(date)
         .lead(lead)
         .description(description)
         .mainImageUrl(mainImageUrl)

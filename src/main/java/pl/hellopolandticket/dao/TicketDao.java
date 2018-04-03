@@ -9,6 +9,8 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import pl.hellopolandticket.model.Ticket;
+import pl.hellopolandticket.model.Ticket.Status;
+import pl.hellopolandticket.service.exception.ResourceNotFoundException;
 
 @Stateless
 @LocalBean
@@ -23,6 +25,19 @@ public class TicketDao {
     }
 
     return tickets;
+  }
+
+  public Long countTicketsBySightIdAndTicketStatusInTicketStatuses(Long sightId,
+      List<Status> statuses) {
+    return entityManager
+        .createQuery(
+            "SELECT COUNT(ticket) from Ticket ticket where ticket.sight.id=:sightId AND ticket.status IN :statuses",
+            Long.class)
+        .setParameter("sightId", sightId)
+        .setParameter("statuses", statuses)
+        .getResultStream()
+        .findFirst()
+        .orElseThrow(ResourceNotFoundException::new);
   }
 
   public List<Ticket> findBookedExceededMaxBookingTime(Date maxBookingTimeEarlier) {

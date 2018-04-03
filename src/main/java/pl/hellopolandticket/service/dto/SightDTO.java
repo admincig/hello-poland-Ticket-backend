@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service.dto;
 
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +18,7 @@ public class SightDTO {
 
   private Long id;
   private String name;
+  private Date date;
   private String lead;
   private String description;
   private String mainImageUrl;
@@ -25,9 +27,24 @@ public class SightDTO {
   private Integer availableTicketsNumber;
   private SightLocation sightLocation;
 
+  private Integer boughtTicketNumber;
+  private Integer totalTicketsNumber;
+
   public static SightDTO ofSightOnlyId(Sight sight) {
     return SightDTO.builder()
         .id(sight.getId())
         .build();
+  }
+
+  public static SightDTO ofSightWithBoughtAndTotalTickets(Sight sight, int boughtTicketNumber,
+      int totalTicketsNumber) {
+    return SightDTO.builder()
+        .id(sight.getId())
+        .name(sight.getName())
+        .date(sight.getDate())
+        .boughtTicketNumber(boughtTicketNumber)
+        .totalTicketsNumber(totalTicketsNumber)
+        .build();
+
   }
 }

@@ -1,5 +1,8 @@
 package pl.hellopolandticket.dao;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -36,6 +39,13 @@ public class SightDao {
         .getResultStream()
         .findFirst()
         .orElseThrow(ResourceNotFoundException::new);
+  }
+
+  public List<Sight> findAll() {
+    return entityManager
+        .createQuery("from Sight sight", Sight.class)
+        .getResultStream()
+        .collect(toList());
   }
 
 }
