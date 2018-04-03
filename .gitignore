@@ -100,3 +100,5 @@ $RECYCLE.BIN/
 .idea/
 **/*.iml
 
+derby.log
+hellopolandticket-test
