@@ -1,5 +1,8 @@
 package pl.hellopolandticket.dao;
 
+import static pl.hellopolandticket.model.Ticket.Status.BOOKED;
+
+import java.util.Date;
 import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -35,5 +38,14 @@ public class TicketDao {
         .getResultStream()
         .findFirst()
         .orElseThrow(ResourceNotFoundException::new);
+  }
+
+  public List<Ticket> findBookedExceededMaxBookingTime(Date maxBookingTimeEarlier) {
+    return entityManager
+        .createQuery("from Ticket ticket where ticket.status=:status AND ticket.date<:date",
+            Ticket.class)
+        .setParameter("date", maxBookingTimeEarlier)
+        .setParameter("status", BOOKED)
+        .getResultList();
   }
 }

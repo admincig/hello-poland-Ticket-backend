@@ -104,6 +104,12 @@ public class Sight implements Serializable {
     }
   }
 
+  public void increaseAvailableTicketsNumber() {
+    if (!hasUnlimitedNumberOfTickets()) {
+      availableTicketsNumber++;
+    }
+  }
+
   private boolean hasUnlimitedNumberOfTickets() {
     return availableTicketsNumber == UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
   }
