@@ -22,11 +22,16 @@ public class BookingCancelScheduler {
   @Inject
   private TicketDao ticketDao;
 
+  @Inject
+  private ApplicationPropertyService applicationPropertyService;
+
   @Schedule(hour = "*", minute = "*/5", second = "0", year = "*", dayOfMonth = "*", dayOfWeek = "*",
       persistent = false)
   public void run() {
     Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.MINUTE, -valueOf(System.getProperty(TICKET_BOOKED_TIME_TO_BUY_PROPERTY)));
+    calendar.add(Calendar.MINUTE, -valueOf(
+        applicationPropertyService.findByName(TICKET_BOOKED_TIME_TO_BUY_PROPERTY)
+            .getPropertyValue()));
 
     List<Ticket> expiredBookedTickets = ticketDao
         .findBookedExceededMaxBookingTime(calendar.getTime());
