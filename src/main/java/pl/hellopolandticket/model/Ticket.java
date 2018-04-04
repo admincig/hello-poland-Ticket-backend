@@ -1,11 +1,15 @@
 package pl.hellopolandticket.model;
 
+import static java.util.UUID.randomUUID;
 import static javax.persistence.FetchType.LAZY;
+import static javax.xml.bind.DatatypeConverter.printHexBinary;
 import static pl.hellopolandticket.model.Ticket.Status.BOOKED;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -22,7 +26,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @Entity
 @Table(name = "TICKETS")
@@ -78,7 +84,7 @@ public class Ticket implements Serializable {
 
   @Setter
   @Column(name = "SERIAL_NUMBER", unique = true)
-  private UUID serialNumber;
+  private String serialNumber;
 
   @Setter
   @NotNull
@@ -92,7 +98,7 @@ public class Ticket implements Serializable {
 
   @Builder
   public Ticket(Sight sight, String name, Integer price, Date date, Status status,
-      UUID serialNumber, String customerName, String customerEmail) {
+      String serialNumber, String customerName, String customerEmail) {
     this.sight = sight;
     this.name = name;
     this.price = price;
@@ -101,5 +107,15 @@ public class Ticket implements Serializable {
     this.serialNumber = serialNumber;
     this.customerName = customerName;
     this.customerEmail = customerEmail;
+  }
+
+  public void generateSerialNumber() {
+    try {
+      MessageDigest salt = MessageDigest.getInstance("SHA-256");
+      salt.update(randomUUID().toString().getBytes("UTF-8"));
+      serialNumber = printHexBinary(salt.digest());
+    } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+      log.error("Can't generate random UUID {}", e);
+    }
   }
 }

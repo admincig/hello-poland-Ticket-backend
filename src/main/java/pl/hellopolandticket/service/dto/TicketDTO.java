@@ -4,7 +4,6 @@ import static pl.hellopolandticket.service.dto.SightDTO.ofSightOnlyId;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.UUID;
 import javax.json.bind.annotation.JsonbDateFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,8 +35,10 @@ public class TicketDTO implements Serializable {
 
   private Status status;
 
-  private UUID serialNumber;
+  private String serialNumber;
+
   private String customerName;
+
   private String customerEmail;
 
   public static TicketDTO ofTicket(Ticket ticket) {

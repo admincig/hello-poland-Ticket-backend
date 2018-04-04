@@ -3,11 +3,11 @@ package pl.hellopolandticket.service;
 import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.model.Ticket.Status.BOOKED;
 import static pl.hellopolandticket.model.Ticket.Status.BOUGHT;
+import static pl.hellopolandticket.service.validator.TicketValidator.validateFoundAllTheTickets;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -69,6 +69,8 @@ public class TicketService {
   public List<TicketDTO> buyTickets(List<Long> ticketIds) {
     List<Ticket> tickets = ticketDao.findByIdsIn(ticketIds);
 
+    validateFoundAllTheTickets(tickets, ticketIds);
+
     return tickets.stream()
         .map(this::buyTicket)
         .map(TicketDTO::ofTicket)
@@ -78,7 +80,7 @@ public class TicketService {
   private Ticket buyTicket(Ticket ticket) {
     if (ticket.getStatus() == BOOKED) {
       ticket.setStatus(BOUGHT);
-      ticket.setSerialNumber(UUID.randomUUID());
+      ticket.generateSerialNumber();
     } else {
       throw new TicketNotBookedException();
     }

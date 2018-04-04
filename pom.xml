@@ -117,7 +117,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemProperties>
-            <arquillian.launch>glassfish-embedded</arquillian.launch>
+            <arquillian.launch>glassfish</arquillian.launch>
           </systemProperties>
         </configuration>
       </plugin>

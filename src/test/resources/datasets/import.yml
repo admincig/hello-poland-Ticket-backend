@@ -21,13 +21,15 @@ tickets:
     sight_id: 1
     name: A ticket to the Kolejkowo
     price: 2000
-    date: 2018-03-28 11:48:20.775000
+    date: 2021-03-28 11:48:20.775000
     status: BOOKED
-    serial_number: 3580378235539964975
+    customer_name: Jan Kowalski
+    customer_email: jan.kowalski@mail.com
   - ticket_id: 2
     sight_id: 2
     name: A ticket to the Zoo
     price: 2000
-    date: 2018-03-28 11:48:20.775000
+    date: 2021-03-28 11:48:20.775000
     status: BOOKED
-    serial_number: 7269114489581553309
+    customer_name: Andrzej Nowak
+    customer_email: andrzej.nowak@mail.com
