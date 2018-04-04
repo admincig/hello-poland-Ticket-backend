@@ -28,4 +28,12 @@ public class TicketRestService {
 
     return Response.ok(ticketDTOs).build();
   }
+
+  @POST
+  @Path("/buy")
+  public Response buyTicket(List<Long> ticketIds) {
+    List<TicketDTO> ticketDTOs = ticketService.buyTickets(ticketIds);
+
+    return Response.ok(ticketDTOs).build();
+  }
 }

@@ -48,4 +48,12 @@ public class TicketDao {
         .setParameter("status", BOOKED)
         .getResultList();
   }
+
+  public List<Ticket> findByIdsIn(List<Long> ticketIds) {
+    return entityManager
+        .createQuery("from Ticket ticket where ticket.id IN :ticketIds",
+            Ticket.class)
+        .setParameter("ticketIds", ticketIds)
+        .getResultList();
+  }
 }

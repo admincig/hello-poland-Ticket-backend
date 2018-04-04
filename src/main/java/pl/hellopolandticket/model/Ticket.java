@@ -1,11 +1,11 @@
 package pl.hellopolandticket.model;
 
-import static java.util.UUID.randomUUID;
 import static javax.persistence.FetchType.LAZY;
 import static pl.hellopolandticket.model.Ticket.Status.BOOKED;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -77,17 +77,29 @@ public class Ticket implements Serializable {
   private Status status = BOOKED;
 
   @Setter
+  @Column(name = "SERIAL_NUMBER", unique = true)
+  private UUID serialNumber;
+
+  @Setter
   @NotNull
-  @Column(name = "SERIAL_NUMBER", nullable = false)
-  private Long serialNumber;
+  @Column(name = "CUSTOMER_NAME", nullable = false)
+  private String customerName;
+
+  @Setter
+  @NotNull
+  @Column(name = "CUSTOMER_EMAIL", nullable = false)
+  private String customerEmail;
 
   @Builder
-  public Ticket(Sight sight, String name, Integer price, Date date, Status status) {
+  public Ticket(Sight sight, String name, Integer price, Date date, Status status,
+      UUID serialNumber, String customerName, String customerEmail) {
     this.sight = sight;
     this.name = name;
     this.price = price;
     this.date = date;
     this.status = status;
-    this.serialNumber = randomUUID().getMostSignificantBits();
+    this.serialNumber = serialNumber;
+    this.customerName = customerName;
+    this.customerEmail = customerEmail;
   }
 }

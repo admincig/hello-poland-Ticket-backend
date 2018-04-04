@@ -19,4 +19,10 @@ public class TicketDefinitionNumberDTO {
 
   @NotNull
   private Long numberOfTickets;
+
+  @NotNull
+  private String customerName;
+
+  @NotNull
+  private String customerEmail;
 }
