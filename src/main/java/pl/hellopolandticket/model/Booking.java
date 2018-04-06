@@ -1,0 +1,97 @@
+package pl.hellopolandticket.model;
+
+import static pl.hellopolandticket.model.Status.BOOKED;
+import static pl.hellopolandticket.model.Status.BOUGHT;
+import static pl.hellopolandticket.model.Status.INVALID;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Entity
+@Table(name = "BOOKINGS")
+@EqualsAndHashCode(exclude = {"tickets"})
+@NoArgsConstructor
+public class Booking implements Serializable {
+
+  private static final long serialVersionUID = 1536468158632140785L;
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "BOOKING_ID")
+  private Long id;
+
+  @Setter
+  @NotNull
+  @Column(name = "DATE", nullable = false)
+  private Date date;
+
+  @Setter
+  @NotNull
+  @Column(name = "CUSTOMER_NAME", nullable = false)
+  private String customerName;
+
+  @Setter
+  @NotNull
+  @Column(name = "CUSTOMER_EMAIL", nullable = false)
+  private String customerEmail;
+
+  @Setter
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(name = "STATUS", nullable = false)
+  private Status status = BOOKED;
+
+  @Setter
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+  @JoinColumn(name = "BOOKING", nullable = false)
+  private List<Ticket> tickets;
+
+
+  @Builder
+  public Booking(Date date, String customerName, String customerEmail) {
+    this.date = date;
+    this.customerName = customerName;
+    this.customerEmail = customerEmail;
+  }
+
+  public void makeInvalid() {
+    setStatus(INVALID);
+    tickets.forEach(this::setTicketStatusesAsInvalidAndIncreaseAvailableTicketsNumber);
+  }
+
+  public void makeBought() {
+    setStatus(BOUGHT);
+    tickets.forEach(this::setTicketStatusesAsBought);
+  }
+
+  private void setTicketStatusesAsInvalidAndIncreaseAvailableTicketsNumber(Ticket ticket) {
+    ticket.setStatus(INVALID);
+
+    Sight sight = ticket.getSight();
+    sight.increaseAvailableTicketsNumber();
+  }
+
+  private void setTicketStatusesAsBought(Ticket ticket) {
+    ticket.setStatus(BOUGHT);
+    ticket.generateSerialNumber();
+  }
+}

@@ -15,7 +15,7 @@ public class AbstractJSONError {
 
   @Builder
   public AbstractJSONError(Class<? extends Exception> exception, String message) {
-    this.exception = exception.getName();
+    this.exception = exception.getSimpleName();
     this.message = message;
   }
 }

@@ -10,8 +10,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.hellopolandticket.model.Status;
 import pl.hellopolandticket.model.Ticket;
-import pl.hellopolandticket.model.Ticket.Status;
 
 @Setter
 @Getter
@@ -37,10 +37,6 @@ public class TicketDTO implements Serializable {
 
   private String serialNumber;
 
-  private String customerName;
-
-  private String customerEmail;
-
   public static TicketDTO ofTicket(Ticket ticket) {
     return TicketDTO.builder()
         .id(ticket.getId())
@@ -50,8 +46,6 @@ public class TicketDTO implements Serializable {
         .date(ticket.getDate())
         .status(ticket.getStatus())
         .serialNumber(ticket.getSerialNumber())
-        .customerName(ticket.getCustomerName())
-        .customerEmail(ticket.getCustomerEmail())
         .build();
   }
 }

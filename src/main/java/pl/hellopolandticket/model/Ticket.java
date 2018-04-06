@@ -1,9 +1,10 @@
 package pl.hellopolandticket.model;
 
 import static java.util.UUID.randomUUID;
+import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.LAZY;
 import static javax.xml.bind.DatatypeConverter.printHexBinary;
-import static pl.hellopolandticket.model.Ticket.Status.BOOKED;
+import static pl.hellopolandticket.model.Status.BOOKED;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -36,19 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 public class Ticket implements Serializable {
 
-  public enum Status {
-
-    BOOKED,
-
-    BOUGHT,
-
-    PUNCHED,
-
-    DELETED,
-
-    INVALID
-  }
-
   private static final long serialVersionUID = 8362327972408128723L;
 
   @Id
@@ -73,7 +61,8 @@ public class Ticket implements Serializable {
   private Integer price;
 
   @Setter
-  @Column(name = "DATE")
+  @NotNull
+  @Column(name = "DATE", nullable = false)
   private Date date;
 
   @Setter
@@ -88,25 +77,27 @@ public class Ticket implements Serializable {
 
   @Setter
   @NotNull
-  @Column(name = "CUSTOMER_NAME", nullable = false)
-  private String customerName;
+  @ManyToOne(cascade = ALL)
+  @JoinColumn(name = "BOOKING", nullable = false)
+  private Booking booking;
 
   @Setter
   @NotNull
-  @Column(name = "CUSTOMER_EMAIL", nullable = false)
-  private String customerEmail;
+  @ManyToOne(cascade = ALL, optional = false)
+  @JoinColumn(name = "TICKET_DEFINITION", nullable = false)
+  private TicketDefinition ticketDefinition;
 
   @Builder
   public Ticket(Sight sight, String name, Integer price, Date date, Status status,
-      String serialNumber, String customerName, String customerEmail) {
+      String serialNumber, Booking booking, TicketDefinition ticketDefinition) {
     this.sight = sight;
     this.name = name;
     this.price = price;
     this.date = date;
     this.status = status;
     this.serialNumber = serialNumber;
-    this.customerName = customerName;
-    this.customerEmail = customerEmail;
+    this.booking = booking;
+    this.ticketDefinition = ticketDefinition;
   }
 
   public void generateSerialNumber() {

@@ -8,6 +8,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 
 @RunWith(Arquillian.class)
@@ -24,8 +25,13 @@ public abstract class BaseTest {
         .addPackages(true, "pl.hellopolandticket");
   }
 
+  @Before
+  public void setup() {
+    entityManager.getEntityManagerFactory().getCache().evictAll();
+  }
+
   @SuppressWarnings("unchecked")
-  public static <T extends List<?>> T cast(Object obj) {
+  public static <T extends List<?>> T castObjectToList(Object obj) {
     return (T) obj;
   }
 }
