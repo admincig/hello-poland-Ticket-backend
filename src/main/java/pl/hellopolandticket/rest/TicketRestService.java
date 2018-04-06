@@ -4,8 +4,10 @@ import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,4 +30,11 @@ public class TicketRestService {
 
     return Response.ok(ticketDTOs).build();
   }
+
+  @GET
+  @Path("/qr-code/encode/{ticketId}")
+  public Response encodeSerialNumber(@PathParam("ticketId") Long ticketId) {
+    return Response.ok(ticketService.encodeSerialNumberAsQrCode(ticketId)).build();
+  }
+
 }
