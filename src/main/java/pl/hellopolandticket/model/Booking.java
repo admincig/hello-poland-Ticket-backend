@@ -15,7 +15,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -61,8 +60,7 @@ public class Booking implements Serializable {
   private Status status = BOOKED;
 
   @Setter
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-  @JoinColumn(name = "BOOKING", nullable = false)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "booking")
   private List<Ticket> tickets;
 
 
