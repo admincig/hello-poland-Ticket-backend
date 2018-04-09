@@ -41,6 +41,4 @@ public class BookingCancelScheduler {
       booking.makeInvalid();
     }
   }
-
-
 }

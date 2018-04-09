@@ -25,6 +25,15 @@ public class TicketDao {
     return tickets;
   }
 
+  public Ticket findById(Long ticketId) {
+    return entityManager
+        .createQuery("from Ticket ticket where ticket.id=:id", Ticket.class)
+        .setParameter("id", ticketId)
+        .getResultStream()
+        .findFirst()
+        .orElseThrow(ResourceNotFoundException::new);
+  }
+
   public Long countTicketsBySightIdAndTicketStatusInTicketStatuses(Long sightId,
       List<Status> statuses) {
     return entityManager
