@@ -1,5 +1,6 @@
 package pl.hellopolandticket.model;
 
+import static javax.persistence.CascadeType.ALL;
 import static pl.hellopolandticket.model.Status.BOOKED;
 import static pl.hellopolandticket.model.Status.BOUGHT;
 import static pl.hellopolandticket.model.Status.INVALID;
@@ -7,7 +8,6 @@ import static pl.hellopolandticket.model.Status.INVALID;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -60,7 +60,7 @@ public class Booking implements Serializable {
   private Status status = BOOKED;
 
   @Setter
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "booking")
+  @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "booking")
   private List<Ticket> tickets;
 
 

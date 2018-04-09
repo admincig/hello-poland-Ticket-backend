@@ -1,7 +1,7 @@
 package pl.hellopolandticket.model;
 
 import static java.util.UUID.randomUUID;
-import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.FetchType.LAZY;
 import static javax.xml.bind.DatatypeConverter.printHexBinary;
 import static pl.hellopolandticket.model.Status.BOOKED;
@@ -77,13 +77,13 @@ public class Ticket implements Serializable {
 
   @Setter
   @NotNull
-  @ManyToOne(cascade = ALL)
+  @ManyToOne(cascade = PERSIST)
   @JoinColumn(name = "BOOKING", nullable = false)
   private Booking booking;
 
   @Setter
   @NotNull
-  @ManyToOne(cascade = ALL, optional = false)
+  @ManyToOne(optional = false)
   @JoinColumn(name = "TICKET_DEFINITION", nullable = false)
   private TicketDefinition ticketDefinition;
 
