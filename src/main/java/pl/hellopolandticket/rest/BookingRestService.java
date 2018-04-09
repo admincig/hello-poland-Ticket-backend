@@ -21,13 +21,13 @@ public class BookingRestService {
   private BookingService bookingService;
 
   @POST
-  public Response bookTickets(BookingDTOCreate booking) {
-    return Response.ok(bookingService.bookTickets(booking)).build();
+  public Response makeBooking(BookingDTOCreate booking) {
+    return Response.ok(bookingService.createBooking(booking)).build();
   }
 
   @PUT
   @Path("/buy/{bookingId}")
-  public Response buyTickets(@PathParam("bookingId") Long bookingId) {
-    return Response.ok(bookingService.buyTickets(bookingId)).build();
+  public Response markBookingAsBought(@PathParam("bookingId") Long bookingId) {
+    return Response.ok(bookingService.markBookingAsBought(bookingId)).build();
   }
 }

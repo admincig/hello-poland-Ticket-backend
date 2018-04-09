@@ -11,8 +11,12 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import pl.hellopolandticket.dao.BookingDao;
+import pl.hellopolandticket.dao.TicketDao;
+import pl.hellopolandticket.dao.TicketDefinitionDao;
 import pl.hellopolandticket.model.Booking;
+import pl.hellopolandticket.model.Sight;
 import pl.hellopolandticket.model.Ticket;
+import pl.hellopolandticket.model.TicketDefinition;
 import pl.hellopolandticket.service.dto.BookingDTO;
 import pl.hellopolandticket.service.dto.BookingDTOCreate;
 import pl.hellopolandticket.service.dto.TicketBookingDTO;
@@ -26,31 +30,34 @@ public class BookingService {
   private BookingDao bookingDao;
 
   @Inject
-  private TicketService ticketService;
+  private TicketDao ticketDao;
 
-  public BookingDTO bookTickets(BookingDTOCreate booking) {
+  @Inject
+  private TicketDefinitionDao ticketDefinitionDao;
+
+  public BookingDTO createBooking(BookingDTOCreate booking) {
     Booking bookingToPersist = Booking.builder()
         .date(new Date())
         .customerName(booking.getCustomerName())
         .customerEmail(booking.getCustomerEmail())
         .build();
 
-    List<Ticket> tickets = ticketService.bookTickets(booking.getTicketBookings(), bookingToPersist);
+    List<Ticket> tickets = bookTickets(booking.getTicketBookings(), bookingToPersist);
 
     bookingToPersist.setTickets(tickets);
 
     return ofBooking(bookingDao.persist(bookingToPersist));
   }
 
-  public BookingDTO buyTickets(Long bookingId) {
+  public BookingDTO markBookingAsBought(Long bookingId) {
     Booking booking = bookingDao.findById(bookingId);
 
     if (booking.getStatus() == BOOKED) {
       booking.makeBought();
     } else if (booking.getStatus() == INVALID) {
-      BookingDTO renewedBooking = bookTickets(prepareRenewedBookingDTOCreate(booking));
+      bookTickets(null, booking);
 
-      return buyTickets(renewedBooking.getId());
+      return markBookingAsBought(booking.getId());
     } else {
       throw new NotBookedException();
     }
@@ -58,20 +65,59 @@ public class BookingService {
     return ofBooking(booking);
   }
 
-  private BookingDTOCreate prepareRenewedBookingDTOCreate(Booking booking) {
-    List<TicketBookingDTO> ticketBookingDTOs = new ArrayList<>();
+  private synchronized List<Ticket> bookTickets(List<TicketBookingDTO> ticketBookingDTOS,
+      Booking booking) {
+    if (isANewBooking(ticketBookingDTOS)) {
+      return book(ticketBookingDTOS, booking);
+    } else {
+      return rebook(booking);
+    }
+  }
 
-    for (Ticket ticket : booking.getTickets()) {
-      ticketBookingDTOs.add(TicketBookingDTO.builder()
-          .ticketDefinitionId(ticket.getTicketDefinition().getId())
-          .numberOfTickets(1L)
-          .build());
+  private List<Ticket> book(List<TicketBookingDTO> ticketBookingDTOS,
+      Booking booking) {
+    List<Ticket> bookedTickets = new ArrayList<>();
+
+    for (TicketBookingDTO ticketBookingDTO : ticketBookingDTOS) {
+      TicketDefinition ticketDefinition = ticketDefinitionDao
+          .findById(ticketBookingDTO.getTicketDefinitionId());
+
+      Sight sight = ticketDefinition.getSight();
+
+      for (int i = 0; i < ticketBookingDTO.getNumberOfTickets(); i++) {
+        Ticket ticket = Ticket.builder()
+            .sight(sight)
+            .name(ticketDefinition.getName())
+            .price(ticketDefinition.getPrice())
+            .date(booking.getDate())
+            .status(BOOKED)
+            .booking(booking)
+            .ticketDefinition(ticketDefinition)
+            .build();
+
+        bookedTickets.add(ticket);
+      }
+
+      sight.decreaseAvailableTicketsNumber(
+          ticketBookingDTO.getNumberOfTickets().intValue());
     }
 
-    return BookingDTOCreate.builder()
-        .customerName(booking.getCustomerName())
-        .customerEmail(booking.getCustomerEmail())
-        .ticketBookings(ticketBookingDTOs)
-        .build();
+    return ticketDao.persist(bookedTickets);
+  }
+
+  private List<Ticket> rebook(Booking booking) {
+    List<Ticket> tickets = booking.getTickets();
+
+    for (Ticket ticket : tickets) {
+      ticket.getSight().decreaseAvailableTicketsNumber(1);
+      ticket.setStatus(BOOKED);
+    }
+    booking.setStatus(BOOKED);
+
+    return tickets;
+  }
+
+  private boolean isANewBooking(List<TicketBookingDTO> ticketBookingDTOs) {
+    return ticketBookingDTOs != null;
   }
 }

@@ -35,7 +35,7 @@ public class BookingRestServiceTest extends BaseTest {
   public void shouldBookTickets() {
     BookingDTOCreate bookingCreate = createBookingDTOCreate();
 
-    Response response = bookingRestService.bookTickets(bookingCreate);
+    Response response = bookingRestService.makeBooking(bookingCreate);
     BookingDTO booking = (BookingDTO) response.getEntity();
 
     int expectedNumberOfTickets = bookingCreate.getTicketBookings().stream()
@@ -54,7 +54,7 @@ public class BookingRestServiceTest extends BaseTest {
     bookingBeforeBoughtRequest.getTickets()
         .forEach(ticket -> assertEquals(BOOKED, ticket.getStatus()));
 
-    Response response = bookingRestService.buyTickets(1L);
+    Response response = bookingRestService.markBookingAsBought(1L);
     BookingDTO booking = (BookingDTO) response.getEntity();
 
     assertEquals(BOUGHT, booking.getStatus());
@@ -66,7 +66,7 @@ public class BookingRestServiceTest extends BaseTest {
     Booking b = bookingDao.findById(1L);
     b.makeInvalid();
 
-    Response response = bookingRestService.buyTickets(1L);
+    Response response = bookingRestService.markBookingAsBought(1L);
     BookingDTO booking = (BookingDTO) response.getEntity();
 
     assertEquals(booking.getStatus(), BOUGHT);
@@ -82,43 +82,43 @@ public class BookingRestServiceTest extends BaseTest {
     b.makeInvalid();
 
     BookingDTOCreate bookingCreate = createBookingDTOCreate();
-    bookingRestService.bookTickets(bookingCreate);
-    bookingRestService.bookTickets(bookingCreate);
-    bookingRestService.bookTickets(bookingCreate);
+    bookingRestService.makeBooking(bookingCreate);
+    bookingRestService.makeBooking(bookingCreate);
+    bookingRestService.makeBooking(bookingCreate);
 
-    bookingRestService.buyTickets(1L);
+    bookingRestService.markBookingAsBought(1L);
   }
 
   @Test(expected = NotBookedException.class)
   public void shouldThrowNotBookedExceptionWhenBookingStatusIsBought() {
-    bookingRestService.buyTickets(2L);
+    bookingRestService.markBookingAsBought(2L);
   }
 
   @Test(expected = NotBookedException.class)
   public void shouldThrowNotBookedExceptionWhenBookingStatusIsPunched() {
-    bookingRestService.buyTickets(3L);
+    bookingRestService.markBookingAsBought(3L);
   }
 
   @Test(expected = NotBookedException.class)
   public void shouldThrowNotBookedExceptionWhenBookingStatusIsDeleted() {
-    bookingRestService.buyTickets(4L);
+    bookingRestService.markBookingAsBought(4L);
   }
 
   @Test(expected = ResourceNotFoundException.class)
   public void shouldThrowResourceNotFoundException() {
-    bookingRestService.buyTickets(200L);
+    bookingRestService.markBookingAsBought(200L);
   }
 
   @Test(expected = NumberOfTicketsNotPositiveException.class)
   public void shouldThrowNumberOfTicketsNotPositiveExceptionWhenBookingZeroNumberOfTickets() {
-    bookingRestService.bookTickets(createBookingDTOCreateWithZeroTickets());
+    bookingRestService.makeBooking(createBookingDTOCreateWithZeroTickets());
   }
 
   @Test(expected = NoAvailableTicketsException.class)
   public void shouldThrowNoAvailableTicketsExceptionTryingToBookTooManyTickets() {
-    bookingRestService.bookTickets(createBookingDTOCreate());
-    bookingRestService.bookTickets(createBookingDTOCreate());
-    bookingRestService.bookTickets(createBookingDTOCreate());
+    bookingRestService.makeBooking(createBookingDTOCreate());
+    bookingRestService.makeBooking(createBookingDTOCreate());
+    bookingRestService.makeBooking(createBookingDTOCreate());
   }
 
   private BookingDTOCreate createBookingDTOCreate() {
