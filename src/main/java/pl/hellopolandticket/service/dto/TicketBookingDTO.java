@@ -12,7 +12,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketDefinitionNumberDTO {
+public class TicketBookingDTO {
 
   @NotNull
   private Long ticketDefinitionId;

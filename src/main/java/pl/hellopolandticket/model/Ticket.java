@@ -1,10 +1,15 @@
 package pl.hellopolandticket.model;
 
 import static java.util.UUID.randomUUID;
+import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.FetchType.LAZY;
-import static pl.hellopolandticket.model.Ticket.Status.BOOKED;
+import static javax.xml.bind.DatatypeConverter.printHexBinary;
+import static pl.hellopolandticket.model.Status.BOOKED;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,26 +27,15 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @Entity
 @Table(name = "TICKETS")
 @EqualsAndHashCode
 @NoArgsConstructor
 public class Ticket implements Serializable {
-
-  public enum Status {
-
-    BOOKED,
-
-    BOUGHT,
-
-    PUNCHED,
-
-    DELETED,
-
-    INVALID
-  }
 
   private static final long serialVersionUID = 8362327972408128723L;
 
@@ -67,7 +61,8 @@ public class Ticket implements Serializable {
   private Integer price;
 
   @Setter
-  @Column(name = "DATE")
+  @NotNull
+  @Column(name = "DATE", nullable = false)
   private Date date;
 
   @Setter
@@ -77,17 +72,41 @@ public class Ticket implements Serializable {
   private Status status = BOOKED;
 
   @Setter
+  @Column(name = "SERIAL_NUMBER", unique = true)
+  private String serialNumber;
+
+  @Setter
   @NotNull
-  @Column(name = "SERIAL_NUMBER", nullable = false)
-  private Long serialNumber;
+  @ManyToOne(cascade = PERSIST)
+  @JoinColumn(name = "BOOKING", nullable = false)
+  private Booking booking;
+
+  @Setter
+  @NotNull
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "TICKET_DEFINITION", nullable = false)
+  private TicketDefinition ticketDefinition;
 
   @Builder
-  public Ticket(Sight sight, String name, Integer price, Date date, Status status) {
+  public Ticket(Sight sight, String name, Integer price, Date date, Status status,
+      String serialNumber, Booking booking, TicketDefinition ticketDefinition) {
     this.sight = sight;
     this.name = name;
     this.price = price;
     this.date = date;
     this.status = status;
-    this.serialNumber = randomUUID().getMostSignificantBits();
+    this.serialNumber = serialNumber;
+    this.booking = booking;
+    this.ticketDefinition = ticketDefinition;
+  }
+
+  public void generateSerialNumber() {
+    try {
+      MessageDigest salt = MessageDigest.getInstance("SHA-256");
+      salt.update(randomUUID().toString().getBytes("UTF-8"));
+      serialNumber = printHexBinary(salt.digest());
+    } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+      log.error("Can't generate random UUID {}", e);
+    }
   }
 }
