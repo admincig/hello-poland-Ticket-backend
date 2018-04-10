@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import javax.json.bind.annotation.JsonbDateFormat;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,9 @@ import pl.hellopolandticket.model.SightLocation;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SightDTO {
+public class SightDTO implements Serializable {
+
+  private static final long serialVersionUID = -585533388870461406L;
 
   private Long id;
 
