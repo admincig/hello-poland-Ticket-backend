@@ -1,7 +1,10 @@
-
 package pl.hellopolandticket.service;
 
 import static java.lang.Integer.valueOf;
+import static pl.hellopolandticket.model.Status.PUNCHED;
+import static pl.hellopolandticket.service.dto.TicketDTO.ofTicket;
+import static pl.hellopolandticket.service.validator.TicketValidator.validatePunchingProperTicket;
+import static pl.hellopolandticket.service.validator.TicketValidator.validateTicketHasDemandedStatus;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -15,6 +18,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.Ticket;
+import pl.hellopolandticket.service.dto.TicketDTO;
 import pl.hellopolandticket.service.exception.CannotGenerateQrCodeException;
 
 @Stateless
@@ -30,6 +34,16 @@ public class TicketService {
   @Inject
   private ApplicationPropertyService applicationPropertyService;
 
+  public TicketDTO punchTicket(Long sightId, String serialNumber) {
+    Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
+
+    validatePunchingProperTicket(sightId, ticket.getSight().getId());
+    validateTicketHasDemandedStatus(ticket);
+
+    ticket.setStatus(PUNCHED);
+
+    return ofTicket(ticket);
+  }
 
   public ByteArrayOutputStream encodeSerialNumberAsQrCode(Long ticketId) {
     try {

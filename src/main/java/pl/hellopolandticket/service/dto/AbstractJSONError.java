@@ -12,10 +12,12 @@ public class AbstractJSONError {
 
   private String exception;
   private String message;
+  private Object object;
 
   @Builder
-  public AbstractJSONError(Class<? extends Exception> exception, String message) {
+  public AbstractJSONError(Class<? extends Exception> exception, String message, Object object) {
     this.exception = exception.getSimpleName();
     this.message = message;
+    this.object = object;
   }
 }
