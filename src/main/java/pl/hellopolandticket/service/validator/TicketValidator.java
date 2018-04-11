@@ -9,7 +9,7 @@ import pl.hellopolandticket.service.exception.WrongTicketStatusException;
 
 public class TicketValidator {
 
-  public static void validatePunchingProperTicket(Long firstSightId, Long secondSightId) {
+  public static void validateAccessingProperTicket(Long firstSightId, Long secondSightId) {
     if (!firstSightId.equals(secondSightId)) {
       throw new PunchingTicketForWrongSightException();
     }

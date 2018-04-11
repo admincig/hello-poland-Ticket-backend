@@ -16,14 +16,14 @@ import pl.hellopolandticket.service.exception.WrongTicketStatusException;
 
 @Slf4j
 @UsingDataSet("scripts/datasets/import.yml")
-public class TicketRestServiceTest extends BaseTest {
+public class SightRestServiceTest extends BaseTest {
 
   @Inject
-  private TicketRestService ticketRestService;
+  private SightRestService sightRestService;
 
   @Test
   public void shouldPunchTicket() {
-    Response response = ticketRestService
+    Response response = sightRestService
         .punchTicket(2L, "412CBA1C1191B0C5C94142ED58B3C28BBCF7D0400A3109D09DAEE61ED3CA69F3");
 
     TicketDTO ticket = (TicketDTO) response.getEntity();
@@ -33,19 +33,19 @@ public class TicketRestServiceTest extends BaseTest {
 
   @Test(expected = PunchingTicketForWrongSightException.class)
   public void shouldThrowPunchedTicketForWrongSightExceptionWhenSerialNumberRegardsAnotherSight() {
-    ticketRestService
+    sightRestService
         .punchTicket(1L, "412CBA1C1191B0C5C94142ED58B3C28BBCF7D0400A3109D09DAEE61ED3CA69F3");
   }
 
   @Test(expected = ResourceNotFoundException.class)
   public void shouldThrowResourceNotFoundExceptionWhenTicketForSerialNumberNotExist() {
-    ticketRestService
+    sightRestService
         .punchTicket(1L, "fsgdfgh34gdfh4");
   }
 
   @Test(expected = WrongTicketStatusException.class)
   public void shouldThrowWrongTicketStatusExceptionWhenTicketHasAnotherStatusThanBought() {
-    ticketRestService
+    sightRestService
         .punchTicket(2L, "0C54D64568A3ACD560EC5591D78A6D440CF4F5CD0142C186F4AAAF7F5307DFA3");
   }
 }

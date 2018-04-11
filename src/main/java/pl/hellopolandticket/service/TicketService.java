@@ -3,7 +3,7 @@ package pl.hellopolandticket.service;
 import static java.lang.Integer.valueOf;
 import static pl.hellopolandticket.model.Status.PUNCHED;
 import static pl.hellopolandticket.service.dto.TicketDTO.ofTicket;
-import static pl.hellopolandticket.service.validator.TicketValidator.validatePunchingProperTicket;
+import static pl.hellopolandticket.service.validator.TicketValidator.validateAccessingProperTicket;
 import static pl.hellopolandticket.service.validator.TicketValidator.validateTicketHasDemandedStatus;
 
 import com.google.zxing.BarcodeFormat;
@@ -37,10 +37,18 @@ public class TicketService {
   public TicketDTO punchTicket(Long sightId, String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
 
-    validatePunchingProperTicket(sightId, ticket.getSight().getId());
+    validateAccessingProperTicket(sightId, ticket.getSight().getId());
     validateTicketHasDemandedStatus(ticket);
 
     ticket.setStatus(PUNCHED);
+
+    return ofTicket(ticket);
+  }
+
+  public TicketDTO findBySerialNumber(Long sightId, String serialNumber) {
+    Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
+
+    validateAccessingProperTicket(sightId, ticket.getSight().getId());
 
     return ofTicket(ticket);
   }
