@@ -46,9 +46,10 @@ public class SightDTO implements Serializable {
 
   private Integer totalTicketsNumber;
 
-  public static SightDTO ofSightOnlyId(Sight sight) {
+  public static SightDTO ofSightBasic(Sight sight) {
     return SightDTO.builder()
         .id(sight.getId())
+        .name(sight.getName())
         .build();
   }
 

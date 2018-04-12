@@ -6,6 +6,13 @@ import static javax.persistence.FetchType.LAZY;
 import static javax.xml.bind.DatatypeConverter.printHexBinary;
 import static pl.hellopolandticket.model.Status.BOOKED;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -28,6 +35,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import pl.hellopolandticket.service.exception.CannotGenerateQrCodeException;
 
 @Slf4j
 @Getter
@@ -107,6 +115,21 @@ public class Ticket implements Serializable {
       serialNumber = printHexBinary(salt.digest());
     } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
       log.error("Can't generate random UUID {}", e);
+    }
+  }
+
+  public ByteArrayOutputStream encodeSerialNumberAsQrCode(int qrCodeWidth, int qrCodeHeight) {
+    try {
+      QRCodeWriter qrCodeWriter = new QRCodeWriter();
+      BitMatrix bitMatrix = qrCodeWriter
+          .encode(getSerialNumber(), BarcodeFormat.QR_CODE, qrCodeWidth, qrCodeHeight);
+
+      ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
+      MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
+
+      return pngOutputStream;
+    } catch (WriterException | IOException e) {
+      throw new CannotGenerateQrCodeException();
     }
   }
 }

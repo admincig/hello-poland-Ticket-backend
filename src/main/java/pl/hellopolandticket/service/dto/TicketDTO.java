@@ -1,6 +1,6 @@
 package pl.hellopolandticket.service.dto;
 
-import static pl.hellopolandticket.service.dto.SightDTO.ofSightOnlyId;
+import static pl.hellopolandticket.service.dto.SightDTO.ofSightBasic;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -40,7 +40,7 @@ public class TicketDTO implements Serializable {
   public static TicketDTO ofTicket(Ticket ticket) {
     return TicketDTO.builder()
         .id(ticket.getId())
-        .sight(ofSightOnlyId(ticket.getSight()))
+        .sight(ofSightBasic(ticket.getSight()))
         .name(ticket.getName())
         .price(ticket.getPrice())
         .date(ticket.getDate())

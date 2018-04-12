@@ -1,5 +1,7 @@
 package pl.hellopolandticket.service;
 
+import static java.lang.Integer.valueOf;
+import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.model.Status.BOOKED;
 import static pl.hellopolandticket.model.Status.INVALID;
 import static pl.hellopolandticket.service.dto.BookingDTO.ofBooking;
@@ -9,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.dao.TicketDao;
@@ -20,11 +23,16 @@ import pl.hellopolandticket.model.TicketDefinition;
 import pl.hellopolandticket.service.dto.BookingDTO;
 import pl.hellopolandticket.service.dto.BookingDTOCreate;
 import pl.hellopolandticket.service.dto.TicketBookingDTO;
+import pl.hellopolandticket.service.dto.TicketDTO;
+import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 import pl.hellopolandticket.service.exception.NotBookedException;
 
 @Stateless
 @LocalBean
 public class BookingService {
+
+  private final static String TICKET_QR_CODE_HEIGHT_PROPERTY = "ticket.qrCode.height";
+  private final static String TICKET_QR_CODE_WIDTH_PROPERTY = "ticket.qrCode.width";
 
   @Inject
   private BookingDao bookingDao;
@@ -34,6 +42,12 @@ public class BookingService {
 
   @Inject
   private TicketDefinitionDao ticketDefinitionDao;
+
+  @Inject
+  private ApplicationPropertyService applicationPropertyService;
+
+  @Inject
+  private Event<BookingMarkedAsBoughtEvent> bookingMarkedAsBoughtEvent;
 
   public BookingDTO createBooking(BookingDTOCreate booking) {
     Booking bookingToPersist = Booking.builder()
@@ -54,6 +68,7 @@ public class BookingService {
 
     if (booking.getStatus() == BOOKED) {
       booking.makeBought();
+      sendEmailWithTicketQrCodes(booking);
     } else if (booking.getStatus() == INVALID) {
       bookTickets(null, booking);
 
@@ -119,5 +134,24 @@ public class BookingService {
 
   private boolean isANewBooking(List<TicketBookingDTO> ticketBookingDTOs) {
     return ticketBookingDTOs != null;
+  }
+
+  private void sendEmailWithTicketQrCodes(Booking booking) {
+    int qrCodeWidth = valueOf(
+        applicationPropertyService.findByName(TICKET_QR_CODE_WIDTH_PROPERTY).getPropertyValue());
+    int qrCodeHeight = valueOf(
+        applicationPropertyService.findByName(TICKET_QR_CODE_HEIGHT_PROPERTY).getPropertyValue());
+
+    bookingMarkedAsBoughtEvent.fireAsync(
+        BookingMarkedAsBoughtEvent.builder()
+            .customerName(booking.getCustomerName())
+            .customerEmail(booking.getCustomerEmail())
+            .tickets(booking.getTickets().stream()
+                .map(TicketDTO::ofTicket)
+                .collect(toList()))
+            .ticketQrCodes(booking.getTickets().stream()
+                .map(ticket -> ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight))
+                .collect(toList()))
+            .build());
   }
 }
