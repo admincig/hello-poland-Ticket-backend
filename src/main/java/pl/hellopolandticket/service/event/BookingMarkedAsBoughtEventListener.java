@@ -7,6 +7,7 @@ import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import pl.hellopolandticket.service.EmailService;
+import pl.hellopolandticket.service.exception.EmailSendingException;
 
 @ApplicationScoped
 public class BookingMarkedAsBoughtEventListener {
@@ -15,11 +16,14 @@ public class BookingMarkedAsBoughtEventListener {
   private EmailService emailService;
 
   public void bookingMarkedAsBoughtEventHandler(
-      @ObservesAsync BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
-      throws MessagingException, IOException, TemplateException {
-    emailService.sendEmailWithQrCodes(bookingMarkedAsBoughtEvent.getCustomerName(),
-        bookingMarkedAsBoughtEvent.getCustomerEmail(),
-        bookingMarkedAsBoughtEvent.getTickets(),
-        bookingMarkedAsBoughtEvent.getTicketQrCodes());
+      @ObservesAsync BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent) {
+    try {
+      emailService.sendEmailWithQrCodes(bookingMarkedAsBoughtEvent.getCustomerName(),
+          bookingMarkedAsBoughtEvent.getCustomerEmail(),
+          bookingMarkedAsBoughtEvent.getTickets(),
+          bookingMarkedAsBoughtEvent.getTicketQrCodes());
+    } catch (MessagingException | IOException | TemplateException e) {
+      throw new EmailSendingException();
+    }
   }
 }
