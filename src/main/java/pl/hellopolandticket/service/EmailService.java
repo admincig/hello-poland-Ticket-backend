@@ -162,6 +162,10 @@ public class EmailService {
           .append("</p>")
           .append("<p>")
           .append(ticket.getName())
+          .append("</p>")
+          .append("<p>")
+          .append("Numer biletu: ")
+          .append(ticket.getSerialNumber())
           .append("</p>");
       ticketQrCodes
           .append("<img style=\"margin-bottom: 200px\" src=\"cid:")
