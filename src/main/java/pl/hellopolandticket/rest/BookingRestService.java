@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopolandticket.service.BookingService;
+import pl.hellopolandticket.service.dto.BookingDTO;
 import pl.hellopolandticket.service.dto.BookingDTOCreate;
 
 @Path("/bookings")
@@ -29,5 +30,13 @@ public class BookingRestService {
   @Path("/buy/{bookingId}")
   public Response markBookingAsBought(@PathParam("bookingId") Long bookingId) {
     return Response.ok(bookingService.markBookingAsBought(bookingId)).build();
+  }
+
+  @PUT
+  @Path("/book-buy")
+  public Response bookAndBuy(BookingDTOCreate booking) {
+    BookingDTO persistedBooking = bookingService.createBooking(booking);
+
+    return Response.ok(bookingService.markBookingAsBought(persistedBooking.getId())).build();
   }
 }

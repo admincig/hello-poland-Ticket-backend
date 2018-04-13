@@ -6,9 +6,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.service.EmailService;
 import pl.hellopolandticket.service.exception.EmailSendingException;
 
+@Slf4j
 @ApplicationScoped
 public class BookingMarkedAsBoughtEventListener {
 
@@ -20,9 +22,9 @@ public class BookingMarkedAsBoughtEventListener {
     try {
       emailService.sendEmailWithQrCodes(bookingMarkedAsBoughtEvent.getCustomerName(),
           bookingMarkedAsBoughtEvent.getCustomerEmail(),
-          bookingMarkedAsBoughtEvent.getTickets(),
-          bookingMarkedAsBoughtEvent.getTicketQrCodes());
+          bookingMarkedAsBoughtEvent.getTickets());
     } catch (MessagingException | IOException | TemplateException e) {
+      log.error(e.getMessage());
       throw new EmailSendingException();
     }
   }

@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.model.Status.BOOKED;
 import static pl.hellopolandticket.model.Status.INVALID;
 import static pl.hellopolandticket.service.dto.BookingDTO.ofBooking;
+import static pl.hellopolandticket.service.dto.TicketDTO.ofTicketWithQrCode;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,7 +24,6 @@ import pl.hellopolandticket.model.TicketDefinition;
 import pl.hellopolandticket.service.dto.BookingDTO;
 import pl.hellopolandticket.service.dto.BookingDTOCreate;
 import pl.hellopolandticket.service.dto.TicketBookingDTO;
-import pl.hellopolandticket.service.dto.TicketDTO;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 import pl.hellopolandticket.service.exception.NotBookedException;
 
@@ -147,10 +147,8 @@ public class BookingService {
             .customerName(booking.getCustomerName())
             .customerEmail(booking.getCustomerEmail())
             .tickets(booking.getTickets().stream()
-                .map(TicketDTO::ofTicket)
-                .collect(toList()))
-            .ticketQrCodes(booking.getTickets().stream()
-                .map(ticket -> ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight))
+                .map(ticket -> ofTicketWithQrCode(ticket,
+                    ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
                 .collect(toList()))
             .build());
   }

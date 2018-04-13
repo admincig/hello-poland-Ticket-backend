@@ -1,6 +1,5 @@
 package pl.hellopolandticket.service.event;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -22,5 +21,4 @@ public class BookingMarkedAsBoughtEvent implements Serializable {
   private String customerName;
   private String customerEmail;
   private List<TicketDTO> tickets;
-  private List<ByteArrayOutputStream> ticketQrCodes;
 }

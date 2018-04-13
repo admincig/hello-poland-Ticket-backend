@@ -55,8 +55,7 @@ public class EmailService {
   @Inject
   private EmailTemplateDao emailTemplateDao;
 
-  public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets,
-      List<ByteArrayOutputStream> qrCodes)
+  public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets)
       throws MessagingException, IOException, TemplateException {
     String messageFrom = applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY)
         .getPropertyValue();
@@ -69,7 +68,7 @@ public class EmailService {
     message.setFrom(new InternetAddress(messageFrom));
     message.setRecipients(TO, new InternetAddress[]{new InternetAddress(email)});
     message.setSubject(emailTemplate.getSubject());
-    message.setContent(createEmailContent(username, emailTemplate, tickets, qrCodes));
+    message.setContent(createEmailContent(username, emailTemplate, tickets));
 
     Transport.send(message);
   }
@@ -116,22 +115,22 @@ public class EmailService {
   }
 
   private Multipart createEmailContent(String username, EmailTemplate emailTemplate,
-      List<TicketDTO> tickets,
-      List<ByteArrayOutputStream> qrCodes)
+      List<TicketDTO> tickets)
       throws IOException, TemplateException, MessagingException {
     Multipart emailContent = new MimeMultipart("related");
 
-    List<String> ticketCIDs = generateCIDs(qrCodes.size());
+    List<String> ticketCIDs = generateCIDs(tickets.size());
 
     String bodyContent = fillQrCodeEmailTemplateWithData(emailTemplate.getTemplate(), username,
-        tickets, qrCodes, ticketCIDs);
-    log.error(bodyContent);
+        tickets, ticketCIDs);
+
     MimeBodyPart emailBody = new MimeBodyPart();
     emailBody.setContent(bodyContent, "text/html");
     emailContent.addBodyPart(emailBody);
 
     for (int i = 0; i < tickets.size(); i++) {
-      emailContent.addBodyPart(createTicketQrCodeAttachment(qrCodes.get(i), ticketCIDs.get(i)));
+      emailContent
+          .addBodyPart(createTicketQrCodeAttachment(tickets.get(i).getQrCode(), ticketCIDs.get(i)));
     }
 
     return emailContent;
@@ -144,8 +143,7 @@ public class EmailService {
   }
 
   private String fillQrCodeEmailTemplateWithData(String templateHtml, String username,
-      List<TicketDTO> tickets, List<ByteArrayOutputStream> qrCodes, List<String> ticketCIDs)
-      throws IOException, TemplateException {
+      List<TicketDTO> tickets, List<String> ticketCIDs) throws IOException, TemplateException {
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_27);
     cfg.setDefaultEncoding("UTF-8");
     cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
@@ -157,7 +155,7 @@ public class EmailService {
     Map<String, String> variablesMap = new HashMap<>();
     StringBuilder ticketQrCodes = new StringBuilder();
 
-    for (int i = 0; i < qrCodes.size(); i++) {
+    for (int i = 0; i < tickets.size(); i++) {
       TicketDTO ticket = tickets.get(i);
       ticketQrCodes
           .append(ticket.getSight().getName())

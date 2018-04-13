@@ -2,6 +2,7 @@ package pl.hellopolandticket.service.dto;
 
 import static pl.hellopolandticket.service.dto.SightDTO.ofSightBasic;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.Date;
 import javax.json.bind.annotation.JsonbDateFormat;
@@ -37,6 +38,8 @@ public class TicketDTO implements Serializable {
 
   private String serialNumber;
 
+  private ByteArrayOutputStream qrCode;
+
   public static TicketDTO ofTicket(Ticket ticket) {
     return TicketDTO.builder()
         .id(ticket.getId())
@@ -46,6 +49,19 @@ public class TicketDTO implements Serializable {
         .date(ticket.getDate())
         .status(ticket.getStatus())
         .serialNumber(ticket.getSerialNumber())
+        .build();
+  }
+
+  public static TicketDTO ofTicketWithQrCode(Ticket ticket, ByteArrayOutputStream qrCode) {
+    return TicketDTO.builder()
+        .id(ticket.getId())
+        .sight(ofSightBasic(ticket.getSight()))
+        .name(ticket.getName())
+        .price(ticket.getPrice())
+        .date(ticket.getDate())
+        .status(ticket.getStatus())
+        .serialNumber(ticket.getSerialNumber())
+        .qrCode(qrCode)
         .build();
   }
 }
