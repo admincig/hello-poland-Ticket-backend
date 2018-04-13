@@ -6,15 +6,16 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import pl.hellopolandticket.service.dto.AbstractJSONError;
-import pl.hellopolandticket.service.exception.ImportingDataException;
+import pl.hellopolandticket.service.exception.badrequest.BadRequestBaseException;
 
 @Provider
-public class ImportingDataExceptionHandler implements ExceptionMapper<ImportingDataException> {
+public class BadRequestExceptionHandler implements
+    ExceptionMapper<BadRequestBaseException> {
 
   @Override
-  public Response toResponse(ImportingDataException e) {
+  public Response toResponse(BadRequestBaseException e) {
     return Response.status(BAD_REQUEST).entity(AbstractJSONError.builder()
-        .exception(ImportingDataException.class)
+        .exception(e.getClass())
         .message(e.getMessage())
         .build()).build();
   }

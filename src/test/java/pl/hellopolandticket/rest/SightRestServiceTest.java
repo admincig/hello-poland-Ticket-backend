@@ -10,9 +10,9 @@ import org.jboss.arquillian.persistence.UsingDataSet;
 import org.junit.Test;
 import pl.hellopolandticket.BaseTest;
 import pl.hellopolandticket.service.dto.TicketDTO;
-import pl.hellopolandticket.service.exception.PunchingTicketForWrongSightException;
-import pl.hellopolandticket.service.exception.ResourceNotFoundException;
-import pl.hellopolandticket.service.exception.WrongTicketStatusException;
+import pl.hellopolandticket.service.exception.conflict.PunchingTicketForWrongSightException;
+import pl.hellopolandticket.service.exception.conflict.WrongTicketStatusException;
+import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 
 @Slf4j
 @UsingDataSet("scripts/datasets/import.yml")

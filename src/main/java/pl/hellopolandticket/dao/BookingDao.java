@@ -9,7 +9,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import pl.hellopolandticket.model.Booking;
-import pl.hellopolandticket.service.exception.ResourceNotFoundException;
+import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 
 @Stateless
 @LocalBean

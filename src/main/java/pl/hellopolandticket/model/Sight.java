@@ -15,8 +15,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.hellopolandticket.service.exception.NoAvailableTicketsException;
-import pl.hellopolandticket.service.exception.NumberOfTicketsNotPositiveException;
+import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
+import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
 @Getter
 @Entity

@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import javax.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.service.EmailService;
-import pl.hellopolandticket.service.exception.EmailSendingException;
+import pl.hellopolandticket.service.exception.badrequest.EmailSendingException;
 
 @Slf4j
 @ApplicationScoped

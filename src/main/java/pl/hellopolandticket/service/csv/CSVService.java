@@ -16,7 +16,7 @@ import pl.hellopolandticket.service.csv.pojo.TicketDefinitionCSV;
 import pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.event.SightsImportEvent;
 import pl.hellopolandticket.service.event.TicketDefinitionsImportEvent;
-import pl.hellopolandticket.service.exception.ImportingDataException;
+import pl.hellopolandticket.service.exception.badrequest.ImportingDataException;
 
 @Stateless
 @LocalBean
