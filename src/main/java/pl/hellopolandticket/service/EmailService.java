@@ -158,15 +158,16 @@ public class EmailService {
     for (int i = 0; i < tickets.size(); i++) {
       TicketDTO ticket = tickets.get(i);
       ticketQrCodes
+          .append("<p>")
           .append(ticket.getSight().getName())
-          .append("<br>")
+          .append("</p>")
+          .append("<p>")
           .append(ticket.getName())
-          .append("<br>");
+          .append("</p>");
       ticketQrCodes
-          .append("<img src=\"cid:")
+          .append("<img style=\"margin-bottom: 200px\" src=\"cid:")
           .append(ticketCIDs.get(i))
-          .append("\">")
-          .append("<br>");
+          .append("\">");
     }
     variablesMap.put("qrCodes", ticketQrCodes.toString());
 
