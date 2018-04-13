@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service.dto;
 
+import static pl.hellopolandticket.service.dto.BookingDTO.ofBookingBasic;
 import static pl.hellopolandticket.service.dto.SightDTO.ofSightBasic;
 
 import java.io.ByteArrayOutputStream;
@@ -40,6 +41,8 @@ public class TicketDTO implements Serializable {
 
   private ByteArrayOutputStream qrCode;
 
+  private BookingDTO booking;
+
   public static TicketDTO ofTicket(Ticket ticket) {
     return TicketDTO.builder()
         .id(ticket.getId())
@@ -49,6 +52,7 @@ public class TicketDTO implements Serializable {
         .date(ticket.getDate())
         .status(ticket.getStatus())
         .serialNumber(ticket.getSerialNumber())
+        .booking(ofBookingBasic(ticket.getBooking()))
         .build();
   }
 
@@ -61,6 +65,7 @@ public class TicketDTO implements Serializable {
         .date(ticket.getDate())
         .status(ticket.getStatus())
         .serialNumber(ticket.getSerialNumber())
+        .booking(ofBookingBasic(ticket.getBooking()))
         .qrCode(qrCode)
         .build();
   }
