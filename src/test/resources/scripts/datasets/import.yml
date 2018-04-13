@@ -20,27 +20,27 @@ bookings:
   - booking_id: 1
     date: 2021-03-28 11:48:20.775000
     customer_name: Jan Kowalski
-    customer_email: jan.kowalski@mail.com
+    customer_email: jan.kowalski@wymyslony-mail.com
     status: BOOKED
   - booking_id: 2
     date: 2022-03-28 11:48:20.775000
     customer_name: Andrzej Nowak
-    customer_email: andrzej.nowak@mail.com
+    customer_email: andrzej.nowak@wymyslony-mail.com
     status: BOUGHT
   - booking_id: 3
     date: 2022-03-28 11:48:20.775000
     customer_name: Andrzej Nowak
-    customer_email: andrzej.nowak@mail.com
+    customer_email: andrzej.nowak@wymyslony-mail.com
     status: PUNCHED
   - booking_id: 4
     date: 2022-03-28 11:48:20.775000
     customer_name: Andrzej Nowak
-    customer_email: andrzej.nowak@mail.com
+    customer_email: andrzej.nowak@wymyslony-mail.com
     status: DELETED
   - booking_id: 5
     date: 2022-03-28 11:48:20.775000
     customer_name: Andrzej Nowak
-    customer_email: andrzej.nowak@mail.com
+    customer_email: andrzej.nowak@wymyslony-mail.com
     status: BOUGHT
 tickets:
   - ticket_id: 1
@@ -77,3 +77,10 @@ tickets:
     ticket_definition: 2
     serial_number: 0C54D64568A3ACD560EC5591D78A6D440CF4F5CD0142C186F4AAAF7F5307DFA3
     booking: 5
+application_properties:
+  - application_property_id: 1
+    property_name: ticket.qrCode.height
+    property_value: 200
+  - application_property_id: 2
+    property_name: ticket.qrCode.width
+    property_value: 200

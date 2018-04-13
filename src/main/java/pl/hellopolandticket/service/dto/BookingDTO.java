@@ -37,4 +37,12 @@ public class BookingDTO implements Serializable {
             .collect(Collectors.toList()))
         .build();
   }
+
+  public static BookingDTO ofBookingBasic(Booking booking) {
+    return BookingDTO.builder()
+        .id(booking.getId())
+        .customerName(booking.getCustomerName())
+        .customerEmail(booking.getCustomerEmail())
+        .build();
+  }
 }

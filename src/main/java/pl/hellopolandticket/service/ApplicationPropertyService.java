@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.service.dto.ApplicationPropertyDTO.ofApplicationProperty;
 
 import java.util.List;
+import java.util.Optional;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -37,6 +38,12 @@ public class ApplicationPropertyService {
         .orElseThrow(ResourceNotFoundException::new);
 
     return ofApplicationProperty(applicationPropertyDao.persist(applicationProperty));
+  }
+
+  public Optional<ApplicationPropertyDTO> find(String propertyName) {
+    return applicationPropertyDao
+        .findByPropertyName(propertyName)
+        .map(ApplicationPropertyDTO::ofApplicationProperty);
   }
 
   public void removeApplicationProperty(String propertyName) {

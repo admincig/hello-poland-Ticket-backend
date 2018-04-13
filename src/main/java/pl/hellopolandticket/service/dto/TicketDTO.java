@@ -1,7 +1,9 @@
 package pl.hellopolandticket.service.dto;
 
-import static pl.hellopolandticket.service.dto.SightDTO.ofSightOnlyId;
+import static pl.hellopolandticket.service.dto.BookingDTO.ofBookingBasic;
+import static pl.hellopolandticket.service.dto.SightDTO.ofSightBasic;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.Date;
 import javax.json.bind.annotation.JsonbDateFormat;
@@ -37,15 +39,34 @@ public class TicketDTO implements Serializable {
 
   private String serialNumber;
 
+  private ByteArrayOutputStream qrCode;
+
+  private BookingDTO booking;
+
   public static TicketDTO ofTicket(Ticket ticket) {
     return TicketDTO.builder()
         .id(ticket.getId())
-        .sight(ofSightOnlyId(ticket.getSight()))
+        .sight(ofSightBasic(ticket.getSight()))
         .name(ticket.getName())
         .price(ticket.getPrice())
         .date(ticket.getDate())
         .status(ticket.getStatus())
         .serialNumber(ticket.getSerialNumber())
+        .booking(ofBookingBasic(ticket.getBooking()))
+        .build();
+  }
+
+  public static TicketDTO ofTicketWithQrCode(Ticket ticket, ByteArrayOutputStream qrCode) {
+    return TicketDTO.builder()
+        .id(ticket.getId())
+        .sight(ofSightBasic(ticket.getSight()))
+        .name(ticket.getName())
+        .price(ticket.getPrice())
+        .date(ticket.getDate())
+        .status(ticket.getStatus())
+        .serialNumber(ticket.getSerialNumber())
+        .booking(ofBookingBasic(ticket.getBooking()))
+        .qrCode(qrCode)
         .build();
   }
 }
