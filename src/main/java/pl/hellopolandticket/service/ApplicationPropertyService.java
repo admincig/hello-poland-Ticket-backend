@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import pl.hellopolandticket.dao.ApplicationPropertyDao;
 import pl.hellopolandticket.model.ApplicationProperty;
 import pl.hellopolandticket.service.dto.ApplicationPropertyDTO;
-import pl.hellopolandticket.service.exception.ResourceNotFoundException;
+import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 
 @Stateless
 @LocalBean

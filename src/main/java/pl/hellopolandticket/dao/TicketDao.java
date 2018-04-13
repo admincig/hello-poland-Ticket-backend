@@ -8,7 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import pl.hellopolandticket.model.Status;
 import pl.hellopolandticket.model.Ticket;
-import pl.hellopolandticket.service.exception.ResourceNotFoundException;
+import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 
 @Stateless
 @LocalBean

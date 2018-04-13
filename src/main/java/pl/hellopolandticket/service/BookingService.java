@@ -25,7 +25,7 @@ import pl.hellopolandticket.service.dto.BookingDTO;
 import pl.hellopolandticket.service.dto.BookingDTOCreate;
 import pl.hellopolandticket.service.dto.TicketBookingDTO;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
-import pl.hellopolandticket.service.exception.NotBookedException;
+import pl.hellopolandticket.service.exception.conflict.NotBookedException;
 
 @Stateless
 @LocalBean

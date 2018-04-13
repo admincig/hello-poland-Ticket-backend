@@ -16,10 +16,10 @@ import pl.hellopolandticket.model.Booking;
 import pl.hellopolandticket.service.dto.BookingDTO;
 import pl.hellopolandticket.service.dto.BookingDTOCreate;
 import pl.hellopolandticket.service.dto.TicketBookingDTO;
-import pl.hellopolandticket.service.exception.NoAvailableTicketsException;
-import pl.hellopolandticket.service.exception.NotBookedException;
-import pl.hellopolandticket.service.exception.NumberOfTicketsNotPositiveException;
-import pl.hellopolandticket.service.exception.ResourceNotFoundException;
+import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
+import pl.hellopolandticket.service.exception.conflict.NotBookedException;
+import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
+import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
 @Slf4j
 @UsingDataSet("scripts/datasets/import.yml")

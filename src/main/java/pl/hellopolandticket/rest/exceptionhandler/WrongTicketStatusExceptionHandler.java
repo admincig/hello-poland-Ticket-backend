@@ -6,7 +6,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import pl.hellopolandticket.service.dto.AbstractJSONError;
-import pl.hellopolandticket.service.exception.WrongTicketStatusException;
+import pl.hellopolandticket.service.exception.conflict.WrongTicketStatusException;
 
 @Provider
 public class WrongTicketStatusExceptionHandler implements

@@ -9,7 +9,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import pl.hellopolandticket.service.csv.pojo.SightCSV;
 import pl.hellopolandticket.service.csv.pojo.TicketDefinitionCSV;
-import pl.hellopolandticket.service.exception.ImportingDataException;
+import pl.hellopolandticket.service.exception.badrequest.ImportingDataException;
 
 public class FileToCSVParser {
 

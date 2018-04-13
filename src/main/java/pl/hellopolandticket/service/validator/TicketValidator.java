@@ -4,8 +4,8 @@ import static pl.hellopolandticket.model.Status.BOUGHT;
 import static pl.hellopolandticket.service.dto.TicketDTO.ofTicket;
 
 import pl.hellopolandticket.model.Ticket;
-import pl.hellopolandticket.service.exception.PunchingTicketForWrongSightException;
-import pl.hellopolandticket.service.exception.WrongTicketStatusException;
+import pl.hellopolandticket.service.exception.conflict.PunchingTicketForWrongSightException;
+import pl.hellopolandticket.service.exception.conflict.WrongTicketStatusException;
 
 public class TicketValidator {
 
