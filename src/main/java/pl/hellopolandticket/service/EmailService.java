@@ -21,7 +21,6 @@ import javax.activation.DataHandler;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.mail.Authenticator;
-import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
@@ -64,10 +63,10 @@ public class EmailService {
 
     Session session = createSessionForEmail();
 
-    Message message = new MimeMessage(session);
+    MimeMessage message = new MimeMessage(session);
     message.setFrom(new InternetAddress(messageFrom));
     message.setRecipients(TO, new InternetAddress[]{new InternetAddress(email)});
-    message.setSubject(emailTemplate.getSubject());
+    message.setSubject(emailTemplate.getSubject(), "UTF-8");
     message.setContent(createEmailContent(username, emailTemplate, tickets));
 
     Transport.send(message);
