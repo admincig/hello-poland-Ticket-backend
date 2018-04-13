@@ -37,6 +37,11 @@ bookings:
     customer_name: Andrzej Nowak
     customer_email: andrzej.nowak@mail.com
     status: DELETED
+  - booking_id: 5
+    date: 2022-03-28 11:48:20.775000
+    customer_name: Andrzej Nowak
+    customer_email: andrzej.nowak@mail.com
+    status: BOUGHT
 tickets:
   - ticket_id: 1
     sight_id: 1
@@ -54,3 +59,21 @@ tickets:
     status: BOOKED
     ticket_definition: 2
     booking: 1
+  - ticket_id: 3
+    sight_id: 2
+    name: A ticket to the Zoo
+    price: 2000
+    date: 2022-03-28 11:48:20.775000
+    status: BOUGHT
+    ticket_definition: 2
+    serial_number: 412CBA1C1191B0C5C94142ED58B3C28BBCF7D0400A3109D09DAEE61ED3CA69F3
+    booking: 2
+  - ticket_id: 4
+    sight_id: 2
+    name: A ticket to the Zoo
+    price: 2000
+    date: 2022-03-28 11:48:20.775000
+    status: PUNCHED
+    ticket_definition: 2
+    serial_number: 0C54D64568A3ACD560EC5591D78A6D440CF4F5CD0142C186F4AAAF7F5307DFA3
+    booking: 5

@@ -34,6 +34,15 @@ public class TicketDao {
         .orElseThrow(ResourceNotFoundException::new);
   }
 
+  public Ticket findBySerialNumber(String serialNumber) {
+    return entityManager
+        .createQuery("from Ticket ticket where ticket.serialNumber=:serialNumber", Ticket.class)
+        .setParameter("serialNumber", serialNumber)
+        .getResultStream()
+        .findFirst()
+        .orElseThrow(ResourceNotFoundException::new);
+  }
+
   public Long countTicketsBySightIdAndTicketStatusInTicketStatuses(Long sightId,
       List<Status> statuses) {
     return entityManager

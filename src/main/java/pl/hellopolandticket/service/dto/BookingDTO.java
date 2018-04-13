@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service.dto;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,9 @@ import pl.hellopolandticket.model.Status;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingDTO {
+public class BookingDTO implements Serializable {
+
+  private static final long serialVersionUID = 2556193666908234466L;
 
   private Long id;
   private String customerName;

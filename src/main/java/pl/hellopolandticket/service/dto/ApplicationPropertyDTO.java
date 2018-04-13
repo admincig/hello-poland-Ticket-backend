@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service.dto;
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +13,9 @@ import pl.hellopolandticket.model.ApplicationProperty;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApplicationPropertyDTO {
+public class ApplicationPropertyDTO implements Serializable {
+
+  private static final long serialVersionUID = 6389090907393901615L;
 
   private String propertyName;
 
