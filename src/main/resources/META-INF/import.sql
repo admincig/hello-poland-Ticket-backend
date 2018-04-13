@@ -3,4 +3,9 @@ INSERT INTO application_properties ("application_property_id", "property_name", 
 INSERT INTO application_properties ("application_property_id", "property_name", "property_value") VALUES (3, 'ticket.booked.timeToBuy', '20')
 INSERT INTO application_properties ("application_property_id", "property_name", "property_value") VALUES (4, 'ticket.qrCode.height', '100')
 INSERT INTO application_properties ("application_property_id", "property_name", "property_value") VALUES (5, 'ticket.qrCode.width', '100')
-
+INSERT INTO sights("sight_id", "name", "available_tickets_number") VALUES (1, 'Kolejkowo', 5)
+INSERT INTO sights("sight_id", "name", "available_tickets_number") VALUES (2, 'Zoo', 3)
+INSERT INTO ticket_definitions("ticket_definition_id", "name", "price", "predefined_date", "sight_id") VALUES (1, 'Bilet normalny', 2000, FALSE, 1)
+INSERT INTO ticket_definitions("ticket_definition_id", "name", "price", "predefined_date", "sight_id") VALUES (2, 'Bilet ulgowy', 1000, FALSE, 1)
+INSERT INTO ticket_definitions("ticket_definition_id", "name", "price", "predefined_date", "sight_id") VALUES (3, 'Bilet normalny', 5000, FALSE, 2)
+INSERT INTO ticket_definitions("ticket_definition_id", "name", "price", "predefined_date", "sight_id") VALUES (4, 'Bilet ulgowy', 2500, FALSE, 2)
