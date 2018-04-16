@@ -1,0 +1,51 @@
+package pl.hellopolandticket.dao;
+
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import pl.hellopolandticket.model.Sight;
+import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
+
+@Stateless
+@LocalBean
+public class SightDao {
+
+  @PersistenceContext
+  private EntityManager entityManager;
+
+  public Sight persist(Sight sight) {
+    entityManager.persist(sight);
+
+    return sight;
+  }
+
+  public Sight findBySightName(String sightName) {
+    return entityManager
+        .createQuery("from Sight sight where sight.name=:name", Sight.class)
+        .setParameter("name", sightName)
+        .getResultStream()
+        .findFirst()
+        .orElseThrow(ResourceNotFoundException::new);
+  }
+
+  public Sight findById(Long sightId) {
+    return entityManager
+        .createQuery("from Sight sight where sight.id=:id", Sight.class)
+        .setParameter("id", sightId)
+        .getResultStream()
+        .findFirst()
+        .orElseThrow(ResourceNotFoundException::new);
+  }
+
+  public List<Sight> findAll() {
+    return entityManager
+        .createQuery("from Sight sight", Sight.class)
+        .getResultStream()
+        .collect(toList());
+  }
+
+}
