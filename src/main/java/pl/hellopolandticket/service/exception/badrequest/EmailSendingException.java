@@ -6,4 +6,8 @@ import javax.ejb.ApplicationException;
 public class EmailSendingException extends BadRequestBaseException {
 
   private static final long serialVersionUID = -2560393505224706L;
+
+  public EmailSendingException(String message) {
+    this.message = message;
+  }
 }

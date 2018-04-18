@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import javax.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.service.EmailService;
-import pl.hellopolandticket.service.exception.badrequest.EmailSendingException;
+import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Slf4j
 @ApplicationScoped
@@ -16,6 +16,9 @@ public class BookingMarkedAsBoughtEventListener {
 
   @Inject
   private EmailService emailService;
+
+  @Inject
+  private ExceptionFactory exceptionFactory;
 
   public void bookingMarkedAsBoughtEventHandler(
       @ObservesAsync BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent) {
@@ -25,7 +28,7 @@ public class BookingMarkedAsBoughtEventListener {
           bookingMarkedAsBoughtEvent.getTickets());
     } catch (MessagingException | IOException | TemplateException e) {
       log.error(e.getMessage());
-      throw new EmailSendingException();
+      throw exceptionFactory.emailSendingException();
     }
   }
 }

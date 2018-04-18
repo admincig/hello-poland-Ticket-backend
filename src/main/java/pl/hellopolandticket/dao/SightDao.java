@@ -5,10 +5,11 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import pl.hellopolandticket.model.Sight;
-import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
+import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
@@ -16,6 +17,9 @@ public class SightDao {
 
   @PersistenceContext
   private EntityManager entityManager;
+
+  @Inject
+  private ExceptionFactory exceptionFactory;
 
   public Sight persist(Sight sight) {
     entityManager.persist(sight);
@@ -29,7 +33,7 @@ public class SightDao {
         .setParameter("name", sightName)
         .getResultStream()
         .findFirst()
-        .orElseThrow(ResourceNotFoundException::new);
+        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
   public Sight findById(Long sightId) {
@@ -38,7 +42,7 @@ public class SightDao {
         .setParameter("id", sightId)
         .getResultStream()
         .findFirst()
-        .orElseThrow(ResourceNotFoundException::new);
+        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
   public List<Sight> findAll() {

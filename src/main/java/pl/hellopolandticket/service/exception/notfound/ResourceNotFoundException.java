@@ -6,4 +6,8 @@ import javax.ejb.ApplicationException;
 public class ResourceNotFoundException extends NotFoundBaseException {
 
   private static final long serialVersionUID = 1657726507596909599L;
+
+  public ResourceNotFoundException(String message) {
+    this.message = message;
+  }
 }
