@@ -1,0 +1,16 @@
+stages:
+    - build
+
+variables:
+    JAVA_VERSION: "8"
+
+#
+# build stage tasks
+#
+build_backend:
+    stage: build
+    before_script:
+        - . envcfg
+        - envcfg -p
+    script:
+        - mvn verify
