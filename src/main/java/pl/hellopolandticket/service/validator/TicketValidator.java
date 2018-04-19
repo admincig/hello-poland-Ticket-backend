@@ -36,18 +36,6 @@ public class TicketValidator {
   }
 
   public void validateProperTime(Ticket ticket) {
-    if (ticket.getDateType() == DATE) {
-      Date ticketDate = ticket.getDate();
-      Date sightDate = ticket.getSight().getDate();
-
-      if (!(ticketDate.getDay() == sightDate.getDay() && ticketDate.getMonth() == sightDate
-          .getMonth() && ticketDate.getYear() == sightDate.getYear())) {
-        throw exceptionFactory.ticketForAnotherDateException();
-      }
-    } else if (ticket.getDateType() == DATE_TIME) {
-      if (ticket.getDate().getTime() != ticket.getSight().getDate().getTime()) {
-        throw exceptionFactory.ticketForAnotherDateException();
-      }
-    }
+    //TODO Implement when you divide sights and events
   }
 }
