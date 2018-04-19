@@ -21,6 +21,7 @@
     <properties>
       <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
       <property name="javax.persistence.sql-load-script-source" value="META-INF/import.sql"/>
+      <property name="eclipselink.cache.shared.default" value="false"/>
     </properties>
   </persistence-unit>
 </persistence>
