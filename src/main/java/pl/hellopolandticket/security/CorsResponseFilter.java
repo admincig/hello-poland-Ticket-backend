@@ -13,9 +13,9 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class CorsResponseFilter implements ContainerResponseFilter {
 
-  public static final String ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH";
-  public final static int MAX_AGE = 24 * 60 * 60;
-  public final static String DEFAULT_ALLOWED_HEADERS = "origin,accept,content-type,authorization";
+  private static final String ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH";
+  private final static int MAX_AGE = 24 * 60 * 60;
+  private final static String DEFAULT_ALLOWED_HEADERS = "origin,accept,content-type,authorization";
 
   @Override
   public void filter(ContainerRequestContext requestContext,
@@ -29,12 +29,12 @@ public class CorsResponseFilter implements ContainerResponseFilter {
     headers.add("x-responded-by", "cors-response-filter");
   }
 
-  String getRequestedAllowedHeaders(ContainerRequestContext responseContext) {
+  private String getRequestedAllowedHeaders(ContainerRequestContext responseContext) {
     List<String> headers = responseContext.getHeaders().get("Access-Control-Allow-Headers");
     return createHeaderList(headers, DEFAULT_ALLOWED_HEADERS);
   }
 
-  String createHeaderList(List<String> headers, String defaultHeaders) {
+  private String createHeaderList(List<String> headers, String defaultHeaders) {
     if (headers == null || headers.isEmpty()) {
       return defaultHeaders;
     }

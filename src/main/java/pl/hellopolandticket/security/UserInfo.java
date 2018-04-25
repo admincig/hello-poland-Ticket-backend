@@ -23,8 +23,8 @@ public class UserInfo {
   private String accessToken;
   private String refreshToken;
 
-  public boolean hasRole(String _role) {
-    return roles.contains(_role);
+  public boolean hasRole(String role) {
+    return roles.contains(role);
   }
 
   public boolean hasAnyRoles(String... roles) {

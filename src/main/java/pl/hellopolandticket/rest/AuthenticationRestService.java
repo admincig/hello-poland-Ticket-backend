@@ -59,6 +59,13 @@ public class AuthenticationRestService {
     return Response.status(UNAUTHORIZED).build();
   }
 
+  @POST
+  @Path("logout")
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  public Response logout() {
+    return Response.ok().build();
+  }
+
   @GET
   @Path("userinfo")
   public Response userInfo() {

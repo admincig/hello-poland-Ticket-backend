@@ -25,14 +25,27 @@ public class BlackTokenRemovingScheduler {
   @Inject
   private ApplicationPropertyService applicationPropertyService;
 
-  @Schedule(hour = "1", minute = "5", second = "0", year = "*", dayOfMonth = "*", dayOfWeek = "*",
+  @Schedule(hour = "*", minute = "*/5", second = "0", year = "*", dayOfMonth = "*", dayOfWeek = "*",
       persistent = false)
   public void run() {
     List<BlackToken> blackTokens = blackTokenDao.findAll();
 
     for (BlackToken blackToken : blackTokens) {
-      validateAccessTokenIsStillValid(blackToken);
-      validateRefreshTokenStillValid(blackToken);
+      int numberOfThrownSignatureExceptions = 0;
+      try {
+        validateAccessTokenIsStillValid(blackToken);
+      } catch (SignatureException e) {
+        numberOfThrownSignatureExceptions++;
+      }
+      try {
+        validateRefreshTokenStillValid(blackToken);
+      } catch (SignatureException e) {
+        numberOfThrownSignatureExceptions++;
+      }
+
+      if (isInvalidToken(numberOfThrownSignatureExceptions)) {
+        blackTokenDao.remove(blackToken);
+      }
     }
   }
 
@@ -55,10 +68,12 @@ public class BlackTokenRemovingScheduler {
   private void validateTokenStillValid(String secretKey, BlackToken blackToken) {
     try {
       Jwts.parser().setSigningKey(secretKey).parse(blackToken.getToken());
-    } catch (SignatureException ignored) {
-
     } catch (ExpiredJwtException e) {
       blackTokenDao.remove(blackToken);
     }
+  }
+
+  private boolean isInvalidToken(int numberOfThrownSignatureExceptions) {
+    return numberOfThrownSignatureExceptions == 2;
   }
 }

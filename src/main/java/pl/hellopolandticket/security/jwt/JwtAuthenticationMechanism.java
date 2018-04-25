@@ -29,6 +29,18 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
   private static final String AUTHORIZATION_PREFIX = "Bearer ";
 
+  private static final String LOGIN_CALLER_PARAMETER = "email";
+  private static final String LOGIN_PASSWORD_PARAMETER = "password";
+
+  private static final String ACCESS_TOKEN_PARAMETER = "accessToken";
+  private static final String REFRESH_TOKEN_PARAMETER = "refreshToken";
+
+  private static final String AUTHENTICATION_METHOD = "POST";
+
+  private static final String LOGIN_REQUEST_PATH = "/auth/login";
+  private static final String REFRESH_TOKEN_REQUEST_PATH = "/auth/refresh";
+  private static final String LOGOUT_REQUEST_PATH = "/auth/logout";
+
   @Inject
   private IdentityStoreHandler identityStoreHandler;
 
@@ -47,15 +59,20 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
       HttpServletResponse response, HttpMessageContext context) {
     AuthenticationStatus authenticationStatus;
 
-    String email = request.getParameter("email");
-    String password = request.getParameter("password");
+    String email = request.getParameter(LOGIN_CALLER_PARAMETER);
+    String password = request.getParameter(LOGIN_PASSWORD_PARAMETER);
 
     String token = extractToken(context);
+
+    String accessToken = request.getParameter(ACCESS_TOKEN_PARAMETER);
+    String refreshToken = request.getParameter(REFRESH_TOKEN_PARAMETER);
 
     if (isLoginRequest(email, password, request)) {
       authenticationStatus = login(email, password, context);
     } else if (isRefreshingRequest(token, request)) {
       authenticationStatus = validateRefreshToken(token, context);
+    } else if (isLogoutRequest(accessToken, refreshToken, request)) {
+      authenticationStatus = logout(accessToken, refreshToken, context);
     } else if (token != null) {
       authenticationStatus = validateAccessToken(token, context);
     } else if (context.isProtected()) {
@@ -66,6 +83,7 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     return authenticationStatus;
   }
+
 
   private AuthenticationStatus validateAccessToken(String token, HttpMessageContext context) {
     AuthenticationStatus authenticationStatus;
@@ -110,14 +128,21 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
   private boolean isLoginRequest(String email, String password, HttpServletRequest request) {
     return email != null && password != null
-        && "POST".equals(request.getMethod())
-        && request.getRequestURI().endsWith("/auth/login");
+        && AUTHENTICATION_METHOD.equals(request.getMethod())
+        && request.getRequestURI().endsWith(LOGIN_REQUEST_PATH);
   }
 
   private boolean isRefreshingRequest(String token, HttpServletRequest request) {
     return token != null
-        && "POST".equals(request.getMethod())
-        && request.getRequestURI().endsWith("/auth/refresh");
+        && AUTHENTICATION_METHOD.equals(request.getMethod())
+        && request.getRequestURI().endsWith(REFRESH_TOKEN_REQUEST_PATH);
+  }
+
+  private boolean isLogoutRequest(String accessToken, String refreshToken,
+      HttpServletRequest request) {
+    return accessToken != null && refreshToken != null
+        && AUTHENTICATION_METHOD.equals(request.getMethod())
+        && request.getRequestURI().endsWith(LOGOUT_REQUEST_PATH);
   }
 
   private AuthenticationStatus login(String email, String password, HttpMessageContext context) {
@@ -133,6 +158,14 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     }
 
     return authenticationStatus;
+  }
+
+  private AuthenticationStatus logout(String accessToken, String refreshToken,
+      HttpMessageContext context) {
+    addOldTokenToBlackList(accessToken);
+    addOldTokenToBlackList(refreshToken);
+
+    return context.doNothing();
   }
 
   private AuthenticationStatus validateRefreshToken(String token, HttpMessageContext context) {

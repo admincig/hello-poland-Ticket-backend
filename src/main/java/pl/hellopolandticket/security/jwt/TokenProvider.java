@@ -121,7 +121,10 @@ public class TokenProvider {
         = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
         .collect(Collectors.toSet());
 
-    return new JwtCredential(claims.getSubject(), authorities);
+    return JwtCredential.builder()
+        .principal(claims.getSubject())
+        .authorities(authorities)
+        .build();
   }
 
 }
