@@ -37,7 +37,6 @@ public class User implements Serializable {
   @Column(name = "USERNAME", nullable = false, unique = true)
   private String username;
 
-
   @Setter
   @NotNull
   @Column(name = "PASSWORD", nullable = false)

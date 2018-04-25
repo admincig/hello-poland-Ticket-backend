@@ -33,7 +33,7 @@ public class AuthenticationRestService {
     if (securityContext.getCallerPrincipal() != null) {
       return Response.ok(
           UserAuthDTO.builder()
-              .username(userInfo.getName())
+              .email(userInfo.getName())
               .accessToken(userInfo.getAccessToken())
               .refreshToken(userInfo.getRefreshToken())
               .build())
@@ -49,7 +49,7 @@ public class AuthenticationRestService {
     if (securityContext.getCallerPrincipal() != null) {
       return Response.ok(
           UserAuthDTO.builder()
-              .username(userInfo.getName())
+              .email(userInfo.getName())
               .accessToken(userInfo.getAccessToken())
               .refreshToken(userInfo.getRefreshToken())
               .build())

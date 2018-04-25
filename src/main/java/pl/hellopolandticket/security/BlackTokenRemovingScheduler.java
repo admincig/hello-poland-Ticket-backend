@@ -25,7 +25,7 @@ public class BlackTokenRemovingScheduler {
   @Inject
   private ApplicationPropertyService applicationPropertyService;
 
-  @Schedule(hour = "*/24", minute = "*", second = "0", year = "*", dayOfMonth = "*", dayOfWeek = "*",
+  @Schedule(hour = "1", minute = "5", second = "0", year = "*", dayOfMonth = "*", dayOfWeek = "*",
       persistent = false)
   public void run() {
     List<BlackToken> blackTokens = blackTokenDao.findAll();

@@ -47,13 +47,13 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
       HttpServletResponse response, HttpMessageContext context) {
     AuthenticationStatus authenticationStatus;
 
-    String name = request.getParameter("username");
+    String email = request.getParameter("email");
     String password = request.getParameter("password");
 
     String token = extractToken(context);
 
-    if (isLoginRequest(name, password, request)) {
-      authenticationStatus = login(name, password, context);
+    if (isLoginRequest(email, password, request)) {
+      authenticationStatus = login(email, password, context);
     } else if (isRefreshingRequest(token, request)) {
       authenticationStatus = validateRefreshToken(token, context);
     } else if (token != null) {
@@ -108,8 +108,8 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     return authorizationHeader != null && authorizationHeader.startsWith(AUTHORIZATION_PREFIX);
   }
 
-  private boolean isLoginRequest(String name, String password, HttpServletRequest request) {
-    return name != null && password != null
+  private boolean isLoginRequest(String email, String password, HttpServletRequest request) {
+    return email != null && password != null
         && "POST".equals(request.getMethod())
         && request.getRequestURI().endsWith("/auth/login");
   }
@@ -120,11 +120,11 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
         && request.getRequestURI().endsWith("/auth/refresh");
   }
 
-  private AuthenticationStatus login(String name, String password, HttpMessageContext context) {
+  private AuthenticationStatus login(String email, String password, HttpMessageContext context) {
     AuthenticationStatus authenticationStatus;
 
     CredentialValidationResult credentialValidationResult = identityStoreHandler
-        .validate(new UsernamePasswordCredential(name, password));
+        .validate(new UsernamePasswordCredential(email, password));
 
     if (loggedCorrectly(credentialValidationResult.getStatus())) {
       authenticationStatus = createToken(credentialValidationResult, context);
