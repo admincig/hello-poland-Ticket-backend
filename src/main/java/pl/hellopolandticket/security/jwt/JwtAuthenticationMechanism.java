@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.security.Authenticated;
-import pl.hellopolandticket.security.UserInfo;
+import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.BlackTokenService;
 import pl.hellopolandticket.service.exception.preconditionfailed.TokenInBlackListException;
 
@@ -29,7 +29,7 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
   private static final String AUTHORIZATION_PREFIX = "Bearer ";
 
-  private static final String LOGIN_CALLER_PARAMETER = "email";
+  private static final String LOGIN_CALLER_PARAMETER = "login";
   private static final String LOGIN_PASSWORD_PARAMETER = "password";
 
   private static final String ACCESS_TOKEN_PARAMETER = "accessToken";
@@ -49,7 +49,7 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
   @Inject
   @Authenticated
-  private Event<UserInfo> authenticatedEvent;
+  private Event<CurrentUser> authenticatedEvent;
 
   @Inject
   private BlackTokenService blackTokenService;
@@ -59,7 +59,7 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
       HttpServletResponse response, HttpMessageContext context) {
     AuthenticationStatus authenticationStatus;
 
-    String email = request.getParameter(LOGIN_CALLER_PARAMETER);
+    String login = request.getParameter(LOGIN_CALLER_PARAMETER);
     String password = request.getParameter(LOGIN_PASSWORD_PARAMETER);
 
     String token = extractToken(context);
@@ -67,8 +67,8 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     String accessToken = request.getParameter(ACCESS_TOKEN_PARAMETER);
     String refreshToken = request.getParameter(REFRESH_TOKEN_PARAMETER);
 
-    if (isLoginRequest(email, password, request)) {
-      authenticationStatus = login(email, password, context);
+    if (isLoginRequest(login, password, request)) {
+      authenticationStatus = login(login, password, context);
     } else if (isRefreshingRequest(token, request)) {
       authenticationStatus = validateRefreshToken(token, context);
     } else if (isLogoutRequest(accessToken, refreshToken, request)) {
@@ -94,8 +94,8 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
       JwtCredential credential = tokenProvider.getCredential(token, ACCESS_TOKEN);
 
       authenticatedEvent.fire(
-          UserInfo.builder()
-              .name(credential.getPrincipal())
+          CurrentUser.builder()
+              .email(credential.getPrincipal())
               .roles(credential.getAuthorities())
               .build()
       );
@@ -145,11 +145,11 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
         && request.getRequestURI().endsWith(LOGOUT_REQUEST_PATH);
   }
 
-  private AuthenticationStatus login(String email, String password, HttpMessageContext context) {
+  private AuthenticationStatus login(String login, String password, HttpMessageContext context) {
     AuthenticationStatus authenticationStatus;
 
     CredentialValidationResult credentialValidationResult = identityStoreHandler
-        .validate(new UsernamePasswordCredential(email, password));
+        .validate(new UsernamePasswordCredential(login, password));
 
     if (loggedCorrectly(credentialValidationResult.getStatus())) {
       authenticationStatus = createToken(credentialValidationResult, context);
@@ -212,8 +212,8 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
             REFRESH_TOKEN);
 
     authenticatedEvent.fire(
-        UserInfo.builder()
-            .name(result.getCallerPrincipal().getName())
+        CurrentUser.builder()
+            .email(result.getCallerPrincipal().getName())
             .roles(result.getCallerGroups())
             .accessToken(accessToken)
             .refreshToken(refreshToken)
@@ -232,8 +232,8 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
         .createToken(jwtCredential.getPrincipal(), jwtCredential.getAuthorities(), REFRESH_TOKEN);
 
     authenticatedEvent.fire(
-        UserInfo.builder()
-            .name(jwtCredential.getPrincipal())
+        CurrentUser.builder()
+            .email(jwtCredential.getPrincipal())
             .roles(jwtCredential.getAuthorities())
             .accessToken(accessToken)
             .refreshToken(refreshToken)

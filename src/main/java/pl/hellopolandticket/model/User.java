@@ -34,8 +34,8 @@ public class User implements Serializable {
 
   @Setter
   @NotNull
-  @Column(name = "USERNAME", nullable = false, unique = true)
-  private String username;
+  @Column(name = "NAME", nullable = false)
+  private String name;
 
   @Setter
   @NotNull
@@ -52,8 +52,8 @@ public class User implements Serializable {
   private Set<String> authorities = new HashSet<>();
 
   @Builder
-  public User(String username, String password, String email, Set<String> authorities) {
-    this.username = username;
+  public User(String name, String password, String email, Set<String> authorities) {
+    this.name = name;
     this.password = password;
     this.email = email;
     this.authorities = authorities;

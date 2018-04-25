@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.hellopolandticket.security.CurrentUser;
 
 @Setter
 @Getter
@@ -22,4 +23,11 @@ public class UserAuthDTO implements Serializable {
 
   private String refreshToken;
 
+  public static UserAuthDTO ofCurrentUser(CurrentUser currentUser) {
+    return UserAuthDTO.builder()
+        .email(currentUser.getEmail())
+        .accessToken(currentUser.getAccessToken())
+        .refreshToken(currentUser.getRefreshToken())
+        .build();
+  }
 }

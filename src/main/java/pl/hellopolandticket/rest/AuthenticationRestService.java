@@ -1,6 +1,7 @@
 package pl.hellopolandticket.rest;
 
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static pl.hellopolandticket.service.dto.UserAuthDTO.ofCurrentUser;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -12,8 +13,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopolandticket.security.Authenticated;
-import pl.hellopolandticket.security.UserInfo;
-import pl.hellopolandticket.service.dto.UserAuthDTO;
+import pl.hellopolandticket.security.CurrentUser;
 
 @Path("auth")
 @RequestScoped
@@ -24,19 +24,14 @@ public class AuthenticationRestService {
 
   @Inject
   @Authenticated
-  private UserInfo userInfo;
+  private CurrentUser currentUser;
 
   @POST
   @Path("login")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response login() {
     if (securityContext.getCallerPrincipal() != null) {
-      return Response.ok(
-          UserAuthDTO.builder()
-              .email(userInfo.getName())
-              .accessToken(userInfo.getAccessToken())
-              .refreshToken(userInfo.getRefreshToken())
-              .build())
+      return Response.ok(ofCurrentUser(currentUser))
           .build();
     }
 
@@ -47,12 +42,7 @@ public class AuthenticationRestService {
   @Path("refresh")
   public Response refresh() {
     if (securityContext.getCallerPrincipal() != null) {
-      return Response.ok(
-          UserAuthDTO.builder()
-              .email(userInfo.getName())
-              .accessToken(userInfo.getAccessToken())
-              .refreshToken(userInfo.getRefreshToken())
-              .build())
+      return Response.ok(ofCurrentUser(currentUser))
           .build();
     }
 
@@ -70,9 +60,10 @@ public class AuthenticationRestService {
   @Path("userinfo")
   public Response userInfo() {
     if (securityContext.getCallerPrincipal() != null) {
-      return Response.ok(userInfo).build();
+      return Response.ok(currentUser).build();
     }
     return Response.status(UNAUTHORIZED).build();
   }
+
 
 }
