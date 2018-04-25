@@ -1,6 +1,7 @@
 package pl.hellopolandticket.security.jwt;
 
 import static java.util.stream.Collectors.joining;
+import static pl.hellopolandticket.security.jwt.TokenType.ACCESS_TOKEN;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -9,42 +10,108 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import pl.hellopolandticket.service.ApplicationPropertyService;
 
 @Slf4j
 @ApplicationScoped
 public class TokenProvider {
 
   private static final String AUTHORITIES_KEY = "auth";
+  private static final String JWT_ACCESS_TOKEN_VALIDITY_PROPERTY = "jwt.accessTokenValidityMillis";
+  private static final String JWT_REFRESH_TOKEN_VALIDITY_PROPERTY = "jwt.refreshTokenValidityMillis";
+  private static final String JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY = "jwt.accessTokenSecretKey";
+  private static final String JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY = "jwt.refreshTokenSecretKey";
 
-  private static final String SECRET_KEY_PROPERTY = "jwt.secretKey";
+  @Inject
+  private ApplicationPropertyService applicationPropertyService;
 
-  private static final String TOKEN_VALIDITY_PROPERTY = "jwt.tokenValidityMillis";
-
-  private String secretKey;
-
-  private long tokenValidity;
-
-  @PostConstruct
-  public void init() {
-    secretKey = System.getProperty(SECRET_KEY_PROPERTY);
-    tokenValidity = Long.valueOf(System.getProperty(TOKEN_VALIDITY_PROPERTY));
+  public String createToken(String username, Set<String> authorities, TokenType tokenType) {
+    if (tokenType == ACCESS_TOKEN) {
+      return createAccessToken(username, authorities);
+    } else {
+      return createRefreshToken(username, authorities);
+    }
   }
 
-  public String createToken(String username, Set<String> authorities) {
+  public JwtCredential getCredential(String token, TokenType tokenType) {
+    if (tokenType == ACCESS_TOKEN) {
+      return getAccessTokenCredential(token);
+    } else {
+      return getRefreshTokenCredential(token);
+    }
+  }
+
+  public void validateToken(String authToken, TokenType tokenType) {
+    if (tokenType == ACCESS_TOKEN) {
+      validateAccessToken(authToken);
+    } else {
+      validateRefreshToken(authToken);
+    }
+  }
+
+  private String createAccessToken(String username, Set<String> authorities) {
     long now = (new Date()).getTime();
+    long accessTokenValidity = getTokenValidity(JWT_ACCESS_TOKEN_VALIDITY_PROPERTY);
+    String accessTokenSecretKey = getTokenSecretKey(JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY);
 
     return Jwts.builder()
         .setSubject(username)
         .claim(AUTHORITIES_KEY, authorities.stream().collect(joining(",")))
-        .signWith(SignatureAlgorithm.HS512, secretKey)
-        .setExpiration(new Date(now + tokenValidity))
+        .signWith(SignatureAlgorithm.HS512, accessTokenSecretKey)
+        .setExpiration(new Date(now + accessTokenValidity))
         .compact();
   }
 
-  public JwtCredential getCredential(String token) {
+  private String createRefreshToken(String username, Set<String> authorities) {
+    long now = (new Date()).getTime();
+    long refreshTokenValidity = getTokenValidity(JWT_REFRESH_TOKEN_VALIDITY_PROPERTY);
+    String refreshTokenSecretKey = getTokenSecretKey(JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY);
+
+    return Jwts.builder()
+        .setSubject(username)
+        .claim(AUTHORITIES_KEY, authorities.stream().collect(joining(",")))
+        .signWith(SignatureAlgorithm.HS512, refreshTokenSecretKey)
+        .setExpiration(new Date(now + refreshTokenValidity))
+        .compact();
+  }
+
+  private long getTokenValidity(String propertyName) {
+    return Long.valueOf(applicationPropertyService.findByName(propertyName).getPropertyValue());
+  }
+
+  private String getTokenSecretKey(String propertyName) {
+    return applicationPropertyService.findByName(propertyName).getPropertyValue();
+  }
+
+  private void validateAccessToken(String token) {
+    String accessTokenSecretKey = getTokenSecretKey(JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY);
+
+    Jwts.parser().setSigningKey(accessTokenSecretKey).parseClaimsJws(token);
+
+  }
+
+  private void validateRefreshToken(String token) {
+    String refreshTokenSecretKey = getTokenSecretKey(JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY);
+
+    Jwts.parser().setSigningKey(refreshTokenSecretKey).parseClaimsJws(token);
+  }
+
+  private JwtCredential getAccessTokenCredential(String token) {
+    String accessTokenSecretKey = getTokenSecretKey(JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY);
+
+    return getCredential(token, accessTokenSecretKey);
+  }
+
+  private JwtCredential getRefreshTokenCredential(String token) {
+    String refreshTokenSecretKey = getTokenSecretKey(JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY);
+
+    return getCredential(token, refreshTokenSecretKey);
+  }
+
+  private JwtCredential getCredential(String token, String secretKey) {
     Claims claims = Jwts.parser()
         .setSigningKey(secretKey)
         .parseClaimsJws(token)
@@ -57,7 +124,4 @@ public class TokenProvider {
     return new JwtCredential(claims.getSubject(), authorities);
   }
 
-  public void validateToken(String authToken) {
-    Jwts.parser().setSigningKey(secretKey).parseClaimsJws(authToken);
-  }
 }

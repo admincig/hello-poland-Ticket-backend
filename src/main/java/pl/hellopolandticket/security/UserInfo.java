@@ -20,13 +20,15 @@ public class UserInfo {
 
   private String name;
   private Set<String> roles = new HashSet<>();
+  private String accessToken;
+  private String refreshToken;
 
   public boolean hasRole(String _role) {
-    return this.roles.contains(_role);
+    return roles.contains(_role);
   }
 
-  public boolean hasAnyRoles(String... _roles) {
-    return this.roles.stream().anyMatch(c -> asList(_roles).contains(c));
+  public boolean hasAnyRoles(String... roles) {
+    return this.roles.stream().anyMatch(c -> asList(roles).contains(c));
   }
 
 }
