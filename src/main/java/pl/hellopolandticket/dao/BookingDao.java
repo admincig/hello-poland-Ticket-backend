@@ -6,10 +6,11 @@ import java.util.Date;
 import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import pl.hellopolandticket.model.Booking;
-import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
+import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
@@ -17,6 +18,9 @@ public class BookingDao {
 
   @PersistenceContext
   private EntityManager entityManager;
+
+  @Inject
+  private ExceptionFactory exceptionFactory;
 
   public Booking persist(Booking booking) {
     entityManager.persist(booking);
@@ -31,7 +35,7 @@ public class BookingDao {
         .setParameter("id", bookingId)
         .getResultStream()
         .findFirst()
-        .orElseThrow(ResourceNotFoundException::new);
+        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
   public List<Booking> findBookingsExceededMaxBookingTime(Date maxBookingTimeEarlier) {

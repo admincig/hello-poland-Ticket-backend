@@ -9,13 +9,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.hellopolandticket.model.DateType;
 
 @Setter
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonPropertyOrder(value = {"name", "price", "predefinedDate", "date", "sightName"})
+@JsonPropertyOrder(value = {"name", "price", "predefinedDate", "date", "dateType", "sightName"})
 public class TicketDefinitionCSV implements Serializable {
 
   private static final long serialVersionUID = 4461566918374139044L;
@@ -30,6 +31,9 @@ public class TicketDefinitionCSV implements Serializable {
   private Boolean predefinedDate;
 
   private Date date;
+
+  @NotNull
+  private DateType dateType;
 
   @NotNull
   private String sightName;

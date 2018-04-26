@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -54,17 +56,24 @@ public class TicketDefinition implements Serializable {
 
   @Setter
   @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(name = "DATE_TYPE", nullable = false)
+  private DateType dateType;
+
+  @Setter
+  @NotNull
   @ManyToOne(optional = false, fetch = EAGER)
   @JoinColumn(name = "SIGHT_ID", nullable = false)
   private Sight sight;
 
   @Builder
   public TicketDefinition(String name, Integer price, Boolean predefinedDate, Date date,
-      Sight sight) {
+      DateType dateType, Sight sight) {
     this.name = name;
     this.price = price;
     this.predefinedDate = predefinedDate;
     this.date = date;
+    this.dateType = dateType;
     this.sight = sight;
   }
 

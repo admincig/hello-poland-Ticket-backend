@@ -6,4 +6,5 @@ import javax.ejb.ApplicationException;
 public class CannotGenerateQrCodeException extends BadRequestBaseException {
 
   private static final long serialVersionUID = 4385651506864364513L;
+
 }

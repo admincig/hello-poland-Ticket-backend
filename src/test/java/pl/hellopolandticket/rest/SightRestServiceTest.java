@@ -11,6 +11,7 @@ import org.junit.Test;
 import pl.hellopolandticket.BaseTest;
 import pl.hellopolandticket.service.dto.TicketDTO;
 import pl.hellopolandticket.service.exception.conflict.PunchingTicketForWrongSightException;
+import pl.hellopolandticket.service.exception.conflict.TicketInvalidException;
 import pl.hellopolandticket.service.exception.conflict.WrongTicketStatusException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 
@@ -44,8 +45,14 @@ public class SightRestServiceTest extends BaseTest {
   }
 
   @Test(expected = WrongTicketStatusException.class)
-  public void shouldThrowWrongTicketStatusExceptionWhenTicketHasAnotherStatusThanBought() {
+  public void shouldThrowWrongTicketStatusExceptionWhenPunchingTicketHasAnotherStatusThanBought() {
     sightRestService
         .punchTicket(2L, "0C54D64568A3ACD560EC5591D78A6D440CF4F5CD0142C186F4AAAF7F5307DFA3");
+  }
+
+  @Test(expected = TicketInvalidException.class)
+  public void shouldThrowTicketInvalidExceptionWhenPunchingInvalidTicket() {
+    sightRestService
+        .punchTicket(2L, "635735E7C7972D5B0852F51BED44463D774C3054C3563C1F6ABE5C1103A5FA8F");
   }
 }

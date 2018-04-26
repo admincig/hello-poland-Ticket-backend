@@ -1,5 +1,7 @@
 package pl.hellopolandticket.service.exception.badrequest;
 
-public abstract class BadRequestBaseException extends RuntimeException {
+import pl.hellopolandticket.service.exception.BaseException;
+
+public abstract class BadRequestBaseException extends BaseException {
 
 }

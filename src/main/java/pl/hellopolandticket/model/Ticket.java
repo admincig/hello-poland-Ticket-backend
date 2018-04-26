@@ -91,17 +91,24 @@ public class Ticket implements Serializable {
 
   @Setter
   @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(name = "DATE_TYPE", nullable = false)
+  private DateType dateType;
+
+  @Setter
+  @NotNull
   @ManyToOne(optional = false)
   @JoinColumn(name = "TICKET_DEFINITION", nullable = false)
   private TicketDefinition ticketDefinition;
 
   @Builder
-  public Ticket(Sight sight, String name, Integer price, Date date, Status status,
-      String serialNumber, Booking booking, TicketDefinition ticketDefinition) {
+  public Ticket(Sight sight, String name, Integer price, Date date, DateType dateType,
+      Status status, String serialNumber, Booking booking, TicketDefinition ticketDefinition) {
     this.sight = sight;
     this.name = name;
     this.price = price;
     this.date = date;
+    this.dateType = dateType;
     this.status = status;
     this.serialNumber = serialNumber;
     this.booking = booking;

@@ -25,7 +25,7 @@ import pl.hellopolandticket.service.dto.BookingDTO;
 import pl.hellopolandticket.service.dto.BookingDTOCreate;
 import pl.hellopolandticket.service.dto.TicketBookingDTO;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
-import pl.hellopolandticket.service.exception.conflict.NotBookedException;
+import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
@@ -48,6 +48,9 @@ public class BookingService {
 
   @Inject
   private Event<BookingMarkedAsBoughtEvent> bookingMarkedAsBoughtEvent;
+
+  @Inject
+  private ExceptionFactory exceptionFactory;
 
   public BookingDTO createBooking(BookingDTOCreate booking) {
     Booking bookingToPersist = Booking.builder()
@@ -74,7 +77,7 @@ public class BookingService {
 
       return markBookingAsBought(booking.getId());
     } else {
-      throw new NotBookedException();
+      throw exceptionFactory.notBookedException();
     }
 
     return ofBooking(booking);
@@ -105,6 +108,7 @@ public class BookingService {
             .name(ticketDefinition.getName())
             .price(ticketDefinition.getPrice())
             .date(booking.getDate())
+            .dateType(ticketDefinition.getDateType())
             .status(BOOKED)
             .booking(booking)
             .ticketDefinition(ticketDefinition)
