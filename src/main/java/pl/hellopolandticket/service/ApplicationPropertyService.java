@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import pl.hellopolandticket.dao.ApplicationPropertyDao;
 import pl.hellopolandticket.model.ApplicationProperty;
 import pl.hellopolandticket.service.dto.ApplicationPropertyDTO;
-import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
+import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
@@ -19,6 +19,9 @@ public class ApplicationPropertyService {
 
   @Inject
   private ApplicationPropertyDao applicationPropertyDao;
+
+  @Inject
+  private ExceptionFactory exceptionFactory;
 
   public ApplicationPropertyDTO setApplicationProperty(
       ApplicationPropertyDTO applicationPropertyDTO) {
@@ -35,7 +38,7 @@ public class ApplicationPropertyService {
   public ApplicationPropertyDTO findByName(String propertyName) {
     ApplicationProperty applicationProperty = applicationPropertyDao
         .findByPropertyName(propertyName)
-        .orElseThrow(ResourceNotFoundException::new);
+        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
 
     return ofApplicationProperty(applicationPropertyDao.persist(applicationProperty));
   }
@@ -49,7 +52,7 @@ public class ApplicationPropertyService {
   public void removeApplicationProperty(String propertyName) {
     ApplicationProperty applicationProperty = applicationPropertyDao
         .findByPropertyName(propertyName)
-        .orElseThrow(ResourceNotFoundException::new);
+        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
 
     applicationPropertyDao.remove(applicationProperty);
   }

@@ -4,11 +4,12 @@ package pl.hellopolandticket.dao;
 import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import pl.hellopolandticket.model.Status;
 import pl.hellopolandticket.model.Ticket;
-import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
+import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
@@ -16,6 +17,9 @@ public class TicketDao {
 
   @PersistenceContext
   private EntityManager entityManager;
+
+  @Inject
+  private ExceptionFactory exceptionFactory;
 
   public List<Ticket> persist(List<Ticket> tickets) {
     for (Ticket ticket : tickets) {
@@ -31,7 +35,7 @@ public class TicketDao {
         .setParameter("id", ticketId)
         .getResultStream()
         .findFirst()
-        .orElseThrow(ResourceNotFoundException::new);
+        .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
   }
 
   public Ticket findBySerialNumber(String serialNumber) {
@@ -40,7 +44,7 @@ public class TicketDao {
         .setParameter("serialNumber", serialNumber)
         .getResultStream()
         .findFirst()
-        .orElseThrow(ResourceNotFoundException::new);
+        .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
   }
 
   public Long countTicketsBySightIdAndTicketStatusInTicketStatuses(Long sightId,
@@ -53,6 +57,6 @@ public class TicketDao {
         .setParameter("statuses", statuses)
         .getResultStream()
         .findFirst()
-        .orElseThrow(ResourceNotFoundException::new);
+        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 }

@@ -6,4 +6,5 @@ import javax.ejb.ApplicationException;
 public class NumberOfTicketsNotPositiveException extends PreconditionFailedBaseException {
 
   private static final long serialVersionUID = -5793398395778749990L;
+
 }

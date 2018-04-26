@@ -1,5 +1,7 @@
 package pl.hellopolandticket.service.exception.conflict;
 
-public abstract class ConflictBaseException extends RuntimeException {
+import pl.hellopolandticket.service.exception.BaseException;
+
+public abstract class ConflictBaseException extends BaseException {
 
 }

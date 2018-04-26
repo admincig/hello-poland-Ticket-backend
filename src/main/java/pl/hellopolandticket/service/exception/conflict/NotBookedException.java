@@ -6,4 +6,8 @@ import javax.ejb.ApplicationException;
 public class NotBookedException extends ConflictBaseException {
 
   private static final long serialVersionUID = -5329810822328213548L;
+
+  public NotBookedException(String message) {
+    this.message = message;
+  }
 }
