@@ -6,36 +6,37 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.BlackToken;
+import pl.hellopolandticket.model.ExpiredToken;
 
 @Stateless
 @LocalBean
-public class BlackTokenDao {
+public class ExpiredTokenDao {
 
   @PersistenceContext
   private EntityManager entityManager;
 
-  public BlackToken persist(BlackToken token) {
+  public ExpiredToken persist(ExpiredToken token) {
     entityManager.persist(token);
 
     return token;
   }
 
-  public Optional<BlackToken> findByToken(String token) {
+  public Optional<ExpiredToken> findByToken(String token) {
     return entityManager
-        .createQuery("from BlackToken blackToken where blackToken.token=:token", BlackToken.class)
+        .createQuery("from ExpiredToken expiredToken where expiredToken.token=:token",
+            ExpiredToken.class)
         .setParameter("token", token)
         .getResultStream()
         .findFirst();
   }
 
-  public List<BlackToken> findAll() {
+  public List<ExpiredToken> findAll() {
     return entityManager
-        .createQuery("from BlackToken blackToken", BlackToken.class)
+        .createQuery("from ExpiredToken expiredToken", ExpiredToken.class)
         .getResultList();
   }
 
-  public void remove(BlackToken blackToken) {
-    entityManager.remove(blackToken);
+  public void remove(ExpiredToken expiredToken) {
+    entityManager.remove(expiredToken);
   }
 }

@@ -16,14 +16,16 @@ import lombok.Setter;
 
 @Getter
 @Entity
-@Table(name = "TOKENS_BLACK_LIST")
+@Table(name = "EXPIRED_TOKENS")
 @EqualsAndHashCode
 @NoArgsConstructor
-public class BlackToken implements Serializable {
+public class ExpiredToken implements Serializable {
+
+  private static final long serialVersionUID = 2761871750829857794L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "TOKEN_ID")
+  @Column(name = "EXPIRED_TOKEN_ID")
   private Long id;
 
   @Setter
@@ -32,7 +34,7 @@ public class BlackToken implements Serializable {
   private String token;
 
   @Builder
-  public BlackToken(String token) {
+  public ExpiredToken(String token) {
     this.token = token;
   }
 }

@@ -17,7 +17,9 @@ public class UserAuthDTO implements Serializable {
 
   private static final long serialVersionUID = 1790587694120511896L;
 
-  private String email;
+  private String login;
+
+  private String password;
 
   private String accessToken;
 
@@ -25,7 +27,7 @@ public class UserAuthDTO implements Serializable {
 
   public static UserAuthDTO ofCurrentUser(CurrentUser currentUser) {
     return UserAuthDTO.builder()
-        .email(currentUser.getEmail())
+        .login(currentUser.getEmail())
         .accessToken(currentUser.getAccessToken())
         .refreshToken(currentUser.getRefreshToken())
         .build();

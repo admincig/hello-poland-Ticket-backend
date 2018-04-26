@@ -1,12 +1,19 @@
 package pl.hellopolandticket.security.jwt;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.Status.VALID;
 import static pl.hellopolandticket.security.jwt.TokenType.ACCESS_TOKEN;
 import static pl.hellopolandticket.security.jwt.TokenType.REFRESH_TOKEN;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.json.bind.JsonbBuilder;
 import javax.security.enterprise.AuthenticationStatus;
 import javax.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
 import javax.security.enterprise.authentication.mechanism.http.HttpMessageContext;
@@ -20,8 +27,9 @@ import javax.ws.rs.core.HttpHeaders;
 import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
-import pl.hellopolandticket.service.BlackTokenService;
-import pl.hellopolandticket.service.exception.preconditionfailed.TokenInBlackListException;
+import pl.hellopolandticket.service.ExpiredTokenService;
+import pl.hellopolandticket.service.dto.UserAuthDTO;
+import pl.hellopolandticket.service.exception.preconditionfailed.TokenInExpiredTokensListException;
 
 @Slf4j
 @ApplicationScoped
@@ -52,29 +60,35 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
   private Event<CurrentUser> authenticatedEvent;
 
   @Inject
-  private BlackTokenService blackTokenService;
+  private ExpiredTokenService expiredTokenService;
 
   @Override
   public AuthenticationStatus validateRequest(HttpServletRequest request,
       HttpServletResponse response, HttpMessageContext context) {
     AuthenticationStatus authenticationStatus;
 
-    String login = request.getParameter(LOGIN_CALLER_PARAMETER);
-    String password = request.getParameter(LOGIN_PASSWORD_PARAMETER);
+    Optional<UserAuthDTO> userAuthDTO = extractUserAuthDTO(request);
 
-    String token = extractToken(context);
+    String login = userAuthDTO.map(UserAuthDTO::getLogin).orElse(null);
+    String password = userAuthDTO.map(UserAuthDTO::getPassword).orElse(null);
 
-    String accessToken = request.getParameter(ACCESS_TOKEN_PARAMETER);
-    String refreshToken = request.getParameter(REFRESH_TOKEN_PARAMETER);
+    String accessToken = userAuthDTO.map(UserAuthDTO::getAccessToken).orElse(null);
+    String refreshToken = userAuthDTO.map(UserAuthDTO::getRefreshToken).orElse(null);
 
-    if (isLoginRequest(login, password, request)) {
-      authenticationStatus = login(login, password, context);
-    } else if (isRefreshingRequest(token, request)) {
-      authenticationStatus = validateRefreshToken(token, context);
+    String authorizationToken = extractToken(context);
+
+    if (isLoginRequest(request)) {
+      if (hasProperDataToLogin(login, password)) {
+        authenticationStatus = login(login, password, context);
+      } else {
+        authenticationStatus = context.responseUnauthorized();
+      }
+    } else if (isRefreshingRequest(authorizationToken, request)) {
+      authenticationStatus = validateRefreshToken(authorizationToken, context);
     } else if (isLogoutRequest(accessToken, refreshToken, request)) {
       authenticationStatus = logout(accessToken, refreshToken, context);
-    } else if (token != null) {
-      authenticationStatus = validateAccessToken(token, context);
+    } else if (authorizationToken != null) {
+      authenticationStatus = validateAccessToken(authorizationToken, context);
     } else if (context.isProtected()) {
       authenticationStatus = context.responseUnauthorized();
     } else {
@@ -84,12 +98,31 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     return authenticationStatus;
   }
 
+  private Optional<UserAuthDTO> extractUserAuthDTO(HttpServletRequest request) {
+    Optional<UserAuthDTO> userAuthDTO = empty();
+    Optional<String> userAuthJson = empty();
+
+    try {
+      userAuthJson = ofNullable(
+          new BufferedReader(
+              new InputStreamReader(request.getInputStream())).lines()
+              .collect(joining("\n")));
+    } catch (Exception ignored) {
+    }
+
+    if (userAuthJson.isPresent()) {
+      userAuthDTO = ofNullable(JsonbBuilder.create()
+          .fromJson(userAuthJson.get(), UserAuthDTO.class));
+    }
+
+    return userAuthDTO;
+  }
 
   private AuthenticationStatus validateAccessToken(String token, HttpMessageContext context) {
     AuthenticationStatus authenticationStatus;
 
     try {
-      validateTokenNotInTokensBlackList(token);
+      validateTokenNotInExpiredTokensList(token);
       tokenProvider.validateToken(token, ACCESS_TOKEN);
       JwtCredential credential = tokenProvider.getCredential(token, ACCESS_TOKEN);
 
@@ -126,10 +159,13 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     return authorizationHeader != null && authorizationHeader.startsWith(AUTHORIZATION_PREFIX);
   }
 
-  private boolean isLoginRequest(String email, String password, HttpServletRequest request) {
-    return email != null && password != null
-        && AUTHENTICATION_METHOD.equals(request.getMethod())
+  private boolean isLoginRequest(HttpServletRequest request) {
+    return AUTHENTICATION_METHOD.equals(request.getMethod())
         && request.getRequestURI().endsWith(LOGIN_REQUEST_PATH);
+  }
+
+  private boolean hasProperDataToLogin(String email, String password) {
+    return email != null && password != null;
   }
 
   private boolean isRefreshingRequest(String token, HttpServletRequest request) {
@@ -162,8 +198,8 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
   private AuthenticationStatus logout(String accessToken, String refreshToken,
       HttpMessageContext context) {
-    addOldTokenToBlackList(accessToken);
-    addOldTokenToBlackList(refreshToken);
+    addOldTokenToExpiredTokensList(accessToken);
+    addOldTokenToExpiredTokensList(refreshToken);
 
     return context.doNothing();
   }
@@ -172,12 +208,12 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     AuthenticationStatus authenticationStatus;
 
     try {
-      validateTokenNotInTokensBlackList(token);
+      validateTokenNotInExpiredTokensList(token);
       tokenProvider.validateToken(token, REFRESH_TOKEN);
 
       JwtCredential jwtCredential = tokenProvider.getCredential(token, REFRESH_TOKEN);
 
-      addOldTokenToBlackList(token);
+      addOldTokenToExpiredTokensList(token);
 
       authenticationStatus = createToken(jwtCredential, context);
     } catch (Exception e) {
@@ -187,14 +223,14 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     return authenticationStatus;
   }
 
-  private void validateTokenNotInTokensBlackList(String token) {
-    if (blackTokenService.isTokenInBlackList(token)) {
-      throw new TokenInBlackListException();
+  private void validateTokenNotInExpiredTokensList(String token) {
+    if (expiredTokenService.isTokenInExpiredTokensList(token)) {
+      throw new TokenInExpiredTokensListException();
     }
   }
 
-  private void addOldTokenToBlackList(String token) {
-    blackTokenService.addTokenToBlackList(token);
+  private void addOldTokenToExpiredTokensList(String token) {
+    expiredTokenService.addTokenToExpiredTokensList(token);
   }
 
   private boolean loggedCorrectly(Status status) {

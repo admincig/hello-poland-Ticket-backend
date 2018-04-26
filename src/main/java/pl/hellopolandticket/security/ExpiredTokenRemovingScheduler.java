@@ -8,19 +8,19 @@ import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-import pl.hellopolandticket.dao.BlackTokenDao;
-import pl.hellopolandticket.model.BlackToken;
+import pl.hellopolandticket.dao.ExpiredTokenDao;
+import pl.hellopolandticket.model.ExpiredToken;
 import pl.hellopolandticket.service.ApplicationPropertyService;
 
 @Slf4j
 @Singleton
-public class BlackTokenRemovingScheduler {
+public class ExpiredTokenRemovingScheduler {
 
   private static final String JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY = "jwt.accessTokenSecretKey";
   private static final String JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY = "jwt.refreshTokenSecretKey";
 
   @Inject
-  private BlackTokenDao blackTokenDao;
+  private ExpiredTokenDao expiredTokenDao;
 
   @Inject
   private ApplicationPropertyService applicationPropertyService;
@@ -28,48 +28,48 @@ public class BlackTokenRemovingScheduler {
   @Schedule(hour = "*", minute = "*/5", second = "0", year = "*", dayOfMonth = "*", dayOfWeek = "*",
       persistent = false)
   public void run() {
-    List<BlackToken> blackTokens = blackTokenDao.findAll();
+    List<ExpiredToken> expiredTokens = expiredTokenDao.findAll();
 
-    for (BlackToken blackToken : blackTokens) {
+    for (ExpiredToken expiredToken : expiredTokens) {
       int numberOfThrownSignatureExceptions = 0;
       try {
-        validateAccessTokenIsStillValid(blackToken);
+        validateAccessTokenIsStillValid(expiredToken);
       } catch (SignatureException e) {
         numberOfThrownSignatureExceptions++;
       }
       try {
-        validateRefreshTokenStillValid(blackToken);
+        validateRefreshTokenStillValid(expiredToken);
       } catch (SignatureException e) {
         numberOfThrownSignatureExceptions++;
       }
 
       if (isInvalidToken(numberOfThrownSignatureExceptions)) {
-        blackTokenDao.remove(blackToken);
+        expiredTokenDao.remove(expiredToken);
       }
     }
   }
 
-  private void validateAccessTokenIsStillValid(BlackToken blackToken) {
+  private void validateAccessTokenIsStillValid(ExpiredToken expiredToken) {
     String accessTokenSecretKey = applicationPropertyService
         .findByName(JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY)
         .getPropertyValue();
 
-    validateTokenStillValid(accessTokenSecretKey, blackToken);
+    validateTokenStillValid(accessTokenSecretKey, expiredToken);
   }
 
-  private void validateRefreshTokenStillValid(BlackToken blackToken) {
+  private void validateRefreshTokenStillValid(ExpiredToken expiredToken) {
     String refreshTokenSecretKey = applicationPropertyService
         .findByName(JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY)
         .getPropertyValue();
 
-    validateTokenStillValid(refreshTokenSecretKey, blackToken);
+    validateTokenStillValid(refreshTokenSecretKey, expiredToken);
   }
 
-  private void validateTokenStillValid(String secretKey, BlackToken blackToken) {
+  private void validateTokenStillValid(String secretKey, ExpiredToken expiredToken) {
     try {
-      Jwts.parser().setSigningKey(secretKey).parse(blackToken.getToken());
+      Jwts.parser().setSigningKey(secretKey).parse(expiredToken.getToken());
     } catch (ExpiredJwtException e) {
-      blackTokenDao.remove(blackToken);
+      expiredTokenDao.remove(expiredToken);
     }
   }
 
