@@ -36,13 +36,6 @@ import pl.hellopolandticket.service.exception.preconditionfailed.TokenInExpiredT
 public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
   private static final String AUTHORIZATION_PREFIX = "Bearer ";
-
-  private static final String LOGIN_CALLER_PARAMETER = "login";
-  private static final String LOGIN_PASSWORD_PARAMETER = "password";
-
-  private static final String ACCESS_TOKEN_PARAMETER = "accessToken";
-  private static final String REFRESH_TOKEN_PARAMETER = "refreshToken";
-
   private static final String AUTHENTICATION_METHOD = "POST";
 
   private static final String LOGIN_REQUEST_PATH = "/auth/login";
@@ -100,19 +93,18 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
   private Optional<UserAuthDTO> extractUserAuthDTO(HttpServletRequest request) {
     Optional<UserAuthDTO> userAuthDTO = empty();
-    Optional<String> userAuthJson = empty();
+    String userAuthJson = "";
 
     try {
-      userAuthJson = ofNullable(
-          new BufferedReader(
-              new InputStreamReader(request.getInputStream())).lines()
-              .collect(joining("\n")));
+      userAuthJson = new BufferedReader(
+          new InputStreamReader(request.getInputStream())).lines()
+          .collect(joining("\n"));
     } catch (Exception ignored) {
     }
 
-    if (userAuthJson.isPresent()) {
+    if (!userAuthJson.isEmpty()) {
       userAuthDTO = ofNullable(JsonbBuilder.create()
-          .fromJson(userAuthJson.get(), UserAuthDTO.class));
+          .fromJson(userAuthJson, UserAuthDTO.class));
     }
 
     return userAuthDTO;
