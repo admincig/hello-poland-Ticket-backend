@@ -101,6 +101,11 @@ public class Ticket implements Serializable {
   @JoinColumn(name = "TICKET_DEFINITION", nullable = false)
   private TicketDefinition ticketDefinition;
 
+  @Setter
+  @ManyToOne
+  @JoinColumn(name = "TICKET_TAKER")
+  private User ticketTaker;
+
   @Builder
   public Ticket(Sight sight, String name, Integer price, Date date, DateType dateType,
       Status status, String serialNumber, Booking booking, TicketDefinition ticketDefinition) {

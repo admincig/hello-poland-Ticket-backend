@@ -8,6 +8,9 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.Ticket;
+import pl.hellopolandticket.model.User;
+import pl.hellopolandticket.security.Authenticated;
+import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.dto.TicketDTO;
 import pl.hellopolandticket.service.validator.TicketValidator;
 
@@ -21,6 +24,13 @@ public class TicketService {
   @Inject
   private TicketValidator ticketValidator;
 
+  @Inject
+  @Authenticated
+  private CurrentUser currentUser;
+
+  @Inject
+  private UserService userService;
+
   public TicketDTO punchTicket(Long sightId, String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
 
@@ -28,6 +38,9 @@ public class TicketService {
     ticketValidator.validateTicketHasDemandedStatus(ticket);
     ticketValidator.validateProperTime(ticket);
 
+    User ticketTaker = userService.findByEmail(currentUser.getEmail());
+
+    ticket.setTicketTaker(ticketTaker);
     ticket.setStatus(PUNCHED);
 
     return ofTicket(ticket);

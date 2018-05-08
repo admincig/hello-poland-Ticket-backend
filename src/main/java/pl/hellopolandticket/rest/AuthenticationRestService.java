@@ -3,6 +3,7 @@ package pl.hellopolandticket.rest;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static pl.hellopolandticket.service.dto.UserAuthDTO.ofCurrentUser;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.security.enterprise.SecurityContext;
@@ -54,6 +55,7 @@ public class AuthenticationRestService {
 
   @GET
   @Path("userinfo")
+  @RolesAllowed({"ROLE_USER"})
   public Response userInfo() {
     if (securityContext.getCallerPrincipal() != null) {
       return Response.ok(currentUser).build();

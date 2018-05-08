@@ -1,5 +1,6 @@
 package pl.hellopolandticket.rest;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -25,6 +26,7 @@ public class SightRestService {
   private TicketService ticketService;
 
   @GET
+  @RolesAllowed({"ROLE_USER"})
   public Response getSights() {
     JsonCollectionWrapper responseBody = JsonCollectionWrapper.builder()
         .items(sightService.findAll())
@@ -35,12 +37,14 @@ public class SightRestService {
 
   @GET
   @Path("/{sightId}")
+  @RolesAllowed({"ROLE_USER"})
   public Response getById(@PathParam("sightId") Long sightId) {
     return Response.ok(sightService.findById(sightId)).build();
   }
 
   @PATCH
   @Path("/{sightId}/tickets/{serialNumber}")
+  @RolesAllowed({"ROLE_USER"})
   public Response punchTicket(
       @PathParam("sightId") Long sightId,
       @PathParam("serialNumber") String serialNumber) {
@@ -50,6 +54,7 @@ public class SightRestService {
 
   @GET
   @Path("/{sightId}/tickets/{serialNumber}")
+  @RolesAllowed({"ROLE_USER"})
   public Response getTicket(
       @PathParam("sightId") Long sightId,
       @PathParam("serialNumber") String serialNumber) {
