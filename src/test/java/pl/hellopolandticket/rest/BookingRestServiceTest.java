@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.arquillian.persistence.UsingDataSet;
+import org.junit.Ignore;
 import org.junit.Test;
 import pl.hellopolandticket.BaseTest;
 import pl.hellopolandticket.dao.BookingDao;
@@ -23,6 +24,7 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 
 @Slf4j
 @UsingDataSet("scripts/datasets/import.yml")
+@Ignore
 public class BookingRestServiceTest extends BaseTest {
 
   @Inject

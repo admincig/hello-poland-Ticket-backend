@@ -16,7 +16,7 @@ import pl.hellopolandticket.service.csv.pojo.TicketDefinitionCSV;
 import pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.event.SightsImportEvent;
 import pl.hellopolandticket.service.event.TicketDefinitionsImportEvent;
-import pl.hellopolandticket.service.exception.badrequest.ImportingDataException;
+import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
@@ -34,6 +34,9 @@ public class CSVService {
   @Inject
   private Event<TicketDefinitionsImportEvent> ticketDefinitionsImportEvent;
 
+  @Inject
+  private ExceptionFactory exceptionFactory;
+
   public void importSightsFromCSV(List<SightCSV> sightsCSV) {
     try {
       List<Sight> sights = sightsCSV.stream()
@@ -44,7 +47,7 @@ public class CSVService {
 
       sightsImportEvent.fireAsync(createSightsImportEvent(sights));
     } catch (Exception e) {
-      throw new ImportingDataException();
+      throw exceptionFactory.importingDataException();
     }
   }
 
@@ -58,7 +61,7 @@ public class CSVService {
 
       ticketDefinitionsImportEvent.fireAsync(createTicketsImportEvent(ticketDefinitions));
     } catch (Exception e) {
-      throw new ImportingDataException();
+      throw exceptionFactory.importingDataException();
     }
   }
 
@@ -70,6 +73,7 @@ public class CSVService {
         .price(ticketDefinitionCSV.getPrice())
         .predefinedDate(ticketDefinitionCSV.getPredefinedDate())
         .date(ticketDefinitionCSV.getDate())
+        .dateType(ticketDefinitionCSV.getDateType())
         .sight(sightService.findBySightName(ticketDefinitionCSV.getSightName()))
         .build();
   }

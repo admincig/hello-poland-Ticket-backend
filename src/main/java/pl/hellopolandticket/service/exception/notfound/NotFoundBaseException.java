@@ -1,5 +1,7 @@
 package pl.hellopolandticket.service.exception.notfound;
 
-public abstract class NotFoundBaseException extends RuntimeException {
+import pl.hellopolandticket.service.exception.BaseException;
+
+public abstract class NotFoundBaseException extends BaseException {
 
 }

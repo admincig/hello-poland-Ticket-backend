@@ -7,4 +7,8 @@ import pl.hellopolandticket.service.exception.preconditionfailed.PreconditionFai
 public class PunchingTicketForWrongSightException extends PreconditionFailedBaseException {
 
   private static final long serialVersionUID = 9007571961681767465L;
+
+  public PunchingTicketForWrongSightException(String message) {
+    this.message = message;
+  }
 }

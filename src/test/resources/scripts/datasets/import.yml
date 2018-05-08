@@ -10,11 +10,13 @@ ticket_definitions:
     name: A ticket to the Kolejkowo
     price: 1000
     predefined_date: 0
+    date_type: UNDEFINED
     sight_id: 1
   - ticket_definition_id: 2
     name: A ticket to the Zoo
     price: 2000
     predefined_date: 0
+    date_type: UNDEFINED
     sight_id: 2
 bookings:
   - booking_id: 1
@@ -51,6 +53,7 @@ tickets:
     status: BOOKED
     ticket_definition: 1
     booking: 1
+    date_type: UNDEFINED
   - ticket_id: 2
     sight_id: 2
     name: A ticket to the Zoo
@@ -59,6 +62,7 @@ tickets:
     status: BOOKED
     ticket_definition: 2
     booking: 1
+    date_type: UNDEFINED
   - ticket_id: 3
     sight_id: 2
     name: A ticket to the Zoo
@@ -68,6 +72,7 @@ tickets:
     ticket_definition: 2
     serial_number: 412CBA1C1191B0C5C94142ED58B3C28BBCF7D0400A3109D09DAEE61ED3CA69F3
     booking: 2
+    date_type: UNDEFINED
   - ticket_id: 4
     sight_id: 2
     name: A ticket to the Zoo
@@ -77,6 +82,17 @@ tickets:
     ticket_definition: 2
     serial_number: 0C54D64568A3ACD560EC5591D78A6D440CF4F5CD0142C186F4AAAF7F5307DFA3
     booking: 5
+    date_type: UNDEFINED
+  - ticket_id: 5
+    sight_id: 2
+    name: A ticket to the Zoo
+    price: 2000
+    date: 2022-03-28 11:48:20.775000
+    status: INVALID
+    ticket_definition: 2
+    serial_number: 635735E7C7972D5B0852F51BED44463D774C3054C3563C1F6ABE5C1103A5FA8F
+    booking: 5
+    date_type: UNDEFINED
 application_properties:
   - application_property_id: 1
     property_name: ticket.qrCode.height
