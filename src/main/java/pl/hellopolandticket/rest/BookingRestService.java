@@ -41,7 +41,6 @@ public class BookingRestService {
 
   @GET
   @Path("/book-buy/{email}")
-  @RolesAllowed({"ROLE_USER"})
   public Response bookAndBuy(@PathParam("email") String email) {
     TicketBookingDTO ticketBooking1 = TicketBookingDTO.builder()
         .ticketDefinitionId(1L)
