@@ -10,6 +10,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import pl.hellopolandticket.security.Authenticated;
+import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.SightService;
 import pl.hellopolandticket.service.TicketService;
 import pl.hellopolandticket.service.dto.JsonCollectionWrapper;
@@ -24,6 +26,10 @@ public class SightRestService {
 
   @Inject
   private TicketService ticketService;
+
+  @Inject
+  @Authenticated
+  private CurrentUser currentUser;
 
   @GET
   @RolesAllowed({"ROLE_USER"})
@@ -49,7 +55,7 @@ public class SightRestService {
       @PathParam("sightId") Long sightId,
       @PathParam("serialNumber") String serialNumber) {
 
-    return Response.ok(ticketService.punchTicket(sightId, serialNumber)).build();
+    return Response.ok(ticketService.punchTicket(currentUser, sightId, serialNumber)).build();
   }
 
   @GET

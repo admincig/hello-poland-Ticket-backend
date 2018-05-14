@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.Ticket;
 import pl.hellopolandticket.model.User;
-import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.dto.TicketDTO;
 import pl.hellopolandticket.service.validator.TicketValidator;
@@ -25,13 +24,10 @@ public class TicketService {
   private TicketValidator ticketValidator;
 
   @Inject
-  @Authenticated
-  private CurrentUser currentUser;
-
-  @Inject
   private UserService userService;
 
-  public TicketDTO punchTicket(Long sightId, String serialNumber) {
+  public TicketDTO punchTicket(CurrentUser currentUser, Long sightId,
+      String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
 
     ticketValidator.validateAccessingProperTicket(sightId, ticket.getSight().getId());
