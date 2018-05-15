@@ -3,6 +3,7 @@ package pl.hellopolandticket.service;
 import static pl.hellopolandticket.model.Status.PUNCHED;
 import static pl.hellopolandticket.service.dto.TicketDTO.ofTicket;
 
+import java.util.Date;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -38,6 +39,7 @@ public class TicketService {
 
     ticket.setTicketTaker(ticketTaker);
     ticket.setStatus(PUNCHED);
+    ticket.setPunchingDate(new Date());
 
     return ofTicket(ticket);
   }

@@ -106,6 +106,10 @@ public class Ticket implements Serializable {
   @JoinColumn(name = "TICKET_TAKER")
   private User ticketTaker;
 
+  @Setter
+  @Column(name = "PUNCHING_DATE")
+  private Date punchingDate;
+
   @Builder
   public Ticket(Sight sight, String name, Integer price, Date date, DateType dateType,
       Status status, String serialNumber, Booking booking, TicketDefinition ticketDefinition) {
