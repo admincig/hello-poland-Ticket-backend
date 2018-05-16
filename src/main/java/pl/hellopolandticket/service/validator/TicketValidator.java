@@ -1,15 +1,14 @@
 package pl.hellopolandticket.service.validator;
 
-import static pl.hellopolandticket.model.DateType.DATE;
-import static pl.hellopolandticket.model.DateType.DATE_TIME;
 import static pl.hellopolandticket.model.Status.BOUGHT;
 import static pl.hellopolandticket.model.Status.INVALID;
 import static pl.hellopolandticket.model.Status.PUNCHED;
 import static pl.hellopolandticket.service.dto.TicketDTO.ofTicket;
 
-import java.util.Date;
+import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import pl.hellopolandticket.model.Sight;
 import pl.hellopolandticket.model.Ticket;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
@@ -32,6 +31,13 @@ public class TicketValidator {
       throw exceptionFactory.ticketInvalidException(ofTicket(ticket));
     } else if (ticket.getStatus() != BOUGHT) {
       throw exceptionFactory.wrongTicketStatusException(ofTicket(ticket));
+    }
+  }
+
+  public void validateTicketTakerHasAccessToSight(Sight ticketSight,
+      List<Sight> ticketTakerSights) {
+    if (!ticketTakerSights.contains(ticketSight)) {
+      throw exceptionFactory.ticketTakerWithoutAccessToSightException();
     }
   }
 

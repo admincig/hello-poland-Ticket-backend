@@ -11,8 +11,10 @@ import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightDao;
 import pl.hellopolandticket.dao.TicketDao;
+import pl.hellopolandticket.model.Partner;
 import pl.hellopolandticket.model.Sight;
 import pl.hellopolandticket.service.dto.SightDTO;
 
@@ -26,6 +28,9 @@ public class SightService {
   @Inject
   private TicketDao ticketDao;
 
+  @Inject
+  private PartnerDao partnerDao;
+
   public Sight save(Sight sight) {
     return sightDao.persist(sight);
   }
@@ -38,8 +43,14 @@ public class SightService {
     return toSightDTO(sightDao.findById(sightId));
   }
 
-  public List<SightDTO> findAll() {
-    return sightDao.findAll().stream()
+  public List<SightDTO> findForPartner(String userLogin) {
+    Partner partner = partnerDao.findUserEmail(userLogin);
+
+    List<Long> sightIds = partner.getSights().stream()
+        .map(Sight::getId)
+        .collect(toList());
+
+    return sightDao.findByIdsIn(sightIds).stream()
         .map(this::toSightDTO)
         .collect(toList());
   }

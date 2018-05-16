@@ -50,11 +50,15 @@ public class BookingRestService {
         .ticketDefinitionId(2L)
         .numberOfTickets(3L)
         .build();
+    TicketBookingDTO ticketBooking3 = TicketBookingDTO.builder()
+        .ticketDefinitionId(3L)
+        .numberOfTickets(2L)
+        .build();
 
     BookingDTOCreate booking = BookingDTOCreate.builder()
         .customerName("Jan Kowalski")
         .customerEmail(email)
-        .ticketBookings(asList(ticketBooking1, ticketBooking2))
+        .ticketBookings(asList(ticketBooking1, ticketBooking2, ticketBooking3))
         .build();
 
     BookingDTO persistedBooking = bookingService.createBooking(booking);
