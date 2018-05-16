@@ -1,10 +1,13 @@
 package pl.hellopolandticket.service;
 
+import static pl.hellopolandticket.service.dto.UserDTO.ofUserBasic;
+
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import pl.hellopolandticket.dao.UserDao;
 import pl.hellopolandticket.model.User;
+import pl.hellopolandticket.service.dto.UserDTO;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
@@ -17,8 +20,13 @@ public class UserService {
   @Inject
   private ExceptionFactory exceptionFactory;
 
-  public User findByEmail(String email) {
+  public User findUserByEmail(String email) {
     return userDao.findByEmail(email)
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
+  }
+
+  public UserDTO findByEmail(String email) {
+    return ofUserBasic(userDao.findByEmail(email)
+        .orElseThrow(() -> exceptionFactory.resourceNotFoundException()));
   }
 }

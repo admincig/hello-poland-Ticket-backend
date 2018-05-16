@@ -13,8 +13,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
+import pl.hellopolandticket.service.UserService;
 
-@Path("auth")
+@Path("/")
 @RequestScoped
 public class AuthenticationRestService {
 
@@ -24,6 +25,9 @@ public class AuthenticationRestService {
   @Inject
   @Authenticated
   private CurrentUser currentUser;
+
+  @Inject
+  private UserService userService;
 
   @POST
   @Path("login")
@@ -54,11 +58,11 @@ public class AuthenticationRestService {
   }
 
   @GET
-  @Path("userinfo")
+  @Path("users/me")
   @RolesAllowed({"ROLE_USER"})
   public Response userInfo() {
     if (securityContext.getCallerPrincipal() != null) {
-      return Response.ok(currentUser).build();
+      return Response.ok(userService.findByEmail(currentUser.getEmail())).build();
     }
     return Response.status(UNAUTHORIZED).build();
   }

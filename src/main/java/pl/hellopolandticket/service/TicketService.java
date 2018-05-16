@@ -35,7 +35,7 @@ public class TicketService {
     ticketValidator.validateTicketHasDemandedStatus(ticket);
     ticketValidator.validateProperTime(ticket);
 
-    User ticketTaker = userService.findByEmail(currentUser.getEmail());
+    User ticketTaker = userService.findUserByEmail(currentUser.getEmail());
 
     ticket.setTicketTaker(ticketTaker);
     ticket.setStatus(PUNCHED);
