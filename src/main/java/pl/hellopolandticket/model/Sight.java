@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
@@ -73,9 +75,16 @@ public class Sight implements Serializable {
   @Embedded
   private SightLocation sightLocation;
 
+  @Setter
+  @NotNull
+  @ManyToOne
+  @JoinColumn(name = "PARTNER_ID", nullable = false)
+  private Partner partner;
+
   @Builder
   public Sight(String name, Date date, String lead, String description, String mainImageUrl,
-      String email, String phone, Integer availableTicketsNumber, SightLocation sightLocation) {
+      String email, String phone, Integer availableTicketsNumber, SightLocation sightLocation,
+      Partner partner) {
     this.name = name;
     this.date = date;
     this.lead = lead;
@@ -84,6 +93,7 @@ public class Sight implements Serializable {
     this.email = email;
     this.phone = phone;
     this.sightLocation = sightLocation;
+    this.partner = partner;
 
     this.availableTicketsNumber =
         availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE

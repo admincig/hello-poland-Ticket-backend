@@ -41,16 +41,16 @@ public class Configuration {
     PasswordEncoder passwordHash = new PasswordEncoder();
 
     User user = User.builder()
-        .name("user")
-        .password(passwordHash.encode("password"))
-        .email("user@example.com")
+        .name("Jan Kowalski")
+        .password(passwordHash.encode("hellopoland"))
+        .email("hellopoland@hellopoland.pl")
         .authorities(Collections.unmodifiableSet(new HashSet<>(asList(ROLE_USER))))
         .build();
 
     User admin = User.builder()
-        .name("admin")
-        .password(passwordHash.encode("password"))
-        .email("admin@example.com")
+        .name("Andrzej Nowak")
+        .password(passwordHash.encode("zoo"))
+        .email("zoo@zoo.pl")
         .authorities(Collections.unmodifiableSet(new HashSet<>(asList(ROLE_USER, ROLE_ADMIN))))
         .build();
 
