@@ -9,6 +9,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import pl.hellopolandticket.model.Sight;
 import pl.hellopolandticket.model.TicketDefinition;
+import pl.hellopolandticket.service.SightEventService;
 import pl.hellopolandticket.service.SightService;
 import pl.hellopolandticket.service.TicketDefinitionService;
 import pl.hellopolandticket.service.csv.pojo.SightCSV;
@@ -24,6 +25,9 @@ public class CSVService {
 
   @Inject
   private SightService sightService;
+
+  @Inject
+  private SightEventService sightEventService;
 
   @Inject
   private TicketDefinitionService ticketDefinitionService;
@@ -74,7 +78,7 @@ public class CSVService {
         .predefinedDate(ticketDefinitionCSV.getPredefinedDate())
         .date(ticketDefinitionCSV.getDate())
         .dateType(ticketDefinitionCSV.getDateType())
-        .sight(sightService.findBySightName(ticketDefinitionCSV.getSightName()))
+        .sightEvent(sightEventService.findSightEventById(ticketDefinitionCSV.getSightEventId()))
         .build();
   }
 

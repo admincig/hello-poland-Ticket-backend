@@ -47,13 +47,13 @@ public class TicketDao {
         .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
   }
 
-  public Long countTicketsBySightIdAndTicketStatusInTicketStatuses(Long sightId,
+  public Long countTicketsBySightEventIdAndTicketStatusInTicketStatuses(Long sightEventId,
       List<Status> statuses) {
     return entityManager
         .createQuery(
-            "SELECT COUNT(ticket) from Ticket ticket where ticket.sight.id=:sightId AND ticket.status IN :statuses",
+            "SELECT COUNT(ticket) from Ticket ticket where ticket.sightEvent.id=:sightEventId AND ticket.status IN :statuses",
             Long.class)
-        .setParameter("sightId", sightId)
+        .setParameter("sightEventId", sightEventId)
         .setParameter("statuses", statuses)
         .getResultStream()
         .findFirst()

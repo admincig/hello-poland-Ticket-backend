@@ -18,7 +18,7 @@ import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.dao.TicketDefinitionDao;
 import pl.hellopolandticket.model.Booking;
-import pl.hellopolandticket.model.Sight;
+import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.model.Ticket;
 import pl.hellopolandticket.model.TicketDefinition;
 import pl.hellopolandticket.service.dto.BookingDTO;
@@ -100,11 +100,11 @@ public class BookingService {
       TicketDefinition ticketDefinition = ticketDefinitionDao
           .findById(ticketBookingDTO.getTicketDefinitionId());
 
-      Sight sight = ticketDefinition.getSight();
+      SightEvent sightEvent = ticketDefinition.getSightEvent();
 
       for (int i = 0; i < ticketBookingDTO.getNumberOfTickets(); i++) {
         Ticket ticket = Ticket.builder()
-            .sight(sight)
+            .sightEvent(sightEvent)
             .name(ticketDefinition.getName())
             .price(ticketDefinition.getPrice())
             .date(booking.getDate())
@@ -117,7 +117,7 @@ public class BookingService {
         bookedTickets.add(ticket);
       }
 
-      sight.decreaseAvailableTicketsNumber(
+      sightEvent.decreaseAvailableTicketsNumber(
           ticketBookingDTO.getNumberOfTickets().intValue());
     }
 
@@ -128,7 +128,7 @@ public class BookingService {
     List<Ticket> tickets = booking.getTickets();
 
     for (Ticket ticket : tickets) {
-      ticket.getSight().decreaseAvailableTicketsNumber(1);
+      ticket.getSightEvent().decreaseAvailableTicketsNumber(1);
       ticket.setStatus(BOOKED);
     }
     booking.setStatus(BOOKED);

@@ -8,12 +8,12 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.Sight;
+import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
-public class SightDao {
+public class SightEventDao {
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -21,27 +21,27 @@ public class SightDao {
   @Inject
   private ExceptionFactory exceptionFactory;
 
-  public Sight persist(Sight sight) {
-    entityManager.persist(sight);
+  public SightEvent persist(SightEvent sightEvent) {
+    entityManager.persist(sightEvent);
 
-    return sight;
+    return sightEvent;
   }
 
-  public Sight findById(Long sightId) {
+  public SightEvent findById(Long sightEventId) {
     return entityManager
-        .createQuery("from Sight sight where sight.id=:id", Sight.class)
-        .setParameter("id", sightId)
+        .createQuery("from SightEvent sightEvent where sightEvent.id=:id", SightEvent.class)
+        .setParameter("id", sightEventId)
         .getResultStream()
         .findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
-  public List<Sight> findByIdsIn(List<Long> sightIds) {
+  public List<SightEvent> findBySightIdsIn(List<Long> sightIds) {
     return entityManager
-        .createQuery("from Sight sight WHERE sight.id IN :sightIds", Sight.class)
+        .createQuery("from SightEvent sightEvent WHERE sightEvent.sight.id IN :sightIds",
+            SightEvent.class)
         .setParameter("sightIds", sightIds)
         .getResultStream()
         .collect(toList());
   }
-
 }
