@@ -37,6 +37,9 @@ public class TicketService {
 
     User ticketTaker = userService.findByEmail(currentUser.getEmail());
 
+    ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSight(),
+        ticketTaker.getPartner().getSights());
+
     ticket.setTicketTaker(ticketTaker);
     ticket.setStatus(PUNCHED);
     ticket.setPunchingDate(new Date());
@@ -44,9 +47,12 @@ public class TicketService {
     return ofTicket(ticket);
   }
 
-  public TicketDTO findBySerialNumber(Long sightId, String serialNumber) {
+  public TicketDTO findBySerialNumber(CurrentUser currentUser, Long sightId, String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
+    User ticketTaker = userService.findByEmail(currentUser.getEmail());
 
+    ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSight(),
+        ticketTaker.getPartner().getSights());
     ticketValidator.validateAccessingProperTicket(sightId, ticket.getSight().getId());
 
     return ofTicket(ticket);

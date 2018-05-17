@@ -35,7 +35,7 @@ public class SightRestService {
   @RolesAllowed({"ROLE_USER"})
   public Response getSights() {
     JsonCollectionWrapper responseBody = JsonCollectionWrapper.builder()
-        .items(sightService.findAll())
+        .items(sightService.findForPartner(currentUser.getEmail()))
         .build();
 
     return Response.ok(responseBody).build();
@@ -65,6 +65,7 @@ public class SightRestService {
       @PathParam("sightId") Long sightId,
       @PathParam("serialNumber") String serialNumber) {
 
-    return Response.ok(ticketService.findBySerialNumber(sightId, serialNumber)).build();
+    return Response.ok(ticketService.findBySerialNumber(currentUser, sightId, serialNumber))
+        .build();
   }
 }

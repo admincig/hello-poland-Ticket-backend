@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -51,11 +53,18 @@ public class User implements Serializable {
   @ElementCollection
   private Set<String> authorities = new HashSet<>();
 
+  @Setter
+  @ManyToOne
+  @JoinColumn(name = "PARTNER_ID")
+  private Partner partner;
+
   @Builder
-  public User(String name, String password, String email, Set<String> authorities) {
+  public User(String name, String password, String email, Set<String> authorities,
+      Partner partner) {
     this.name = name;
     this.password = password;
     this.email = email;
     this.authorities = authorities;
+    this.partner = partner;
   }
 }

@@ -10,6 +10,7 @@ import pl.hellopolandticket.service.exception.conflict.PunchingTicketForWrongSig
 import pl.hellopolandticket.service.exception.conflict.TicketAlreadyPunchedException;
 import pl.hellopolandticket.service.exception.conflict.TicketForAnotherDateException;
 import pl.hellopolandticket.service.exception.conflict.TicketInvalidException;
+import pl.hellopolandticket.service.exception.conflict.TicketTakerWithoutAccessToSightException;
 import pl.hellopolandticket.service.exception.conflict.WrongTicketStatusException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 import pl.hellopolandticket.service.exception.notfound.TicketNotFoundException;
@@ -69,5 +70,11 @@ public class ExceptionFactory {
   public TicketForAnotherDateException ticketForAnotherDateException() {
     return new TicketForAnotherDateException(
         exceptionMessagesService.getMessage(TicketForAnotherDateException.class.getSimpleName()));
+  }
+
+  public TicketTakerWithoutAccessToSightException ticketTakerWithoutAccessToSightException() {
+    return new TicketTakerWithoutAccessToSightException(
+        exceptionMessagesService
+            .getMessage(TicketTakerWithoutAccessToSightException.class.getSimpleName()));
   }
 }
