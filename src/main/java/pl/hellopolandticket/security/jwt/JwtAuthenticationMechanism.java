@@ -38,9 +38,9 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
   private static final String AUTHORIZATION_PREFIX = "Bearer ";
   private static final String AUTHENTICATION_METHOD = "POST";
 
-  private static final String LOGIN_REQUEST_PATH = "/auth/login";
-  private static final String REFRESH_TOKEN_REQUEST_PATH = "/auth/refresh";
-  private static final String LOGOUT_REQUEST_PATH = "/auth/logout";
+  private static final String LOGIN_REQUEST_PATH = "/login";
+  private static final String REFRESH_TOKEN_REQUEST_PATH = "/refresh";
+  private static final String LOGOUT_REQUEST_PATH = "/logout";
 
   @Inject
   private IdentityStoreHandler identityStoreHandler;
