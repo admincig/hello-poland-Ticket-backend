@@ -42,7 +42,7 @@ public class SightEventService {
   }
 
   public List<SightEventDTO> findForPartner(String userLogin) {
-    Partner partner = partnerDao.findUserEmail(userLogin);
+    Partner partner = partnerDao.findByUserEmail(userLogin);
 
     List<Long> sightIds = partner.getSights().stream()
         .map(Sight::getId)

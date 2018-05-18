@@ -9,8 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.hellopolandticket.model.Sight;
-import pl.hellopolandticket.model.SightLocation;
 
 @Setter
 @Getter
@@ -19,7 +17,7 @@ import pl.hellopolandticket.model.SightLocation;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
 @JsonPropertyOrder(value = {"name", "lead", "description", "mainImageUrl", "email", "phone",
-    "latitude", "longitude", "street", "zipCode", "city", "country"})
+    "latitude", "longitude", "street", "zipCode", "city", "country", "userEmail"})
 public class SightCSV implements Serializable {
 
   private static final long serialVersionUID = 5421767133423015831L;
@@ -49,24 +47,6 @@ public class SightCSV implements Serializable {
 
   private String country;
 
-  public Sight createSight() {
-    SightLocation sightLocation = SightLocation.builder()
-        .latitude(latitude)
-        .longitude(longitude)
-        .street(street)
-        .zipCode(zipCode)
-        .city(city)
-        .country(country)
-        .build();
+  private String userEmail;
 
-    return Sight.builder()
-        .name(name)
-        .lead(lead)
-        .description(description)
-        .mainImageUrl(mainImageUrl)
-        .email(email)
-        .phone(phone)
-        .sightLocation(sightLocation)
-        .build();
-  }
 }

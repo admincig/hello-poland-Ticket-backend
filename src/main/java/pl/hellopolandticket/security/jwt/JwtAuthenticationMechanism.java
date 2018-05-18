@@ -14,6 +14,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.bind.JsonbBuilder;
+import javax.json.stream.JsonParsingException;
 import javax.security.enterprise.AuthenticationStatus;
 import javax.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
 import javax.security.enterprise.authentication.mechanism.http.HttpMessageContext;
@@ -58,28 +59,30 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
   @Override
   public AuthenticationStatus validateRequest(HttpServletRequest request,
       HttpServletResponse response, HttpMessageContext context) {
-    AuthenticationStatus authenticationStatus;
-
-    Optional<UserAuthDTO> userAuthDTO = extractUserAuthDTO(request);
-
-    String login = userAuthDTO.map(UserAuthDTO::getLogin).orElse(null);
-    String password = userAuthDTO.map(UserAuthDTO::getPassword).orElse(null);
-
-    String accessToken = userAuthDTO.map(UserAuthDTO::getAccessToken).orElse(null);
-    String refreshToken = userAuthDTO.map(UserAuthDTO::getRefreshToken).orElse(null);
+    AuthenticationStatus authenticationStatus = null;
 
     String authorizationToken = extractToken(context);
 
-    if (isLoginRequest(request)) {
-      if (hasProperDataToLogin(login, password)) {
-        authenticationStatus = login(login, password, context);
-      } else {
-        authenticationStatus = context.responseUnauthorized();
+    if (isAuthRequest(request)) {
+      Optional<UserAuthDTO> userAuthDTO = extractUserAuthDTO(request);
+
+      String login = userAuthDTO.map(UserAuthDTO::getLogin).orElse(null);
+      String password = userAuthDTO.map(UserAuthDTO::getPassword).orElse(null);
+
+      String accessToken = userAuthDTO.map(UserAuthDTO::getAccessToken).orElse(null);
+      String refreshToken = userAuthDTO.map(UserAuthDTO::getRefreshToken).orElse(null);
+
+      if (isLoginRequest(request)) {
+        if (hasProperDataToLogin(login, password)) {
+          authenticationStatus = login(login, password, context);
+        } else {
+          authenticationStatus = context.responseUnauthorized();
+        }
+      } else if (isRefreshingRequest(authorizationToken, request)) {
+        authenticationStatus = validateRefreshToken(authorizationToken, context);
+      } else if (isLogoutRequest(accessToken, refreshToken, request)) {
+        authenticationStatus = logout(accessToken, refreshToken, context);
       }
-    } else if (isRefreshingRequest(authorizationToken, request)) {
-      authenticationStatus = validateRefreshToken(authorizationToken, context);
-    } else if (isLogoutRequest(accessToken, refreshToken, request)) {
-      authenticationStatus = logout(accessToken, refreshToken, context);
     } else if (authorizationToken != null) {
       authenticationStatus = validateAccessToken(authorizationToken, context);
     } else if (context.isProtected()) {
@@ -103,8 +106,11 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     }
 
     if (!userAuthJson.isEmpty()) {
-      userAuthDTO = ofNullable(JsonbBuilder.create()
-          .fromJson(userAuthJson, UserAuthDTO.class));
+      try {
+        userAuthDTO = ofNullable(JsonbBuilder.create()
+            .fromJson(userAuthJson, UserAuthDTO.class));
+      } catch (JsonParsingException ignored) {
+      }
     }
 
     return userAuthDTO;
@@ -158,6 +164,13 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
   private boolean hasProperDataToLogin(String email, String password) {
     return email != null && password != null;
+  }
+
+
+  private boolean isAuthRequest(HttpServletRequest request) {
+    return request.getRequestURI().endsWith(LOGIN_REQUEST_PATH) ||
+        request.getRequestURI().endsWith(REFRESH_TOKEN_REQUEST_PATH) ||
+        request.getRequestURI().endsWith(LOGOUT_REQUEST_PATH);
   }
 
   private boolean isRefreshingRequest(String token, HttpServletRequest request) {
