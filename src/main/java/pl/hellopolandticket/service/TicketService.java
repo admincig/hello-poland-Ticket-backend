@@ -50,7 +50,7 @@ public class TicketService {
   public TicketDTO findBySerialNumber(CurrentUser currentUser, Long sightEventId,
       String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
-    User ticketTaker = userService.findByEmail(currentUser.getEmail());
+    User ticketTaker = userService.findUserByEmail(currentUser.getEmail());
 
     ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSightEvent().getSight(),
         ticketTaker.getPartner().getSights());
