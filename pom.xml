@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>pl.hellopoland</groupId>
-  <artifactId>hellopoland-ticket</artifactId>
+  <artifactId>helloticket</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>Hello Poland Ticket</name>
   <description>Hello Poland Ticket backend project</description>
@@ -124,14 +124,14 @@
   </repositories>
 
   <build>
-    <finalName>hellopoland-ticket</finalName>
+    <finalName>helloticket</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <version>3.2.0</version>
         <configuration>
-          <warName>hellopoland-ticket</warName>
+          <warName>helloticket</warName>
         </configuration>
       </plugin>
 

@@ -1,7 +1,5 @@
 package pl.hellopolandticket.model;
 
-import static javax.persistence.FetchType.EAGER;
-
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
@@ -62,19 +60,19 @@ public class TicketDefinition implements Serializable {
 
   @Setter
   @NotNull
-  @ManyToOne(optional = false, fetch = EAGER)
-  @JoinColumn(name = "SIGHT_ID", nullable = false)
-  private Sight sight;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "SIGHT_EVENT_ID", nullable = false)
+  private SightEvent sightEvent;
 
   @Builder
   public TicketDefinition(String name, Integer price, Boolean predefinedDate, Date date,
-      DateType dateType, Sight sight) {
+      DateType dateType, SightEvent sightEvent) {
     this.name = name;
     this.price = price;
     this.predefinedDate = predefinedDate;
     this.date = date;
     this.dateType = dateType;
-    this.sight = sight;
+    this.sightEvent = sightEvent;
   }
 
 }

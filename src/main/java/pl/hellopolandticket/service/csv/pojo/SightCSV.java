@@ -3,15 +3,12 @@ package pl.hellopolandticket.service.csv.pojo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.io.Serializable;
-import java.util.Date;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.hellopolandticket.model.Sight;
-import pl.hellopolandticket.model.SightLocation;
 
 @Setter
 @Getter
@@ -19,16 +16,14 @@ import pl.hellopolandticket.model.SightLocation;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
-@JsonPropertyOrder(value = {"name", "date", "lead", "description", "mainImageUrl", "email", "phone",
-    "availableTicketsNumber", "latitude", "longitude", "street", "zipCode", "city", "country"})
+@JsonPropertyOrder(value = {"name", "lead", "description", "mainImageUrl", "email", "phone",
+    "latitude", "longitude", "street", "zipCode", "city", "country", "userEmail"})
 public class SightCSV implements Serializable {
 
   private static final long serialVersionUID = 5421767133423015831L;
 
   @NotNull
   private String name;
-
-  private Date date;
 
   private String lead;
 
@@ -39,8 +34,6 @@ public class SightCSV implements Serializable {
   private String email;
 
   private String phone;
-
-  private Integer availableTicketsNumber;
 
   private Double latitude;
 
@@ -54,26 +47,6 @@ public class SightCSV implements Serializable {
 
   private String country;
 
-  public Sight createSight() {
-    SightLocation sightLocation = SightLocation.builder()
-        .latitude(latitude)
-        .longitude(longitude)
-        .street(street)
-        .zipCode(zipCode)
-        .city(city)
-        .country(country)
-        .build();
+  private String userEmail;
 
-    return Sight.builder()
-        .name(name)
-        .date(date)
-        .lead(lead)
-        .description(description)
-        .mainImageUrl(mainImageUrl)
-        .email(email)
-        .phone(phone)
-        .availableTicketsNumber(availableTicketsNumber)
-        .sightLocation(sightLocation)
-        .build();
-  }
 }

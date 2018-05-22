@@ -2,6 +2,7 @@ package pl.hellopolandticket.rest;
 
 import static java.util.Arrays.asList;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -26,12 +27,14 @@ public class BookingRestService {
   private BookingService bookingService;
 
   @POST
+  @RolesAllowed({"ROLE_USER"})
   public Response makeBooking(BookingDTOCreate booking) {
     return Response.ok(bookingService.createBooking(booking)).build();
   }
 
   @PUT
   @Path("/buy/{bookingId}")
+  @RolesAllowed({"ROLE_USER"})
   public Response markBookingAsBought(@PathParam("bookingId") Long bookingId) {
     return Response.ok(bookingService.markBookingAsBought(bookingId)).build();
   }
@@ -47,11 +50,15 @@ public class BookingRestService {
         .ticketDefinitionId(2L)
         .numberOfTickets(3L)
         .build();
+    TicketBookingDTO ticketBooking3 = TicketBookingDTO.builder()
+        .ticketDefinitionId(3L)
+        .numberOfTickets(2L)
+        .build();
 
     BookingDTOCreate booking = BookingDTOCreate.builder()
         .customerName("Jan Kowalski")
         .customerEmail(email)
-        .ticketBookings(asList(ticketBooking1, ticketBooking2))
+        .ticketBookings(asList(ticketBooking1, ticketBooking2, ticketBooking3))
         .build();
 
     BookingDTO persistedBooking = bookingService.createBooking(booking);

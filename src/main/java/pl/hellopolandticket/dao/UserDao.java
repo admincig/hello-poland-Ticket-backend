@@ -14,14 +14,6 @@ public class UserDao {
   @PersistenceContext
   private EntityManager entityManager;
 
-  public Optional<User> findByUsername(String username) {
-    return entityManager
-        .createQuery("from User user where user.username=:username", User.class)
-        .setParameter("username", username)
-        .getResultStream()
-        .findFirst();
-  }
-
   public Optional<User> findByEmail(String email) {
     return entityManager
         .createQuery("from User user where user.email=:email", User.class)

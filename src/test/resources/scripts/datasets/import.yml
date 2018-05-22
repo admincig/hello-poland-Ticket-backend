@@ -1,23 +1,39 @@
+partners:
+  - partner_id: 1
+    name: Hello Poland
+  - partner_id: 2
+    name: Kolejkowo
+  - partner_id: 3
+    name: Zoo
 sights:
   - sight_id: 1
     name: Kolejkowo
-    available_tickets_number: 5
+    partner_id: 2
   - sight_id: 2
     name: Zoo
+    partner_id: 3
+sight_events:
+  - sight_event_id: 1
+    name: Kolejkowo
+    available_tickets_number: 5
+    sight_id: 1
+  - sight_event_id: 2
+    name: Zoo
     available_tickets_number: 3
+    sight_id: 2
 ticket_definitions:
   - ticket_definition_id: 1
     name: A ticket to the Kolejkowo
     price: 1000
     predefined_date: 0
     date_type: UNDEFINED
-    sight_id: 1
+    sight_event_id: 1
   - ticket_definition_id: 2
     name: A ticket to the Zoo
     price: 2000
     predefined_date: 0
     date_type: UNDEFINED
-    sight_id: 2
+    sight_event_id: 2
 bookings:
   - booking_id: 1
     date: 2021-03-28 11:48:20.775000
@@ -46,7 +62,7 @@ bookings:
     status: BOUGHT
 tickets:
   - ticket_id: 1
-    sight_id: 1
+    sight_event_id: 1
     name: A ticket to the Kolejkowo
     price: 2000
     date: 2021-03-28 11:48:20.775000
@@ -55,7 +71,7 @@ tickets:
     booking: 1
     date_type: UNDEFINED
   - ticket_id: 2
-    sight_id: 2
+    sight_event_id: 2
     name: A ticket to the Zoo
     price: 2000
     date: 2021-03-28 11:48:20.775000
@@ -64,7 +80,7 @@ tickets:
     booking: 1
     date_type: UNDEFINED
   - ticket_id: 3
-    sight_id: 2
+    sight_event_id: 2
     name: A ticket to the Zoo
     price: 2000
     date: 2022-03-28 11:48:20.775000
@@ -74,7 +90,7 @@ tickets:
     booking: 2
     date_type: UNDEFINED
   - ticket_id: 4
-    sight_id: 2
+    sight_event_id: 2
     name: A ticket to the Zoo
     price: 2000
     date: 2022-03-28 11:48:20.775000
@@ -84,7 +100,7 @@ tickets:
     booking: 5
     date_type: UNDEFINED
   - ticket_id: 5
-    sight_id: 2
+    sight_event_id: 2
     name: A ticket to the Zoo
     price: 2000
     date: 2022-03-28 11:48:20.775000

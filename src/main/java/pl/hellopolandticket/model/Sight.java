@@ -1,13 +1,14 @@
 package pl.hellopolandticket.model;
 
 import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
@@ -15,8 +16,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
-import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
 @Getter
 @Entity
@@ -27,10 +26,6 @@ public class Sight implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
 
-  public static final int UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE = -1;
-
-  private static final int MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE = 0;
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "SIGHT_ID")
@@ -40,10 +35,6 @@ public class Sight implements Serializable {
   @NotNull
   @Column(name = "NAME", nullable = false, unique = true)
   private String name;
-
-  @Setter
-  @Column(name = "DATE")
-  private Date date;
 
   @Setter
   @Column(name = "LEAD")
@@ -66,55 +57,26 @@ public class Sight implements Serializable {
   private String phone;
 
   @Setter
-  @Column(name = "AVAILABLE_TICKETS_NUMBER")
-  private Integer availableTicketsNumber;
-
-  @Setter
   @Embedded
   private SightLocation sightLocation;
 
+  @Setter
+  @NotNull
+  @ManyToOne
+  @JoinColumn(name = "PARTNER_ID", nullable = false)
+  private Partner partner;
+
   @Builder
-  public Sight(String name, Date date, String lead, String description, String mainImageUrl,
-      String email, String phone, Integer availableTicketsNumber, SightLocation sightLocation) {
+  public Sight(String name, String lead, String description, String mainImageUrl,
+      String email, String phone, SightLocation sightLocation,
+      Partner partner) {
     this.name = name;
-    this.date = date;
     this.lead = lead;
     this.description = description;
     this.mainImageUrl = mainImageUrl;
     this.email = email;
     this.phone = phone;
     this.sightLocation = sightLocation;
-
-    this.availableTicketsNumber =
-        availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
-            : availableTicketsNumber;
-  }
-
-  public void decreaseAvailableTicketsNumber(int numberOfTickets) {
-    if (numberOfTickets <= 0) {
-      throw new NumberOfTicketsNotPositiveException();
-    }
-
-    if (!hasUnlimitedNumberOfTickets()) {
-      if (hasEnoughTickets(numberOfTickets)) {
-        availableTicketsNumber = availableTicketsNumber - numberOfTickets;
-      } else {
-        throw new NoAvailableTicketsException();
-      }
-    }
-  }
-
-  public void increaseAvailableTicketsNumber() {
-    if (!hasUnlimitedNumberOfTickets()) {
-      availableTicketsNumber++;
-    }
-  }
-
-  private boolean hasUnlimitedNumberOfTickets() {
-    return availableTicketsNumber == UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
-  }
-
-  private boolean hasEnoughTickets(int numberOfTickets) {
-    return availableTicketsNumber - numberOfTickets >= MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+    this.partner = partner;
   }
 }

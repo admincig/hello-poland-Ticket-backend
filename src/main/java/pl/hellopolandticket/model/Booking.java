@@ -84,8 +84,8 @@ public class Booking implements Serializable {
   private void setTicketStatusesAsInvalidAndIncreaseAvailableTicketsNumber(Ticket ticket) {
     ticket.setStatus(INVALID);
 
-    Sight sight = ticket.getSight();
-    sight.increaseAvailableTicketsNumber();
+    SightEvent sightEvent = ticket.getSightEvent();
+    sightEvent.increaseAvailableTicketsNumber();
   }
 
   private void setTicketStatusesAsBought(Ticket ticket) {
