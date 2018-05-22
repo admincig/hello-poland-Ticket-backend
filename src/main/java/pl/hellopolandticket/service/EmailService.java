@@ -124,7 +124,7 @@ public class EmailService {
         tickets, ticketCIDs);
 
     MimeBodyPart emailBody = new MimeBodyPart();
-    emailBody.setContent(bodyContent, "text/html");
+    emailBody.setContent(bodyContent, "text/html; charset=utf-8");
     emailContent.addBodyPart(emailBody);
 
     for (int i = 0; i < tickets.size(); i++) {
