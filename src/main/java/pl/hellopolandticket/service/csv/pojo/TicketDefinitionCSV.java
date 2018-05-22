@@ -16,7 +16,7 @@ import pl.hellopolandticket.model.DateType;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonPropertyOrder(value = {"name", "price", "predefinedDate", "date", "dateType", "sightName"})
+@JsonPropertyOrder(value = {"name", "price", "predefinedDate", "date", "dateType", "sightEventId"})
 public class TicketDefinitionCSV implements Serializable {
 
   private static final long serialVersionUID = 4461566918374139044L;
@@ -36,6 +36,6 @@ public class TicketDefinitionCSV implements Serializable {
   private DateType dateType;
 
   @NotNull
-  private String sightName;
+  private Long sightEventId;
 
 }

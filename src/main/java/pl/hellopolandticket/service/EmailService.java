@@ -158,7 +158,7 @@ public class EmailService {
       TicketDTO ticket = tickets.get(i);
       ticketQrCodes
           .append("<p>")
-          .append(ticket.getSight().getName())
+          .append(ticket.getSightEvent().getName())
           .append("</p>")
           .append("<p>")
           .append(ticket.getName())

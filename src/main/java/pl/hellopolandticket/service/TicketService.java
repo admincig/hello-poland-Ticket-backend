@@ -27,17 +27,17 @@ public class TicketService {
   @Inject
   private UserService userService;
 
-  public TicketDTO punchTicket(CurrentUser currentUser, Long sightId,
+  public TicketDTO punchTicket(CurrentUser currentUser, Long sightEventId,
       String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
 
-    ticketValidator.validateAccessingProperTicket(sightId, ticket.getSight().getId());
+    ticketValidator.validateAccessingProperTicket(sightEventId, ticket.getSightEvent().getId());
     ticketValidator.validateTicketHasDemandedStatus(ticket);
     ticketValidator.validateProperTime(ticket);
 
     User ticketTaker = userService.findUserByEmail(currentUser.getEmail());
 
-    ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSight(),
+    ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSightEvent().getSight(),
         ticketTaker.getPartner().getSights());
 
     ticket.setTicketTaker(ticketTaker);
@@ -47,13 +47,14 @@ public class TicketService {
     return ofTicket(ticket);
   }
 
-  public TicketDTO findBySerialNumber(CurrentUser currentUser, Long sightId, String serialNumber) {
+  public TicketDTO findBySerialNumber(CurrentUser currentUser, Long sightEventId,
+      String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
-    User ticketTaker = userService.findByEmail(currentUser.getEmail());
+    User ticketTaker = userService.findUserByEmail(currentUser.getEmail());
 
-    ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSight(),
+    ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSightEvent().getSight(),
         ticketTaker.getPartner().getSights());
-    ticketValidator.validateAccessingProperTicket(sightId, ticket.getSight().getId());
+    ticketValidator.validateAccessingProperTicket(sightEventId, ticket.getSightEvent().getId());
 
     return ofTicket(ticket);
   }

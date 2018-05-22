@@ -7,8 +7,11 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.model.Sight;
+import pl.hellopolandticket.model.SightLocation;
 import pl.hellopolandticket.model.TicketDefinition;
+import pl.hellopolandticket.service.SightEventService;
 import pl.hellopolandticket.service.SightService;
 import pl.hellopolandticket.service.TicketDefinitionService;
 import pl.hellopolandticket.service.csv.pojo.SightCSV;
@@ -26,6 +29,9 @@ public class CSVService {
   private SightService sightService;
 
   @Inject
+  private SightEventService sightEventService;
+
+  @Inject
   private TicketDefinitionService ticketDefinitionService;
 
   @Inject
@@ -37,10 +43,13 @@ public class CSVService {
   @Inject
   private ExceptionFactory exceptionFactory;
 
+  @Inject
+  private PartnerDao partnerDao;
+
   public void importSightsFromCSV(List<SightCSV> sightsCSV) {
     try {
       List<Sight> sights = sightsCSV.stream()
-          .map(SightCSV::createSight)
+          .map(this::createSightOfSightCSV)
           .collect(toList());
 
       sights.forEach(sight -> sightService.save(sight));
@@ -65,6 +74,28 @@ public class CSVService {
     }
   }
 
+  private Sight createSightOfSightCSV(SightCSV sightCSV) {
+    SightLocation sightLocation = SightLocation.builder()
+        .latitude(sightCSV.getLatitude())
+        .longitude(sightCSV.getLongitude())
+        .street(sightCSV.getStreet())
+        .zipCode(sightCSV.getZipCode())
+        .city(sightCSV.getCity())
+        .country(sightCSV.getCountry())
+        .build();
+
+    return Sight.builder()
+        .name(sightCSV.getName())
+        .lead(sightCSV.getLead())
+        .description(sightCSV.getDescription())
+        .mainImageUrl(sightCSV.getMainImageUrl())
+        .email(sightCSV.getEmail())
+        .phone(sightCSV.getPhone())
+        .sightLocation(sightLocation)
+        .partner(partnerDao.findByUserEmail(sightCSV.getUserEmail()))
+        .build();
+  }
+
 
   private TicketDefinition createTicketDefinitionOfTicketDefinitionCSV(
       TicketDefinitionCSV ticketDefinitionCSV) {
@@ -74,7 +105,7 @@ public class CSVService {
         .predefinedDate(ticketDefinitionCSV.getPredefinedDate())
         .date(ticketDefinitionCSV.getDate())
         .dateType(ticketDefinitionCSV.getDateType())
-        .sight(sightService.findBySightName(ticketDefinitionCSV.getSightName()))
+        .sightEvent(sightEventService.findSightEventById(ticketDefinitionCSV.getSightEventId()))
         .build();
   }
 

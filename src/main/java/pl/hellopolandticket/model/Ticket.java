@@ -55,8 +55,8 @@ public class Ticket implements Serializable {
   @Setter
   @NotNull
   @ManyToOne(optional = false, fetch = LAZY)
-  @JoinColumn(name = "SIGHT_ID", nullable = false)
-  private Sight sight;
+  @JoinColumn(name = "SIGHT_EVENT_ID", nullable = false)
+  private SightEvent sightEvent;
 
   @Setter
   @NotNull
@@ -111,9 +111,9 @@ public class Ticket implements Serializable {
   private Date punchingDate;
 
   @Builder
-  public Ticket(Sight sight, String name, Integer price, Date date, DateType dateType,
+  public Ticket(SightEvent sightEvent, String name, Integer price, Date date, DateType dateType,
       Status status, String serialNumber, Booking booking, TicketDefinition ticketDefinition) {
-    this.sight = sight;
+    this.sightEvent = sightEvent;
     this.name = name;
     this.price = price;
     this.date = date;

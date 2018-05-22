@@ -18,7 +18,7 @@ public class PartnerDao {
   @Inject
   private ExceptionFactory exceptionFactory;
 
-  public Partner findUserEmail(String email) {
+  public Partner findByUserEmail(String email) {
     return entityManager
         .createQuery("from Partner partner JOIN partner.users user where user.email=:email",
             Partner.class)
