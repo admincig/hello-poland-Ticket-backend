@@ -1,5 +1,8 @@
 package pl.hellopolandticket.rest;
 
+import static pl.hellopolandticket.model.Role.ROLE_HPL;
+import static pl.hellopolandticket.model.Role.ROLE_USER;
+
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -32,10 +35,10 @@ public class SightEventRestService {
   private TicketService ticketService;
 
   @GET
-  @RolesAllowed({"ROLE_USER"})
+  @RolesAllowed({ROLE_USER, ROLE_HPL})
   public Response getSightEvents() {
     JsonCollectionWrapper responseBody = JsonCollectionWrapper.builder()
-        .items(sightEventService.findForPartner(currentUser.getEmail()))
+        .items(sightEventService.findForPartner(currentUser.getPrincipal()))
         .build();
 
     return Response.ok(responseBody).build();
@@ -43,14 +46,14 @@ public class SightEventRestService {
 
   @GET
   @Path("/{sightEventId}")
-  @RolesAllowed({"ROLE_USER"})
+  @RolesAllowed({ROLE_USER})
   public Response getById(@PathParam("sightEventId") Long sightEventId) {
     return Response.ok(sightEventService.findById(sightEventId)).build();
   }
 
   @PATCH
   @Path("/{sightEventId}/tickets/{serialNumber}")
-  @RolesAllowed({"ROLE_USER"})
+  @RolesAllowed({ROLE_USER})
   public Response punchTicket(
       @PathParam("sightEventId") Long sightEventId,
       @PathParam("serialNumber") String serialNumber) {
@@ -61,7 +64,7 @@ public class SightEventRestService {
 
   @GET
   @Path("/{sightEventId}/tickets/{serialNumber}")
-  @RolesAllowed({"ROLE_USER"})
+  @RolesAllowed({ROLE_USER})
   public Response getTicket(
       @PathParam("sightEventId") Long sightEventId,
       @PathParam("serialNumber") String serialNumber) {

@@ -1,5 +1,8 @@
 package pl.hellopolandticket.rest;
 
+import static pl.hellopolandticket.model.Role.ROLE_HPL;
+import static pl.hellopolandticket.model.Role.ROLE_USER;
+
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -27,10 +30,10 @@ public class SightRestService {
   private CurrentUser currentUser;
 
   @GET
-  @RolesAllowed({"ROLE_USER"})
+  @RolesAllowed({ROLE_USER, ROLE_HPL})
   public Response getSights() {
     JsonCollectionWrapper responseBody = JsonCollectionWrapper.builder()
-        .items(sightService.findForPartner(currentUser.getEmail()))
+        .items(sightService.findForPartner(currentUser.getPrincipal()))
         .build();
 
     return Response.ok(responseBody).build();
@@ -38,7 +41,7 @@ public class SightRestService {
 
   @GET
   @Path("/{sightId}")
-  @RolesAllowed({"ROLE_USER"})
+  @RolesAllowed({ROLE_USER})
   public Response getById(@PathParam("sightId") Long sightId) {
     return Response.ok(sightService.findById(sightId)).build();
   }

@@ -1,5 +1,8 @@
 package pl.hellopolandticket.rest;
 
+import static pl.hellopolandticket.model.Role.ROLE_HPL;
+import static pl.hellopolandticket.model.Role.ROLE_USER;
+
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
@@ -27,7 +30,7 @@ public class CSVRestService {
 
   @POST
   @Path("/sights")
-  @RolesAllowed({"ROLE_USER"})
+  @RolesAllowed({ROLE_USER, ROLE_HPL})
   public Response importSightsFromCSV(byte[] sightsCSVFile) {
     List<SightCSV> sightsCSV = fileToCSVParser.parseFileToSightsCSVList(sightsCSVFile);
 
@@ -38,7 +41,7 @@ public class CSVRestService {
 
   @POST
   @Path("/ticket-definitions")
-  @RolesAllowed({"ROLE_USER"})
+  @RolesAllowed({ROLE_USER, ROLE_HPL})
   public Response importTicketDefinitionsFromCSV(byte[] ticketDefinitionsCSVFile) {
     List<TicketDefinitionCSV> ticketDefinitionsCSV = fileToCSVParser
         .parseFileToTicketDefinitionsCSVList(

@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.model.Status.BOUGHT;
 import static pl.hellopolandticket.model.Status.PUNCHED;
@@ -42,8 +43,9 @@ public class SightEventService {
     return sightEventDao.findById(sightEventId);
   }
 
-  public List<SightEventDTO> findForPartner(String userLogin) {
-    Partner partner = partnerDao.findByUserEmail(userLogin);
+  public List<SightEventDTO> findForPartner(String principal) {
+    Partner partner = ofNullable(partnerDao.findByName(principal))
+        .orElseGet(() -> partnerDao.findByUserEmail(principal));
 
     List<Long> sightIds = partner.getSights().stream()
         .map(Sight::getId)

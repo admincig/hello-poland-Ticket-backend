@@ -27,7 +27,7 @@ public class UserAuthDTO implements Serializable {
 
   public static UserAuthDTO ofCurrentUser(CurrentUser currentUser) {
     return UserAuthDTO.builder()
-        .login(currentUser.getEmail())
+        .login(currentUser.getPrincipal())
         .accessToken(currentUser.getAccessToken())
         .refreshToken(currentUser.getRefreshToken())
         .build();

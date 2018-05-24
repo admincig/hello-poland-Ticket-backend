@@ -35,7 +35,7 @@ public class TicketService {
     ticketValidator.validateTicketHasDemandedStatus(ticket);
     ticketValidator.validateProperTime(ticket);
 
-    User ticketTaker = userService.findUserByEmail(currentUser.getEmail());
+    User ticketTaker = userService.findUserByEmail(currentUser.getPrincipal());
 
     ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSightEvent().getSight(),
         ticketTaker.getPartner().getSights());
@@ -50,7 +50,7 @@ public class TicketService {
   public TicketDTO findBySerialNumber(CurrentUser currentUser, Long sightEventId,
       String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
-    User ticketTaker = userService.findUserByEmail(currentUser.getEmail());
+    User ticketTaker = userService.findUserByEmail(currentUser.getPrincipal());
 
     ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSightEvent().getSight(),
         ticketTaker.getPartner().getSights());

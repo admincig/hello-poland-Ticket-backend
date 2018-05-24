@@ -1,10 +1,9 @@
 package pl.hellopolandticket.model;
 
-import static java.util.UUID.randomUUID;
 import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.FetchType.LAZY;
-import static javax.xml.bind.DatatypeConverter.printHexBinary;
 import static pl.hellopolandticket.model.Status.BOOKED;
+import static pl.hellopolandticket.model.UUIDGeneratorUtil.generateUUID;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -14,9 +13,6 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -125,13 +121,7 @@ public class Ticket implements Serializable {
   }
 
   public void generateSerialNumber() {
-    try {
-      MessageDigest salt = MessageDigest.getInstance("SHA-256");
-      salt.update(randomUUID().toString().getBytes("UTF-8"));
-      serialNumber = printHexBinary(salt.digest());
-    } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-      log.error("Can't generate random UUID {}", e);
-    }
+    serialNumber = generateUUID();
   }
 
   public ByteArrayOutputStream encodeSerialNumberAsQrCode(int qrCodeWidth, int qrCodeHeight) {
