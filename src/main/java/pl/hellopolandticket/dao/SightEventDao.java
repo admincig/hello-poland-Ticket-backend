@@ -44,4 +44,11 @@ public class SightEventDao {
         .getResultStream()
         .collect(toList());
   }
+
+  public List<SightEvent> findAll() {
+    return entityManager
+        .createQuery("from SightEvent sightEvent", SightEvent.class)
+        .getResultStream()
+        .collect(toList());
+  }
 }

@@ -122,7 +122,7 @@ public class CSVService {
   private TicketDefinitionsImportEvent createTicketsImportEvent(
       List<TicketDefinition> ticketDefinitions) {
     List<pl.hellopoland.dto.Ticket> ticketsDTO = ticketDefinitions.stream()
-        .map(ModelObjectsToDTOConverter::ofTicket)
+        .map(ModelObjectsToDTOConverter::ofTicketDefinition)
         .collect(toList());
 
     return TicketDefinitionsImportEvent.builder()
