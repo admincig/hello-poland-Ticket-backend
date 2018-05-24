@@ -18,6 +18,7 @@ import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.Partner;
 import pl.hellopolandticket.model.Sight;
 import pl.hellopolandticket.model.SightEvent;
+import pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.dto.SightEventDTO;
 
 @Stateless
@@ -50,6 +51,15 @@ public class SightEventService {
 
     return sightEventDao.findBySightIdsIn(sightIds).stream()
         .map(this::toSightEventDTO)
+        .collect(toList());
+  }
+
+  public List<pl.hellopoland.dto.Sight> findAllAndConvertToDTOObject() {
+    List<SightEvent> sightEvents = sightEventDao.findAll();
+    sightEvents.forEach(SightEvent::getTicketDefinitions);
+
+    return sightEvents.stream()
+        .map(ModelObjectsToDTOConverter::ofSightEvent)
         .collect(toList());
   }
 
