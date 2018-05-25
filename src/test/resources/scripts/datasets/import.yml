@@ -1,13 +1,10 @@
 partners:
   - partner_id: 1
     name: Hello Poland
-    token: eyJhbGciOiJub25lIn0.eyJzdWIiOiJDRTA3QTgzOTE0QzM0RjFGNzZCRTJGQzJDNzdCQjdDRjY4MDdDQzkxMTYzNDU0QTRGQ0UwNEY1RkQ5QzA5RUQ5In0.
   - partner_id: 2
     name: Kolejkowo
-    token: eyJhbGciOiJub25lIn0.eyJzdWIiOiI5ODk4MkI5QjM4NUU5OTgwNjdFRTA4QTQxMzdDOEUwMUMwRUY4M0E5RkM4M0U1OEY5REQ3OEYxQ0Y1OTc1N0VDIn0.
   - partner_id: 3
     name: Zoo
-    token: eyJhbGciOiJub25lIn0.eyJzdWIiOiIzNDZBMUI0MzZBMTFEMjRGQzBBOTk5QjI1MTA2ODU4MjdBMTlGRkY0RUNBNTNDNEQ1M0Q4QTBCMUVCOTQ4NkNEIn0.
 sights:
   - sight_id: 1
     name: Kolejkowo
