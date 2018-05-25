@@ -26,11 +26,11 @@ public class PartnerDTO implements Serializable {
   private List<Sight> sights;
   private String token;
 
-  public static PartnerDTO ofPartnerWithToken(Partner partner) {
+  public static PartnerDTO ofPartnerWithToken(Partner partner, String token) {
     return PartnerDTO.builder()
         .id(partner.getId())
         .name(partner.getName())
-        .token(partner.getToken())
+        .token(token)
         .build();
   }
 }

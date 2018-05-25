@@ -29,4 +29,8 @@ public class UserService {
     return ofUserBasic(userDao.findByEmail(email)
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException()));
   }
+
+  public User save(User user) {
+    return userDao.persist(user);
+  }
 }

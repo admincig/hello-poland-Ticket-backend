@@ -1,7 +1,7 @@
 package pl.hellopolandticket.rest;
 
 import static java.util.Arrays.asList;
-import static pl.hellopolandticket.model.Role.ROLE_HPL;
+import static pl.hellopolandticket.model.Role.ROLE_EXTERNAL_USER;
 
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
@@ -28,14 +28,14 @@ public class BookingRestService {
   private BookingService bookingService;
 
   @POST
-  @RolesAllowed({ROLE_HPL})
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response makeBooking(BookingDTOCreate booking) {
     return Response.ok(bookingService.createBooking(booking)).build();
   }
 
   @PUT
   @Path("/buy/{bookingId}")
-  @RolesAllowed({ROLE_HPL})
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response markBookingAsBought(@PathParam("bookingId") Long bookingId) {
     return Response.ok(bookingService.markBookingAsBought(bookingId)).build();
   }

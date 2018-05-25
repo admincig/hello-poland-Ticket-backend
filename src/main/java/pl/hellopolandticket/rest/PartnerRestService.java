@@ -24,6 +24,6 @@ public class PartnerRestService {
   @POST
   @RolesAllowed({ROLE_ADMIN})
   public Response add(PartnerDTO partner) {
-    return Response.ok(partnerService.add(partner)).build();
+    return Response.ok(partnerService.save(partner)).build();
   }
 }

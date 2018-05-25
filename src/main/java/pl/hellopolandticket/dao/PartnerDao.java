@@ -34,15 +34,6 @@ public class PartnerDao {
     return partner;
   }
 
-  public Partner findByToken(String token) {
-    return entityManager
-        .createQuery("from Partner partner where partner.token=:token", Partner.class)
-        .setParameter("token", token)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
-  }
-
   public Partner findByName(String name) {
     return entityManager
         .createQuery("from Partner partner where partner.name=:name", Partner.class)

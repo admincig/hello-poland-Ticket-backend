@@ -1,8 +1,5 @@
 package pl.hellopolandticket.model;
 
-import static pl.hellopolandticket.model.UUIDGeneratorUtil.generateUUID;
-
-import io.jsonwebtoken.Jwts;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Column;
@@ -48,21 +45,9 @@ public class Partner implements Serializable {
   @OneToMany(mappedBy = "partner")
   private List<Sight> sights;
 
-  @Setter
-  @NotNull
-  @Column(name = "TOKEN", nullable = false, unique = true)
-  private String token;
-
   @Builder
   public Partner(String name) {
     this.name = name;
-    generateToken();
-  }
-
-  private void generateToken() {
-    token = Jwts.builder()
-        .setSubject(generateUUID())
-        .compact();
   }
 
 }

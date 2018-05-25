@@ -1,6 +1,6 @@
 package pl.hellopolandticket.rest;
 
-import static pl.hellopolandticket.model.Role.ROLE_HPL;
+import static pl.hellopolandticket.model.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.Role.ROLE_USER;
 
 import javax.annotation.security.RolesAllowed;
@@ -35,7 +35,7 @@ public class SightEventRestService {
   private TicketService ticketService;
 
   @GET
-  @RolesAllowed({ROLE_USER, ROLE_HPL})
+  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response getSightEvents() {
     JsonCollectionWrapper responseBody = JsonCollectionWrapper.builder()
         .items(sightEventService.findForPartner(currentUser.getPrincipal()))
