@@ -1,5 +1,8 @@
 package pl.hellopolandticket.model;
 
+import static pl.hellopolandticket.model.UUIDGeneratorUtil.generateUUID;
+
+import io.jsonwebtoken.Jwts;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,8 +43,7 @@ public class User implements Serializable {
   private String name;
 
   @Setter
-  @NotNull
-  @Column(name = "PASSWORD", nullable = false)
+  @Column(name = "PASSWORD")
   private String password;
 
   @Setter
@@ -58,6 +60,15 @@ public class User implements Serializable {
   @JoinColumn(name = "PARTNER_ID")
   private Partner partner;
 
+  @Setter
+  @Column(name = "TOKEN", unique = true)
+  private String token;
+
+  @Setter
+  @NotNull
+  @Column(name = "HIDDEN", nullable = false)
+  private Boolean hidden;
+
   @Builder
   public User(String name, String password, String email, Set<String> authorities,
       Partner partner) {
@@ -66,5 +77,25 @@ public class User implements Serializable {
     this.email = email;
     this.authorities = authorities;
     this.partner = partner;
+    this.hidden = false;
+  }
+
+  @Builder
+  public static User createHiddenUser(String name, String email, Set<String> authorities,
+      Partner partner) {
+    User user = User.builder()
+        .name(name)
+        .email(email)
+        .authorities(authorities)
+        .partner(partner)
+        .build();
+
+    user.setHidden(true);
+
+    user.setToken(Jwts.builder()
+        .setSubject(generateUUID())
+        .compact());
+
+    return user;
   }
 }

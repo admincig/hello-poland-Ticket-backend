@@ -34,7 +34,7 @@ public class Partner implements Serializable {
 
   @Setter
   @NotNull
-  @Column(name = "NAME", nullable = false)
+  @Column(name = "NAME", nullable = false, unique = true)
   private String name;
 
   @Setter
@@ -49,4 +49,5 @@ public class Partner implements Serializable {
   public Partner(String name) {
     this.name = name;
   }
+
 }

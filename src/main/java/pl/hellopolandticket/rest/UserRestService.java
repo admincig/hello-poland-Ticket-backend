@@ -1,5 +1,7 @@
 package pl.hellopolandticket.rest;
 
+import static pl.hellopolandticket.model.Role.ROLE_USER;
+
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -26,8 +28,8 @@ public class UserRestService {
 
   @GET
   @Path("/me")
-  @RolesAllowed({"ROLE_USER"})
+  @RolesAllowed({ROLE_USER})
   public Response userInfo() {
-    return Response.ok(userService.findByEmail(currentUser.getEmail())).build();
+    return Response.ok(userService.findByEmail(currentUser.getPrincipal())).build();
   }
 }

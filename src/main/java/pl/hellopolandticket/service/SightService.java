@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.service.dto.SightDTO.ofSightBasic;
 
@@ -31,8 +32,9 @@ public class SightService {
     return ofSightBasic(sightDao.findById(sightId));
   }
 
-  public List<SightDTO> findForPartner(String userLogin) {
-    Partner partner = partnerDao.findByUserEmail(userLogin);
+  public List<SightDTO> findForPartner(String principal) {
+    Partner partner = ofNullable(partnerDao.findByName(principal))
+        .orElseGet(() -> partnerDao.findByUserEmail(principal));
 
     List<Long> sightIds = partner.getSights().stream()
         .map(Sight::getId)
