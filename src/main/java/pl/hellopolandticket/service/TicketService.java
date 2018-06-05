@@ -37,8 +37,8 @@ public class TicketService {
 
     User ticketTaker = userService.findUserByEmail(currentUser.getPrincipal());
 
-    ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSightEvent().getSight(),
-        ticketTaker.getPartner().getSights());
+    ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSightEvent(),
+        ticketTaker.getPartner().getSightEvents());
 
     ticket.setTicketTaker(ticketTaker);
     ticket.setStatus(PUNCHED);
@@ -52,8 +52,10 @@ public class TicketService {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
     User ticketTaker = userService.findUserByEmail(currentUser.getPrincipal());
 
-    ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSightEvent().getSight(),
-        ticketTaker.getPartner().getSights());
+    ticketValidator.validateTicketTakerHasAccessToSight(ticket.getSightEvent(),
+        ticketTaker.getPartner().getSightEvents()
+
+    );
     ticketValidator.validateAccessingProperTicket(sightEventId, ticket.getSightEvent().getId());
 
     return ofTicket(ticket);

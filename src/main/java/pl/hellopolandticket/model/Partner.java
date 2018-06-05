@@ -43,7 +43,7 @@ public class Partner implements Serializable {
 
   @Setter
   @OneToMany(mappedBy = "partner")
-  private List<Sight> sights;
+  private List<SightEvent> sightEvents;
 
   @Builder
   public Partner(String name) {

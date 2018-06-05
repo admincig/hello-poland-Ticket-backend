@@ -8,7 +8,7 @@ import static pl.hellopolandticket.service.dto.TicketDTO.ofTicket;
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import pl.hellopolandticket.model.Sight;
+import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.model.Ticket;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
@@ -34,9 +34,9 @@ public class TicketValidator {
     }
   }
 
-  public void validateTicketTakerHasAccessToSight(Sight ticketSight,
-      List<Sight> ticketTakerSights) {
-    if (!ticketTakerSights.contains(ticketSight)) {
+  public void validateTicketTakerHasAccessToSight(SightEvent ticketSightEvent,
+      List<SightEvent> ticketTakerSightEvents) {
+    if (!ticketTakerSightEvents.contains(ticketSightEvent)) {
       throw exceptionFactory.ticketTakerWithoutAccessToSightException();
     }
   }

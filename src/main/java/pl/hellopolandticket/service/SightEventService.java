@@ -17,7 +17,6 @@ import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightEventDao;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.Partner;
-import pl.hellopolandticket.model.Sight;
 import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.dto.SightEventDTO;
@@ -47,11 +46,7 @@ public class SightEventService {
     Partner partner = ofNullable(partnerDao.findByName(principal))
         .orElseGet(() -> partnerDao.findByUserEmail(principal));
 
-    List<Long> sightIds = partner.getSights().stream()
-        .map(Sight::getId)
-        .collect(toList());
-
-    return sightEventDao.findBySightIdsIn(sightIds).stream()
+    return partner.getSightEvents().stream()
         .map(this::toSightEventDTO)
         .collect(toList());
   }

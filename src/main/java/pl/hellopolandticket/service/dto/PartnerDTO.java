@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.hellopolandticket.model.Partner;
-import pl.hellopolandticket.model.Sight;
 import pl.hellopolandticket.model.User;
 
 @Setter
@@ -23,7 +22,7 @@ public class PartnerDTO implements Serializable {
   private Long id;
   private String name;
   private List<User> users;
-  private List<Sight> sights;
+  private List<SightEventDTO> sightEvents;
   private String token;
 
   public static PartnerDTO ofPartnerWithToken(Partner partner, String token) {

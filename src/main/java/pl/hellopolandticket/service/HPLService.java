@@ -6,7 +6,7 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class HPLService {
 
-  private static final String SIGHTS_UPLOAD_URL_PROPERTY = "rest.url.sightsUpload";
+  private static final String SIGHT_EVENTS_UPLOAD_URL_PROPERTY = "rest.url.sightEventsUpload";
 
   @Inject
   private HttpClient httpClient;
@@ -19,7 +19,7 @@ public class HPLService {
 
   public void pushDataToHPL() {
     httpClient.sendPostRequest(
-        applicationPropertyService.findByName(SIGHTS_UPLOAD_URL_PROPERTY).getPropertyValue(),
+        applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).getPropertyValue(),
         sightEventService.findAllAndConvertToDTOObject());
   }
 }

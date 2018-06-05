@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -61,10 +62,26 @@ public class SightEvent implements Serializable {
   private Integer duration;
 
   @Setter
+  @Column(name = "MAIN_IMAGE_URL")
+  private String mainImageUrl;
+
+  @Setter
+  @Column(name = "EMAIL")
+  private String email;
+
+  @Setter
+  @Column(name = "PHONE")
+  private String phone;
+
+  @Setter
+  @Embedded
+  private SightLocation sightLocation;
+
+  @Setter
   @NotNull
   @ManyToOne
-  @JoinColumn(name = "SIGHT_ID", nullable = false)
-  private Sight sight;
+  @JoinColumn(name = "PARTNER_ID", nullable = false)
+  private Partner partner;
 
   @Setter
   @OneToMany(mappedBy = "sightEvent")
@@ -72,12 +89,17 @@ public class SightEvent implements Serializable {
 
   @Builder
   public SightEvent(String name, Date date, Integer availableTicketsNumber, String description,
-      Integer duration, Sight sight) {
+      Integer duration, String mainImageUrl, String email, String phone,
+      SightLocation sightLocation, Partner partner) {
     this.name = name;
     this.date = date;
     this.description = description;
     this.duration = duration;
-    this.sight = sight;
+    this.mainImageUrl = mainImageUrl;
+    this.email = email;
+    this.phone = phone;
+    this.sightLocation = sightLocation;
+    this.partner = partner;
 
     this.availableTicketsNumber =
         availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
