@@ -49,7 +49,7 @@ public class HttpClient implements Serializable {
   private void sendPostRequestWithBody(HttpURLConnection httpURLConnection, String body)
       throws IOException {
     DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
-    wr.writeBytes(body);
+    wr.write(body.getBytes("UTF-8"));
     wr.flush();
     wr.close();
   }
