@@ -23,20 +23,6 @@ public class ModelObjectsToDTOConverter {
     return ticketDTO;
   }
 
-  public static Sight ofSight(pl.hellopolandticket.model.Sight sight) {
-    Sight sightDTO = new Sight();
-
-    sightDTO.name = sight.getName();
-    sightDTO.lead = sight.getLead();
-    sightDTO.description = sight.getDescription();
-    sightDTO.mainImageUrl = sight.getMainImageUrl();
-    sightDTO.email = sight.getEmail();
-    sightDTO.phone = sight.getPhone();
-    sightDTO.location = ofSightLocation(sight.getSightLocation());
-
-    return sightDTO;
-  }
-
   public static Location ofSightLocation(SightLocation sightLocation) {
     Location locationDTO = new Location();
 
@@ -55,9 +41,9 @@ public class ModelObjectsToDTOConverter {
 
     sight.name = sightEvent.getName();
     sight.description = sightEvent.getDescription();
-    sight.email = sightEvent.getSight().getEmail();
-    sight.phone = sightEvent.getSight().getPhone();
-    sight.mainImageUrl = sightEvent.getSight().getMainImageUrl();
+    sight.email = sightEvent.getEmail();
+    sight.phone = sightEvent.getPhone();
+    sight.mainImageUrl = sightEvent.getMainImageUrl();
 
     sight.tickets = sightEvent.getTicketDefinitions().stream()
         .map(ModelObjectsToDTOConverter::ofTicketDefinition)

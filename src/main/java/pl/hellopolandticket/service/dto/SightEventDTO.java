@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.hellopolandticket.model.SightEvent;
+import pl.hellopolandticket.model.SightLocation;
 
 @Setter
 @Getter
@@ -31,6 +32,14 @@ public class SightEventDTO implements Serializable {
   private String description;
 
   private Integer duration;
+
+  private String mainImageUrl;
+
+  private String email;
+
+  private String phone;
+
+  private SightLocation sightLocation;
 
   private Integer boughtTicketNumber;
 
