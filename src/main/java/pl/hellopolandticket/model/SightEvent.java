@@ -1,6 +1,7 @@
 package pl.hellopolandticket.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
@@ -87,7 +88,7 @@ public class SightEvent implements Serializable {
 
   @Setter
   @OneToMany(mappedBy = "sightEvent")
-  private List<TicketDefinition> ticketDefinitions;
+  private List<TicketDefinition> ticketDefinitions = new ArrayList<>();
 
   @Builder
   public SightEvent(String name, Date date, Integer availableTicketsNumber, String description,
