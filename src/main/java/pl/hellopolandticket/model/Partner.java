@@ -34,7 +34,7 @@ public class Partner implements Serializable {
 
   @Setter
   @NotNull
-  @Column(name = "NAME", nullable = false)
+  @Column(name = "NAME", nullable = false, unique = true)
   private String name;
 
   @Setter
@@ -43,10 +43,11 @@ public class Partner implements Serializable {
 
   @Setter
   @OneToMany(mappedBy = "partner")
-  private List<Sight> sights;
+  private List<SightEvent> sightEvents;
 
   @Builder
   public Partner(String name) {
     this.name = name;
   }
+
 }

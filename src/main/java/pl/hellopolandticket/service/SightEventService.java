@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.model.Status.BOUGHT;
 import static pl.hellopolandticket.model.Status.PUNCHED;
@@ -16,8 +17,8 @@ import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightEventDao;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.Partner;
-import pl.hellopolandticket.model.Sight;
 import pl.hellopolandticket.model.SightEvent;
+import pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.dto.SightEventDTO;
 
 @Stateless
@@ -41,15 +42,21 @@ public class SightEventService {
     return sightEventDao.findById(sightEventId);
   }
 
-  public List<SightEventDTO> findForPartner(String userLogin) {
-    Partner partner = partnerDao.findByUserEmail(userLogin);
+  public List<SightEventDTO> findForPartner(String principal) {
+    Partner partner = ofNullable(partnerDao.findByName(principal))
+        .orElseGet(() -> partnerDao.findByUserEmail(principal));
 
-    List<Long> sightIds = partner.getSights().stream()
-        .map(Sight::getId)
-        .collect(toList());
-
-    return sightEventDao.findBySightIdsIn(sightIds).stream()
+    return partner.getSightEvents().stream()
         .map(this::toSightEventDTO)
+        .collect(toList());
+  }
+
+  public List<pl.hellopoland.dto.Sight> findAllAndConvertToDTOObject() {
+    List<SightEvent> sightEvents = sightEventDao.findAll();
+    sightEvents.forEach(SightEvent::getTicketDefinitions);
+
+    return sightEvents.stream()
+        .map(ModelObjectsToDTOConverter::ofSightEvent)
         .collect(toList());
   }
 

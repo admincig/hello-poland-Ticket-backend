@@ -1,5 +1,8 @@
 package pl.hellopolandticket.rest;
 
+import static pl.hellopolandticket.model.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.Role.ROLE_USER;
+
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
@@ -11,7 +14,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopolandticket.rest.util.FileToCSVParser;
 import pl.hellopolandticket.service.csv.CSVService;
-import pl.hellopolandticket.service.csv.pojo.SightCSV;
 import pl.hellopolandticket.service.csv.pojo.TicketDefinitionCSV;
 
 @Path("/csv")
@@ -26,19 +28,8 @@ public class CSVRestService {
   private FileToCSVParser fileToCSVParser;
 
   @POST
-  @Path("/sights")
-  @RolesAllowed({"ROLE_USER"})
-  public Response importSightsFromCSV(byte[] sightsCSVFile) {
-    List<SightCSV> sightsCSV = fileToCSVParser.parseFileToSightsCSVList(sightsCSVFile);
-
-    csvService.importSightsFromCSV(sightsCSV);
-
-    return Response.ok().build();
-  }
-
-  @POST
   @Path("/ticket-definitions")
-  @RolesAllowed({"ROLE_USER"})
+  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response importTicketDefinitionsFromCSV(byte[] ticketDefinitionsCSVFile) {
     List<TicketDefinitionCSV> ticketDefinitionsCSV = fileToCSVParser
         .parseFileToTicketDefinitionsCSVList(

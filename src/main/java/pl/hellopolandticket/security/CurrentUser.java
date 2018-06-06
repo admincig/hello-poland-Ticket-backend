@@ -18,7 +18,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CurrentUser {
 
-  private String email;
+  private String principal;
   private Set<String> roles = new HashSet<>();
   private String accessToken;
   private String refreshToken;

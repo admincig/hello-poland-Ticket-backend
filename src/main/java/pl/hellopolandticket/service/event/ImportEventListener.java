@@ -15,15 +15,7 @@ public class ImportEventListener {
   @Inject
   private ApplicationPropertyService applicationPropertyService;
 
-  private static final String SIGHTS_UPLOAD_URL_PROPERTY = "rest.url.sightsUpload";
-
   private static final String TICKETS_UPLOAD_URL_PROPERTY = "rest.url.ticketsUpload";
-
-  public void sightsImportEventHandler(@ObservesAsync SightsImportEvent sightsImportEvent) {
-    httpClient.sendPostRequest(
-        applicationPropertyService.findByName(SIGHTS_UPLOAD_URL_PROPERTY).getPropertyValue(),
-        sightsImportEvent.getSights());
-  }
 
   public void ticketsImportEventHandler(
       @ObservesAsync TicketDefinitionsImportEvent ticketDefinitionsImportEvent) {

@@ -31,7 +31,7 @@ public class JpaIdentityStore implements IdentityStore {
     if (credential instanceof UsernamePasswordCredential) {
       UsernamePasswordCredential usernamePassword = (UsernamePasswordCredential) credential;
 
-      credentialValidationResult = userDao.findByEmail(usernamePassword.getCaller())
+      credentialValidationResult = userDao.findByEmailAndNotHidden(usernamePassword.getCaller())
           .filter(u -> passwordEncoder
               .matches(new String(usernamePassword.getPassword().getValue()), u.getPassword()))
           .map(

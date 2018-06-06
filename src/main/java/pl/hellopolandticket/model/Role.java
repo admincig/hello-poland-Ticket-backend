@@ -6,4 +6,5 @@ public class Role {
 
   public final static String ROLE_ADMIN = "ROLE_ADMIN";
 
+  public final static String ROLE_EXTERNAL_USER = "ROLE_EXTERNAL_USER";
 }
