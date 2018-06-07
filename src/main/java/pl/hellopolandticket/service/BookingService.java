@@ -8,6 +8,7 @@ import static pl.hellopolandticket.service.dto.BookingDTO.ofBooking;
 import static pl.hellopolandticket.service.dto.TicketDTO.ofTicketWithQrCode;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.LocalBean;
@@ -22,8 +23,6 @@ import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.model.Ticket;
 import pl.hellopolandticket.model.TicketDefinition;
 import pl.hellopolandticket.service.dto.BookingDTO;
-import pl.hellopolandticket.service.dto.BookingDTOCreate;
-import pl.hellopolandticket.service.dto.TicketBookingDTO;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
@@ -52,14 +51,14 @@ public class BookingService extends ServiceSuperclass {
   @Inject
   private ExceptionFactory exceptionFactory;
 
-  public BookingDTO createBooking(BookingDTOCreate booking) {
+  public BookingDTO createBooking(pl.hellopoland.dto.booking.Booking booking) {
     Booking bookingToPersist = Booking.builder()
         .date(new Date())
-        .customerName(booking.getCustomerName())
-        .customerEmail(booking.getCustomerEmail())
+        .customerName(booking.customerName)
+        .customerEmail(booking.customerEmail)
         .build();
 
-    List<Ticket> tickets = bookTickets(booking.getTicketBookings(), bookingToPersist);
+    List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
 
     bookingToPersist.setTickets(tickets);
 
@@ -83,8 +82,8 @@ public class BookingService extends ServiceSuperclass {
     return ofBooking(booking);
   }
 
-  private synchronized List<Ticket> bookTickets(List<TicketBookingDTO> ticketBookingDTOS,
-      Booking booking) {
+  private synchronized List<Ticket> bookTickets(
+      Collection<pl.hellopoland.dto.booking.Ticket> ticketBookingDTOS, Booking booking) {
     if (isANewBooking(ticketBookingDTOS)) {
       return book(ticketBookingDTOS, booking);
     } else {
@@ -92,17 +91,17 @@ public class BookingService extends ServiceSuperclass {
     }
   }
 
-  private List<Ticket> book(List<TicketBookingDTO> ticketBookingDTOS,
+  private List<Ticket> book(Collection<pl.hellopoland.dto.booking.Ticket> ticketBookingDTOS,
       Booking booking) {
     List<Ticket> bookedTickets = new ArrayList<>();
 
-    for (TicketBookingDTO ticketBookingDTO : ticketBookingDTOS) {
+    for (pl.hellopoland.dto.booking.Ticket ticketBookingDTO : ticketBookingDTOS) {
       TicketDefinition ticketDefinition = ticketDefinitionDao
-          .findById(ticketBookingDTO.getTicketDefinitionId());
+          .findById(ticketBookingDTO.ticketDefinitionId);
 
       SightEvent sightEvent = ticketDefinition.getSightEvent();
 
-      for (int i = 0; i < ticketBookingDTO.getNumberOfTickets(); i++) {
+      for (int i = 0; i < ticketBookingDTO.numberOfTickets; i++) {
         Ticket ticket = Ticket.builder()
             .sightEvent(sightEvent)
             .name(ticketDefinition.getName())
@@ -118,7 +117,7 @@ public class BookingService extends ServiceSuperclass {
       }
 
       sightEvent.decreaseAvailableTicketsNumber(
-          ticketBookingDTO.getNumberOfTickets().intValue());
+          ticketBookingDTO.numberOfTickets.intValue());
     }
 
     return ticketDao.persist(bookedTickets);
@@ -136,7 +135,7 @@ public class BookingService extends ServiceSuperclass {
     return tickets;
   }
 
-  private boolean isANewBooking(List<TicketBookingDTO> ticketBookingDTOs) {
+  private boolean isANewBooking(Collection<pl.hellopoland.dto.booking.Ticket> ticketBookingDTOs) {
     return ticketBookingDTOs != null;
   }
 

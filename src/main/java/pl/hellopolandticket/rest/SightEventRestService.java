@@ -12,7 +12,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
-import pl.hellopoland.dto.Sight;
+import pl.hellopoland.dto.SightEventDefinition;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.SightEventService;
@@ -45,7 +45,7 @@ public class SightEventRestService extends RestServiceSuperclass {
 
   @POST
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response addSightEvent(Sight sightEvent) {
+  public Response addSightEvent(SightEventDefinition sightEvent) {
     return Response.ok(sightEventService.addSightEvent(sightEvent, currentUser)).build();
   }
 

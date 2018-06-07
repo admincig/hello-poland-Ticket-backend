@@ -15,13 +15,15 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import pl.hellopoland.dto.Location;
-import pl.hellopoland.dto.Sight;
+import pl.hellopoland.dto.Push;
+import pl.hellopoland.dto.SightEventDefinition;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightEventDao;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.Partner;
 import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.model.SightLocation;
+import pl.hellopolandticket.model.User;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.dto.SightEventDTO;
@@ -47,6 +49,9 @@ public class SightEventService extends ServiceSuperclass {
   @Inject
   private ApplicationPropertyService applicationPropertyService;
 
+  @Inject
+  private UserService userService;
+
   public SightEventDTO findById(Long sightEventId) {
     return ofSightEventBasic(sightEventDao.findById(sightEventId));
   }
@@ -64,39 +69,59 @@ public class SightEventService extends ServiceSuperclass {
         .collect(toList());
   }
 
-  public List<Sight> findAllAndConvertToDTOObject() {
-    List<SightEvent> sightEvents = sightEventDao.findAll();
+  public Push findAllAndConvertToPushDTOObject(CurrentUser currentUser) {
+    User user = userService.findUserByEmail(currentUser.getPrincipal());
+
+    Partner partner = user.getPartner();
+
+    List<Long> sightEventIds = partner.getSightEvents().stream()
+        .map(SightEvent::getId)
+        .collect(toList());
+
+    List<SightEvent> sightEvents = sightEventDao.findBySightEventIdsIn(sightEventIds);
     sightEvents.forEach(SightEvent::getTicketDefinitions);
 
-    return sightEvents.stream()
+    Push sightEventsPushDTO = new Push();
+
+    sightEventsPushDTO.sightEvents = sightEvents.stream()
         .map(ModelObjectsToDTOConverter::ofSightEvent)
         .collect(toList());
+
+    sightEventsPushDTO.secret = user.getToken();
+
+    return sightEventsPushDTO;
   }
 
-  public Sight addSightEvent(Sight sightEvent, CurrentUser currentUser) {
-    SightLocation sightLocation = ofNullable(sightEvent.location)
+  public SightEventDefinition addSightEvent(SightEventDefinition sightEventDefinition,
+      CurrentUser currentUser) {
+    SightLocation sightLocation = ofNullable(sightEventDefinition.location)
         .map(this::ofLocation)
         .orElse(null);
 
-    Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
+    User user = userService.findUserByEmail(currentUser.getPrincipal());
 
     SightEvent sightEventToPersist = SightEvent.builder()
-        .name(sightEvent.name)
-        .description(sightEvent.description)
-        .mainImageUrl(sightEvent.mainImageUrl)
-        .email(sightEvent.email)
-        .phone(sightEvent.phone)
+        .name(sightEventDefinition.name)
+        .description(sightEventDefinition.description)
+        .mainImageUrl(sightEventDefinition.mainImageUrl)
+        .email(sightEventDefinition.email)
+        .phone(sightEventDefinition.phone)
         .sightLocation(sightLocation)
-        .partner(partner)
+        .partner(user.getPartner())
         .build();
 
     sightEventToPersist = sightEventDao.persist(sightEventToPersist);
 
-    Sight persistedSightEvent = ofSightEvent(sightEventToPersist);
+    SightEventDefinition persistedSightEvent = ofSightEvent(sightEventToPersist);
+
+    Push sightEventsPushDTO = new Push();
+
+    sightEventsPushDTO.sightEvents = singletonList(persistedSightEvent);
+    sightEventsPushDTO.secret = user.getToken();
 
     httpClient.sendPostRequest(
         applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).getPropertyValue(),
-        singletonList(persistedSightEvent));
+        sightEventsPushDTO);
 
     return persistedSightEvent;
   }

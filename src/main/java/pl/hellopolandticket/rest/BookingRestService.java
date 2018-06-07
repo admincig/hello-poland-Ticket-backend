@@ -12,10 +12,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import pl.hellopoland.dto.booking.Booking;
+import pl.hellopoland.dto.booking.Ticket;
 import pl.hellopolandticket.service.BookingService;
 import pl.hellopolandticket.service.dto.BookingDTO;
-import pl.hellopolandticket.service.dto.BookingDTOCreate;
-import pl.hellopolandticket.service.dto.TicketBookingDTO;
 
 @Path("/bookings")
 @RequestScoped
@@ -26,7 +26,7 @@ public class BookingRestService extends RestServiceSuperclass {
 
   @POST
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response makeBooking(BookingDTOCreate booking) {
+  public Response makeBooking(Booking booking) {
     return Response.ok(bookingService.createBooking(booking)).build();
   }
 
@@ -40,24 +40,22 @@ public class BookingRestService extends RestServiceSuperclass {
   @GET
   @Path("/book-buy/{email}")
   public Response bookAndBuy(@PathParam("email") String email) {
-    TicketBookingDTO ticketBooking1 = TicketBookingDTO.builder()
-        .ticketDefinitionId(1L)
-        .numberOfTickets(2L)
-        .build();
-    TicketBookingDTO ticketBooking2 = TicketBookingDTO.builder()
-        .ticketDefinitionId(2L)
-        .numberOfTickets(3L)
-        .build();
-    TicketBookingDTO ticketBooking3 = TicketBookingDTO.builder()
-        .ticketDefinitionId(3L)
-        .numberOfTickets(2L)
-        .build();
+    Ticket ticket1 = new Ticket();
+    ticket1.ticketDefinitionId = 1L;
+    ticket1.numberOfTickets = 2L;
 
-    BookingDTOCreate booking = BookingDTOCreate.builder()
-        .customerName("Jan Kowalski")
-        .customerEmail(email)
-        .ticketBookings(asList(ticketBooking1, ticketBooking2, ticketBooking3))
-        .build();
+    Ticket ticket2 = new Ticket();
+    ticket2.ticketDefinitionId = 2L;
+    ticket2.numberOfTickets = 3L;
+
+    Ticket ticket3 = new Ticket();
+    ticket3.ticketDefinitionId = 3L;
+    ticket3.numberOfTickets = 2L;
+
+    Booking booking = new Booking();
+    booking.customerName = "Jan Kowalski";
+    booking.customerEmail = email;
+    booking.ticketBookings = asList(ticket1, ticket2, ticket3);
 
     BookingDTO persistedBooking = bookingService.createBooking(booking);
 
