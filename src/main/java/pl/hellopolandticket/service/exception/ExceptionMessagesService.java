@@ -3,13 +3,11 @@ package pl.hellopolandticket.service.exception;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javax.enterprise.context.RequestScoped;
-import javax.interceptor.Interceptors;
-import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.app.Utf8ResourceBundleControl;
+import pl.hellopolandticket.service.ServiceSuperclass;
 
 @RequestScoped
-@Interceptors(value = LoggingHandler.class)
-public class ExceptionMessagesService {
+public class ExceptionMessagesService extends ServiceSuperclass {
 
   private ResourceBundle resourceBundle;
 

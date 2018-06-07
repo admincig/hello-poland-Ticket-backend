@@ -5,8 +5,6 @@ import static pl.hellopolandticket.service.dto.UserDTO.ofUserBasic;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.dao.UserDao;
 import pl.hellopolandticket.model.User;
 import pl.hellopolandticket.service.dto.UserDTO;
@@ -14,8 +12,7 @@ import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
-@Interceptors(value = LoggingHandler.class)
-public class UserService {
+public class UserService extends ServiceSuperclass {
 
   @Inject
   private UserDao userDao;

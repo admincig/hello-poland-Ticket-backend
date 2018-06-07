@@ -5,19 +5,16 @@ import static pl.hellopolandticket.service.dto.UserAuthDTO.ofCurrentUser;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.interceptor.Interceptors;
 import javax.security.enterprise.SecurityContext;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 
 @Path("/")
 @RequestScoped
-@Interceptors(value = LoggingHandler.class)
-public class AuthenticationRestService {
+public class AuthenticationRestService extends RestServiceSuperclass {
 
   @Inject
   private SecurityContext securityContext;

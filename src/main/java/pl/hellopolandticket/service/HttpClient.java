@@ -8,15 +8,12 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import javax.enterprise.context.ApplicationScoped;
-import javax.interceptor.Interceptors;
 import javax.json.bind.JsonbBuilder;
 import lombok.extern.slf4j.Slf4j;
-import pl.hellopolandticket.app.LoggingHandler;
 
 @Slf4j
 @ApplicationScoped
-@Interceptors(value = LoggingHandler.class)
-public class HttpClient implements Serializable {
+public class HttpClient extends ServiceSuperclass implements Serializable {
 
   private static final long serialVersionUID = 7529870890163651237L;
 

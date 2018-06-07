@@ -20,7 +20,6 @@ import java.util.stream.IntStream;
 import javax.activation.DataHandler;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.interceptor.Interceptors;
 import javax.mail.Authenticator;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -33,15 +32,13 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 import lombok.extern.slf4j.Slf4j;
-import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.dao.EmailTemplateDao;
 import pl.hellopolandticket.model.EmailTemplate;
 import pl.hellopolandticket.service.dto.TicketDTO;
 
 @Slf4j
 @RequestScoped
-@Interceptors(value = LoggingHandler.class)
-public class EmailService {
+public class EmailService extends ServiceSuperclass {
 
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
