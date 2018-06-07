@@ -16,7 +16,7 @@ public class LoggingHandler {
 
   private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(
       "yyyy-MM-dd HH:mm:ss.SSS");
-  private static final String NEW_LINE_STRING = "\n\t";
+  private static final String NEW_LINE_STRING = "\n\t\t";
 
   @AroundInvoke
   public Object logAroundServices(InvocationContext invocationCtx) throws Exception {
@@ -29,14 +29,14 @@ public class LoggingHandler {
       Object result = invocationCtx.proceed();
       long elapsedTime = System.currentTimeMillis() - start;
 
-      log.debug(
+      log.info(
           prepareServiceLogInfo(className, methodName, arguments, start, elapsedTime, result));
 
       return result;
     } catch (Exception e) {
       long elapsedTime = System.currentTimeMillis() - start;
 
-      log.debug(prepareServiceLogInfo(invocationCtx.getMethod().getClass().getSimpleName(),
+      log.info(prepareServiceLogInfo(invocationCtx.getMethod().getClass().getSimpleName(),
           invocationCtx.getMethod().getName(), invocationCtx.getParameters(), start, elapsedTime,
           e));
 
