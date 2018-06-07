@@ -13,7 +13,7 @@ import pl.hellopolandticket.model.Booking;
 
 @Slf4j
 @Singleton
-public class BookingCancelScheduler {
+public class BookingCancelScheduler extends ServiceSuperclass {
 
   private final static String TICKET_BOOKED_TIME_TO_BUY_PROPERTY = "ticket.booked.timeToBuy";
 

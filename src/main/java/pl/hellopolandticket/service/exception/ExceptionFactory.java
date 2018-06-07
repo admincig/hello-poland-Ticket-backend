@@ -2,6 +2,8 @@ package pl.hellopolandticket.service.exception;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
+import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.service.dto.TicketDTO;
 import pl.hellopolandticket.service.exception.badrequest.EmailSendingException;
 import pl.hellopolandticket.service.exception.badrequest.ImportingDataException;
@@ -16,6 +18,7 @@ import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException
 import pl.hellopolandticket.service.exception.notfound.TicketNotFoundException;
 
 @ApplicationScoped
+@Interceptors(value = LoggingHandler.class)
 public class ExceptionFactory {
 
   @Inject

@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
 import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
@@ -27,6 +28,7 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 @Table(name = "SIGHT_EVENTS")
 @EqualsAndHashCode
 @NoArgsConstructor
+@ToString(exclude = "ticketDefinitions")
 public class SightEvent implements Serializable {
 
   private static final long serialVersionUID = 5345966403908441388L;

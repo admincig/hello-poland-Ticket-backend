@@ -29,7 +29,7 @@ import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
-public class BookingService {
+public class BookingService extends ServiceSuperclass {
 
   private final static String TICKET_QR_CODE_HEIGHT_PROPERTY = "ticket.qrCode.height";
   private final static String TICKET_QR_CODE_WIDTH_PROPERTY = "ticket.qrCode.width";

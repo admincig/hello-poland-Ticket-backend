@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class HttpClient implements Serializable {
+public class HttpClient extends ServiceSuperclass implements Serializable {
 
   private static final long serialVersionUID = 7529870890163651237L;
 

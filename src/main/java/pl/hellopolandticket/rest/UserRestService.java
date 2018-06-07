@@ -7,8 +7,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
@@ -16,8 +14,7 @@ import pl.hellopolandticket.service.UserService;
 
 @Path("/users")
 @RequestScoped
-@Produces(MediaType.APPLICATION_JSON)
-public class UserRestService {
+public class UserRestService extends RestServiceSuperclass {
 
   @Inject
   private UserService userService;

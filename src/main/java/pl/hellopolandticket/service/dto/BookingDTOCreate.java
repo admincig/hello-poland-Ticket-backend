@@ -8,12 +8,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Setter
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class BookingDTOCreate implements Serializable {
 
   private static final long serialVersionUID = -3098157182713594498L;

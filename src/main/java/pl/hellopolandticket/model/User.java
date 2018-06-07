@@ -22,12 +22,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Entity
 @Table(name = "USERS")
 @EqualsAndHashCode
 @NoArgsConstructor
+@ToString(exclude = {"name", "password", "email", "authorities", "token"})
 public class User implements Serializable {
 
   private static final long serialVersionUID = 7266276164148705023L;

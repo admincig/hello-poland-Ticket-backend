@@ -5,13 +5,16 @@ import java.io.IOException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 import javax.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
+import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.service.EmailService;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Slf4j
 @ApplicationScoped
+@Interceptors(value = LoggingHandler.class)
 public class BookingMarkedAsBoughtEventListener {
 
   @Inject
