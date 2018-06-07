@@ -14,7 +14,7 @@ import pl.hellopolandticket.security.CurrentUser;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"password", "accessToken", "refreshToken"})
+@ToString(exclude = {"login", "password", "accessToken", "refreshToken"})
 public class UserAuthDTO implements Serializable {
 
   private static final long serialVersionUID = 1790587694120511896L;

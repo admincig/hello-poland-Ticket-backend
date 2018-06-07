@@ -13,7 +13,7 @@ import pl.hellopolandticket.model.User;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@ToString(exclude = {"name", "email"})
 public class UserDTO {
 
   private Long id;
