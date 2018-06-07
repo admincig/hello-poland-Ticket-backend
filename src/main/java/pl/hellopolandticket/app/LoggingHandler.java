@@ -16,7 +16,7 @@ public class LoggingHandler {
 
   private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(
       "yyyy-MM-dd HH:mm:ss.SSS");
-  private static final String NEW_LINE_STRING = "\n\t\t";
+  private static final String NEW_LINE_STRING = "\n\t";
 
   @AroundInvoke
   public Object logAroundServices(InvocationContext invocationCtx) throws Exception {
