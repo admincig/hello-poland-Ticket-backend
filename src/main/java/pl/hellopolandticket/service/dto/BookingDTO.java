@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import pl.hellopolandticket.model.Booking;
 import pl.hellopolandticket.model.Status;
 
@@ -16,6 +17,7 @@ import pl.hellopolandticket.model.Status;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = {"tickets"})
 public class BookingDTO implements Serializable {
 
   private static final long serialVersionUID = 2556193666908234466L;

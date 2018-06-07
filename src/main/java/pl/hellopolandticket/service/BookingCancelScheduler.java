@@ -7,12 +7,15 @@ import java.util.List;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 import lombok.extern.slf4j.Slf4j;
+import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.model.Booking;
 
 @Slf4j
 @Singleton
+@Interceptors(value = LoggingHandler.class)
 public class BookingCancelScheduler {
 
   private final static String TICKET_BOOKED_TIME_TO_BUY_PROPERTY = "ticket.booked.timeToBuy";

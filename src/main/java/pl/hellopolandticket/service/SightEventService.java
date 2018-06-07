@@ -13,6 +13,8 @@ import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
+import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightEventDao;
 import pl.hellopolandticket.dao.TicketDao;
@@ -23,6 +25,7 @@ import pl.hellopolandticket.service.dto.SightEventDTO;
 
 @Stateless
 @LocalBean
+@Interceptors(value = LoggingHandler.class)
 public class SightEventService {
 
   @Inject

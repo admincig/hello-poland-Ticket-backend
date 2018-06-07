@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import pl.hellopolandticket.model.Status;
 import pl.hellopolandticket.model.Ticket;
 
@@ -20,6 +21,7 @@ import pl.hellopolandticket.model.Ticket;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = {"qrCode"})
 public class TicketDTO implements Serializable {
 
   private static final long serialVersionUID = -3362200913434743101L;

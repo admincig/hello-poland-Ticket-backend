@@ -7,6 +7,8 @@ import java.util.Date;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
+import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.Ticket;
 import pl.hellopolandticket.model.User;
@@ -16,6 +18,7 @@ import pl.hellopolandticket.service.validator.TicketValidator;
 
 @Stateless
 @LocalBean
+@Interceptors(value = LoggingHandler.class)
 public class TicketService {
 
   @Inject

@@ -3,10 +3,13 @@ package pl.hellopolandticket.service.event;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
+import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.service.ApplicationPropertyService;
 import pl.hellopolandticket.service.HttpClient;
 
 @ApplicationScoped
+@Interceptors(value = LoggingHandler.class)
 public class ImportEventListener {
 
   @Inject

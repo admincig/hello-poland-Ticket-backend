@@ -30,6 +30,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.service.exception.badrequest.CannotGenerateQrCodeException;
 
@@ -39,6 +40,7 @@ import pl.hellopolandticket.service.exception.badrequest.CannotGenerateQrCodeExc
 @Table(name = "TICKETS")
 @EqualsAndHashCode
 @NoArgsConstructor
+@ToString
 public class Ticket implements Serializable {
 
   private static final long serialVersionUID = 8362327972408128723L;

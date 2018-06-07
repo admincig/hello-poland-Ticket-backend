@@ -2,8 +2,11 @@ package pl.hellopolandticket.service;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
+import pl.hellopolandticket.app.LoggingHandler;
 
 @ApplicationScoped
+@Interceptors(value = LoggingHandler.class)
 public class HPLService {
 
   private static final String SIGHT_EVENTS_UPLOAD_URL_PROPERTY = "rest.url.sightEventsUpload";

@@ -23,12 +23,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Entity
 @Table(name = "BOOKINGS")
 @EqualsAndHashCode(exclude = {"tickets"})
 @NoArgsConstructor
+@ToString(exclude = "tickets")
 public class Booking implements Serializable {
 
   private static final long serialVersionUID = 1536468158632140785L;

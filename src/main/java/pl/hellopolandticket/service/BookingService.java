@@ -14,6 +14,8 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
+import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.dao.TicketDefinitionDao;
@@ -29,6 +31,7 @@ import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
+@Interceptors(value = LoggingHandler.class)
 public class BookingService {
 
   private final static String TICKET_QR_CODE_HEIGHT_PROPERTY = "ticket.qrCode.height";

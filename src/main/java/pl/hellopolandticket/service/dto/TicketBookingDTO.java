@@ -7,12 +7,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Setter
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class TicketBookingDTO implements Serializable {
 
   private static final long serialVersionUID = -5790760386014306539L;

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import pl.hellopolandticket.model.User;
 
 @Setter
@@ -12,6 +13,7 @@ import pl.hellopolandticket.model.User;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class UserDTO {
 
   private Long id;

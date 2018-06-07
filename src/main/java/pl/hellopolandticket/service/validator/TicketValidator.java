@@ -8,11 +8,14 @@ import static pl.hellopolandticket.service.dto.TicketDTO.ofTicket;
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
+import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.model.Ticket;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @RequestScoped
+@Interceptors(value = LoggingHandler.class)
 public class TicketValidator {
 
   @Inject
