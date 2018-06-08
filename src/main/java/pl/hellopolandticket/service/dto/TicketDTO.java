@@ -39,6 +39,8 @@ public class TicketDTO implements Serializable {
 
   private Status status;
 
+  private Long definitionId;
+  
   private String serialNumber;
 
   private ByteArrayOutputStream qrCode;
@@ -54,6 +56,7 @@ public class TicketDTO implements Serializable {
         .date(ticket.getDate())
         .status(ticket.getStatus())
         .serialNumber(ticket.getSerialNumber())
+        .definitionId(ticket.getTicketDefinition().getId())
         .booking(ofBookingBasic(ticket.getBooking()))
         .build();
   }
@@ -67,6 +70,7 @@ public class TicketDTO implements Serializable {
         .date(ticket.getDate())
         .status(ticket.getStatus())
         .serialNumber(ticket.getSerialNumber())
+        .definitionId(ticket.getTicketDefinition().getId())
         .booking(ofBookingBasic(ticket.getBooking()))
         .qrCode(qrCode)
         .build();
