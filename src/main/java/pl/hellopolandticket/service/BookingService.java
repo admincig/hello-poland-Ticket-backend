@@ -8,6 +8,7 @@ import static pl.hellopolandticket.service.dto.BookingDTO.ofBooking;
 import static pl.hellopolandticket.service.dto.TicketDTO.ofTicketWithQrCode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -58,7 +59,7 @@ public class BookingService extends ServiceSuperclass {
         .customerEmail(booking.customerEmail)
         .build();
 
-    List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
+    List<Ticket> tickets = bookTickets(Arrays.asList(booking.ticketBookings), bookingToPersist);
 
     bookingToPersist.setTickets(tickets);
 

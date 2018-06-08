@@ -55,7 +55,7 @@ public class BookingRestService extends RestServiceSuperclass {
     Booking booking = new Booking();
     booking.customerName = "Jan Kowalski";
     booking.customerEmail = email;
-    booking.ticketBookings = asList(ticket1, ticket2, ticket3);
+    booking.ticketBookings = new Ticket[]{ticket1, ticket2, ticket3};
 
     BookingDTO persistedBooking = bookingService.createBooking(booking);
 
