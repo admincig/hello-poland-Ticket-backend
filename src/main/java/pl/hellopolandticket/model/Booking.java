@@ -4,6 +4,7 @@ import static javax.persistence.CascadeType.ALL;
 import static pl.hellopolandticket.model.Status.BOOKED;
 import static pl.hellopolandticket.model.Status.BOUGHT;
 import static pl.hellopolandticket.model.Status.INVALID;
+import static pl.hellopolandticket.model.UUIDGeneratorUtil.generateUUID;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -65,12 +66,18 @@ public class Booking implements Serializable {
   @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "booking")
   private List<Ticket> tickets;
 
+  @Setter
+  @Column(name = "SERIAL_NUMBER", unique = true)
+  private String serialNumber;
+
 
   @Builder
   public Booking(Date date, String customerName, String customerEmail) {
     this.date = date;
     this.customerName = customerName;
     this.customerEmail = customerEmail;
+
+    this.serialNumber = generateUUID();
   }
 
   public void makeInvalid() {

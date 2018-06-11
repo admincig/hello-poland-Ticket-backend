@@ -1,6 +1,5 @@
 package pl.hellopolandticket.rest;
 
-import static java.util.Arrays.asList;
 import static pl.hellopolandticket.model.Role.ROLE_EXTERNAL_USER;
 
 import javax.annotation.security.RolesAllowed;
@@ -31,10 +30,10 @@ public class BookingRestService extends RestServiceSuperclass {
   }
 
   @PUT
-  @Path("/buy/{bookingId}")
+  @Path("/buy/{serialNumber}")
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response markBookingAsBought(@PathParam("bookingId") Long bookingId) {
-    return Response.ok(bookingService.markBookingAsBought(bookingId)).build();
+  public Response markBookingAsBought(@PathParam("serialNumber") String serialNumber) {
+    return Response.ok(bookingService.markBookingAsBought(serialNumber)).build();
   }
 
   @GET
@@ -59,6 +58,7 @@ public class BookingRestService extends RestServiceSuperclass {
 
     BookingDTO persistedBooking = bookingService.createBooking(booking);
 
-    return Response.ok(bookingService.markBookingAsBought(persistedBooking.getId())).build();
+    return Response.ok(bookingService.markBookingAsBought(persistedBooking.getSerialNumber()))
+        .build();
   }
 }
