@@ -102,12 +102,15 @@ public class BookingService extends ServiceSuperclass {
 
       SightEvent sightEvent = ticketDefinition.getSightEvent();
 
+      Date date =
+          ticketDefinition.getPredefinedDate() ? ticketDefinition.getDate() : ticketBookingDTO.date;
+
       for (int i = 0; i < ticketBookingDTO.numberOfTickets; i++) {
         Ticket ticket = Ticket.builder()
             .sightEvent(sightEvent)
             .name(ticketDefinition.getName())
             .price(ticketDefinition.getPrice())
-            .date(booking.getDate())
+            .date(date)
             .dateType(ticketDefinition.getDateType())
             .status(BOOKED)
             .booking(booking)

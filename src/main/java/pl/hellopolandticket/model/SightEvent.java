@@ -27,7 +27,7 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 @Getter
 @Entity
 @Table(name = "SIGHT_EVENTS")
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"ticketDefinitions"})
 @NoArgsConstructor
 @ToString(exclude = "ticketDefinitions")
 public class SightEvent implements Serializable {

@@ -40,7 +40,7 @@ public class TicketDTO implements Serializable {
   private Status status;
 
   private Long definitionId;
-  
+
   private String serialNumber;
 
   private ByteArrayOutputStream qrCode;
