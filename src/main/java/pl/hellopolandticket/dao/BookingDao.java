@@ -29,10 +29,10 @@ public class BookingDao {
     return booking;
   }
 
-  public Booking findById(Long bookingId) {
+  public Booking findBySerialNumber(String serialNumber) {
     return entityManager
-        .createQuery("from Booking booking where booking.id=:id", Booking.class)
-        .setParameter("id", bookingId)
+        .createQuery("from Booking booking where booking.serialNumber=:serialNumber", Booking.class)
+        .setParameter("serialNumber", serialNumber)
         .getResultStream()
         .findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());

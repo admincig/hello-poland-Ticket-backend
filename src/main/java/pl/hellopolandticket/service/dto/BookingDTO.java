@@ -26,6 +26,7 @@ public class BookingDTO implements Serializable {
   private String customerName;
   private String customerEmail;
   private Status status;
+  private String serialNumber;
   private List<TicketDTO> tickets;
 
   public static BookingDTO ofBooking(Booking booking) {
@@ -34,6 +35,7 @@ public class BookingDTO implements Serializable {
         .customerName(booking.getCustomerName())
         .customerEmail(booking.getCustomerEmail())
         .status(booking.getStatus())
+        .serialNumber(booking.getSerialNumber())
         .tickets(booking.getTickets().stream()
             .map(TicketDTO::ofTicket)
             .collect(Collectors.toList()))

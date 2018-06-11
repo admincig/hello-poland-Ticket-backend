@@ -66,8 +66,8 @@ public class BookingService extends ServiceSuperclass {
     return ofBooking(bookingDao.persist(bookingToPersist));
   }
 
-  public BookingDTO markBookingAsBought(Long bookingId) {
-    Booking booking = bookingDao.findById(bookingId);
+  public BookingDTO markBookingAsBought(String serialNumber) {
+    Booking booking = bookingDao.findBySerialNumber(serialNumber);
 
     if (booking.getStatus() == BOOKED) {
       booking.makeBought();
@@ -75,7 +75,7 @@ public class BookingService extends ServiceSuperclass {
     } else if (booking.getStatus() == INVALID) {
       bookTickets(null, booking);
 
-      return markBookingAsBought(booking.getId());
+      return markBookingAsBought(booking.getSerialNumber());
     } else {
       throw exceptionFactory.notBookedException();
     }

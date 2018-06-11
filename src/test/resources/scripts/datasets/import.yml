@@ -33,26 +33,31 @@ bookings:
     customer_name: Jan Kowalski
     customer_email: jan.kowalski@wymyslony-mail.com
     status: BOOKED
+    serial_number: 1
   - booking_id: 2
     date: 2022-03-28 11:48:20.775000
     customer_name: Andrzej Nowak
     customer_email: andrzej.nowak@wymyslony-mail.com
     status: BOUGHT
+    serial_number: 2
   - booking_id: 3
     date: 2022-03-28 11:48:20.775000
     customer_name: Andrzej Nowak
     customer_email: andrzej.nowak@wymyslony-mail.com
     status: PUNCHED
+    serial_number: 3
   - booking_id: 4
     date: 2022-03-28 11:48:20.775000
     customer_name: Andrzej Nowak
     customer_email: andrzej.nowak@wymyslony-mail.com
     status: DELETED
+    serial_number: 4
   - booking_id: 5
     date: 2022-03-28 11:48:20.775000
     customer_name: Andrzej Nowak
     customer_email: andrzej.nowak@wymyslony-mail.com
     status: BOUGHT
+    serial_number: 5
 tickets:
   - ticket_id: 1
     sight_event_id: 1

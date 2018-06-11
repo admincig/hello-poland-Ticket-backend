@@ -31,10 +31,10 @@ public class BookingRestService extends RestServiceSuperclass {
   }
 
   @PUT
-  @Path("/buy/{bookingId}")
+  @Path("/buy/{serialNumber}")
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response markBookingAsBought(@PathParam("bookingId") Long bookingId) {
-    return Response.ok(bookingService.markBookingAsBought(bookingId)).build();
+  public Response markBookingAsBought(@PathParam("serialNumber") String serialNumber) {
+    return Response.ok(bookingService.markBookingAsBought(serialNumber)).build();
   }
 
   @GET
@@ -61,6 +61,7 @@ public class BookingRestService extends RestServiceSuperclass {
 
     BookingDTO persistedBooking = bookingService.createBooking(booking);
 
-    return Response.ok(bookingService.markBookingAsBought(persistedBooking.getId())).build();
+    return Response.ok(bookingService.markBookingAsBought(persistedBooking.getSerialNumber()))
+        .build();
   }
 }
