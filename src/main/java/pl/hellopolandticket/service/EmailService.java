@@ -1,5 +1,11 @@
 package pl.hellopolandticket.service;
 
+import static java.util.Calendar.DAY_OF_MONTH;
+import static java.util.Calendar.DAY_OF_WEEK;
+import static java.util.Calendar.HOUR;
+import static java.util.Calendar.MINUTE;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 import static java.util.stream.Collectors.toList;
 import static javax.mail.Message.RecipientType.TO;
 
@@ -12,8 +18,14 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.IntStream;
@@ -47,6 +59,9 @@ public class EmailService extends ServiceSuperclass {
   private static final String MAIL_SMTP_AUTH_PROPERTY = "mail.smtp.auth";
   private static final String MAIL_SMTP_STARTTLS_ENABLE_PROPERTY = "mail.smtp.starttls.enable";
   private static final String MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY = "mail.smtp.socketFactory.class";
+
+  private final String[] daysOfWeek = new String[]{"Poniedziałek", "Wtorek", "Środa", "Czwartek",
+      "Piątek", "Sobote", "Niedziela"};
 
   @Inject
   private ApplicationPropertyService applicationPropertyService;
@@ -156,6 +171,15 @@ public class EmailService extends ServiceSuperclass {
 
     for (int i = 0; i < tickets.size(); i++) {
       TicketDTO ticket = tickets.get(i);
+      Calendar calendar = GregorianCalendar
+          .from(ZonedDateTime.ofInstant(ticket.getDate().toInstant(), ZoneId.of("UTC")));
+      String dayOfWeek = daysOfWeek[calendar.get(DAY_OF_WEEK)];
+      String date =
+          calendar.get(DAY_OF_MONTH) + "." + (calendar.get(MONTH) + 1) + "." + calendar.get(YEAR);
+      String hour = calendar.get(HOUR) + ":" + calendar.get(MINUTE);
+
+      String parsedDate = dayOfWeek + ", " + date + " godzina " + hour;
+
       ticketQrCodes
           .append("<p>")
           .append(ticket.getSightEvent().getName())
@@ -166,6 +190,10 @@ public class EmailService extends ServiceSuperclass {
           .append("<p>")
           .append("Numer biletu: ")
           .append(ticket.getSerialNumber())
+          .append("</p>")
+          .append("<p>")
+          .append("Data wydarzenia: ")
+          .append(parsedDate)
           .append("</p>");
       ticketQrCodes
           .append("<img style=\"margin-bottom: 200px\" src=\"cid:")
