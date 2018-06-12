@@ -16,7 +16,7 @@ import pl.hellopolandticket.service.dto.PartnerDTO;
 
 @Stateless
 @LocalBean
-public class PartnerService {
+public class PartnerService extends ServiceSuperclass {
 
   @Inject
   private PartnerDao partnerDao;

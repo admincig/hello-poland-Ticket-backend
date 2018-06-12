@@ -14,7 +14,7 @@ import pl.hellopolandticket.security.CurrentUser;
 
 @Path("/")
 @RequestScoped
-public class AuthenticationRestService {
+public class AuthenticationRestService extends RestServiceSuperclass {
 
   @Inject
   private SecurityContext securityContext;

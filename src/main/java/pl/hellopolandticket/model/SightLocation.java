@@ -8,12 +8,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Setter
 @Getter
 @Embeddable
 @EqualsAndHashCode
 @NoArgsConstructor
+@ToString
 public class SightLocation implements Serializable {
 
   private static final long serialVersionUID = 1599586813368109778L;

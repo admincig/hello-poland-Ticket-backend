@@ -12,7 +12,7 @@ import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
-public class UserService {
+public class UserService extends ServiceSuperclass {
 
   @Inject
   private UserDao userDao;

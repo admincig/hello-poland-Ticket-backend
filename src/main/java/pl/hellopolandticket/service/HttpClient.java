@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class HttpClient implements Serializable {
+public class HttpClient extends ServiceSuperclass implements Serializable {
 
   private static final long serialVersionUID = 7529870890163651237L;
 
@@ -49,7 +49,7 @@ public class HttpClient implements Serializable {
   private void sendPostRequestWithBody(HttpURLConnection httpURLConnection, String body)
       throws IOException {
     DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
-    wr.writeBytes(body);
+    wr.write(body.getBytes("UTF-8"));
     wr.flush();
     wr.close();
   }

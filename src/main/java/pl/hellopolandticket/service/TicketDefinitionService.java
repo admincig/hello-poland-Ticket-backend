@@ -8,7 +8,7 @@ import pl.hellopolandticket.model.TicketDefinition;
 
 @Stateless
 @LocalBean
-public class TicketDefinitionService {
+public class TicketDefinitionService extends ServiceSuperclass {
 
   @Inject
   private TicketDefinitionDao ticketDefinitionDao;

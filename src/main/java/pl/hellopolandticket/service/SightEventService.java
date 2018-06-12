@@ -23,7 +23,7 @@ import pl.hellopolandticket.service.dto.SightEventDTO;
 
 @Stateless
 @LocalBean
-public class SightEventService {
+public class SightEventService extends ServiceSuperclass {
 
   @Inject
   private SightEventDao sightEventDao;

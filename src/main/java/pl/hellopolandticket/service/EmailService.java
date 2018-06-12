@@ -38,7 +38,7 @@ import pl.hellopolandticket.service.dto.TicketDTO;
 
 @Slf4j
 @RequestScoped
-public class EmailService {
+public class EmailService extends ServiceSuperclass {
 
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";

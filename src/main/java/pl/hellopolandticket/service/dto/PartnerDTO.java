@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import pl.hellopolandticket.model.Partner;
 import pl.hellopolandticket.model.User;
 
@@ -15,6 +16,7 @@ import pl.hellopolandticket.model.User;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = {"users", "sightEvents", "token"})
 public class PartnerDTO implements Serializable {
 
   private static final long serialVersionUID = 4969716130327189424L;

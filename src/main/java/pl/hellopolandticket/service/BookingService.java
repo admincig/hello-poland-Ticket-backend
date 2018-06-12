@@ -29,7 +29,7 @@ import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
-public class BookingService {
+public class BookingService extends ServiceSuperclass {
 
   private final static String TICKET_QR_CODE_HEIGHT_PROPERTY = "ticket.qrCode.height";
   private final static String TICKET_QR_CODE_WIDTH_PROPERTY = "ticket.qrCode.width";
@@ -66,8 +66,8 @@ public class BookingService {
     return ofBooking(bookingDao.persist(bookingToPersist));
   }
 
-  public BookingDTO markBookingAsBought(Long bookingId) {
-    Booking booking = bookingDao.findById(bookingId);
+  public BookingDTO markBookingAsBought(String serialNumber) {
+    Booking booking = bookingDao.findBySerialNumber(serialNumber);
 
     if (booking.getStatus() == BOOKED) {
       booking.makeBought();
@@ -75,7 +75,7 @@ public class BookingService {
     } else if (booking.getStatus() == INVALID) {
       bookTickets(null, booking);
 
-      return markBookingAsBought(booking.getId());
+      return markBookingAsBought(booking.getSerialNumber());
     } else {
       throw exceptionFactory.notBookedException();
     }

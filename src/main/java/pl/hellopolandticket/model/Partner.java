@@ -15,6 +15,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Table(name = "PARTNERS")
 @EqualsAndHashCode
 @NoArgsConstructor
+@ToString(exclude = {"users", "sightEvents"})
 public class Partner implements Serializable {
 
   private static final long serialVersionUID = 6118414827783500940L;

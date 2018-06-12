@@ -16,7 +16,7 @@ import pl.hellopolandticket.service.validator.TicketValidator;
 
 @Stateless
 @LocalBean
-public class TicketService {
+public class TicketService extends ServiceSuperclass {
 
   @Inject
   private TicketDao ticketDao;

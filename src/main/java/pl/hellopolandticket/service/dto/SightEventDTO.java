@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.model.SightLocation;
 
@@ -16,6 +17,7 @@ import pl.hellopolandticket.model.SightLocation;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class SightEventDTO implements Serializable {
 
   private static final long serialVersionUID = 198722041860707628L;

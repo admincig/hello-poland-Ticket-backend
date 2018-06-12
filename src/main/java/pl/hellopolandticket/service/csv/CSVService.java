@@ -8,6 +8,7 @@ import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import pl.hellopolandticket.model.TicketDefinition;
+import pl.hellopolandticket.service.ServiceSuperclass;
 import pl.hellopolandticket.service.SightEventService;
 import pl.hellopolandticket.service.TicketDefinitionService;
 import pl.hellopolandticket.service.csv.pojo.TicketDefinitionCSV;
@@ -17,7 +18,7 @@ import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
-public class CSVService {
+public class CSVService extends ServiceSuperclass {
 
   @Inject
   private SightEventService sightEventService;

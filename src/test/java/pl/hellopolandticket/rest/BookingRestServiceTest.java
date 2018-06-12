@@ -51,12 +51,12 @@ public class BookingRestServiceTest extends BaseTest {
 
   @Test
   public void shouldBuyTickets() {
-    Booking bookingBeforeBoughtRequest = bookingDao.findById(1L);
+    Booking bookingBeforeBoughtRequest = bookingDao.findBySerialNumber("1");
     assertEquals(BOOKED, bookingBeforeBoughtRequest.getStatus());
     bookingBeforeBoughtRequest.getTickets()
         .forEach(ticket -> assertEquals(BOOKED, ticket.getStatus()));
 
-    Response response = bookingRestService.markBookingAsBought(1L);
+    Response response = bookingRestService.markBookingAsBought("1");
     BookingDTO booking = (BookingDTO) response.getEntity();
 
     assertEquals(BOUGHT, booking.getStatus());
@@ -65,10 +65,10 @@ public class BookingRestServiceTest extends BaseTest {
 
   @Test
   public void shouldBuyTicketsWhenPreviousBookingIsInvalidAndExistsAvailableTickets() {
-    Booking b = bookingDao.findById(1L);
+    Booking b = bookingDao.findBySerialNumber("1");
     b.makeInvalid();
 
-    Response response = bookingRestService.markBookingAsBought(1L);
+    Response response = bookingRestService.markBookingAsBought("1");
     BookingDTO booking = (BookingDTO) response.getEntity();
 
     assertEquals(booking.getStatus(), BOUGHT);
@@ -80,7 +80,7 @@ public class BookingRestServiceTest extends BaseTest {
 
   @Test(expected = NoAvailableTicketsException.class)
   public void shouldThrowNoAvailableTicketsTryingToBuyWhenBookingIsInvalidAndSomeoneBookedTickets() {
-    Booking b = bookingDao.findById(1L);
+    Booking b = bookingDao.findBySerialNumber("1");
     b.makeInvalid();
 
     BookingDTOCreate bookingCreate = createBookingDTOCreate();
@@ -88,27 +88,27 @@ public class BookingRestServiceTest extends BaseTest {
     bookingRestService.makeBooking(bookingCreate);
     bookingRestService.makeBooking(bookingCreate);
 
-    bookingRestService.markBookingAsBought(1L);
+    bookingRestService.markBookingAsBought("1");
   }
 
   @Test(expected = NotBookedException.class)
   public void shouldThrowNotBookedExceptionWhenBookingStatusIsBought() {
-    bookingRestService.markBookingAsBought(2L);
+    bookingRestService.markBookingAsBought("2");
   }
 
   @Test(expected = NotBookedException.class)
   public void shouldThrowNotBookedExceptionWhenBookingStatusIsPunched() {
-    bookingRestService.markBookingAsBought(3L);
+    bookingRestService.markBookingAsBought("3");
   }
 
   @Test(expected = NotBookedException.class)
   public void shouldThrowNotBookedExceptionWhenBookingStatusIsDeleted() {
-    bookingRestService.markBookingAsBought(4L);
+    bookingRestService.markBookingAsBought("4");
   }
 
   @Test(expected = ResourceNotFoundException.class)
   public void shouldThrowResourceNotFoundException() {
-    bookingRestService.markBookingAsBought(200L);
+    bookingRestService.markBookingAsBought("200");
   }
 
   @Test(expected = NumberOfTicketsNotPositiveException.class)

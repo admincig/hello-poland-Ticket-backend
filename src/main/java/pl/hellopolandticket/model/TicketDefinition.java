@@ -18,12 +18,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Entity
 @Table(name = "TICKET_DEFINITIONS")
 @EqualsAndHashCode
 @NoArgsConstructor
+@ToString
 public class TicketDefinition implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
