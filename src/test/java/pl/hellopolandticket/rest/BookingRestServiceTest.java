@@ -1,22 +1,22 @@
 package pl.hellopolandticket.rest;
 
-import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static pl.hellopolandticket.model.Status.BOOKED;
 import static pl.hellopolandticket.model.Status.BOUGHT;
 
+import java.util.Arrays;
+import java.util.Date;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.arquillian.persistence.UsingDataSet;
 import org.junit.Ignore;
 import org.junit.Test;
+import pl.hellopoland.dto.booking.Ticket;
 import pl.hellopolandticket.BaseTest;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.model.Booking;
 import pl.hellopolandticket.service.dto.BookingDTO;
-import pl.hellopolandticket.service.dto.BookingDTOCreate;
-import pl.hellopolandticket.service.dto.TicketBookingDTO;
 import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
 import pl.hellopolandticket.service.exception.conflict.NotBookedException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
@@ -35,17 +35,17 @@ public class BookingRestServiceTest extends BaseTest {
 
   @Test
   public void shouldBookTickets() {
-    BookingDTOCreate bookingCreate = createBookingDTOCreate();
+    pl.hellopoland.dto.booking.Booking bookingCreate = createBookingDTOCreate();
 
     Response response = bookingRestService.makeBooking(bookingCreate);
     BookingDTO booking = (BookingDTO) response.getEntity();
 
-    int expectedNumberOfTickets = bookingCreate.getTicketBookings().stream()
-        .mapToInt(t -> t.getNumberOfTickets().intValue())
+    int expectedNumberOfTickets = Arrays.stream(bookingCreate.ticketBookings)
+        .mapToInt(t -> t.numberOfTickets.intValue())
         .sum();
 
-    assertEquals(bookingCreate.getCustomerName(), booking.getCustomerName());
-    assertEquals(bookingCreate.getCustomerEmail(), booking.getCustomerEmail());
+    assertEquals(bookingCreate.customerName, booking.getCustomerName());
+    assertEquals(bookingCreate.customerEmail, booking.getCustomerEmail());
     assertEquals(expectedNumberOfTickets, booking.getTickets().size());
   }
 
@@ -83,7 +83,7 @@ public class BookingRestServiceTest extends BaseTest {
     Booking b = bookingDao.findBySerialNumber("1");
     b.makeInvalid();
 
-    BookingDTOCreate bookingCreate = createBookingDTOCreate();
+    pl.hellopoland.dto.booking.Booking bookingCreate = createBookingDTOCreate();
     bookingRestService.makeBooking(bookingCreate);
     bookingRestService.makeBooking(bookingCreate);
     bookingRestService.makeBooking(bookingCreate);
@@ -123,25 +123,33 @@ public class BookingRestServiceTest extends BaseTest {
     bookingRestService.makeBooking(createBookingDTOCreate());
   }
 
-  private BookingDTOCreate createBookingDTOCreate() {
-    return BookingDTOCreate.builder()
-        .customerName("Jan Kowalski")
-        .customerEmail("jan.kowalski@mail.com")
-        .ticketBookings(singletonList(TicketBookingDTO.builder()
-            .ticketDefinitionId(1L)
-            .numberOfTickets(2L)
-            .build()))
-        .build();
+  private pl.hellopoland.dto.booking.Booking createBookingDTOCreate() {
+    pl.hellopoland.dto.booking.Booking booking = new pl.hellopoland.dto.booking.Booking();
+
+    Ticket ticket = new Ticket();
+    ticket.ticketDefinitionId = 1L;
+    ticket.numberOfTickets = 2L;
+    ticket.date = new Date();
+
+    booking.customerName = "Jan Kowalski";
+    booking.customerEmail = "jan.kowalski@mail.com";
+    booking.ticketBookings = new Ticket[]{ticket};
+
+    return booking;
   }
 
-  private BookingDTOCreate createBookingDTOCreateWithZeroTickets() {
-    return BookingDTOCreate.builder()
-        .customerName("Jan Kowalski")
-        .customerEmail("jan.kowalski@mail.com")
-        .ticketBookings(singletonList(TicketBookingDTO.builder()
-            .ticketDefinitionId(1L)
-            .numberOfTickets(0L)
-            .build()))
-        .build();
+  private pl.hellopoland.dto.booking.Booking createBookingDTOCreateWithZeroTickets() {
+    pl.hellopoland.dto.booking.Booking booking = new pl.hellopoland.dto.booking.Booking();
+
+    Ticket ticket = new Ticket();
+    ticket.ticketDefinitionId = 1L;
+    ticket.numberOfTickets = 0L;
+    ticket.date = new Date();
+
+    booking.customerName = "Jan Kowalski";
+    booking.customerEmail = "jan.kowalski@mail.com";
+    booking.ticketBookings = new Ticket[]{ticket};
+
+    return booking;
   }
 }

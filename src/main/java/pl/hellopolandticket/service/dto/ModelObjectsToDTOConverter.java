@@ -1,54 +1,65 @@
 package pl.hellopolandticket.service.dto;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
+import pl.hellopoland.dto.DateType;
 import pl.hellopoland.dto.Location;
-import pl.hellopoland.dto.Sight;
-import pl.hellopoland.dto.Ticket;
+import pl.hellopoland.dto.SightEventDefinition;
 import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.model.SightLocation;
 import pl.hellopolandticket.model.TicketDefinition;
 
 public class ModelObjectsToDTOConverter {
 
-  public static Ticket ofTicketDefinition(TicketDefinition ticketDefinition) {
-    Ticket ticketDTO = new Ticket();
+  public static SightEventDefinition ofSightEvent(SightEvent sightEvent) {
+    SightEventDefinition sightEventDefinition = new SightEventDefinition();
 
-    ticketDTO.id = ticketDefinition.getId();
-    ticketDTO.name = ticketDefinition.getName();
-    ticketDTO.price = ticketDefinition.getPrice();
-    ticketDTO.predefinedDate = ticketDefinition.getPredefinedDate();
-    ticketDTO.date = ticketDefinition.getDate();
+    sightEventDefinition.name = sightEvent.getName();
+    sightEventDefinition.date = sightEvent.getDate();
+    sightEventDefinition.availableTicketsNumber = sightEvent.getAvailableTicketsNumber();
+    sightEventDefinition.description = sightEvent.getDescription();
+    sightEventDefinition.duration = sightEvent.getDuration();
+    sightEventDefinition.mainImageUrl = sightEvent.getMainImageUrl();
+    sightEventDefinition.email = sightEvent.getEmail();
+    sightEventDefinition.phone = sightEvent.getPhone();
 
-    return ticketDTO;
-  }
+    sightEventDefinition.location = ofNullable(sightEvent.getSightLocation())
+        .map(ModelObjectsToDTOConverter::ofSightLocation)
+        .orElse(null);
 
-  public static Location ofSightLocation(SightLocation sightLocation) {
-    Location locationDTO = new Location();
-
-    locationDTO.latitude = sightLocation.getLatitude();
-    locationDTO.longitude = sightLocation.getLongitude();
-    locationDTO.street = sightLocation.getStreet();
-    locationDTO.zipCode = sightLocation.getZipCode();
-    locationDTO.city = sightLocation.getCity();
-    locationDTO.country = sightLocation.getCountry();
-
-    return locationDTO;
-  }
-
-  public static Sight ofSightEvent(SightEvent sightEvent) {
-    Sight sight = new Sight();
-
-    sight.name = sightEvent.getName();
-    sight.description = sightEvent.getDescription();
-    sight.email = sightEvent.getEmail();
-    sight.phone = sightEvent.getPhone();
-    sight.mainImageUrl = sightEvent.getMainImageUrl();
-
-    sight.tickets = sightEvent.getTicketDefinitions().stream()
+    sightEventDefinition.tickets = sightEvent.getTicketDefinitions().stream()
         .map(ModelObjectsToDTOConverter::ofTicketDefinition)
         .collect(toList());
 
-    return sight;
+    return sightEventDefinition;
+  }
+
+  private static Location ofSightLocation(SightLocation sightLocation) {
+    Location location = new Location();
+
+    location.latitude = sightLocation.getLatitude();
+    location.longitude = sightLocation.getLongitude();
+    location.street = sightLocation.getStreet();
+    location.zipCode = sightLocation.getZipCode();
+    location.city = sightLocation.getCity();
+    location.country = sightLocation.getCountry();
+
+    return location;
+  }
+
+  private static pl.hellopoland.dto.TicketDefinition ofTicketDefinition(
+      TicketDefinition ticketDefinition) {
+    pl.hellopoland.dto.TicketDefinition ticketDefinitionDTO = new pl.hellopoland.dto.TicketDefinition();
+
+    ticketDefinitionDTO.id = ticketDefinition.getId();
+    ticketDefinitionDTO.name = ticketDefinition.getName();
+    ticketDefinitionDTO.price = ticketDefinition.getPrice();
+    ticketDefinitionDTO.predefinedDate = ticketDefinition.getPredefinedDate();
+    ticketDefinitionDTO.date = ticketDefinition.getDate();
+    ticketDefinitionDTO.dateType = DateType.valueOf(ticketDefinition.getDateType().name());
+    ticketDefinitionDTO.sightEventId = ticketDefinition.getSightEvent().getId();
+
+    return ticketDefinitionDTO;
   }
 }

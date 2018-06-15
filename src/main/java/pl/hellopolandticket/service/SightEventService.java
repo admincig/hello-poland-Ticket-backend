@@ -6,6 +6,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.model.Status.BOUGHT;
 import static pl.hellopolandticket.model.Status.PUNCHED;
+import static pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter.ofSightEvent;
 import static pl.hellopolandticket.service.dto.SightEventDTO.ofSightEventBasic;
 import static pl.hellopolandticket.service.dto.SightEventDTO.ofSightEventWithBoughtAndTotalTickets;
 
@@ -13,17 +14,25 @@ import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import pl.hellopoland.dto.Location;
+import pl.hellopoland.dto.Push;
+import pl.hellopoland.dto.SightEventDefinition;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightEventDao;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.Partner;
 import pl.hellopolandticket.model.SightEvent;
+import pl.hellopolandticket.model.SightLocation;
+import pl.hellopolandticket.model.User;
+import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.dto.SightEventDTO;
 
 @Stateless
 @LocalBean
 public class SightEventService extends ServiceSuperclass {
+
+  private static final String SIGHT_EVENTS_UPLOAD_URL_PROPERTY = "rest.url.sightEventsUpload";
 
   @Inject
   private SightEventDao sightEventDao;
@@ -33,6 +42,15 @@ public class SightEventService extends ServiceSuperclass {
 
   @Inject
   private TicketDao ticketDao;
+
+  @Inject
+  private HttpClient httpClient;
+
+  @Inject
+  private ApplicationPropertyService applicationPropertyService;
+
+  @Inject
+  private UserService userService;
 
   public SightEventDTO findById(Long sightEventId) {
     return ofSightEventBasic(sightEventDao.findById(sightEventId));
@@ -51,13 +69,72 @@ public class SightEventService extends ServiceSuperclass {
         .collect(toList());
   }
 
-  public List<pl.hellopoland.dto.Sight> findAllAndConvertToDTOObject() {
-    List<SightEvent> sightEvents = sightEventDao.findAll();
+  public Push findAllAndConvertToPushDTOObject(CurrentUser currentUser) {
+    User user = userService.findUserByEmail(currentUser.getPrincipal());
+
+    Partner partner = user.getPartner();
+
+    List<Long> sightEventIds = partner.getSightEvents().stream()
+        .map(SightEvent::getId)
+        .collect(toList());
+
+    List<SightEvent> sightEvents = sightEventDao.findBySightEventIdsIn(sightEventIds);
     sightEvents.forEach(SightEvent::getTicketDefinitions);
 
-    return sightEvents.stream()
+    Push sightEventsPushDTO = new Push();
+
+    sightEventsPushDTO.sightEvents = sightEvents.stream()
         .map(ModelObjectsToDTOConverter::ofSightEvent)
         .collect(toList());
+
+    sightEventsPushDTO.secret = user.getToken();
+
+    return sightEventsPushDTO;
+  }
+
+  public SightEventDefinition addSightEvent(SightEventDefinition sightEventDefinition,
+      CurrentUser currentUser) {
+    SightLocation sightLocation = ofNullable(sightEventDefinition.location)
+        .map(this::ofLocation)
+        .orElse(null);
+
+    User user = userService.findUserByEmail(currentUser.getPrincipal());
+
+    SightEvent sightEventToPersist = SightEvent.builder()
+        .name(sightEventDefinition.name)
+        .description(sightEventDefinition.description)
+        .mainImageUrl(sightEventDefinition.mainImageUrl)
+        .email(sightEventDefinition.email)
+        .phone(sightEventDefinition.phone)
+        .sightLocation(sightLocation)
+        .partner(user.getPartner())
+        .build();
+
+    sightEventToPersist = sightEventDao.persist(sightEventToPersist);
+
+    SightEventDefinition persistedSightEvent = ofSightEvent(sightEventToPersist);
+
+    Push sightEventsPushDTO = new Push();
+
+    sightEventsPushDTO.sightEvents = singletonList(persistedSightEvent);
+    sightEventsPushDTO.secret = user.getToken();
+
+    httpClient.sendPostRequest(
+        applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).getPropertyValue(),
+        sightEventsPushDTO);
+
+    return persistedSightEvent;
+  }
+
+  private SightLocation ofLocation(Location location) {
+    return SightLocation.builder()
+        .latitude(location.latitude)
+        .longitude(location.longitude)
+        .street(location.street)
+        .zipCode(location.zipCode)
+        .city(location.city)
+        .country(location.country)
+        .build();
   }
 
   private SightEventDTO toSightEventDTO(SightEvent sightEvent) {
@@ -72,6 +149,5 @@ public class SightEventService extends ServiceSuperclass {
     return ofSightEventWithBoughtAndTotalTickets(sightEvent, boughtTicketsNumber,
         totalTicketsNumber);
   }
-
 
 }

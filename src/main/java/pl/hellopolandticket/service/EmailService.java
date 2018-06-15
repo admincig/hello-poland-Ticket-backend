@@ -1,5 +1,11 @@
 package pl.hellopolandticket.service;
 
+import static java.util.Calendar.DAY_OF_MONTH;
+import static java.util.Calendar.DAY_OF_WEEK;
+import static java.util.Calendar.HOUR;
+import static java.util.Calendar.MINUTE;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 import static java.util.stream.Collectors.toList;
 import static javax.mail.Message.RecipientType.TO;
 
@@ -12,6 +18,11 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,6 +177,10 @@ public class EmailService extends ServiceSuperclass {
           .append("<p>")
           .append("Numer biletu: ")
           .append(ticket.getSerialNumber())
+          .append("</p>")
+          .append("<p>")
+          .append("Data wydarzenia: ")
+          .append(makeDateHuman(ticket.getDate()))
           .append("</p>");
       ticketQrCodes
           .append("<img style=\"margin-bottom: 200px\" src=\"cid:")
@@ -190,5 +205,19 @@ public class EmailService extends ServiceSuperclass {
     imagePart.setDisposition(MimeBodyPart.INLINE);
 
     return imagePart;
+  }
+
+  private String makeDateHuman(Date date) {
+    String[] daysOfWeek = new String[]{"Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek",
+        "Sobota", "Niedziela"};
+
+    Calendar calendar = GregorianCalendar
+        .from(ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()));
+    String dayOfWeek = daysOfWeek[calendar.get(DAY_OF_WEEK)];
+    String dayMonthYear =
+        calendar.get(DAY_OF_MONTH) + "." + (calendar.get(MONTH) + 1) + "." + calendar.get(YEAR);
+    String hour = calendar.get(HOUR) + ":" + calendar.get(MINUTE);
+
+    return dayOfWeek + ", " + dayMonthYear + " godzina " + hour;
   }
 }

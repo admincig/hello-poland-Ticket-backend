@@ -27,7 +27,7 @@ import lombok.ToString;
 @Getter
 @Entity
 @Table(name = "USERS")
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"authorities"})
 @NoArgsConstructor
 @ToString(exclude = {"name", "password", "email", "authorities", "token"})
 public class User implements Serializable {
