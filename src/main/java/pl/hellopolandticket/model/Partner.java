@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Entity
 @Table(name = "PARTNERS")
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"sightEvents", "users"})
 @NoArgsConstructor
 @ToString(exclude = {"users", "sightEvents"})
 public class Partner implements Serializable {

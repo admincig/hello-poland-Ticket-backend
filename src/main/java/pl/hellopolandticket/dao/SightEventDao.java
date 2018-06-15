@@ -36,9 +36,9 @@ public class SightEventDao {
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
-  public List<SightEvent> findBySightIdsIn(List<Long> sightIds) {
+  public List<SightEvent> findBySightEventIdsIn(List<Long> sightIds) {
     return entityManager
-        .createQuery("from SightEvent sightEvent WHERE sightEvent.sight.id IN :sightIds",
+        .createQuery("from SightEvent sightEvent WHERE sightEvent.id IN :sightIds",
             SightEvent.class)
         .setParameter("sightIds", sightIds)
         .getResultStream()

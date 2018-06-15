@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import pl.hellopolandticket.security.CurrentUser;
 
 @ApplicationScoped
 public class HPLService extends ServiceSuperclass {
@@ -17,9 +18,9 @@ public class HPLService extends ServiceSuperclass {
   @Inject
   private SightEventService sightEventService;
 
-  public void pushDataToHPL() {
+  public void pushDataToHPL(CurrentUser currentUser) {
     httpClient.sendPostRequest(
         applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).getPropertyValue(),
-        sightEventService.findAllAndConvertToDTOObject());
+        sightEventService.findAllAndConvertToPushDTOObject(currentUser));
   }
 }

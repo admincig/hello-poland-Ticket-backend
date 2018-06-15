@@ -1,6 +1,7 @@
 package pl.hellopolandticket.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
@@ -26,7 +27,7 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 @Getter
 @Entity
 @Table(name = "SIGHT_EVENTS")
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"ticketDefinitions"})
 @NoArgsConstructor
 @ToString(exclude = "ticketDefinitions")
 public class SightEvent implements Serializable {
@@ -87,7 +88,7 @@ public class SightEvent implements Serializable {
 
   @Setter
   @OneToMany(mappedBy = "sightEvent")
-  private List<TicketDefinition> ticketDefinitions;
+  private List<TicketDefinition> ticketDefinitions = new ArrayList<>();
 
   @Builder
   public SightEvent(String name, Date date, Integer availableTicketsNumber, String description,
