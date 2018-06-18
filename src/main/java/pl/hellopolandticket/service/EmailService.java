@@ -214,10 +214,20 @@ public class EmailService extends ServiceSuperclass {
     Calendar calendar = GregorianCalendar
         .from(ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()));
     String dayOfWeek = daysOfWeek[calendar.get(DAY_OF_WEEK)];
-    String dayMonthYear =
-        calendar.get(DAY_OF_MONTH) + "." + (calendar.get(MONTH) + 1) + "." + calendar.get(YEAR);
-    String hour = calendar.get(HOUR) + ":" + calendar.get(MINUTE);
 
-    return dayOfWeek + ", " + dayMonthYear + " godzina " + hour;
+    String dayOfMonth = calendar.get(DAY_OF_MONTH) < 10 ? "0" + calendar.get(DAY_OF_MONTH)
+        : ((Integer) calendar.get(DAY_OF_MONTH)).toString();
+    String month = (calendar.get(MONTH) + 1) < 10 ? "0" + (calendar.get(MONTH) + 1)
+        : ((Integer) (calendar.get(MONTH) + 1)).toString();
+    String year = ((Integer) calendar.get(YEAR)).toString();
+    String hour = calendar.get(HOUR) < 10 ? "0" + calendar.get(HOUR)
+        : ((Integer) calendar.get(HOUR)).toString();
+    String minute = calendar.get(MINUTE) < 10 ? "0" + calendar.get(MINUTE)
+        : ((Integer) calendar.get(MINUTE)).toString();
+
+    String dayMonthYear = dayOfMonth + "." + month + "." + year;
+    String hourAndMinute = hour + ":" + minute;
+
+    return dayOfWeek + ", " + dayMonthYear + " godzina " + hourAndMinute;
   }
 }
