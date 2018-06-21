@@ -11,6 +11,7 @@ import static pl.hellopolandticket.service.dto.SightEventDTO.ofSightEventBasic;
 import static pl.hellopolandticket.service.dto.SightEventDTO.ofSightEventWithBoughtAndTotalTickets;
 
 import java.util.List;
+import java.util.stream.Stream;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -102,6 +103,8 @@ public class SightEventService extends ServiceSuperclass {
 
     SightEvent sightEventToPersist = SightEvent.builder()
         .name(sightEventDefinition.name)
+        .date(sightEventDefinition.date)
+        .availableTicketsNumber(sightEventDefinition.availableTicketsNumber)
         .description(sightEventDefinition.description)
         .mainImageUrl(sightEventDefinition.mainImageUrl)
         .email(sightEventDefinition.email)
@@ -116,7 +119,7 @@ public class SightEventService extends ServiceSuperclass {
 
     Push sightEventsPushDTO = new Push();
 
-    sightEventsPushDTO.sightEvents = singletonList(persistedSightEvent);
+    sightEventsPushDTO.sightEvents = Stream.of(persistedSightEvent).collect(toList());
     sightEventsPushDTO.secret = user.getToken();
 
     httpClient.sendPostRequest(
