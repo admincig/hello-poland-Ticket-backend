@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 import pl.hellopoland.dto.Location;
 import pl.hellopoland.dto.Push;
 import pl.hellopoland.dto.SightEventDefinition;
@@ -28,6 +29,7 @@ import pl.hellopolandticket.model.User;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.dto.SightEventDTO;
 
+@Slf4j
 @Stateless
 @LocalBean
 public class SightEventService extends ServiceSuperclass {
@@ -122,6 +124,7 @@ public class SightEventService extends ServiceSuperclass {
     sightEventsPushDTO.sightEvents = Stream.of(persistedSightEvent).collect(toList());
     sightEventsPushDTO.secret = user.getToken();
 
+    log.error("SightEventService addSightEvent " + applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).getPropertyValue());
     httpClient.sendPostRequest(
         applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).getPropertyValue(),
         sightEventsPushDTO);

@@ -41,6 +41,11 @@ public class HttpClient extends ServiceSuperclass implements Serializable {
     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
     httpURLConnection.setRequestMethod("POST");
     httpURLConnection.setRequestProperty("Content-Type", "application/json");
+    httpURLConnection.getHeaderFields().entrySet().forEach(
+        stringListEntry -> log
+            .error("HttpClient headers key: {} values: {}", stringListEntry.getKey(),
+                stringListEntry.getValue())
+    );
     httpURLConnection.setDoOutput(true);
 
     return httpURLConnection;
