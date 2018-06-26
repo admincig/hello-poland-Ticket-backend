@@ -26,7 +26,6 @@ import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.model.SightLocation;
 import pl.hellopolandticket.model.User;
 import pl.hellopolandticket.security.CurrentUser;
-import pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.dto.SightEventDTO;
 
 @Stateless
@@ -85,7 +84,7 @@ public class SightEventService extends ServiceSuperclass {
     Push sightEventsPushDTO = new Push();
 
     sightEventsPushDTO.sightEvents = sightEvents.stream()
-        .map(ModelObjectsToDTOConverter::ofSightEvent)
+        .map(sightEvent -> ofSightEvent(sightEvent, null))
         .collect(toList());
 
     sightEventsPushDTO.secret = user.getToken();
@@ -115,7 +114,8 @@ public class SightEventService extends ServiceSuperclass {
 
     sightEventToPersist = sightEventDao.persist(sightEventToPersist);
 
-    SightEventDefinition persistedSightEvent = ofSightEvent(sightEventToPersist);
+    SightEventDefinition persistedSightEvent = ofSightEvent(sightEventToPersist,
+        sightEventDefinition.sightId);
 
     Push sightEventsPushDTO = new Push();
 
