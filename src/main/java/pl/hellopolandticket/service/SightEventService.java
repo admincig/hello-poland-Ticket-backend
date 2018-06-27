@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import pl.hellopoland.dto.Location;
@@ -28,6 +29,7 @@ import pl.hellopolandticket.model.SightLocation;
 import pl.hellopolandticket.model.User;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.dto.SightEventDTO;
+import pl.hellopolandticket.service.event.HPLPushEvent;
 
 @Slf4j
 @Stateless
@@ -53,6 +55,9 @@ public class SightEventService extends ServiceSuperclass {
 
   @Inject
   private UserService userService;
+
+  @Inject
+  private Event<HPLPushEvent> hplPushEvent;
 
   public SightEventDTO findById(Long sightEventId) {
     return ofSightEventBasic(sightEventDao.findById(sightEventId));
@@ -124,10 +129,13 @@ public class SightEventService extends ServiceSuperclass {
     sightEventsPushDTO.sightEvents = Stream.of(persistedSightEvent).collect(toList());
     sightEventsPushDTO.secret = user.getToken();
 
-    log.error("SightEventService addSightEvent " + applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).getPropertyValue());
-    httpClient.sendPostRequest(
-        applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).getPropertyValue(),
-        sightEventsPushDTO);
+    hplPushEvent.fireAsync(
+        HPLPushEvent.builder()
+            .URLPath(applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY)
+                .getPropertyValue())
+            .push(sightEventsPushDTO)
+            .build()
+    );
 
     return persistedSightEvent;
   }
