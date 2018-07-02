@@ -140,6 +140,12 @@ public class SightEventService extends ServiceSuperclass {
     return persistedSightEvent;
   }
 
+  public void delete(Long sightEventId) {
+    SightEvent sightEvent = findSightEventById(sightEventId);
+
+    sightEvent.setActive(false);
+  }
+
   private SightLocation ofLocation(Location location) {
     return SightLocation.builder()
         .latitude(location.latitude)
@@ -164,4 +170,17 @@ public class SightEventService extends ServiceSuperclass {
         totalTicketsNumber);
   }
 
+  public SightEventDefinition updateSightEvent(Long sightId, SightEventDefinition sightEventDTO) {
+    SightEvent sightEvent = sightEventDao.findById(sightId);
+
+    sightEvent.setName(sightEventDTO.name);
+    sightEvent.setDate(sightEventDTO.date);
+    sightEvent.setAvailableTicketsNumber(sightEventDTO.availableTicketsNumber);
+    sightEvent.setDescription(sightEventDTO.description);
+    sightEvent.setMainImageUrl(sightEventDTO.mainImageUrl);
+    sightEvent.setEmail(sightEventDTO.email);
+    sightEvent.setPhone(sightEventDTO.phone);
+
+    return sightEventDTO;
+  }
 }

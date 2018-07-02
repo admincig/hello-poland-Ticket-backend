@@ -90,6 +90,8 @@ public class SightEvent implements Serializable {
   @OneToMany(mappedBy = "sightEvent")
   private List<TicketDefinition> ticketDefinitions = new ArrayList<>();
 
+  private boolean active = true;
+
   @Builder
   public SightEvent(String name, Date date, Integer availableTicketsNumber, String description,
       Integer duration, String mainImageUrl, String email, String phone,
@@ -136,5 +138,13 @@ public class SightEvent implements Serializable {
 
   private boolean hasEnoughTickets(int numberOfTickets) {
     return availableTicketsNumber - numberOfTickets >= MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+  }
+
+  public boolean isActive() {
+    return active;
+  }
+
+  public void setActive(boolean active) {
+    this.active = active;
   }
 }
