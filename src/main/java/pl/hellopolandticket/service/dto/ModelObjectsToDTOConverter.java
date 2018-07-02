@@ -12,9 +12,10 @@ import pl.hellopolandticket.model.TicketDefinition;
 
 public class ModelObjectsToDTOConverter {
 
-  public static SightEventDefinition ofSightEvent(SightEvent sightEvent) {
+  public static SightEventDefinition ofSightEvent(SightEvent sightEvent, Long sightId) {
     SightEventDefinition sightEventDefinition = new SightEventDefinition();
 
+    sightEventDefinition.id = sightEvent.getId();
     sightEventDefinition.name = sightEvent.getName();
     sightEventDefinition.date = sightEvent.getDate();
     sightEventDefinition.availableTicketsNumber = sightEvent.getAvailableTicketsNumber();
@@ -23,6 +24,7 @@ public class ModelObjectsToDTOConverter {
     sightEventDefinition.mainImageUrl = sightEvent.getMainImageUrl();
     sightEventDefinition.email = sightEvent.getEmail();
     sightEventDefinition.phone = sightEvent.getPhone();
+    sightEventDefinition.sightId = sightId;
 
     sightEventDefinition.location = ofNullable(sightEvent.getSightLocation())
         .map(ModelObjectsToDTOConverter::ofSightLocation)

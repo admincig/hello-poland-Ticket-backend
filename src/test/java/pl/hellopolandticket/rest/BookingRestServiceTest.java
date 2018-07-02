@@ -1,10 +1,10 @@
 package pl.hellopolandticket.rest;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static pl.hellopolandticket.model.Status.BOOKED;
 import static pl.hellopolandticket.model.Status.BOUGHT;
 
-import java.util.Arrays;
 import java.util.Date;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -40,7 +40,7 @@ public class BookingRestServiceTest extends BaseTest {
     Response response = bookingRestService.makeBooking(bookingCreate);
     BookingDTO booking = (BookingDTO) response.getEntity();
 
-    int expectedNumberOfTickets = Arrays.stream(bookingCreate.ticketBookings)
+    int expectedNumberOfTickets = bookingCreate.ticketBookings.stream()
         .mapToInt(t -> t.numberOfTickets.intValue())
         .sum();
 
@@ -133,7 +133,7 @@ public class BookingRestServiceTest extends BaseTest {
 
     booking.customerName = "Jan Kowalski";
     booking.customerEmail = "jan.kowalski@mail.com";
-    booking.ticketBookings = new Ticket[]{ticket};
+    booking.ticketBookings = singletonList(ticket);
 
     return booking;
   }
@@ -148,7 +148,7 @@ public class BookingRestServiceTest extends BaseTest {
 
     booking.customerName = "Jan Kowalski";
     booking.customerEmail = "jan.kowalski@mail.com";
-    booking.ticketBookings = new Ticket[]{ticket};
+    booking.ticketBookings = singletonList(ticket);
 
     return booking;
   }

@@ -11,9 +11,12 @@ import static pl.hellopolandticket.service.dto.SightEventDTO.ofSightEventBasic;
 import static pl.hellopolandticket.service.dto.SightEventDTO.ofSightEventWithBoughtAndTotalTickets;
 
 import java.util.List;
+import java.util.stream.Stream;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 import pl.hellopoland.dto.Location;
 import pl.hellopoland.dto.Push;
 import pl.hellopoland.dto.SightEventDefinition;
@@ -25,9 +28,10 @@ import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.model.SightLocation;
 import pl.hellopolandticket.model.User;
 import pl.hellopolandticket.security.CurrentUser;
-import pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.dto.SightEventDTO;
+import pl.hellopolandticket.service.event.HPLPushEvent;
 
+@Slf4j
 @Stateless
 @LocalBean
 public class SightEventService extends ServiceSuperclass {
@@ -51,6 +55,9 @@ public class SightEventService extends ServiceSuperclass {
 
   @Inject
   private UserService userService;
+
+  @Inject
+  private Event<HPLPushEvent> hplPushEvent;
 
   public SightEventDTO findById(Long sightEventId) {
     return ofSightEventBasic(sightEventDao.findById(sightEventId));
@@ -84,7 +91,7 @@ public class SightEventService extends ServiceSuperclass {
     Push sightEventsPushDTO = new Push();
 
     sightEventsPushDTO.sightEvents = sightEvents.stream()
-        .map(ModelObjectsToDTOConverter::ofSightEvent)
+        .map(sightEvent -> ofSightEvent(sightEvent, null))
         .collect(toList());
 
     sightEventsPushDTO.secret = user.getToken();
@@ -102,6 +109,8 @@ public class SightEventService extends ServiceSuperclass {
 
     SightEvent sightEventToPersist = SightEvent.builder()
         .name(sightEventDefinition.name)
+        .date(sightEventDefinition.date)
+        .availableTicketsNumber(sightEventDefinition.availableTicketsNumber)
         .description(sightEventDefinition.description)
         .mainImageUrl(sightEventDefinition.mainImageUrl)
         .email(sightEventDefinition.email)
@@ -112,18 +121,29 @@ public class SightEventService extends ServiceSuperclass {
 
     sightEventToPersist = sightEventDao.persist(sightEventToPersist);
 
-    SightEventDefinition persistedSightEvent = ofSightEvent(sightEventToPersist);
+    SightEventDefinition persistedSightEvent = ofSightEvent(sightEventToPersist,
+        sightEventDefinition.sightId);
 
     Push sightEventsPushDTO = new Push();
 
-    sightEventsPushDTO.sightEvents = singletonList(persistedSightEvent);
+    sightEventsPushDTO.sightEvents = Stream.of(persistedSightEvent).collect(toList());
     sightEventsPushDTO.secret = user.getToken();
 
-    httpClient.sendPostRequest(
-        applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).getPropertyValue(),
-        sightEventsPushDTO);
+    hplPushEvent.fireAsync(
+        HPLPushEvent.builder()
+            .URLPath(applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY)
+                .getPropertyValue())
+            .push(sightEventsPushDTO)
+            .build()
+    );
 
     return persistedSightEvent;
+  }
+
+  public void delete(Long sightEventId) {
+    SightEvent sightEvent = findSightEventById(sightEventId);
+
+    sightEvent.setActive(false);
   }
 
   private SightLocation ofLocation(Location location) {
@@ -150,4 +170,17 @@ public class SightEventService extends ServiceSuperclass {
         totalTicketsNumber);
   }
 
+  public SightEventDefinition updateSightEvent(Long sightId, SightEventDefinition sightEventDTO) {
+    SightEvent sightEvent = sightEventDao.findById(sightId);
+
+    sightEvent.setName(sightEventDTO.name);
+    sightEvent.setDate(sightEventDTO.date);
+    sightEvent.setAvailableTicketsNumber(sightEventDTO.availableTicketsNumber);
+    sightEvent.setDescription(sightEventDTO.description);
+    sightEvent.setMainImageUrl(sightEventDTO.mainImageUrl);
+    sightEvent.setEmail(sightEventDTO.email);
+    sightEvent.setPhone(sightEventDTO.phone);
+
+    return sightEventDTO;
+  }
 }
