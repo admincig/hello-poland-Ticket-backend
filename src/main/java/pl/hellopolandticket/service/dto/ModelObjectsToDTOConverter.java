@@ -4,6 +4,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 import pl.hellopoland.dto.DateType;
+import pl.hellopoland.dto.Image;
 import pl.hellopoland.dto.Location;
 import pl.hellopoland.dto.SightEventDefinition;
 import pl.hellopolandticket.model.SightEvent;
@@ -21,7 +22,8 @@ public class ModelObjectsToDTOConverter {
     sightEventDefinition.availableTicketsNumber = sightEvent.getAvailableTicketsNumber();
     sightEventDefinition.description = sightEvent.getDescription();
     sightEventDefinition.duration = sightEvent.getDuration();
-    sightEventDefinition.mainImageUrl = sightEvent.getMainImageUrl();
+    sightEventDefinition.mainImage = new Image(); 
+    sightEventDefinition.mainImage.original = sightEvent.getMainImageUrl();
     sightEventDefinition.email = sightEvent.getEmail();
     sightEventDefinition.phone = sightEvent.getPhone();
     sightEventDefinition.sightId = sightId;

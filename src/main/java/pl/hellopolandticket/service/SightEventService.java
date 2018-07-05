@@ -112,7 +112,7 @@ public class SightEventService extends ServiceSuperclass {
         .date(sightEventDefinition.date)
         .availableTicketsNumber(sightEventDefinition.availableTicketsNumber)
         .description(sightEventDefinition.description)
-        .mainImageUrl(sightEventDefinition.mainImageUrl)
+        .mainImageUrl(sightEventDefinition.mainImage.original)
         .email(sightEventDefinition.email)
         .phone(sightEventDefinition.phone)
         .sightLocation(sightLocation)
@@ -123,7 +123,6 @@ public class SightEventService extends ServiceSuperclass {
 
     SightEventDefinition persistedSightEvent = ofSightEvent(sightEventToPersist,
         sightEventDefinition.sightId);
-
     Push sightEventsPushDTO = new Push();
 
     sightEventsPushDTO.sightEvents = Stream.of(persistedSightEvent).collect(toList());
@@ -177,9 +176,12 @@ public class SightEventService extends ServiceSuperclass {
     sightEvent.setDate(sightEventDTO.date);
     sightEvent.setAvailableTicketsNumber(sightEventDTO.availableTicketsNumber);
     sightEvent.setDescription(sightEventDTO.description);
-    sightEvent.setMainImageUrl(sightEventDTO.mainImageUrl);
     sightEvent.setEmail(sightEventDTO.email);
     sightEvent.setPhone(sightEventDTO.phone);
+
+    sightEvent.setMainImageUrl(ofNullable(sightEventDTO.mainImage)
+        .map(s -> s.original)
+        .orElse(null));
 
     return sightEventDTO;
   }
