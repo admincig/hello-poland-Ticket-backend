@@ -58,7 +58,7 @@
     <dependency>
       <groupId>pl.hellopoland</groupId>
       <artifactId>hellopoland-dto</artifactId>
-      <version>0.3.18-SNAPSHOT</version>
+      <version>0.3.20-SNAPSHOT</version>
     </dependency>
 
 

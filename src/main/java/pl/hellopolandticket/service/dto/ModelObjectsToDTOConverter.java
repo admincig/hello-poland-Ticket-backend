@@ -6,37 +6,35 @@ import static java.util.stream.Collectors.toList;
 import pl.hellopoland.dto.DateType;
 import pl.hellopoland.dto.Image;
 import pl.hellopoland.dto.Location;
-import pl.hellopoland.dto.SightEventDefinition;
 import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.model.SightLocation;
 import pl.hellopolandticket.model.TicketDefinition;
 
 public class ModelObjectsToDTOConverter {
 
-  public static SightEventDefinition ofSightEvent(SightEvent sightEvent, Long sightId) {
-    SightEventDefinition sightEventDefinition = new SightEventDefinition();
+  public static pl.hellopoland.dto.SightEvent ofSightEvent(SightEvent sightEvent, Long sightId) {
+    pl.hellopoland.dto.SightEvent sightEventDTO = new pl.hellopoland.dto.SightEvent();
 
-    sightEventDefinition.id = sightEvent.getId();
-    sightEventDefinition.name = sightEvent.getName();
-    sightEventDefinition.date = sightEvent.getDate();
-    sightEventDefinition.availableTicketsNumber = sightEvent.getAvailableTicketsNumber();
-    sightEventDefinition.description = sightEvent.getDescription();
-    sightEventDefinition.duration = sightEvent.getDuration();
-    sightEventDefinition.mainImage = new Image(); 
-    sightEventDefinition.mainImage.original = sightEvent.getMainImageUrl();
-    sightEventDefinition.email = sightEvent.getEmail();
-    sightEventDefinition.phone = sightEvent.getPhone();
-    sightEventDefinition.sightId = sightId;
+    sightEventDTO.id = sightEvent.getId();
+    sightEventDTO.name = sightEvent.getName();
+    sightEventDTO.date = sightEvent.getDate();
+    sightEventDTO.description = sightEvent.getDescription();
+    sightEventDTO.duration = sightEvent.getDuration();
+    sightEventDTO.mainImage = new Image();
+    sightEventDTO.mainImage.original = sightEvent.getMainImageUrl();
+    sightEventDTO.email = sightEvent.getEmail();
+    sightEventDTO.phone = sightEvent.getPhone();
+    sightEventDTO.sightId = sightId;
 
-    sightEventDefinition.location = ofNullable(sightEvent.getSightLocation())
+    sightEventDTO.location = ofNullable(sightEvent.getSightLocation())
         .map(ModelObjectsToDTOConverter::ofSightLocation)
         .orElse(null);
 
-    sightEventDefinition.tickets = sightEvent.getTicketDefinitions().stream()
+    sightEventDTO.tickets = sightEvent.getTicketDefinitions().stream()
         .map(ModelObjectsToDTOConverter::ofTicketDefinition)
         .collect(toList());
 
-    return sightEventDefinition;
+    return sightEventDTO;
   }
 
   private static Location ofSightLocation(SightLocation sightLocation) {

@@ -119,7 +119,7 @@ public class BookingService extends ServiceSuperclass {
         bookedTickets.add(ticket);
       }
 
-      sightEvent.decreaseAvailableTicketsNumber(
+      ticketDefinition.decreaseAvailableTicketsNumber(
           ticketBookingDTO.numberOfTickets.intValue());
     }
 
@@ -130,7 +130,7 @@ public class BookingService extends ServiceSuperclass {
     List<Ticket> tickets = booking.getTickets();
 
     for (Ticket ticket : tickets) {
-      ticket.getSightEvent().decreaseAvailableTicketsNumber(1);
+      ticket.getTicketDefinition().decreaseAvailableTicketsNumber(1);
       ticket.setStatus(BOOKED);
     }
     booking.setStatus(BOOKED);
