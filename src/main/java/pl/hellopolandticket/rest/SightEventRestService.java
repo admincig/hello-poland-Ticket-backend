@@ -17,7 +17,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import pl.hellopoland.dto.SightEventDefinition;
+import pl.hellopoland.dto.SightEvent;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.SightEventService;
@@ -52,14 +52,14 @@ public class SightEventRestService extends RestServiceSuperclass {
 
   @POST
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response addSightEvent(SightEventDefinition sightEvent) {
+  public Response addSightEvent(SightEvent sightEvent) {
     return Response.ok(sightEventService.addSightEvent(sightEvent, currentUser)).build();
   }
 
   @PUT
   @Path("/{id}")
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response updateSightEvent(@PathParam("id") Long id, SightEventDefinition sightEvent) {
+  public Response updateSightEvent(@PathParam("id") Long id, SightEvent sightEvent) {
     return Response.ok(sightEventService.updateSightEvent(id, sightEvent)).build();
   }
 
