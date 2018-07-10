@@ -11,12 +11,14 @@ import static pl.hellopolandticket.service.dto.SightEventDTO.ofSightEventBasic;
 import static pl.hellopolandticket.service.dto.SightEventDTO.ofSightEventWithBoughtAndTotalTickets;
 
 import java.util.List;
+import java.util.stream.Stream;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 import pl.hellopoland.dto.Location;
 import pl.hellopoland.dto.Push;
-import pl.hellopoland.dto.SightEventDefinition;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightEventDao;
 import pl.hellopolandticket.dao.TicketDao;
@@ -25,9 +27,10 @@ import pl.hellopolandticket.model.SightEvent;
 import pl.hellopolandticket.model.SightLocation;
 import pl.hellopolandticket.model.User;
 import pl.hellopolandticket.security.CurrentUser;
-import pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.dto.SightEventDTO;
+import pl.hellopolandticket.service.event.HPLPushEvent;
 
+@Slf4j
 @Stateless
 @LocalBean
 public class SightEventService extends ServiceSuperclass {
@@ -51,6 +54,9 @@ public class SightEventService extends ServiceSuperclass {
 
   @Inject
   private UserService userService;
+
+  @Inject
+  private Event<HPLPushEvent> hplPushEvent;
 
   public SightEventDTO findById(Long sightEventId) {
     return ofSightEventBasic(sightEventDao.findById(sightEventId));
@@ -84,7 +90,7 @@ public class SightEventService extends ServiceSuperclass {
     Push sightEventsPushDTO = new Push();
 
     sightEventsPushDTO.sightEvents = sightEvents.stream()
-        .map(ModelObjectsToDTOConverter::ofSightEvent)
+        .map(sightEvent -> ofSightEvent(sightEvent, null))
         .collect(toList());
 
     sightEventsPushDTO.secret = user.getToken();
@@ -92,38 +98,45 @@ public class SightEventService extends ServiceSuperclass {
     return sightEventsPushDTO;
   }
 
-  public SightEventDefinition addSightEvent(SightEventDefinition sightEventDefinition,
+  public pl.hellopoland.dto.SightEvent addSightEvent(
+      pl.hellopoland.dto.SightEvent sightEventDTO,
       CurrentUser currentUser) {
-    SightLocation sightLocation = ofNullable(sightEventDefinition.location)
+    SightLocation sightLocation = ofNullable(sightEventDTO.location)
         .map(this::ofLocation)
         .orElse(null);
 
     User user = userService.findUserByEmail(currentUser.getPrincipal());
 
     SightEvent sightEventToPersist = SightEvent.builder()
-        .name(sightEventDefinition.name)
-        .description(sightEventDefinition.description)
-        .mainImageUrl(sightEventDefinition.mainImageUrl)
-        .email(sightEventDefinition.email)
-        .phone(sightEventDefinition.phone)
+        .name(sightEventDTO.name)
+        .date(sightEventDTO.date)
+        .description(sightEventDTO.description)
+        .mainImageUrl(ofNullable(sightEventDTO.mainImage)
+            .map(mainImage -> mainImage.original)
+            .orElse(null))
+        .email(sightEventDTO.email)
+        .phone(sightEventDTO.phone)
         .sightLocation(sightLocation)
         .partner(user.getPartner())
+        .generalAdmission(sightEventDTO.generalAdmission)
         .build();
 
     sightEventToPersist = sightEventDao.persist(sightEventToPersist);
 
-    SightEventDefinition persistedSightEvent = ofSightEvent(sightEventToPersist);
-
+    pl.hellopoland.dto.SightEvent persistedSightEvent = ofSightEvent(sightEventToPersist,
+        sightEventDTO.sightId);
     Push sightEventsPushDTO = new Push();
 
-    sightEventsPushDTO.sightEvents = singletonList(persistedSightEvent);
+    sightEventsPushDTO.sightEvents = Stream.of(persistedSightEvent).collect(toList());
     sightEventsPushDTO.secret = user.getToken();
 
-    httpClient.sendPostRequest(
-        applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).getPropertyValue(),
-        sightEventsPushDTO);
-
     return persistedSightEvent;
+  }
+
+  public void delete(Long sightEventId) {
+    SightEvent sightEvent = findSightEventById(sightEventId);
+
+    sightEvent.setActive(false);
   }
 
   private SightLocation ofLocation(Location location) {
@@ -150,4 +163,20 @@ public class SightEventService extends ServiceSuperclass {
         totalTicketsNumber);
   }
 
+  public pl.hellopoland.dto.SightEvent updateSightEvent(Long sightId,
+      pl.hellopoland.dto.SightEvent sightEventDTO) {
+    SightEvent sightEvent = sightEventDao.findById(sightId);
+
+    sightEvent.setName(sightEventDTO.name);
+    sightEvent.setDate(sightEventDTO.date);
+    sightEvent.setDescription(sightEventDTO.description);
+    sightEvent.setEmail(sightEventDTO.email);
+    sightEvent.setPhone(sightEventDTO.phone);
+
+    sightEvent.setMainImageUrl(ofNullable(sightEventDTO.mainImage)
+        .map(s -> s.original)
+        .orElse(null));
+
+    return sightEventDTO;
+  }
 }

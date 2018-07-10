@@ -8,7 +8,6 @@ import static pl.hellopolandticket.service.dto.BookingDTO.ofBooking;
 import static pl.hellopolandticket.service.dto.TicketDTO.ofTicketWithQrCode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -59,7 +58,7 @@ public class BookingService extends ServiceSuperclass {
         .customerEmail(booking.customerEmail)
         .build();
 
-    List<Ticket> tickets = bookTickets(Arrays.asList(booking.ticketBookings), bookingToPersist);
+    List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
 
     bookingToPersist.setTickets(tickets);
 
@@ -120,7 +119,7 @@ public class BookingService extends ServiceSuperclass {
         bookedTickets.add(ticket);
       }
 
-      sightEvent.decreaseAvailableTicketsNumber(
+      ticketDefinition.decreaseAvailableTicketsNumber(
           ticketBookingDTO.numberOfTickets.intValue());
     }
 
@@ -131,7 +130,7 @@ public class BookingService extends ServiceSuperclass {
     List<Ticket> tickets = booking.getTickets();
 
     for (Ticket ticket : tickets) {
-      ticket.getSightEvent().decreaseAvailableTicketsNumber(1);
+      ticket.getTicketDefinition().decreaseAvailableTicketsNumber(1);
       ticket.setStatus(BOOKED);
     }
     booking.setStatus(BOOKED);

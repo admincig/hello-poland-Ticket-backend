@@ -23,6 +23,7 @@ public class SightEventDao {
 
   public SightEvent persist(SightEvent sightEvent) {
     entityManager.persist(sightEvent);
+    entityManager.flush();
 
     return sightEvent;
   }

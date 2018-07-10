@@ -21,8 +21,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
-import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
 @Getter
 @Entity
@@ -33,10 +31,6 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 public class SightEvent implements Serializable {
 
   private static final long serialVersionUID = 5345966403908441388L;
-
-  public static final int UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE = -1;
-
-  private static final int MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE = 0;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,10 +45,6 @@ public class SightEvent implements Serializable {
   @Setter
   @Column(name = "DATE")
   private Date date;
-
-  @Setter
-  @Column(name = "AVAILABLE_TICKETS_NUMBER")
-  private Integer availableTicketsNumber;
 
   @Setter
   @Column(name = "DESCRIPTION")
@@ -90,10 +80,18 @@ public class SightEvent implements Serializable {
   @OneToMany(mappedBy = "sightEvent")
   private List<TicketDefinition> ticketDefinitions = new ArrayList<>();
 
+  @Setter
+  @NotNull
+  private Boolean active = true;
+
+  @Setter
+  @NotNull
+  private Boolean generalAdmission;
+
   @Builder
-  public SightEvent(String name, Date date, Integer availableTicketsNumber, String description,
+  public SightEvent(String name, Date date, String description,
       Integer duration, String mainImageUrl, String email, String phone,
-      SightLocation sightLocation, Partner partner) {
+      SightLocation sightLocation, Partner partner, Boolean generalAdmission) {
     this.name = name;
     this.date = date;
     this.description = description;
@@ -103,38 +101,7 @@ public class SightEvent implements Serializable {
     this.phone = phone;
     this.sightLocation = sightLocation;
     this.partner = partner;
-
-    this.availableTicketsNumber =
-        availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
-            : availableTicketsNumber;
+    this.generalAdmission = generalAdmission;
   }
 
-
-  public void decreaseAvailableTicketsNumber(int numberOfTickets) {
-    if (numberOfTickets <= 0) {
-      throw new NumberOfTicketsNotPositiveException();
-    }
-
-    if (!hasUnlimitedNumberOfTickets()) {
-      if (hasEnoughTickets(numberOfTickets)) {
-        availableTicketsNumber = availableTicketsNumber - numberOfTickets;
-      } else {
-        throw new NoAvailableTicketsException();
-      }
-    }
-  }
-
-  public void increaseAvailableTicketsNumber() {
-    if (!hasUnlimitedNumberOfTickets()) {
-      availableTicketsNumber++;
-    }
-  }
-
-  private boolean hasUnlimitedNumberOfTickets() {
-    return availableTicketsNumber == UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
-  }
-
-  private boolean hasEnoughTickets(int numberOfTickets) {
-    return availableTicketsNumber - numberOfTickets >= MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
-  }
 }

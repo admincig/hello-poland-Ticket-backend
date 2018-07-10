@@ -19,6 +19,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
+import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
 @Getter
 @Entity
@@ -29,6 +31,10 @@ import lombok.ToString;
 public class TicketDefinition implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
+
+  public static final int UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE = -1;
+
+  private static final int MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE = 0;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,8 +72,13 @@ public class TicketDefinition implements Serializable {
   @JoinColumn(name = "SIGHT_EVENT_ID", nullable = false)
   private SightEvent sightEvent;
 
+  @Setter
+  @Column(name = "AVAILABLE_TICKETS_NUMBER")
+  private Integer availableTicketsNumber;
+
   @Builder
-  public TicketDefinition(String name, Integer price, Boolean predefinedDate, Date date,
+  public TicketDefinition(String name, Integer availableTicketsNumber, Integer price,
+      Boolean predefinedDate, Date date,
       DateType dateType, SightEvent sightEvent) {
     this.name = name;
     this.price = price;
@@ -75,6 +86,39 @@ public class TicketDefinition implements Serializable {
     this.date = date;
     this.dateType = dateType;
     this.sightEvent = sightEvent;
+
+    this.availableTicketsNumber =
+        availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
+            : availableTicketsNumber;
+  }
+
+
+  public void decreaseAvailableTicketsNumber(int numberOfTickets) {
+    if (numberOfTickets <= 0) {
+      throw new NumberOfTicketsNotPositiveException();
+    }
+
+    if (!hasUnlimitedNumberOfTickets()) {
+      if (hasEnoughTickets(numberOfTickets)) {
+        availableTicketsNumber = availableTicketsNumber - numberOfTickets;
+      } else {
+        throw new NoAvailableTicketsException();
+      }
+    }
+  }
+
+  public void increaseAvailableTicketsNumber() {
+    if (!hasUnlimitedNumberOfTickets()) {
+      availableTicketsNumber++;
+    }
+  }
+
+  private boolean hasUnlimitedNumberOfTickets() {
+    return availableTicketsNumber == UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+  }
+
+  private boolean hasEnoughTickets(int numberOfTickets) {
+    return availableTicketsNumber - numberOfTickets >= MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
   }
 
 }

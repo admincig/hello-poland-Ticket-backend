@@ -1,5 +1,6 @@
 package pl.hellopolandticket.rest;
 
+import static java.util.Arrays.asList;
 import static pl.hellopolandticket.model.Role.ROLE_EXTERNAL_USER;
 
 import java.util.Date;
@@ -58,7 +59,7 @@ public class BookingRestService extends RestServiceSuperclass {
     Booking booking = new Booking();
     booking.customerName = "Jan Kowalski";
     booking.customerEmail = email;
-    booking.ticketBookings = new Ticket[]{ticket1, ticket2, ticket3};
+    booking.ticketBookings = asList(ticket1, ticket2, ticket3);
 
     BookingDTO persistedBooking = bookingService.createBooking(booking);
 

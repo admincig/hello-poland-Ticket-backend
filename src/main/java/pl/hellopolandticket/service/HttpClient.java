@@ -8,8 +8,10 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.ObservesAsync;
 import javax.json.bind.JsonbBuilder;
 import lombok.extern.slf4j.Slf4j;
+import pl.hellopolandticket.service.event.HPLPushEvent;
 
 @Slf4j
 @ApplicationScoped
@@ -17,11 +19,12 @@ public class HttpClient extends ServiceSuperclass implements Serializable {
 
   private static final long serialVersionUID = 7529870890163651237L;
 
-  public void sendPostRequest(String URLPath, Object object) {
+  public void sendPostRequest(@ObservesAsync HPLPushEvent hplPushEvent) {
     try {
-      HttpURLConnection httpURLConnection = createHttpConnectionWithPostRequestMethod(URLPath);
+      HttpURLConnection httpURLConnection = createHttpConnectionWithPostRequestMethod(
+          hplPushEvent.getURLPath());
 
-      String postJsonData = JsonbBuilder.create().toJson(object);
+      String postJsonData = JsonbBuilder.create().toJson(hplPushEvent.getPush());
 
       sendPostRequestWithBody(httpURLConnection, postJsonData);
 
@@ -41,6 +44,7 @@ public class HttpClient extends ServiceSuperclass implements Serializable {
     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
     httpURLConnection.setRequestMethod("POST");
     httpURLConnection.setRequestProperty("Content-Type", "application/json");
+
     httpURLConnection.setDoOutput(true);
 
     return httpURLConnection;
