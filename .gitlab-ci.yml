@@ -13,4 +13,4 @@ build_backend:
         - . envcfg
         - envcfg -p
     script:
-        - mvn verify
+        - mvn clean verify
