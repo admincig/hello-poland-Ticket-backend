@@ -1,6 +1,7 @@
 package pl.hellopolandticket.service.exception.conflict;
 
-import pl.hellopolandticket.service.dto.TicketDTO;
+
+import pl.hellopoland.dto.booking.TicketDTO;
 
 public class TicketAlreadyPunchedException extends WrongTicketStatusException {
 

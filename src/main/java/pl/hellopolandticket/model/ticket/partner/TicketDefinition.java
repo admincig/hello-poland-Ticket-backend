@@ -1,16 +1,21 @@
-package pl.hellopolandticket.model;
+package pl.hellopolandticket.model.ticket.partner;
+
+import static javax.persistence.CascadeType.ALL;
+import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
@@ -19,6 +24,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import pl.hellopolandticket.model.partner.Partner;
+import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
 import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
@@ -31,10 +38,6 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 public class TicketDefinition implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
-
-  public static final int UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE = -1;
-
-  private static final int MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE = 0;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,39 +56,36 @@ public class TicketDefinition implements Serializable {
 
   @Setter
   @NotNull
-  @Column(name = "PREDEFINED_DATE", nullable = false)
-  private Boolean predefinedDate;
-
-  @Setter
-  @Column(name = "DATE")
-  private Date date;
-
-  @Setter
-  @NotNull
-  @Enumerated(EnumType.STRING)
-  @Column(name = "DATE_TYPE", nullable = false)
-  private DateType dateType;
-
-  @Setter
-  @NotNull
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "SIGHT_EVENT_ID", nullable = false)
-  private SightEvent sightEvent;
+  @ManyToOne
+  @JoinColumn(name = "PARTNER_ID", nullable = false)
+  private Partner partner;
 
   @Setter
   @Column(name = "AVAILABLE_TICKETS_NUMBER")
   private Integer availableTicketsNumber;
 
+  @Setter
+  @NotNull
+  @ManyToOne
+  @JoinColumn(name = "ticketPool")
+  private TicketPool ticketPool;
+
+  @Setter
+  @ManyToMany(cascade = ALL)
+  private List<TicketPoolDefinition> ticketPoolDefinitions = new ArrayList<>();
+
+  @Setter
+  @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "ticketDefinition")
+  private List<Ticket> tickets;
+
   @Builder
   public TicketDefinition(String name, Integer availableTicketsNumber, Integer price,
-      Boolean predefinedDate, Date date,
-      DateType dateType, SightEvent sightEvent) {
+      Partner partner, TicketPool ticketPool, List<TicketPoolDefinition> ticketPoolDefinitions) {
     this.name = name;
     this.price = price;
-    this.predefinedDate = predefinedDate;
-    this.date = date;
-    this.dateType = dateType;
-    this.sightEvent = sightEvent;
+    this.partner = partner;
+    this.ticketPool = ticketPool;
+    this.ticketPoolDefinitions = ticketPoolDefinitions;
 
     this.availableTicketsNumber =
         availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
@@ -98,7 +98,7 @@ public class TicketDefinition implements Serializable {
       throw new NumberOfTicketsNotPositiveException();
     }
 
-    if (!hasUnlimitedNumberOfTickets()) {
+    if (hasLimitedNumberOfTickets()) {
       if (hasEnoughTickets(numberOfTickets)) {
         availableTicketsNumber = availableTicketsNumber - numberOfTickets;
       } else {
@@ -108,13 +108,13 @@ public class TicketDefinition implements Serializable {
   }
 
   public void increaseAvailableTicketsNumber() {
-    if (!hasUnlimitedNumberOfTickets()) {
+    if (hasLimitedNumberOfTickets()) {
       availableTicketsNumber++;
     }
   }
 
-  private boolean hasUnlimitedNumberOfTickets() {
-    return availableTicketsNumber == UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+  private boolean hasLimitedNumberOfTickets() {
+    return availableTicketsNumber != UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
   }
 
   private boolean hasEnoughTickets(int numberOfTickets) {

@@ -1,13 +1,13 @@
 package pl.hellopolandticket.service;
 
-import static pl.hellopolandticket.service.dto.UserDTO.ofUserBasic;
+import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofUser;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import pl.hellopoland.dto.UserDTO;
 import pl.hellopolandticket.dao.UserDao;
-import pl.hellopolandticket.model.User;
-import pl.hellopolandticket.service.dto.UserDTO;
+import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
@@ -26,7 +26,7 @@ public class UserService extends ServiceSuperclass {
   }
 
   public UserDTO findByEmail(String email) {
-    return ofUserBasic(userDao.findByEmail(email)
+    return ofUser(userDao.findByEmail(email)
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException()));
   }
 

@@ -1,7 +1,8 @@
 package pl.hellopolandticket.rest;
 
-import static pl.hellopolandticket.model.Role.ROLE_EXTERNAL_USER;
-import static pl.hellopolandticket.model.Role.ROLE_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
+import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofCollection;
 
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
@@ -17,12 +18,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import pl.hellopoland.dto.SightEvent;
+import pl.hellopoland.dto.CollectionWrapperDTO;
+import pl.hellopoland.dto.SightEventDTO;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.SightEventService;
 import pl.hellopolandticket.service.TicketService;
-import pl.hellopolandticket.service.dto.JsonCollectionWrapper;
 
 @Path("/sight-events")
 @RequestScoped
@@ -43,23 +44,22 @@ public class SightEventRestService extends RestServiceSuperclass {
   @GET
   @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response getSightEvents() {
-    JsonCollectionWrapper responseBody = JsonCollectionWrapper.builder()
-        .items(sightEventService.findForPartner(currentUser.getPrincipal()))
-        .build();
+    CollectionWrapperDTO collectionWrapper = ofCollection(
+        sightEventService.findForPartner(currentUser.getPrincipal()));
 
-    return Response.ok(responseBody).build();
+    return Response.ok(collectionWrapper).build();
   }
 
   @POST
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response addSightEvent(SightEvent sightEvent) {
+  public Response addSightEvent(SightEventDTO sightEvent) {
     return Response.ok(sightEventService.addSightEvent(sightEvent, currentUser)).build();
   }
 
   @PUT
   @Path("/{id}")
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response updateSightEvent(@PathParam("id") Long id, SightEvent sightEvent) {
+  public Response updateSightEvent(@PathParam("id") Long id, SightEventDTO sightEvent) {
     return Response.ok(sightEventService.updateSightEvent(id, sightEvent)).build();
   }
 

@@ -26,8 +26,8 @@ public class HPLService extends ServiceSuperclass {
   public void pushDataToHPL(CurrentUser currentUser) {
     hplPushEvent.fireAsync(
         HPLPushEvent.builder()
-            .URLPath(applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY)
-                .getPropertyValue())
+            .URLPath(applicationPropertyService
+                .findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).propertyValue)
             .push(sightEventService.findAllAndConvertToPushDTOObject(currentUser))
             .build());
   }

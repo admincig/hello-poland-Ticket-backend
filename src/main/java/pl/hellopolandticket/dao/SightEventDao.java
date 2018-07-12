@@ -8,7 +8,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.SightEvent;
+import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless

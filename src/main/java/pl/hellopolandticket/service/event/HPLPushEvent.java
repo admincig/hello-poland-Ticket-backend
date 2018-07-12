@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.hellopoland.dto.Push;
+import pl.hellopoland.dto.PushDTO;
 
 @Setter
 @Getter
@@ -17,6 +17,6 @@ public class HPLPushEvent implements Serializable {
 
   private static final long serialVersionUID = 8907062191436005717L;
 
-  private Push push;
+  private PushDTO push;
   private String URLPath;
 }

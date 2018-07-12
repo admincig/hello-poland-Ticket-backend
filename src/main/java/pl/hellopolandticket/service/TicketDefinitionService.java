@@ -1,12 +1,21 @@
 package pl.hellopolandticket.service;
 
+import static java.util.Optional.ofNullable;
+
+import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import pl.hellopoland.dto.TicketDefinitionDTO;
+import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.TicketDefinitionDao;
-import pl.hellopolandticket.model.DateType;
-import pl.hellopolandticket.model.SightEvent;
-import pl.hellopolandticket.model.TicketDefinition;
+import pl.hellopolandticket.dao.TicketPoolDao;
+import pl.hellopolandticket.dao.TicketPoolDefinitionDao;
+import pl.hellopolandticket.model.partner.Partner;
+import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
+import pl.hellopolandticket.model.ticket.partner.TicketPool;
+import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
+import pl.hellopolandticket.security.CurrentUser;
 
 @Stateless
 @LocalBean
@@ -16,30 +25,40 @@ public class TicketDefinitionService extends ServiceSuperclass {
   private TicketDefinitionDao ticketDefinitionDao;
 
   @Inject
-  private SightEventService sightEventService;
+  private PartnerDao partnerDao;
 
-  public TicketDefinition save(TicketDefinition ticketDefinition) {
-    return ticketDefinitionDao.persist(ticketDefinition);
-  }
+  @Inject
+  private TicketPoolDefinitionDao ticketPoolDefinitionDao;
 
-  public pl.hellopoland.dto.TicketDefinition add(
-      pl.hellopoland.dto.TicketDefinition ticketDefinitionDTO) {
-    SightEvent sightEvent = sightEventService.findSightEventById(ticketDefinitionDTO.sightEventId);
+  @Inject
+  private TicketPoolDao ticketPoolDao;
+
+
+  public TicketDefinitionDTO add(TicketDefinitionDTO ticketDefinitionDTO, CurrentUser currentUser) {
+    Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
+
+    TicketPool ticketPool = ofNullable(ticketDefinitionDTO.ticketPoolId)
+        .map(ticketPoolId -> ticketPoolDao.findById(ticketPoolId))
+        .orElse(null);
+
+    List<TicketPoolDefinition> ticketPoolDefinitions = ofNullable(
+        ticketDefinitionDTO.ticketPoolDefinitionIds)
+        .map(
+            ticketPoolDefinitionIds -> ticketPoolDefinitionDao.findByIdsIn(ticketPoolDefinitionIds))
+        .orElse(null);
 
     TicketDefinition ticketDefinition = TicketDefinition.builder()
         .name(ticketDefinitionDTO.name)
-        .availableTicketsNumber(ticketDefinitionDTO.availableTicketsNumber)
         .price(ticketDefinitionDTO.price)
-        .predefinedDate(ticketDefinitionDTO.predefinedDate)
-        .date(ticketDefinitionDTO.date)
-        .dateType(DateType.valueOf(ticketDefinitionDTO.dateType.name()))
-        .sightEvent(sightEvent)
+        .partner(partner)
+        .availableTicketsNumber(ticketDefinitionDTO.availableTicketsNumber)
+        .ticketPool(ticketPool)
+        .ticketPoolDefinitions(ticketPoolDefinitions)
         .build();
 
     ticketDefinitionDao.persist(ticketDefinition);
 
     ticketDefinitionDTO.id = ticketDefinition.getId();
-    ticketDefinitionDTO.sightEventId = sightEvent.getId();
 
     return ticketDefinitionDTO;
   }

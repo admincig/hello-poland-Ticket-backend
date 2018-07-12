@@ -1,4 +1,4 @@
-package pl.hellopolandticket.model;
+package pl.hellopolandticket.model.sightevent;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,6 +21,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import pl.hellopolandticket.model.partner.Partner;
+import pl.hellopolandticket.model.ticket.partner.TicketPool;
+import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 
 @Getter
 @Entity
@@ -41,10 +44,6 @@ public class SightEvent implements Serializable {
   @NotNull
   @Column(name = "NAME", nullable = false)
   private String name;
-
-  @Setter
-  @Column(name = "DATE")
-  private Date date;
 
   @Setter
   @Column(name = "DESCRIPTION")
@@ -68,17 +67,13 @@ public class SightEvent implements Serializable {
 
   @Setter
   @Embedded
-  private SightLocation sightLocation;
+  private SightEventLocation sightEventLocation;
 
   @Setter
   @NotNull
   @ManyToOne
   @JoinColumn(name = "PARTNER_ID", nullable = false)
   private Partner partner;
-
-  @Setter
-  @OneToMany(mappedBy = "sightEvent")
-  private List<TicketDefinition> ticketDefinitions = new ArrayList<>();
 
   @Setter
   @NotNull
@@ -88,18 +83,25 @@ public class SightEvent implements Serializable {
   @NotNull
   private Boolean generalAdmission;
 
+  @Setter
+  @OneToMany(mappedBy = "sightEvent")
+  private List<TicketPoolDefinition> ticketPoolDefinitions = new ArrayList<>();
+
+  @Setter
+  @OneToMany(mappedBy = "sightEvent")
+  private List<TicketPool> ticketPools = new ArrayList<>();
+
   @Builder
   public SightEvent(String name, Date date, String description,
       Integer duration, String mainImageUrl, String email, String phone,
-      SightLocation sightLocation, Partner partner, Boolean generalAdmission) {
+      SightEventLocation sightEventLocation, Partner partner, Boolean generalAdmission) {
     this.name = name;
-    this.date = date;
     this.description = description;
     this.duration = duration;
     this.mainImageUrl = mainImageUrl;
     this.email = email;
     this.phone = phone;
-    this.sightLocation = sightLocation;
+    this.sightEventLocation = sightEventLocation;
     this.partner = partner;
     this.generalAdmission = generalAdmission;
   }

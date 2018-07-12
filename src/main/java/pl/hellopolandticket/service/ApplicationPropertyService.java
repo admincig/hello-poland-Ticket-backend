@@ -1,17 +1,18 @@
 package pl.hellopolandticket.service;
 
 import static java.util.stream.Collectors.toList;
-import static pl.hellopolandticket.service.dto.ApplicationPropertyDTO.ofApplicationProperty;
+import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofApplicationProperty;
 
 import java.util.List;
 import java.util.Optional;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import pl.hellopoland.dto.ApplicationPropertyDTO;
 import pl.hellopolandticket.dao.ApplicationPropertyDao;
-import pl.hellopolandticket.model.ApplicationProperty;
-import pl.hellopolandticket.service.dto.ApplicationPropertyDTO;
+import pl.hellopolandticket.model.config.ApplicationProperty;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
+import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
 @LocalBean
@@ -26,11 +27,11 @@ public class ApplicationPropertyService {
   public ApplicationPropertyDTO setApplicationProperty(
       ApplicationPropertyDTO applicationPropertyDTO) {
     ApplicationProperty applicationProperty = applicationPropertyDao
-        .findByPropertyName(applicationPropertyDTO.getPropertyName())
+        .findByPropertyName(applicationPropertyDTO.propertyName)
         .orElse(new ApplicationProperty());
 
-    applicationProperty.setPropertyName(applicationPropertyDTO.getPropertyName());
-    applicationProperty.setPropertyValue(applicationPropertyDTO.getPropertyValue());
+    applicationProperty.setPropertyName(applicationPropertyDTO.propertyName);
+    applicationProperty.setPropertyValue(applicationPropertyDTO.propertyValue);
 
     return ofApplicationProperty(applicationPropertyDao.persist(applicationProperty));
   }
@@ -46,7 +47,7 @@ public class ApplicationPropertyService {
   public Optional<ApplicationPropertyDTO> find(String propertyName) {
     return applicationPropertyDao
         .findByPropertyName(propertyName)
-        .map(ApplicationPropertyDTO::ofApplicationProperty);
+        .map(ModelObjectsToDTOConverter::ofApplicationProperty);
   }
 
   public void removeApplicationProperty(String propertyName) {
@@ -59,7 +60,7 @@ public class ApplicationPropertyService {
 
   public List<ApplicationPropertyDTO> findAll() {
     return applicationPropertyDao.findAll().stream()
-        .map(ApplicationPropertyDTO::ofApplicationProperty)
+        .map(ModelObjectsToDTOConverter::ofApplicationProperty)
         .collect(toList());
   }
 }

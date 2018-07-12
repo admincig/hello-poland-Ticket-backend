@@ -9,7 +9,7 @@ import javax.ejb.Singleton;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.dao.ExpiredTokenDao;
-import pl.hellopolandticket.model.ExpiredToken;
+import pl.hellopolandticket.model.auth.ExpiredToken;
 import pl.hellopolandticket.service.ApplicationPropertyService;
 
 @Slf4j
@@ -51,16 +51,14 @@ public class ExpiredTokenRemovingScheduler {
 
   private void validateAccessTokenIsStillValid(ExpiredToken expiredToken) {
     String accessTokenSecretKey = applicationPropertyService
-        .findByName(JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY)
-        .getPropertyValue();
+        .findByName(JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY).propertyValue;
 
     validateTokenStillValid(accessTokenSecretKey, expiredToken);
   }
 
   private void validateRefreshTokenStillValid(ExpiredToken expiredToken) {
     String refreshTokenSecretKey = applicationPropertyService
-        .findByName(JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY)
-        .getPropertyValue();
+        .findByName(JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY).propertyValue;
 
     validateTokenStillValid(refreshTokenSecretKey, expiredToken);
   }

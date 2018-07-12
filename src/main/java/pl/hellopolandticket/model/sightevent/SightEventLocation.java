@@ -1,4 +1,4 @@
-package pl.hellopolandticket.model;
+package pl.hellopolandticket.model.sightevent;
 
 import java.io.Serializable;
 import javax.persistence.Column;
@@ -16,7 +16,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 @NoArgsConstructor
 @ToString
-public class SightLocation implements Serializable {
+public class SightEventLocation implements Serializable {
 
   private static final long serialVersionUID = 1599586813368109778L;
 
@@ -39,7 +39,7 @@ public class SightLocation implements Serializable {
   private String country;
 
   @Builder
-  public SightLocation(Double latitude, Double longitude, String street, String zipCode,
+  public SightEventLocation(Double latitude, Double longitude, String street, String zipCode,
       String city, String country) {
     this.latitude = latitude;
     this.longitude = longitude;

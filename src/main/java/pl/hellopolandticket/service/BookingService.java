@@ -2,10 +2,10 @@ package pl.hellopolandticket.service;
 
 import static java.lang.Integer.valueOf;
 import static java.util.stream.Collectors.toList;
-import static pl.hellopolandticket.model.Status.BOOKED;
-import static pl.hellopolandticket.model.Status.INVALID;
-import static pl.hellopolandticket.service.dto.BookingDTO.ofBooking;
-import static pl.hellopolandticket.service.dto.TicketDTO.ofTicketWithQrCode;
+import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
+import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
+import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofBooking;
+import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicketWithQrCode;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,14 +15,14 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import pl.hellopoland.dto.booking.BookingDTO;
+import pl.hellopoland.dto.booking.TicketOrderDTO;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.dao.TicketDefinitionDao;
-import pl.hellopolandticket.model.Booking;
-import pl.hellopolandticket.model.SightEvent;
-import pl.hellopolandticket.model.Ticket;
-import pl.hellopolandticket.model.TicketDefinition;
-import pl.hellopolandticket.service.dto.BookingDTO;
+import pl.hellopolandticket.model.ticket.market.Booking;
+import pl.hellopolandticket.model.ticket.market.Ticket;
+import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
@@ -51,7 +51,7 @@ public class BookingService extends ServiceSuperclass {
   @Inject
   private ExceptionFactory exceptionFactory;
 
-  public BookingDTO createBooking(pl.hellopoland.dto.booking.Booking booking) {
+  public BookingDTO createBooking(BookingDTO booking) {
     Booking bookingToPersist = Booking.builder()
         .date(new Date())
         .customerName(booking.customerName)
@@ -83,34 +83,32 @@ public class BookingService extends ServiceSuperclass {
   }
 
   private synchronized List<Ticket> bookTickets(
-      Collection<pl.hellopoland.dto.booking.Ticket> ticketBookingDTOS, Booking booking) {
-    if (isANewBooking(ticketBookingDTOS)) {
-      return book(ticketBookingDTOS, booking);
+      Collection<TicketOrderDTO> ticketBookingDTOs, Booking booking) {
+    if (isANewBooking(ticketBookingDTOs)) {
+      return book(ticketBookingDTOs, booking);
     } else {
       return rebook(booking);
     }
   }
 
-  private List<Ticket> book(Collection<pl.hellopoland.dto.booking.Ticket> ticketBookingDTOS,
+  private List<Ticket> book(Collection<TicketOrderDTO> ticketBookingDTOS,
       Booking booking) {
     List<Ticket> bookedTickets = new ArrayList<>();
 
-    for (pl.hellopoland.dto.booking.Ticket ticketBookingDTO : ticketBookingDTOS) {
+    for (TicketOrderDTO ticketBookingDTO : ticketBookingDTOS) {
       TicketDefinition ticketDefinition = ticketDefinitionDao
           .findById(ticketBookingDTO.ticketDefinitionId);
 
-      SightEvent sightEvent = ticketDefinition.getSightEvent();
-
       Date date =
-          ticketDefinition.getPredefinedDate() ? ticketDefinition.getDate() : ticketBookingDTO.date;
+          ticketDefinition.getTicketPool().getPredefinedDate() ? ticketDefinition.getTicketPool()
+              .getDate() : ticketBookingDTO.date;
 
       for (int i = 0; i < ticketBookingDTO.numberOfTickets; i++) {
         Ticket ticket = Ticket.builder()
-            .sightEvent(sightEvent)
             .name(ticketDefinition.getName())
             .price(ticketDefinition.getPrice())
             .date(date)
-            .dateType(ticketDefinition.getDateType())
+            .dateType(ticketDefinition.getTicketPool().getDateType())
             .status(BOOKED)
             .booking(booking)
             .ticketDefinition(ticketDefinition)
@@ -138,15 +136,15 @@ public class BookingService extends ServiceSuperclass {
     return tickets;
   }
 
-  private boolean isANewBooking(Collection<pl.hellopoland.dto.booking.Ticket> ticketBookingDTOs) {
+  private boolean isANewBooking(Collection<TicketOrderDTO> ticketBookingDTOs) {
     return ticketBookingDTOs != null;
   }
 
   private void sendEmailWithTicketQrCodes(Booking booking) {
     int qrCodeWidth = valueOf(
-        applicationPropertyService.findByName(TICKET_QR_CODE_WIDTH_PROPERTY).getPropertyValue());
+        applicationPropertyService.findByName(TICKET_QR_CODE_WIDTH_PROPERTY).propertyValue);
     int qrCodeHeight = valueOf(
-        applicationPropertyService.findByName(TICKET_QR_CODE_HEIGHT_PROPERTY).getPropertyValue());
+        applicationPropertyService.findByName(TICKET_QR_CODE_HEIGHT_PROPERTY).propertyValue);
 
     bookingMarkedAsBoughtEvent.fireAsync(
         BookingMarkedAsBoughtEvent.builder()

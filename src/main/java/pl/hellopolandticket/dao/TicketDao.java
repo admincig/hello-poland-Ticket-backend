@@ -7,8 +7,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.Status;
-import pl.hellopolandticket.model.Ticket;
+import pl.hellopolandticket.model.ticket.market.Status;
+import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
@@ -47,13 +47,13 @@ public class TicketDao {
         .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
   }
 
-  public Long countTicketsBySightEventIdAndTicketStatusInTicketStatuses(Long sightEventId,
+  public Long countTicketsByTicketPoolIdAndTicketStatusInTicketStatuses(Long ticketPoolId,
       List<Status> statuses) {
     return entityManager
         .createQuery(
-            "SELECT COUNT(ticket) from Ticket ticket where ticket.sightEvent.id=:sightEventId AND ticket.status IN :statuses",
+            "SELECT COUNT(ticket) from Ticket ticket JOIN ticket.ticketDefinition ticketDefinition JOIN ticketDefinition.ticketPool ticketPool where ticketPool.id=:ticketPoolId AND ticket.status IN :statuses",
             Long.class)
-        .setParameter("sightEventId", sightEventId)
+        .setParameter("ticketPoolId", ticketPoolId)
         .setParameter("statuses", statuses)
         .getResultStream()
         .findFirst()

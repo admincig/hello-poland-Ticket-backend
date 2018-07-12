@@ -4,7 +4,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.Status.VALID;
-import static pl.hellopolandticket.model.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.security.jwt.TokenType.ACCESS_TOKEN;
 import static pl.hellopolandticket.security.jwt.TokenType.REFRESH_TOKEN;
 
@@ -29,12 +29,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 import lombok.extern.slf4j.Slf4j;
+import pl.hellopoland.dto.UserAuthDTO;
 import pl.hellopolandticket.dao.UserDao;
-import pl.hellopolandticket.model.User;
+import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.ExpiredTokenService;
-import pl.hellopolandticket.service.dto.UserAuthDTO;
 import pl.hellopolandticket.service.exception.preconditionfailed.TokenInExpiredTokensListException;
 
 @Slf4j
@@ -74,11 +74,11 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     if (isAuthRequest(request)) {
       Optional<UserAuthDTO> userAuthDTO = extractUserAuthDTO(request);
 
-      String login = userAuthDTO.map(UserAuthDTO::getLogin).orElse(null);
-      String password = userAuthDTO.map(UserAuthDTO::getPassword).orElse(null);
+      String login = userAuthDTO.map(u -> u.login).orElse(null);
+      String password = userAuthDTO.map(u -> u.password).orElse(null);
 
-      String accessToken = userAuthDTO.map(UserAuthDTO::getAccessToken).orElse(null);
-      String refreshToken = userAuthDTO.map(UserAuthDTO::getRefreshToken).orElse(null);
+      String accessToken = userAuthDTO.map(u -> u.accessToken).orElse(null);
+      String refreshToken = userAuthDTO.map(u -> u.refreshToken).orElse(null);
 
       if (isLoginRequest(request)) {
         if (hasProperDataToLogin(login, password)) {

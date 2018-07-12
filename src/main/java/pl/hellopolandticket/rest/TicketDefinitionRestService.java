@@ -1,6 +1,6 @@
 package pl.hellopolandticket.rest;
 
-import static pl.hellopolandticket.model.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
@@ -11,7 +11,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import pl.hellopoland.dto.TicketDefinition;
+import pl.hellopoland.dto.TicketDefinitionDTO;
+import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.TicketDefinitionService;
 
 @Path("/ticket-definitions")
@@ -23,10 +24,13 @@ public class TicketDefinitionRestService {
   @Inject
   private TicketDefinitionService ticketDefinitionService;
 
+  @Inject
+  private CurrentUser currentUser;
+
   @POST
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response add(TicketDefinition ticketDefinitionDTO) {
-    return Response.ok(ticketDefinitionService.add(ticketDefinitionDTO)).build();
+  public Response add(TicketDefinitionDTO ticketDefinitionDTO) {
+    return Response.ok(ticketDefinitionService.add(ticketDefinitionDTO, currentUser)).build();
   }
 
 }

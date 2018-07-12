@@ -1,6 +1,6 @@
-package pl.hellopolandticket.model;
+package pl.hellopolandticket.model.auth;
 
-import static pl.hellopolandticket.model.UUIDGeneratorUtil.generateUUID;
+import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
 
 import io.jsonwebtoken.Jwts;
 import java.io.Serializable;
@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import pl.hellopolandticket.model.partner.Partner;
 
 @Getter
 @Entity

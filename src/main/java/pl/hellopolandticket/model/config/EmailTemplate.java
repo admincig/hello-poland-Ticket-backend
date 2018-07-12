@@ -1,13 +1,11 @@
-package pl.hellopolandticket.model;
+package pl.hellopolandticket.model.config;
 
 import java.io.Serializable;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
@@ -16,22 +14,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Getter
 @Entity
-@Table(name = "PARTNERS")
-@EqualsAndHashCode(exclude = {"sightEvents", "users"})
+@Table(name = "EMAIL_TEMPLATES")
+@EqualsAndHashCode
 @NoArgsConstructor
-@ToString(exclude = {"users", "sightEvents"})
-public class Partner implements Serializable {
+@ToString(exclude = "template")
+public class EmailTemplate implements Serializable {
 
-  private static final long serialVersionUID = 6118414827783500940L;
+  private static final long serialVersionUID = 7935246378402298821L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "PARTNER_ID")
+  @Column(name = "EMAIL_TEMPLATE_ID")
   private Long id;
 
   @Setter
@@ -40,16 +36,19 @@ public class Partner implements Serializable {
   private String name;
 
   @Setter
-  @OneToMany(mappedBy = "partner")
-  private List<User> users;
+  @NotNull
+  @Column(name = "SUBJECT", nullable = false)
+  private String subject;
 
   @Setter
-  @OneToMany(mappedBy = "partner")
-  private List<SightEvent> sightEvents;
+  @NotNull
+  @Column(name = "TEMPLATE", nullable = false, length = 10000)
+  private String template;
 
   @Builder
-  public Partner(String name) {
+  public EmailTemplate(String name, String subject, String template) {
     this.name = name;
+    this.subject = subject;
+    this.template = template;
   }
-
 }

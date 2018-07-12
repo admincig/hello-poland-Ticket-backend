@@ -1,4 +1,4 @@
-package pl.hellopolandticket.model;
+package pl.hellopolandticket.model.ticket.market;
 
 public enum Status {
 

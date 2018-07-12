@@ -1,4 +1,4 @@
-package pl.hellopolandticket.model;
+package pl.hellopolandticket.model.config;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

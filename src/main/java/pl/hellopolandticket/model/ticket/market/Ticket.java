@@ -1,9 +1,8 @@
-package pl.hellopolandticket.model;
+package pl.hellopolandticket.model.ticket.market;
 
 import static javax.persistence.CascadeType.PERSIST;
-import static javax.persistence.FetchType.LAZY;
-import static pl.hellopolandticket.model.Status.BOOKED;
-import static pl.hellopolandticket.model.UUIDGeneratorUtil.generateUUID;
+import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
+import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -32,6 +31,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import pl.hellopolandticket.model.auth.User;
+import pl.hellopolandticket.model.ticket.partner.DateType;
+import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.service.exception.badrequest.CannotGenerateQrCodeException;
 
 @Slf4j
@@ -52,12 +54,6 @@ public class Ticket implements Serializable {
 
   @Setter
   @NotNull
-  @ManyToOne(optional = false, fetch = LAZY)
-  @JoinColumn(name = "SIGHT_EVENT_ID", nullable = false)
-  private SightEvent sightEvent;
-
-  @Setter
-  @NotNull
   @Column(name = "NAME", nullable = false)
   private String name;
 
@@ -70,6 +66,12 @@ public class Ticket implements Serializable {
   @NotNull
   @Column(name = "DATE", nullable = false)
   private Date date;
+
+  @Setter
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(name = "DATE_TYPE", nullable = false)
+  private DateType dateType;
 
   @Setter
   @NotNull
@@ -89,12 +91,6 @@ public class Ticket implements Serializable {
 
   @Setter
   @NotNull
-  @Enumerated(EnumType.STRING)
-  @Column(name = "DATE_TYPE", nullable = false)
-  private DateType dateType;
-
-  @Setter
-  @NotNull
   @ManyToOne(optional = false)
   @JoinColumn(name = "TICKET_DEFINITION", nullable = false)
   private TicketDefinition ticketDefinition;
@@ -109,9 +105,8 @@ public class Ticket implements Serializable {
   private Date punchingDate;
 
   @Builder
-  public Ticket(SightEvent sightEvent, String name, Integer price, Date date, DateType dateType,
-      Status status, String serialNumber, Booking booking, TicketDefinition ticketDefinition) {
-    this.sightEvent = sightEvent;
+  public Ticket(String name, Integer price, Date date, DateType dateType, Status status,
+      String serialNumber, Booking booking, TicketDefinition ticketDefinition) {
     this.name = name;
     this.price = price;
     this.date = date;

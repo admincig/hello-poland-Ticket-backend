@@ -2,21 +2,21 @@ package pl.hellopolandticket.rest;
 
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
-import static pl.hellopolandticket.model.Status.BOOKED;
-import static pl.hellopolandticket.model.Status.BOUGHT;
+import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
+import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
 
-import java.util.Date;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.arquillian.persistence.UsingDataSet;
 import org.junit.Ignore;
 import org.junit.Test;
-import pl.hellopoland.dto.booking.Ticket;
+import pl.hellopoland.dto.booking.BookingDTO;
+import pl.hellopoland.dto.booking.TicketOrderDTO;
 import pl.hellopolandticket.BaseTest;
 import pl.hellopolandticket.dao.BookingDao;
-import pl.hellopolandticket.model.Booking;
-import pl.hellopolandticket.service.dto.BookingDTO;
+import pl.hellopolandticket.model.ticket.market.Booking;
+import pl.hellopolandticket.model.ticket.market.Status;
 import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
 import pl.hellopolandticket.service.exception.conflict.NotBookedException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
@@ -35,7 +35,7 @@ public class BookingRestServiceTest extends BaseTest {
 
   @Test
   public void shouldBookTickets() {
-    pl.hellopoland.dto.booking.Booking bookingCreate = createBookingDTOCreate();
+    BookingDTO bookingCreate = createBookingDTOCreate();
 
     Response response = bookingRestService.makeBooking(bookingCreate);
     BookingDTO booking = (BookingDTO) response.getEntity();
@@ -44,9 +44,9 @@ public class BookingRestServiceTest extends BaseTest {
         .mapToInt(t -> t.numberOfTickets.intValue())
         .sum();
 
-    assertEquals(bookingCreate.customerName, booking.getCustomerName());
-    assertEquals(bookingCreate.customerEmail, booking.getCustomerEmail());
-    assertEquals(expectedNumberOfTickets, booking.getTickets().size());
+    assertEquals(bookingCreate.customerName, booking.customerName);
+    assertEquals(bookingCreate.customerEmail, booking.customerEmail);
+    assertEquals(expectedNumberOfTickets, booking.tickets.size());
   }
 
   @Test
@@ -59,8 +59,8 @@ public class BookingRestServiceTest extends BaseTest {
     Response response = bookingRestService.markBookingAsBought("1");
     BookingDTO booking = (BookingDTO) response.getEntity();
 
-    assertEquals(BOUGHT, booking.getStatus());
-    booking.getTickets().forEach(ticket -> assertEquals(BOUGHT, ticket.getStatus()));
+    assertEquals(BOUGHT, Status.valueOf(booking.status.name()));
+    booking.tickets.forEach(ticket -> assertEquals(BOUGHT, Status.valueOf(ticket.status.name())));
   }
 
   @Test
@@ -71,11 +71,11 @@ public class BookingRestServiceTest extends BaseTest {
     Response response = bookingRestService.markBookingAsBought("1");
     BookingDTO booking = (BookingDTO) response.getEntity();
 
-    assertEquals(booking.getStatus(), BOUGHT);
-    booking.getTickets().forEach(ticket -> assertEquals(BOUGHT, ticket.getStatus()));
-    assertEquals(b.getTickets().size(), booking.getTickets().size());
-    assertEquals(b.getCustomerName(), booking.getCustomerName());
-    assertEquals(b.getCustomerEmail(), booking.getCustomerEmail());
+    assertEquals(Status.valueOf(booking.status.name()), BOUGHT);
+    booking.tickets.forEach(ticket -> assertEquals(BOUGHT, Status.valueOf(ticket.status.name())));
+    assertEquals(b.getTickets().size(), booking.tickets.size());
+    assertEquals(b.getCustomerName(), booking.customerName);
+    assertEquals(b.getCustomerEmail(), booking.customerEmail);
   }
 
   @Test(expected = NoAvailableTicketsException.class)
@@ -83,7 +83,7 @@ public class BookingRestServiceTest extends BaseTest {
     Booking b = bookingDao.findBySerialNumber("1");
     b.makeInvalid();
 
-    pl.hellopoland.dto.booking.Booking bookingCreate = createBookingDTOCreate();
+    BookingDTO bookingCreate = createBookingDTOCreate();
     bookingRestService.makeBooking(bookingCreate);
     bookingRestService.makeBooking(bookingCreate);
     bookingRestService.makeBooking(bookingCreate);
@@ -123,13 +123,13 @@ public class BookingRestServiceTest extends BaseTest {
     bookingRestService.makeBooking(createBookingDTOCreate());
   }
 
-  private pl.hellopoland.dto.booking.Booking createBookingDTOCreate() {
-    pl.hellopoland.dto.booking.Booking booking = new pl.hellopoland.dto.booking.Booking();
+  private BookingDTO createBookingDTOCreate() {
+    BookingDTO booking = new BookingDTO();
 
-    Ticket ticket = new Ticket();
+    TicketOrderDTO ticket = new TicketOrderDTO();
     ticket.ticketDefinitionId = 1L;
     ticket.numberOfTickets = 2L;
-    ticket.date = new Date();
+    ticket.ticketPoolId = 1L;
 
     booking.customerName = "Jan Kowalski";
     booking.customerEmail = "jan.kowalski@mail.com";
@@ -138,13 +138,13 @@ public class BookingRestServiceTest extends BaseTest {
     return booking;
   }
 
-  private pl.hellopoland.dto.booking.Booking createBookingDTOCreateWithZeroTickets() {
-    pl.hellopoland.dto.booking.Booking booking = new pl.hellopoland.dto.booking.Booking();
+  private BookingDTO createBookingDTOCreateWithZeroTickets() {
+    BookingDTO booking = new BookingDTO();
 
-    Ticket ticket = new Ticket();
+    TicketOrderDTO ticket = new TicketOrderDTO();
     ticket.ticketDefinitionId = 1L;
     ticket.numberOfTickets = 0L;
-    ticket.date = new Date();
+    ticket.ticketPoolId = 1L;
 
     booking.customerName = "Jan Kowalski";
     booking.customerEmail = "jan.kowalski@mail.com";

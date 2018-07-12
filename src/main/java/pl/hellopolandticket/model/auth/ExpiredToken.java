@@ -1,4 +1,4 @@
-package pl.hellopolandticket.model;
+package pl.hellopolandticket.model.auth;
 
 import java.io.Serializable;
 import javax.persistence.Column;

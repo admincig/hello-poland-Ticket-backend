@@ -1,16 +1,19 @@
 package pl.hellopolandticket.dao;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.partner.Partner;
+import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
-public class PartnerDao {
+public class TicketPoolDao {
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -18,28 +21,26 @@ public class PartnerDao {
   @Inject
   private ExceptionFactory exceptionFactory;
 
-  public Partner findByUserEmail(String email) {
+
+  public TicketPool persist(TicketPool ticketPool) {
+    entityManager.persist(ticketPool);
+
+    return ticketPool;
+  }
+
+  public TicketPool findById(Long ticketPoolId) {
     return entityManager
-        .createQuery("from Partner partner JOIN partner.users user where user.email=:email",
-            Partner.class)
-        .setParameter("email", email)
+        .createQuery("from TicketPool ticketPool where ticketPool.id=:id", TicketPool.class)
+        .setParameter("id", ticketPoolId)
         .getResultStream()
         .findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
-  public Partner persist(Partner partner) {
-    entityManager.persist(partner);
-
-    return partner;
-  }
-
-  public Partner findByName(String name) {
+  public List<TicketPool> findAll() {
     return entityManager
-        .createQuery("from Partner partner where partner.name=:name", Partner.class)
-        .setParameter("name", name)
+        .createQuery("from TicketPool ticketPool", TicketPool.class)
         .getResultStream()
-        .findFirst()
-        .orElse(null);
+        .collect(toList());
   }
 }

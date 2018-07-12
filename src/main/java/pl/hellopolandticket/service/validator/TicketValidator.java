@@ -1,17 +1,17 @@
 package pl.hellopolandticket.service.validator;
 
-import static pl.hellopolandticket.model.Status.BOUGHT;
-import static pl.hellopolandticket.model.Status.INVALID;
-import static pl.hellopolandticket.model.Status.PUNCHED;
-import static pl.hellopolandticket.service.dto.TicketDTO.ofTicket;
+import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
+import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
+import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
+import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicket;
 
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import pl.hellopolandticket.app.LoggingHandler;
-import pl.hellopolandticket.model.SightEvent;
-import pl.hellopolandticket.model.Ticket;
+import pl.hellopolandticket.model.sightevent.SightEvent;
+import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @RequestScoped
@@ -37,7 +37,7 @@ public class TicketValidator {
     }
   }
 
-  public void validateTicketTakerHasAccessToSight(SightEvent ticketSightEvent,
+  public void validateTicketTakerHasAccessToSightEvent(SightEvent ticketSightEvent,
       List<SightEvent> ticketTakerSightEvents) {
     if (!ticketTakerSightEvents.contains(ticketSightEvent)) {
       throw exceptionFactory.ticketTakerWithoutAccessToSightException();

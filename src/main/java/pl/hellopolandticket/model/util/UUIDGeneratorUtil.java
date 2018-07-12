@@ -1,4 +1,4 @@
-package pl.hellopolandticket.model;
+package pl.hellopolandticket.model.util;
 
 import static java.util.UUID.randomUUID;
 import static javax.xml.bind.DatatypeConverter.printHexBinary;

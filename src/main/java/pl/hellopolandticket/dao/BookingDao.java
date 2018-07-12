@@ -1,6 +1,6 @@
 package pl.hellopolandticket.dao;
 
-import static pl.hellopolandticket.model.Status.BOOKED;
+import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
 
 import java.util.Date;
 import java.util.List;
@@ -9,7 +9,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.Booking;
+import pl.hellopolandticket.model.ticket.market.Booking;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless

@@ -1,10 +1,10 @@
-package pl.hellopolandticket.model;
+package pl.hellopolandticket.model.ticket.market;
 
 import static javax.persistence.CascadeType.ALL;
-import static pl.hellopolandticket.model.Status.BOOKED;
-import static pl.hellopolandticket.model.Status.BOUGHT;
-import static pl.hellopolandticket.model.Status.INVALID;
-import static pl.hellopolandticket.model.UUIDGeneratorUtil.generateUUID;
+import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
+import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
+import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
+import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
 
 import java.io.Serializable;
 import java.util.Date;
