@@ -11,7 +11,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import pl.hellopoland.dto.TicketDefinitionDTO;
+import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.TicketDefinitionService;
 
@@ -25,6 +27,7 @@ public class TicketDefinitionRestService {
   private TicketDefinitionService ticketDefinitionService;
 
   @Inject
+  @Authenticated
   private CurrentUser currentUser;
 
   @POST

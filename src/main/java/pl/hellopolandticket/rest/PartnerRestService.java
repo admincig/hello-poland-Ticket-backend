@@ -9,8 +9,10 @@ import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
+
 import pl.hellopoland.dto.PartnerDTO;
 import pl.hellopoland.dto.TicketDefinitionDTO;
+import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.PartnerService;
 import pl.hellopolandticket.service.TicketDefinitionService;
@@ -26,6 +28,7 @@ public class PartnerRestService extends RestServiceSuperclass {
   private TicketDefinitionService ticketDefinitionService;
 
   @Inject
+  @Authenticated
   private CurrentUser currentUser;
 
   @POST
