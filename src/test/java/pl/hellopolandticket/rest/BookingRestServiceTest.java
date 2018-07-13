@@ -129,7 +129,6 @@ public class BookingRestServiceTest extends BaseTest {
     TicketOrderDTO ticket = new TicketOrderDTO();
     ticket.ticketDefinitionId = 1L;
     ticket.numberOfTickets = 2L;
-    ticket.ticketPoolId = 1L;
 
     booking.customerName = "Jan Kowalski";
     booking.customerEmail = "jan.kowalski@mail.com";
@@ -144,7 +143,6 @@ public class BookingRestServiceTest extends BaseTest {
     TicketOrderDTO ticket = new TicketOrderDTO();
     ticket.ticketDefinitionId = 1L;
     ticket.numberOfTickets = 0L;
-    ticket.ticketPoolId = 1L;
 
     booking.customerName = "Jan Kowalski";
     booking.customerEmail = "jan.kowalski@mail.com";
