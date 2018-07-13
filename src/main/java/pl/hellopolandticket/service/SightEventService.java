@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.stream.Stream;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import pl.hellopoland.dto.LocationDTO;
@@ -17,22 +16,18 @@ import pl.hellopoland.dto.PushDTO;
 import pl.hellopoland.dto.SightEventDTO;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightEventDao;
-import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.sightevent.SightEventLocation;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.security.CurrentUser;
-import pl.hellopolandticket.service.event.HPLPushEvent;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Slf4j
 @Stateless
 @LocalBean
 public class SightEventService extends ServiceSuperclass {
-
-  private static final String SIGHT_EVENTS_UPLOAD_URL_PROPERTY = "rest.url.sightEventsUpload";
 
   @Inject
   private SightEventDao sightEventDao;
@@ -41,19 +36,7 @@ public class SightEventService extends ServiceSuperclass {
   private PartnerDao partnerDao;
 
   @Inject
-  private TicketDao ticketDao;
-
-  @Inject
-  private HttpClient httpClient;
-
-  @Inject
-  private ApplicationPropertyService applicationPropertyService;
-
-  @Inject
   private UserService userService;
-
-  @Inject
-  private Event<HPLPushEvent> hplPushEvent;
 
   public SightEventDTO findById(Long sightEventId) {
     return ofSightEventBasic(sightEventDao.findById(sightEventId));
@@ -82,7 +65,8 @@ public class SightEventService extends ServiceSuperclass {
         .collect(toList());
 
     List<SightEvent> sightEvents = sightEventDao.findBySightEventIdsIn(sightEventIds);
-    sightEvents.forEach(sightEvent -> sightEvent.getTicketPools().forEach(TicketPool::getTicketDefinitions));
+    sightEvents.forEach(
+        sightEvent -> sightEvent.getTicketPools().forEach(TicketPool::getTicketDefinitions));
 
     PushDTO sightEventsPushDTO = new PushDTO();
 
@@ -107,9 +91,7 @@ public class SightEventService extends ServiceSuperclass {
     SightEvent sightEventToPersist = SightEvent.builder()
         .name(sightEventDTO.name)
         .description(sightEventDTO.description)
-        .mainImageUrl(ofNullable(sightEventDTO.mainImage)
-            .map(mainImage -> mainImage.original)
-            .orElse(null))
+        .mainImageUrl(sightEventDTO.mainImageUrl)
         .email(sightEventDTO.email)
         .phone(sightEventDTO.phone)
         .sightEventLocation(sightEventLocation)
@@ -155,9 +137,7 @@ public class SightEventService extends ServiceSuperclass {
     sightEvent.setEmail(sightEventDTO.email);
     sightEvent.setPhone(sightEventDTO.phone);
 
-    sightEvent.setMainImageUrl(ofNullable(sightEventDTO.mainImage)
-        .map(s -> s.original)
-        .orElse(null));
+    sightEvent.setMainImageUrl(sightEventDTO.mainImageUrl);
 
     return sightEventDTO;
   }

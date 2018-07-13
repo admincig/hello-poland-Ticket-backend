@@ -29,9 +29,9 @@ import pl.hellopolandticket.model.sightevent.SightEvent;
 @Getter
 @Entity
 @Table(name = "TICKET_POOL_DEFINITIONS")
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"ticketDefinitions"})
 @NoArgsConstructor
-@ToString
+@ToString(exclude = {"ticketDefinitions"})
 public class TicketPoolDefinition implements Serializable {
 
   private static final long serialVersionUID = 8904209837208814831L;
@@ -102,13 +102,15 @@ public class TicketPoolDefinition implements Serializable {
   @Builder
   public TicketPoolDefinition(String name, Integer availableTicketsNumber, Boolean cyclicalPool,
       FrequencyData frequencyData, Date startDate, Date endDate, DateType dateType,
-      SightEvent sightEvent) {
+      Boolean predefinedDate, Date date, SightEvent sightEvent) {
     this.name = name;
     this.cyclicalPool = cyclicalPool;
     this.frequencyData = frequencyData;
     this.startDate = startDate;
     this.endDate = endDate;
     this.dateType = dateType;
+    this.predefinedDate = predefinedDate;
+    this.date = date;
     this.sightEvent = sightEvent;
 
     this.availableTicketsNumber =

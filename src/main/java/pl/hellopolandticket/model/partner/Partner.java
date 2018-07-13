@@ -25,9 +25,9 @@ import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 @Getter
 @Entity
 @Table(name = "PARTNERS")
-@EqualsAndHashCode(exclude = {"sightEvents", "users"})
+@EqualsAndHashCode(exclude = {"sightEvents", "users", "ticketDefinitions"})
 @NoArgsConstructor
-@ToString(exclude = {"users", "sightEvents"})
+@ToString(exclude = {"sightEvents", "users", "ticketDefinitions"})
 public class Partner implements Serializable {
 
   private static final long serialVersionUID = 6118414827783500940L;

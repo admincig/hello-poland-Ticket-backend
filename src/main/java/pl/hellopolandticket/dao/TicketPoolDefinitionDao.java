@@ -23,6 +23,7 @@ public class TicketPoolDefinitionDao {
 
   public TicketPoolDefinition persist(TicketPoolDefinition ticketPoolDefinition) {
     entityManager.persist(ticketPoolDefinition);
+    entityManager.flush();
 
     return ticketPoolDefinition;
   }

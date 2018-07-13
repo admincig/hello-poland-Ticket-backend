@@ -91,11 +91,11 @@ public class BookingService extends ServiceSuperclass {
     }
   }
 
-  private List<Ticket> book(Collection<TicketOrderDTO> ticketBookingDTOS,
+  private List<Ticket> book(Collection<TicketOrderDTO> ticketBookingDTOs,
       Booking booking) {
     List<Ticket> bookedTickets = new ArrayList<>();
 
-    for (TicketOrderDTO ticketBookingDTO : ticketBookingDTOS) {
+    for (TicketOrderDTO ticketBookingDTO : ticketBookingDTOs) {
       TicketDefinition ticketDefinition = ticketDefinitionDao
           .findById(ticketBookingDTO.ticketDefinitionId);
 

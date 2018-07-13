@@ -32,9 +32,9 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 @Getter
 @Entity
 @Table(name = "TICKET_DEFINITIONS")
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"ticketPoolDefinitions", "tickets"})
 @NoArgsConstructor
-@ToString
+@ToString(exclude = {"ticketPoolDefinitions", "tickets"})
 public class TicketDefinition implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
@@ -65,7 +65,6 @@ public class TicketDefinition implements Serializable {
   private Integer availableTicketsNumber;
 
   @Setter
-  @NotNull
   @ManyToOne
   @JoinColumn(name = "ticketPool")
   private TicketPool ticketPool;
@@ -76,7 +75,7 @@ public class TicketDefinition implements Serializable {
 
   @Setter
   @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "ticketDefinition")
-  private List<Ticket> tickets;
+  private List<Ticket> tickets = new ArrayList<>();
 
   @Builder
   public TicketDefinition(String name, Integer availableTicketsNumber, Integer price,
@@ -98,6 +97,7 @@ public class TicketDefinition implements Serializable {
       throw new NumberOfTicketsNotPositiveException();
     }
 
+    ticketPool.decreaseAvailableTicketsNumber(numberOfTickets);
     if (hasLimitedNumberOfTickets()) {
       if (hasEnoughTickets(numberOfTickets)) {
         availableTicketsNumber = availableTicketsNumber - numberOfTickets;
@@ -109,6 +109,7 @@ public class TicketDefinition implements Serializable {
 
   public void increaseAvailableTicketsNumber() {
     if (hasLimitedNumberOfTickets()) {
+      ticketPool.increaseAvailableTicketsNumber();
       availableTicketsNumber++;
     }
   }

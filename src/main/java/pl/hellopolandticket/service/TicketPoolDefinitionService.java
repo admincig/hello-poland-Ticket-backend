@@ -53,6 +53,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         .startDate(ticketPoolDefinitionDTO.startDate)
         .endDate(ticketPoolDefinitionDTO.endDate)
         .dateType(DateType.valueOf(ticketPoolDefinitionDTO.dateType.name()))
+        .predefinedDate(ticketPoolDefinitionDTO.predefinedDate)
+        .date(ticketPoolDefinitionDTO.date)
         .sightEvent(sightEvent)
         .build();
 

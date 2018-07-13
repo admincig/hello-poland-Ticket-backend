@@ -28,9 +28,9 @@ import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 @Getter
 @Entity
 @Table(name = "SIGHT_EVENTS")
-@EqualsAndHashCode(exclude = {"ticketDefinitions"})
+@EqualsAndHashCode(exclude = {"ticketPoolDefinitions", "ticketPools"})
 @NoArgsConstructor
-@ToString(exclude = "ticketDefinitions")
+@ToString(exclude = {"ticketPoolDefinitions", "ticketPools"})
 public class SightEvent implements Serializable {
 
   private static final long serialVersionUID = 5345966403908441388L;
@@ -77,10 +77,12 @@ public class SightEvent implements Serializable {
 
   @Setter
   @NotNull
+  @Column(name = "ACTIVE", nullable = false)
   private Boolean active = true;
 
   @Setter
   @NotNull
+  @Column(name = "GENERAL_ADMISSION", nullable = false)
   private Boolean generalAdmission;
 
   @Setter
