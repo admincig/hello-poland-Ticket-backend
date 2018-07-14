@@ -51,7 +51,8 @@ public class TicketPool implements Serializable {
   private String name;
 
   @Setter
-  @Column(name = "AVAILABLE_TICKETS_NUMBER")
+  @NotNull
+  @Column(name = "AVAILABLE_TICKETS_NUMBER", nullable = false)
   private Integer availableTicketsNumber;
 
   @Setter
