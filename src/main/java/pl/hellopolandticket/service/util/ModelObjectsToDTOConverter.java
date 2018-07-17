@@ -4,7 +4,6 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 import java.io.ByteArrayOutputStream;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 import lombok.Builder;
@@ -16,7 +15,7 @@ import pl.hellopoland.dto.ImageDTO;
 import pl.hellopoland.dto.LocationDTO;
 import pl.hellopoland.dto.PartnerDTO;
 import pl.hellopoland.dto.SightEventDTO;
-import pl.hellopoland.dto.Status;
+import pl.hellopoland.dto.StatusDTO;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopoland.dto.TicketPoolDTO;
 import pl.hellopoland.dto.UserAuthDTO;
@@ -36,9 +35,6 @@ import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.security.CurrentUser;
 
 public class ModelObjectsToDTOConverter {
-
-  private final static SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(
-      "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
   public static SightEventDTO ofSightEvent(SightEvent sightEvent, Long sightId) {
     SightEventDTO sightEventDTO = new SightEventDTO();
@@ -116,7 +112,7 @@ public class ModelObjectsToDTOConverter {
     ticketDTO.name = ticket.getName();
     ticketDTO.price = ticket.getPrice();
     ticketDTO.date = (ticket.getDate());
-    ticketDTO.status = Status.valueOf(ticket.getStatus().name());
+    ticketDTO.status = StatusDTO.valueOf(ticket.getStatus().name());
     ticketDTO.serialNumber = ticket.getSerialNumber();
     ticketDTO.ticketDefinitionId = ticket.getTicketDefinition().getId();
     ticketDTO.booking = ofBookingBasic(ticket.getBooking());
@@ -135,7 +131,7 @@ public class ModelObjectsToDTOConverter {
   public static BookingDTO ofBooking(Booking booking) {
     BookingDTO bookingDTO = ofBookingBasic(booking);
 
-    bookingDTO.status = Status.valueOf(booking.getStatus().name());
+    bookingDTO.status = StatusDTO.valueOf(booking.getStatus().name());
     bookingDTO.serialNumber = booking.getSerialNumber();
     bookingDTO.tickets = booking.getTickets().stream()
         .map(ModelObjectsToDTOConverter::ofTicket)
