@@ -66,7 +66,7 @@ public class TicketDefinition implements Serializable {
 
   @Setter
   @ManyToOne
-  @JoinColumn(name = "ticketPool")
+  @JoinColumn(name = "TICKET_POOL_ID")
   private TicketPool ticketPool;
 
   @Setter
