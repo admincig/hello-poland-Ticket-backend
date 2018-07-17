@@ -38,9 +38,6 @@ public class SightEventRestService extends RestServiceSuperclass {
   @Authenticated
   private CurrentUser currentUser;
 
-  @Inject
-  private TicketService ticketService;
-
   @GET
   @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response getSightEvents() {
@@ -77,28 +74,6 @@ public class SightEventRestService extends RestServiceSuperclass {
     sightEventService.delete(sightEventId);
 
     return Response.noContent().build();
-  }
-
-  @PATCH
-  @Path("/{sightEventId}/tickets/{serialNumber}")
-  @RolesAllowed({ROLE_USER})
-  public Response punchTicket(
-      @PathParam("sightEventId") Long sightEventId,
-      @PathParam("serialNumber") String serialNumber) {
-
-    return Response.ok(ticketService.punchTicket(currentUser, sightEventId, serialNumber))
-        .build();
-  }
-
-  @GET
-  @Path("/{sightEventId}/tickets/{serialNumber}")
-  @RolesAllowed({ROLE_USER})
-  public Response getTicket(
-      @PathParam("sightEventId") Long sightEventId,
-      @PathParam("serialNumber") String serialNumber) {
-
-    return Response.ok(ticketService.findBySerialNumber(currentUser, sightEventId, serialNumber))
-        .build();
   }
 
 }
