@@ -4,18 +4,19 @@ import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofCollection;
 
+import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopoland.dto.CollectionWrapperDTO;
@@ -23,7 +24,6 @@ import pl.hellopoland.dto.SightEventDTO;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.SightEventService;
-import pl.hellopolandticket.service.TicketService;
 
 @Path("/sight-events")
 @RequestScoped
@@ -40,9 +40,15 @@ public class SightEventRestService extends RestServiceSuperclass {
 
   @GET
   @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
-  public Response getSightEvents() {
-    CollectionWrapperDTO collectionWrapper = ofCollection(
-        sightEventService.findForPartner(currentUser.getPrincipal()));
+  public Response getSightEvents(@QueryParam("sightEventIds") List<Long> sightEventIds) {
+    CollectionWrapperDTO collectionWrapper;
+
+    if (!sightEventIds.isEmpty()) {
+      collectionWrapper = ofCollection(sightEventService.findByIdsIn(sightEventIds));
+    } else {
+      collectionWrapper = ofCollection(
+          sightEventService.findForPartner(currentUser.getPrincipal()));
+    }
 
     return Response.ok(collectionWrapper).build();
   }
