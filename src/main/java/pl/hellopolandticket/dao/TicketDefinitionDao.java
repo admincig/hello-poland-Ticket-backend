@@ -35,4 +35,8 @@ public class TicketDefinitionDao {
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
+  public void merge(TicketDefinition ticketDefinition) {
+    entityManager.merge(ticketDefinition);
+  }
+
 }

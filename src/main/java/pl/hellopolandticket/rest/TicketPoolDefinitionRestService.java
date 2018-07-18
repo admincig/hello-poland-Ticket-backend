@@ -8,16 +8,13 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import pl.hellopoland.dto.TicketPoolDTO;
 import pl.hellopoland.dto.TicketPoolDefinitionDTO;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.TicketPoolDefinitionService;
-import pl.hellopolandticket.service.TicketPoolService;
 
 @Path("/ticket-pool-definitions")
 @RequestScoped
@@ -32,9 +29,6 @@ public class TicketPoolDefinitionRestService {
   @Authenticated
   private CurrentUser currentUser;
 
-  @Inject
-  private TicketPoolService ticketPoolService;
-
   @POST
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response add(TicketPoolDefinitionDTO ticketPoolDefinitionDTO) {
@@ -42,12 +36,4 @@ public class TicketPoolDefinitionRestService {
         .build();
   }
 
-  @POST
-  @Path("/{ticketPoolDefinitionId}/ticket-pools")
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response addTicketPool(@PathParam("ticketPoolDefinitionId") Long ticketPoolDefinitionId,
-      TicketPoolDTO ticketPoolDTO) {
-    return Response.ok(ticketPoolService.add(ticketPoolDefinitionId, ticketPoolDTO))
-        .build();
-  }
 }

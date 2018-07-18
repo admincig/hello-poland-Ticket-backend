@@ -65,7 +65,8 @@ public class TicketPoolDefinition implements Serializable {
   private FrequencyData frequencyData;
 
   @Setter
-  @Column(name = "START_DATE")
+  @NotNull
+  @Column(name = "START_DATE", nullable = false)
   private Date startDate;
 
   @Setter

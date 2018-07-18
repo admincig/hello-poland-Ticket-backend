@@ -32,9 +32,9 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 @Getter
 @Entity
 @Table(name = "TICKET_DEFINITIONS")
-@EqualsAndHashCode(exclude = {"ticketPoolDefinitions", "tickets"})
+@EqualsAndHashCode(exclude = {"ticketPoolDefinitions", "tickets", "ticketDefinitionInstances"})
 @NoArgsConstructor
-@ToString(exclude = {"ticketPoolDefinitions", "tickets"})
+@ToString(exclude = {"ticketPoolDefinitions", "tickets", "ticketDefinitionInstances"})
 public class TicketDefinition implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
@@ -77,14 +77,25 @@ public class TicketDefinition implements Serializable {
   @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "ticketDefinition")
   private List<Ticket> tickets = new ArrayList<>();
 
+  @Setter
+  @OneToMany(mappedBy = "originalTicketDefinition")
+  private List<TicketDefinition> ticketDefinitionInstances;
+
+  @Setter
+  @ManyToOne
+  @JoinColumn(name = "ORIGINAL_TICKET_DEFINITION_ID")
+  private TicketDefinition originalTicketDefinition;
+
   @Builder
   public TicketDefinition(String name, Integer availableTicketsNumber, Integer price,
-      Partner partner, TicketPool ticketPool, List<TicketPoolDefinition> ticketPoolDefinitions) {
+      Partner partner, TicketPool ticketPool, List<TicketPoolDefinition> ticketPoolDefinitions,
+      TicketDefinition originalTicketDefinition) {
     this.name = name;
     this.price = price;
     this.partner = partner;
     this.ticketPool = ticketPool;
     this.ticketPoolDefinitions = ticketPoolDefinitions;
+    this.originalTicketDefinition = originalTicketDefinition;
 
     this.availableTicketsNumber =
         availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE

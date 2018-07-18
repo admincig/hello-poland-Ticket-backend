@@ -33,9 +33,9 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 @Getter
 @Entity
 @Table(name = "TICKET_POOLS")
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"ticketDefinitions"})
 @NoArgsConstructor
-@ToString
+@ToString(exclude = {"ticketDefinitions"})
 public class TicketPool implements Serializable {
 
   private static final long serialVersionUID = -3301750425362262797L;

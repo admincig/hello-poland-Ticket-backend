@@ -19,7 +19,6 @@ import pl.hellopoland.dto.booking.BookingDTO;
 import pl.hellopoland.dto.booking.TicketOrderDTO;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.dao.TicketDao;
-import pl.hellopolandticket.dao.TicketDefinitionDao;
 import pl.hellopolandticket.model.ticket.market.Booking;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
@@ -40,7 +39,7 @@ public class BookingService extends ServiceSuperclass {
   private TicketDao ticketDao;
 
   @Inject
-  private TicketDefinitionDao ticketDefinitionDao;
+  private TicketDefinitionService ticketDefinitionService;
 
   @Inject
   private ApplicationPropertyService applicationPropertyService;
@@ -96,8 +95,9 @@ public class BookingService extends ServiceSuperclass {
     List<Ticket> bookedTickets = new ArrayList<>();
 
     for (TicketOrderDTO ticketBookingDTO : ticketBookingDTOs) {
-      TicketDefinition ticketDefinition = ticketDefinitionDao
-          .findById(ticketBookingDTO.ticketDefinitionId);
+      TicketDefinition ticketDefinition = ticketDefinitionService
+          .findTicketDefinitionWithTicketPool(ticketBookingDTO.ticketDefinitionId,
+              ticketBookingDTO.ticketPoolDefinitionId, ticketBookingDTO.date);
 
       Date date =
           ticketDefinition.getTicketPool().getPredefinedDate() ? ticketDefinition.getTicketPool()
