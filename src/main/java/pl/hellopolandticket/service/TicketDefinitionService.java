@@ -84,9 +84,10 @@ public class TicketDefinitionService extends ServiceSuperclass {
         TicketPool ticketPool = ticketPoolService
             .createTicketPoolInstance(ticketPoolDefinition, requestedDate);
 
-        ticketDefinitionDao.merge(ticketDefinition);
-        ticketDefinitionWithTicketPool = findInTicketDefinitionInstances(ticketDefinition,
-            requestedDate);
+        return ticketPool.getTicketDefinitions().stream()
+            .filter(td -> td.getOriginalTicketDefinition().getId().equals(ticketDefinitionId))
+            .findFirst()
+            .orElse(null);
       }
     }
 

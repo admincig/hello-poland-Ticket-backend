@@ -39,44 +39,52 @@ public class TicketPoolDefinitionValidator {
   public void validateFrequencyDataPermitsToCreateTicketPool(FrequencyData frequencyData,
       Date startDate, Date requestedDate) {
     Calendar startDateCalendar = Calendar.getInstance();
-    startDateCalendar.setTime(requestedDate);
+    startDateCalendar.setTime(startDate);
 
     Calendar requestedDateCalendar = Calendar.getInstance();
     requestedDateCalendar.setTime(requestedDate);
 
-    if (frequencyData.getFrequencyType() == DAILY) {
-      long daysBetween = ChronoUnit.DAYS.between(startDate.toInstant(), requestedDate.toInstant());
+    if (!startDateCalendar.equals(requestedDateCalendar)) {
+      if (frequencyData.getFrequencyType() == DAILY) {
+        long daysBetween = ChronoUnit.DAYS
+            .between(startDate.toInstant(), requestedDate.toInstant());
 
-      if (!isAnotherOccurrence(daysBetween, frequencyData.getFrequency())) {
-        throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
-      }
-    } else if (frequencyData.getFrequencyType() == WEEKLY) {
-      long weeksBetween = ChronoUnit.WEEKS
-          .between(startDate.toInstant(), requestedDate.toInstant());
+        if (!isAnotherOccurrence(daysBetween, frequencyData.getFrequency())) {
+          throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
+        }
+      } else if (frequencyData.getFrequencyType() == WEEKLY) {
+        if (startDateCalendar.get(Calendar.DAY_OF_WEEK) != requestedDateCalendar
+            .get(Calendar.DAY_OF_WEEK)) {
+          throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
+        }
+        long weeksBetween =
+            ChronoUnit.DAYS.between(startDate.toInstant(), requestedDate.toInstant()) / 7;
 
-      if (startDateCalendar.get(Calendar.DAY_OF_WEEK) != requestedDateCalendar
-          .get(Calendar.DAY_OF_WEEK)
-          || !isAnotherOccurrence(weeksBetween, frequencyData.getFrequency())) {
-        throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
-      }
-    } else if (frequencyData.getFrequencyType() == MONTHLY) {
-      long monthsBetween = ChronoUnit.MONTHS
-          .between(startDate.toInstant(), requestedDate.toInstant());
+        if (!isAnotherOccurrence(weeksBetween, frequencyData.getFrequency())) {
+          throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
+        }
+      } else if (frequencyData.getFrequencyType() == MONTHLY) {
+        int yearsBetween =
+            requestedDateCalendar.get(Calendar.YEAR) - startDateCalendar.get(Calendar.YEAR);
+        int monthsBetween =
+            yearsBetween * 12 + requestedDateCalendar.get(Calendar.MONTH) - startDateCalendar
+                .get(Calendar.MONTH);
 
-      if (startDateCalendar.get(Calendar.DAY_OF_MONTH) != requestedDateCalendar
-          .get(Calendar.DAY_OF_MONTH)
-          || isAnotherOccurrence(monthsBetween, frequencyData.getFrequency())) {
-        throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
-      }
-    } else if (frequencyData.getFrequencyType() == YEARLY) {
-      long yearsBetween = ChronoUnit.YEARS
-          .between(startDate.toInstant(), requestedDate.toInstant());
+        if (startDateCalendar.get(Calendar.DAY_OF_MONTH) != requestedDateCalendar
+            .get(Calendar.DAY_OF_MONTH)
+            || !isAnotherOccurrence(monthsBetween, frequencyData.getFrequency())) {
+          throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
+        }
+      } else if (frequencyData.getFrequencyType() == YEARLY) {
+        long yearsBetween =
+            requestedDateCalendar.get(Calendar.YEAR) - startDateCalendar.get(Calendar.YEAR);
 
-      if (startDateCalendar.get(Calendar.DAY_OF_MONTH) != requestedDateCalendar
-          .get(Calendar.DAY_OF_MONTH)
-          || startDateCalendar.get(Calendar.MONTH) != requestedDateCalendar.get(Calendar.MONTH)
-          || isAnotherOccurrence(yearsBetween, frequencyData.getFrequency())) {
-        throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
+        if (startDateCalendar.get(Calendar.DAY_OF_MONTH) != requestedDateCalendar
+            .get(Calendar.DAY_OF_MONTH)
+            || startDateCalendar.get(Calendar.MONTH) != requestedDateCalendar.get(Calendar.MONTH)
+            || !isAnotherOccurrence(yearsBetween, frequencyData.getFrequency())) {
+          throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
+        }
       }
     }
   }
