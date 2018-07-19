@@ -58,8 +58,8 @@ public class TicketPoolDefinitionValidator {
           throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
         }
       } else if (frequencyData.getFrequencyType() == WEEKLY) {
-        if (startDateCalendar.get(Calendar.DAY_OF_WEEK) != requestedDateCalendar
-            .get(Calendar.DAY_OF_WEEK)) {
+        if (frequencyData.getDayOfWeek().getValue() != (requestedDateCalendar
+            .get(Calendar.DAY_OF_WEEK))) {
           throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
         }
         long weeksBetween =
@@ -75,8 +75,7 @@ public class TicketPoolDefinitionValidator {
             yearsBetween * 12 + requestedDateCalendar.get(Calendar.MONTH) - startDateCalendar
                 .get(Calendar.MONTH);
 
-        if (startDateCalendar.get(Calendar.DAY_OF_MONTH) != requestedDateCalendar
-            .get(Calendar.DAY_OF_MONTH)
+        if (!frequencyData.getDayOfMonth().equals(requestedDateCalendar.get(Calendar.DAY_OF_MONTH))
             || !isAnotherOccurrence(monthsBetween, frequencyData.getFrequency())) {
           throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
         }
@@ -84,8 +83,7 @@ public class TicketPoolDefinitionValidator {
         long yearsBetween =
             requestedDateCalendar.get(Calendar.YEAR) - startDateCalendar.get(Calendar.YEAR);
 
-        if (startDateCalendar.get(Calendar.DAY_OF_MONTH) != requestedDateCalendar
-            .get(Calendar.DAY_OF_MONTH)
+        if (!frequencyData.getDayOfMonth().equals(requestedDateCalendar.get(Calendar.DAY_OF_MONTH))
             || startDateCalendar.get(Calendar.MONTH) != requestedDateCalendar.get(Calendar.MONTH)
             || !isAnotherOccurrence(yearsBetween, frequencyData.getFrequency())) {
           throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
