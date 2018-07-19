@@ -11,6 +11,8 @@ import pl.hellopoland.dto.AbstractErrorDTO;
 import pl.hellopoland.dto.ApplicationPropertyDTO;
 import pl.hellopoland.dto.CollectionWrapperDTO;
 import pl.hellopoland.dto.DateTypeDTO;
+import pl.hellopoland.dto.FrequencyDataDTO;
+import pl.hellopoland.dto.FrequencyTypeDTO;
 import pl.hellopoland.dto.ImageDTO;
 import pl.hellopoland.dto.LocationDTO;
 import pl.hellopoland.dto.PartnerDTO;
@@ -18,6 +20,7 @@ import pl.hellopoland.dto.SightEventDTO;
 import pl.hellopoland.dto.StatusDTO;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopoland.dto.TicketPoolDTO;
+import pl.hellopoland.dto.TicketPoolDefinitionDTO;
 import pl.hellopoland.dto.UserAuthDTO;
 import pl.hellopoland.dto.UserDTO;
 import pl.hellopoland.dto.booking.BookingDTO;
@@ -29,6 +32,7 @@ import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.sightevent.SightEventLocation;
 import pl.hellopolandticket.model.ticket.market.Booking;
 import pl.hellopolandticket.model.ticket.market.Ticket;
+import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
@@ -57,6 +61,14 @@ public class ModelObjectsToDTOConverter {
         .map(TicketPool::getTicketDefinitions)
         .flatMap(List::stream)
         .map(ModelObjectsToDTOConverter::ofTicketDefinition)
+        .collect(toList());
+
+    sightEventDTO.ticketPoolDefinitions = sightEvent.getTicketPoolDefinitions().stream()
+        .map(ModelObjectsToDTOConverter::ofTicketPoolDefinition)
+        .collect(toList());
+
+    sightEventDTO.ticketPools = sightEvent.getTicketPools().stream()
+        .map(ModelObjectsToDTOConverter::ofTicketPool)
         .collect(toList());
 
     return sightEventDTO;
@@ -242,5 +254,44 @@ public class ModelObjectsToDTOConverter {
         .orElse(null);
 
     return ticketPoolDTO;
+  }
+
+  private static TicketPoolDefinitionDTO ofTicketPoolDefinition(
+      TicketPoolDefinition ticketPoolDefinition) {
+    TicketPoolDefinitionDTO ticketPoolDefinitionDTO = new TicketPoolDefinitionDTO();
+
+    ticketPoolDefinitionDTO.id = ticketPoolDefinition.getId();
+    ticketPoolDefinitionDTO.name = ticketPoolDefinition.getName();
+    ticketPoolDefinitionDTO.availableTicketsNumber = ticketPoolDefinition
+        .getAvailableTicketsNumber();
+    ticketPoolDefinitionDTO.cyclicalPool = ticketPoolDefinition.getCyclicalPool();
+    ticketPoolDefinitionDTO.frequencyData = ofFrequencyData(
+        ticketPoolDefinition.getFrequencyData());
+    ticketPoolDefinitionDTO.startDate = ticketPoolDefinition.getStartDate();
+    ticketPoolDefinitionDTO.endDate = ticketPoolDefinition.getEndDate();
+    ticketPoolDefinitionDTO.dateType = DateTypeDTO
+        .valueOf(ticketPoolDefinition.getDateType().name());
+    ticketPoolDefinitionDTO.predefinedDate = ticketPoolDefinition.getPredefinedDate();
+    ticketPoolDefinitionDTO.date = ticketPoolDefinition.getDate();
+    ticketPoolDefinitionDTO.sightEventId = ticketPoolDefinition.getSightEvent().getId();
+
+    ticketPoolDefinitionDTO.ticketDefinitions = ticketPoolDefinition.getTicketDefinitions().stream()
+        .map(ModelObjectsToDTOConverter::ofTicketDefinition)
+        .collect(toList());
+
+    return ticketPoolDefinitionDTO;
+  }
+
+  private static FrequencyDataDTO ofFrequencyData(FrequencyData frequencyData) {
+    FrequencyDataDTO frequencyDataDTO = new FrequencyDataDTO();
+
+    frequencyDataDTO.frequencyType = FrequencyTypeDTO
+        .valueOf(frequencyData.getFrequencyType().name());
+    frequencyDataDTO.dayOfWeek = frequencyData.getDayOfWeek();
+    frequencyDataDTO.month = frequencyData.getMonth();
+    frequencyDataDTO.dayOfMonth = frequencyData.getDayOfMonth();
+    frequencyDataDTO.frequency = frequencyData.getFrequency();
+
+    return frequencyDataDTO;
   }
 }

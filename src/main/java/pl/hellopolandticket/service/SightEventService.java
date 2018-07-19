@@ -44,7 +44,10 @@ public class SightEventService extends ServiceSuperclass {
 
   public List<SightEventDTO> findByIdsIn(List<Long> sightEventId) {
     return sightEventDao.findBySightEventIdsIn(sightEventId).stream()
-        .map(sightEvent -> ofSightEvent(sightEvent, null))
+        .map(sightEvent -> {
+          sightEvent.getTicketPoolDefinitions().size();
+          return ofSightEvent(sightEvent, null);
+        })
         .collect(toList());
   }
 
