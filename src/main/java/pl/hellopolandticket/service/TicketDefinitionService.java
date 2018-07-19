@@ -17,6 +17,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.security.CurrentUser;
+import pl.hellopolandticket.service.validator.TicketPoolValidator;
 
 @Stateless
 @LocalBean
@@ -36,6 +37,9 @@ public class TicketDefinitionService extends ServiceSuperclass {
 
   @Inject
   private TicketPoolService ticketPoolService;
+
+  @Inject
+  private TicketPoolValidator ticketPoolValidator;
 
   public TicketDefinitionDTO add(TicketDefinitionDTO ticketDefinitionDTO, CurrentUser currentUser) {
     Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
@@ -73,6 +77,10 @@ public class TicketDefinitionService extends ServiceSuperclass {
     TicketDefinition ticketDefinition = ticketDefinitionDao.findById(ticketDefinitionId);
 
     if (hasTicketPool(ticketDefinition)) {
+      ticketPoolValidator
+          .validateRequestedDateEqualsStartDate(ticketDefinition.getTicketPool().getStartDate(),
+              requestedDate);
+
       ticketDefinitionWithTicketPool = ticketDefinition;
     } else {
       TicketPoolDefinition ticketPoolDefinition = ticketPoolDefinitionDao

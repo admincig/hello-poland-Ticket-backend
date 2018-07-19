@@ -24,7 +24,8 @@ public class TicketPoolDefinitionValidator {
 
   public void validateRequestedDateBetweenStartDateAndEndDate(Date startDate, Date endDate,
       Date requestedDate) {
-    if ((startDate != null && startDate.after(requestedDate))
+    if (requestedDate == null
+        || (startDate != null && startDate.after(requestedDate))
         || (endDate != null && endDate.before(requestedDate))) {
       throw exceptionFactory.requestedDateOutsideRequestedTicketDefinitionPoolException();
     }
