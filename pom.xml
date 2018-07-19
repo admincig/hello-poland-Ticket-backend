@@ -120,6 +120,22 @@
       <artifactId>commons-lang3</artifactId>
       <version>3.0</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.liquibase</groupId>
+      <artifactId>liquibase-core</artifactId>
+      <version>3.6.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.liquibase</groupId>
+      <artifactId>liquibase-maven-plugin</artifactId>
+      <version>3.6.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.2.4</version>
+    </dependency>
   </dependencies>
 
   <repositories>
@@ -149,6 +165,43 @@
           </systemProperties>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.liquibase</groupId>
+        <artifactId>liquibase-maven-plugin</artifactId>
+        <version>3.4.2</version>
+        <configuration>
+          <propertyFile>etc/liquibase/${user.name}.liquibase.properties</propertyFile>
+        </configuration>
+        <executions>
+          <execution>
+            <id>db_install</id>
+            <phase>install</phase>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.4</version>
+          </dependency>
+        </dependencies>
+      </plugin>
     </plugins>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <excludes>
+          <exclude>**/*.jar</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>**/*.jar</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 </project>
