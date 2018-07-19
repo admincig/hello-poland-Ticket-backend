@@ -4,8 +4,6 @@
    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
   <changeSet author="KBa" id="0.0.1 - create application_properties table">
-    <createSequence sequenceName="application_properties_application_property_id_seq"/>
-
     <createTable tableName="application_properties">
       <column autoIncrement="true" name="application_property_id" type="SERIAL">
         <constraints primaryKey="true" primaryKeyName="application_properties_pkey"/>
@@ -18,8 +16,6 @@
   </changeSet>
 
   <changeSet author="KBa" id="0.0.1 - create bookings table">
-    <createSequence sequenceName="bookings_booking_id_seq"/>
-
     <createTable tableName="bookings">
       <column autoIncrement="true" name="booking_id" type="SERIAL">
         <constraints primaryKey="true" primaryKeyName="bookings_pkey"/>
@@ -41,8 +37,6 @@
   </changeSet>
 
   <changeSet author="KBa" id="0.0.1 - create email_templates table">
-    <createSequence sequenceName="email_templates_email_template_id_seq"/>
-
     <createTable tableName="email_templates">
       <column autoIncrement="true" name="email_template_id" type="SERIAL">
         <constraints primaryKey="true" primaryKeyName="email_templates_pkey"/>
@@ -60,8 +54,6 @@
   </changeSet>
 
   <changeSet author="KBa" id="0.0.1 - create expired_tokens table">
-    <createSequence sequenceName="expired_tokens_expired_token_id_seq"/>
-
     <createTable tableName="expired_tokens">
       <column autoIncrement="true" name="expired_token_id" type="SERIAL">
         <constraints primaryKey="true" primaryKeyName="expired_tokens_pkey"/>
@@ -73,8 +65,6 @@
   </changeSet>
 
   <changeSet author="KBa" id="0.0.1 - create partners table">
-    <createSequence sequenceName="partners_partner_id_seq"/>
-
     <createTable tableName="partners">
       <column autoIncrement="true" name="partner_id" type="SERIAL">
         <constraints primaryKey="true" primaryKeyName="partners_pkey"/>
@@ -87,8 +77,6 @@
 
 
   <changeSet author="KBa" id="0.0.1 - create sight_events table">
-    <createSequence sequenceName="sight_events_sight_event_id_seq"/>
-
     <createTable tableName="sight_events">
       <column autoIncrement="true" name="sight_event_id" type="SERIAL">
         <constraints primaryKey="true" primaryKeyName="sight_events_pkey"/>
@@ -120,8 +108,6 @@
   </changeSet>
 
   <changeSet author="KBa" id="0.0.1 - create ticket_definitions table">
-    <createSequence sequenceName="ticket_definitions_ticket_definition_id_seq"/>
-
     <createTable tableName="ticket_definitions">
       <column autoIncrement="true" name="ticket_definition_id" type="SERIAL">
         <constraints primaryKey="true" primaryKeyName="ticket_definitions_pkey"/>
@@ -153,8 +139,6 @@
   </changeSet>
 
   <changeSet author="KBa" id="0.0.1 - create ticket_pool_definitions table">
-    <createSequence sequenceName="ticket_pool_definitions_ticket_pool_definition_id_seq"/>
-
     <createTable tableName="ticket_pool_definitions">
       <column autoIncrement="true" name="ticket_pool_definition_id" type="SERIAL">
         <constraints primaryKey="true" primaryKeyName="ticket_pool_definitions_pkey"/>
@@ -191,8 +175,6 @@
   </changeSet>
 
   <changeSet author="KBa" id="0.0.1 - create ticket_pools table">
-    <createSequence sequenceName="ticket_pools_ticket_pool_id_seq"/>
-
     <createTable tableName="ticket_pools">
       <column autoIncrement="true" name="ticket_pool_id" type="SERIAL">
         <constraints primaryKey="true" primaryKeyName="ticket_pools_pkey"/>
@@ -220,8 +202,6 @@
 
 
   <changeSet author="KBa" id="0.0.1 - create tickets table">
-    <createSequence sequenceName="tickets_ticket_id_seq"/>
-
     <createTable tableName="tickets">
       <column autoIncrement="true" name="ticket_id" type="SERIAL">
         <constraints primaryKey="true" primaryKeyName="tickets_pkey"/>
@@ -261,8 +241,6 @@
   </changeSet>
 
   <changeSet author="KBa" id="0.0.1 - create users table">
-    <createSequence sequenceName="users_user_id_seq"/>
-
     <createTable tableName="users">
       <column autoIncrement="true" name="user_id" type="SERIAL">
         <constraints primaryKey="true" primaryKeyName="users_pkey"/>
