@@ -38,7 +38,8 @@ public class TicketPoolService extends ServiceSuperclass {
   private TicketPoolDefinitionValidator ticketPoolDefinitionValidator;
 
 
-  public TicketPool createTicketPoolInstance(TicketPoolDefinition ticketPoolDefinition,
+  public TicketPool createTicketPoolInstanceForCyclicalTicketPoolDefinition(
+      TicketPoolDefinition ticketPoolDefinition,
       Date requestedDate) {
     validateCreatingTicketPoolInstanceIsPossible(ticketPoolDefinition, requestedDate);
 
@@ -64,6 +65,34 @@ public class TicketPoolService extends ServiceSuperclass {
     return ticketPool;
   }
 
+  public TicketPool createTicketPoolInstanceForNotCyclicalTicketPoolDefinition(
+      TicketPoolDefinition ticketPoolDefinition,
+      Date requestedDate) {
+    ticketPoolDefinitionValidator
+        .validateRequestedDateBetweenStartDateAndEndDate(ticketPoolDefinition.getStartDate(),
+            ticketPoolDefinition.getEndDate(), requestedDate);
+
+    TicketPool ticketPool = TicketPool.builder()
+        .name(ticketPoolDefinition.getName())
+        .availableTicketsNumber(ticketPoolDefinition.getAvailableTicketsNumber())
+        .startDate(ticketPoolDefinition.getStartDate())
+        .endDate(ticketPoolDefinition.getEndDate())
+        .predefinedDate(ticketPoolDefinition.getPredefinedDate())
+        .date(requestedDate)
+        .dateType(ticketPoolDefinition.getDateType())
+        .sightEvent(ticketPoolDefinition.getSightEvent())
+        .build();
+
+    ticketPoolDao.persist(ticketPool);
+
+    List<TicketDefinition> ticketDefinitions = ticketPoolDefinition.getTicketDefinitions().stream()
+        .map(ticketDefinition -> copyTicketDefinition(ticketDefinition, ticketPool))
+        .collect(toList());
+
+    ticketPool.setTicketDefinitions(ticketDefinitions);
+
+    return ticketPool;
+  }
 
   private void validateCreatingTicketPoolInstanceIsPossible(
       TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {

@@ -38,6 +38,10 @@ public class TicketPoolDefinitionValidator {
 
   public void validateFrequencyDataPermitsToCreateTicketPool(FrequencyData frequencyData,
       Date startDate, Date requestedDate) {
+    if (startDate == null || requestedDate == null) {
+      throw exceptionFactory.requestedDateOutsideRequestedTicketDefinitionPoolException();
+    }
+
     Calendar startDateCalendar = Calendar.getInstance();
     startDateCalendar.setTime(startDate);
 

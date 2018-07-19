@@ -82,7 +82,8 @@ public class TicketDefinitionService extends ServiceSuperclass {
           requestedDate);
       if (ticketDefinitionWithTicketPool == null) {
         TicketPool ticketPool = ticketPoolService
-            .createTicketPoolInstance(ticketPoolDefinition, requestedDate);
+            .createTicketPoolInstanceForCyclicalTicketPoolDefinition(ticketPoolDefinition,
+                requestedDate);
 
         return ticketPool.getTicketDefinitions().stream()
             .filter(td -> td.getOriginalTicketDefinition().getId().equals(ticketDefinitionId))

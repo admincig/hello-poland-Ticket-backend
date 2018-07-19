@@ -31,6 +31,9 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   @Inject
   private TicketDefinitionService ticketDefinitionService;
 
+  @Inject
+  private TicketPoolService ticketPoolService;
+
   public TicketPoolDefinitionDTO add(TicketPoolDefinitionDTO ticketPoolDefinitionDTO,
       CurrentUser currentUser) {
     SightEvent sightEvent = sightEventDao.findById(ticketPoolDefinitionDTO.sightEventId);
@@ -64,6 +67,12 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         ticketPoolDefinition.getId(), currentUser);
 
     ticketPoolDefinitionDTO.id = ticketPoolDefinition.getId();
+
+    if (!ticketPoolDefinition.getCyclicalPool()) {
+      ticketPoolService
+          .createTicketPoolInstanceForNotCyclicalTicketPoolDefinition(ticketPoolDefinition,
+              ticketPoolDefinition.getStartDate());
+    }
 
     return ticketPoolDefinitionDTO;
   }
