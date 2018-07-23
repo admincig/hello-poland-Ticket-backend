@@ -181,7 +181,7 @@
         <artifactId>liquibase-maven-plugin</artifactId>
         <version>3.4.2</version>
         <configuration>
-          <propertyFile>etc/liquibase/${user.name}.liquibase.properties</propertyFile>
+          <propertyFile>${local.properties}</propertyFile>
         </configuration>
         <executions>
           <execution>
