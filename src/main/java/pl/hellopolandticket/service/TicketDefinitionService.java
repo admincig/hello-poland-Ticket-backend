@@ -4,6 +4,8 @@ import static java.util.Optional.ofNullable;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -17,6 +19,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.security.CurrentUser;
+import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.validator.TicketPoolValidator;
 
 @Stateless
@@ -114,5 +117,10 @@ public class TicketDefinitionService extends ServiceSuperclass {
             .equals(ticketDefinition.getName()))
         .findFirst()
         .orElse(null);
+  }
+
+  public List<TicketDefinitionDTO> getList(CurrentUser currentUser) {
+	List<TicketDefinition> bos = ticketDefinitionDao.getList(partnerDao.findByUserEmail(currentUser.getPrincipal()));
+	return bos.stream().map(ModelObjectsToDTOConverter::ofTicketDefinition).collect(Collectors.toList());
   }
 }

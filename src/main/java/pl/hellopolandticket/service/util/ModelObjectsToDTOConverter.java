@@ -87,7 +87,7 @@ public class ModelObjectsToDTOConverter {
     return location;
   }
 
-  private static TicketDefinitionDTO ofTicketDefinition(
+  public static TicketDefinitionDTO ofTicketDefinition(
       TicketDefinition ticketDefinition) {
     TicketDefinitionDTO ticketDefinitionDTO = new TicketDefinitionDTO();
 
