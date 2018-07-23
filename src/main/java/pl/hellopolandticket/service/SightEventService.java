@@ -60,7 +60,7 @@ public class SightEventService extends ServiceSuperclass {
         .orElseGet(() -> partnerDao.findByUserEmail(principal));
 
     return partner.getSightEvents().stream()
-        .map(ModelObjectsToDTOConverter::ofSightEventBasic)
+        .map(se -> ModelObjectsToDTOConverter.ofSightEvent(se, null))
         .collect(toList());
   }
 

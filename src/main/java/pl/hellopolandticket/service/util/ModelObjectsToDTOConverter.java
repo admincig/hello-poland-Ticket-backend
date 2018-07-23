@@ -57,18 +57,8 @@ public class ModelObjectsToDTOConverter {
         .map(ModelObjectsToDTOConverter::ofSightLocation)
         .orElse(null);
 
-    sightEventDTO.ticketDefinitions = sightEvent.getTicketPools().stream()
-        .map(TicketPool::getTicketDefinitions)
-        .flatMap(List::stream)
-        .map(ModelObjectsToDTOConverter::ofTicketDefinition)
-        .collect(toList());
-
     sightEventDTO.ticketPoolDefinitions = sightEvent.getTicketPoolDefinitions().stream()
         .map(ModelObjectsToDTOConverter::ofTicketPoolDefinition)
-        .collect(toList());
-
-    sightEventDTO.ticketPools = sightEvent.getTicketPools().stream()
-        .map(ModelObjectsToDTOConverter::ofTicketPool)
         .collect(toList());
 
     return sightEventDTO;
