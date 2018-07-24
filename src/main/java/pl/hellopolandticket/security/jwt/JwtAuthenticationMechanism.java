@@ -27,7 +27,6 @@ import javax.security.enterprise.identitystore.IdentityStoreHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
-import lombok.extern.slf4j.Slf4j;
 import pl.hellopoland.dto.UserAuthDTO;
 import pl.hellopolandticket.dao.UserDao;
 import pl.hellopolandticket.model.auth.User;
@@ -36,7 +35,6 @@ import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.ExpiredTokenService;
 import pl.hellopolandticket.service.exception.preconditionfailed.TokenInExpiredTokensListException;
 
-@Slf4j
 @ApplicationScoped
 public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 

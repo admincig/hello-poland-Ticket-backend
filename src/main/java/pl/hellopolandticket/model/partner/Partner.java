@@ -16,12 +16,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 
-@Slf4j
 @Getter
 @Entity
 @Table(name = "PARTNERS")

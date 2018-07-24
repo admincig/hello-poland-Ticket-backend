@@ -2,19 +2,17 @@ package pl.hellopolandticket.security.jwt;
 
 import static java.util.stream.Collectors.joining;
 import static pl.hellopolandticket.security.jwt.TokenType.ACCESS_TOKEN;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import pl.hellopolandticket.service.ApplicationPropertyService;
 
-@Slf4j
 @ApplicationScoped
 public class TokenProvider {
 

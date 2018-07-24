@@ -3,11 +3,6 @@ package pl.hellopolandticket.model.ticket.market;
 import static javax.persistence.CascadeType.PERSIST;
 import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
 import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -23,19 +18,22 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.ticket.partner.DateType;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.service.exception.badrequest.CannotGenerateQrCodeException;
 
-@Slf4j
 @Getter
 @Entity
 @Table(name = "TICKETS")

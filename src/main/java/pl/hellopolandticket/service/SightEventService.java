@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
 import pl.hellopoland.dto.LocationDTO;
 import pl.hellopoland.dto.PushDTO;
 import pl.hellopoland.dto.SightEventDTO;
@@ -23,7 +22,6 @@ import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
-@Slf4j
 @Stateless
 @LocalBean
 public class SightEventService extends ServiceSuperclass {

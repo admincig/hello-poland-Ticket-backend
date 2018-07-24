@@ -6,7 +6,6 @@ import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
 import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
-import lombok.extern.slf4j.Slf4j;
 import org.jboss.arquillian.persistence.UsingDataSet;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,7 +20,6 @@ import pl.hellopolandticket.service.exception.conflict.NotBookedException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
-@Slf4j
 @UsingDataSet("scripts/datasets/import.yml")
 @Ignore
 public class BookingRestServiceTest extends BaseTest {

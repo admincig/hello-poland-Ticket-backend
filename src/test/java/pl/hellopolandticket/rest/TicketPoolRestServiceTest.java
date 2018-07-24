@@ -1,7 +1,6 @@
 package pl.hellopolandticket.rest;
 
 import javax.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
 import org.jboss.arquillian.persistence.UsingDataSet;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -11,7 +10,6 @@ import pl.hellopolandticket.service.exception.conflict.TicketInvalidException;
 import pl.hellopolandticket.service.exception.conflict.WrongTicketStatusException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 
-@Slf4j
 @UsingDataSet("scripts/datasets/import.yml")
 @Ignore
 public class TicketPoolRestServiceTest extends BaseTest {

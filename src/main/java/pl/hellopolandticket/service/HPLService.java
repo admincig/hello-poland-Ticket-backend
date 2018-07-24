@@ -12,9 +12,6 @@ public class HPLService extends ServiceSuperclass {
   private static final String SIGHT_EVENTS_UPLOAD_URL_PROPERTY = "rest.url.sightEventsUpload";
 
   @Inject
-  private HttpClient httpClient;
-
-  @Inject
   private ApplicationPropertyService applicationPropertyService;
 
   @Inject

@@ -1,18 +1,16 @@
 package pl.hellopolandticket.security;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureException;
 import java.util.List;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureException;
 import pl.hellopolandticket.dao.ExpiredTokenDao;
 import pl.hellopolandticket.model.auth.ExpiredToken;
 import pl.hellopolandticket.service.ApplicationPropertyService;
 
-@Slf4j
 @Singleton
 public class ExpiredTokenRemovingScheduler {
 

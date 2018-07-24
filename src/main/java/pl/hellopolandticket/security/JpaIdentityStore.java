@@ -9,11 +9,9 @@ import javax.security.enterprise.credential.Credential;
 import javax.security.enterprise.credential.UsernamePasswordCredential;
 import javax.security.enterprise.identitystore.CredentialValidationResult;
 import javax.security.enterprise.identitystore.IdentityStore;
-import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.dao.UserDao;
 import pl.hellopolandticket.security.password.PasswordEncoder;
 
-@Slf4j
 @RequestScoped
 public class JpaIdentityStore implements IdentityStore {
 

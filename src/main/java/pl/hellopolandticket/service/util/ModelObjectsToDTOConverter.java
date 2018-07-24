@@ -4,7 +4,6 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
-import java.util.List;
 import lombok.Builder;
 import pl.hellopoland.dto.AbstractErrorDTO;
 import pl.hellopoland.dto.ApplicationPropertyDTO;
@@ -186,7 +185,7 @@ public class ModelObjectsToDTOConverter {
     return applicationPropertyDTO;
   }
 
-  public static CollectionWrapperDTO ofCollection(Collection collection) {
+  public static CollectionWrapperDTO ofCollection(Collection<?> collection) {
     CollectionWrapperDTO collectionWrapperDTO = new CollectionWrapperDTO();
 
     collectionWrapperDTO.items = collection;

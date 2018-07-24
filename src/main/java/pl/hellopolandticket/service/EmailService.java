@@ -8,10 +8,6 @@ import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 import static java.util.stream.Collectors.toList;
 import static javax.mail.Message.RecipientType.TO;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import freemarker.template.TemplateExceptionHandler;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -41,12 +37,14 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
-import lombok.extern.slf4j.Slf4j;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateExceptionHandler;
 import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.dao.EmailTemplateDao;
 import pl.hellopolandticket.model.config.EmailTemplate;
 
-@Slf4j
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
 
@@ -115,6 +113,7 @@ public class EmailService extends ServiceSuperclass {
 
   private Authenticator createSessionAuthenticator(String username, String password) {
     return new Authenticator() {
+      @Override
       public PasswordAuthentication getPasswordAuthentication() {
         return new PasswordAuthentication(username, password);
       }

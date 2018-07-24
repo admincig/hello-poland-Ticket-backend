@@ -18,6 +18,7 @@ public @interface Authenticated {
   static Literal INSTANCE = new Literal();
 
   static class Literal extends AnnotationLiteral<Authenticated> implements Authenticated {
+    private static final long serialVersionUID = 546106729892719270L;
 
   }
 }
