@@ -1,6 +1,7 @@
 package pl.hellopolandticket.rest;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
 
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
@@ -30,7 +31,7 @@ public class TicketPoolDefinitionRestService {
   private CurrentUser currentUser;
 
   @POST
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response add(TicketPoolDefinitionDTO ticketPoolDefinitionDTO) {
     return Response.ok(ticketPoolDefinitionService.add(ticketPoolDefinitionDTO, currentUser))
         .build();
