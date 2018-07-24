@@ -1,7 +1,7 @@
 package pl.hellopolandticket.rest;
 
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
-import static pl.hellopolandticket.service.dto.UserAuthDTO.ofCurrentUser;
+import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofCurrentUser;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;

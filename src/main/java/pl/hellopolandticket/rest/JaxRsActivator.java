@@ -1,8 +1,8 @@
 package pl.hellopolandticket.rest;
 
-import static pl.hellopolandticket.model.Role.ROLE_ADMIN;
-import static pl.hellopolandticket.model.Role.ROLE_EXTERNAL_USER;
-import static pl.hellopolandticket.model.Role.ROLE_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
 
 import javax.annotation.security.DeclareRoles;
 import javax.ws.rs.ApplicationPath;

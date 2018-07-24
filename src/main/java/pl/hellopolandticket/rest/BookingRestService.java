@@ -1,9 +1,8 @@
 package pl.hellopolandticket.rest;
 
 import static java.util.Arrays.asList;
-import static pl.hellopolandticket.model.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 
-import java.util.Date;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -13,10 +12,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
-import pl.hellopoland.dto.booking.Booking;
-import pl.hellopoland.dto.booking.Ticket;
+import pl.hellopoland.dto.booking.BookingDTO;
+import pl.hellopoland.dto.booking.TicketOrderDTO;
 import pl.hellopolandticket.service.BookingService;
-import pl.hellopolandticket.service.dto.BookingDTO;
 
 @Path("/bookings")
 @RequestScoped
@@ -27,7 +25,7 @@ public class BookingRestService extends RestServiceSuperclass {
 
   @POST
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response makeBooking(Booking booking) {
+  public Response makeBooking(BookingDTO booking) {
     return Response.ok(bookingService.createBooking(booking)).build();
   }
 
@@ -41,29 +39,26 @@ public class BookingRestService extends RestServiceSuperclass {
   @GET
   @Path("/book-buy/{email}")
   public Response bookAndBuy(@PathParam("email") String email) {
-    Ticket ticket1 = new Ticket();
+    TicketOrderDTO ticket1 = new TicketOrderDTO();
     ticket1.ticketDefinitionId = 1L;
     ticket1.numberOfTickets = 2L;
-    ticket1.date = new Date();
 
-    Ticket ticket2 = new Ticket();
+    TicketOrderDTO ticket2 = new TicketOrderDTO();
     ticket2.ticketDefinitionId = 2L;
     ticket2.numberOfTickets = 3L;
-    ticket2.date = new Date();
 
-    Ticket ticket3 = new Ticket();
+    TicketOrderDTO ticket3 = new TicketOrderDTO();
     ticket3.ticketDefinitionId = 3L;
     ticket3.numberOfTickets = 2L;
-    ticket3.date = new Date();
 
-    Booking booking = new Booking();
+    BookingDTO booking = new BookingDTO();
     booking.customerName = "Jan Kowalski";
     booking.customerEmail = email;
     booking.ticketBookings = asList(ticket1, ticket2, ticket3);
 
     BookingDTO persistedBooking = bookingService.createBooking(booking);
 
-    return Response.ok(bookingService.markBookingAsBought(persistedBooking.getSerialNumber()))
+    return Response.ok(bookingService.markBookingAsBought(persistedBooking.serialNumber))
         .build();
   }
 }

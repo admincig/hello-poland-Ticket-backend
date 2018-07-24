@@ -9,7 +9,7 @@ import javax.ejb.Singleton;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.dao.BookingDao;
-import pl.hellopolandticket.model.Booking;
+import pl.hellopolandticket.model.ticket.market.Booking;
 
 @Slf4j
 @Singleton
@@ -28,8 +28,7 @@ public class BookingCancelScheduler extends ServiceSuperclass {
   public void run() {
     Calendar calendar = Calendar.getInstance();
     calendar.add(Calendar.MINUTE, -valueOf(
-        applicationPropertyService.findByName(TICKET_BOOKED_TIME_TO_BUY_PROPERTY)
-            .getPropertyValue()));
+        applicationPropertyService.findByName(TICKET_BOOKED_TIME_TO_BUY_PROPERTY).propertyValue));
 
     List<Booking> expiredBookings = bookingDao
         .findBookingsExceededMaxBookingTime(calendar.getTime());

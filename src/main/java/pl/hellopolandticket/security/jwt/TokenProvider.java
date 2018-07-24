@@ -79,11 +79,11 @@ public class TokenProvider {
   }
 
   private long getTokenValidity(String propertyName) {
-    return Long.valueOf(applicationPropertyService.findByName(propertyName).getPropertyValue());
+    return Long.valueOf(applicationPropertyService.findByName(propertyName).propertyValue);
   }
 
   private String getTokenSecretKey(String propertyName) {
-    return applicationPropertyService.findByName(propertyName).getPropertyValue();
+    return applicationPropertyService.findByName(propertyName).propertyValue;
   }
 
   private void validateAccessToken(String token) {

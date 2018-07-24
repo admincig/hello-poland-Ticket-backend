@@ -3,7 +3,7 @@ package pl.hellopolandticket.service.exception.conflict;
 import javax.ejb.ApplicationException;
 import lombok.Builder;
 import lombok.Getter;
-import pl.hellopolandticket.service.dto.TicketDTO;
+import pl.hellopoland.dto.booking.TicketDTO;
 
 @Getter
 @ApplicationException(rollback = true)

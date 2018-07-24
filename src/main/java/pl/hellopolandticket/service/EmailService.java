@@ -43,9 +43,9 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 import lombok.extern.slf4j.Slf4j;
+import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.dao.EmailTemplateDao;
-import pl.hellopolandticket.model.EmailTemplate;
-import pl.hellopolandticket.service.dto.TicketDTO;
+import pl.hellopolandticket.model.config.EmailTemplate;
 
 @Slf4j
 @RequestScoped
@@ -67,8 +67,8 @@ public class EmailService extends ServiceSuperclass {
 
   public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets)
       throws MessagingException, IOException, TemplateException {
-    String messageFrom = applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY)
-        .getPropertyValue();
+    String messageFrom = applicationPropertyService
+        .findByName(MAIL_USERNAME_PROPERTY).propertyValue;
 
     EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
 
@@ -85,9 +85,8 @@ public class EmailService extends ServiceSuperclass {
 
   private Session createSessionForEmail() {
     String username = applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY)
-        .getPropertyValue();
-    String password = applicationPropertyService.findByName(MAIL_PASSWORD_PROPERTY)
-        .getPropertyValue();
+        .propertyValue;
+    String password = applicationPropertyService.findByName(MAIL_PASSWORD_PROPERTY).propertyValue;
 
     return Session.getInstance(createSessionProperties(),
         createSessionAuthenticator(username, password));
@@ -97,21 +96,21 @@ public class EmailService extends ServiceSuperclass {
     Properties properties = new Properties();
 
     properties.put(MAIL_SMTP_HOST_PROPERTY,
-        applicationPropertyService.findByName(MAIL_SMTP_HOST_PROPERTY).getPropertyValue());
+        applicationPropertyService.findByName(MAIL_SMTP_HOST_PROPERTY).propertyValue);
 
     properties.put(MAIL_SMTP_PORT_PROPERTY,
-        applicationPropertyService.findByName(MAIL_SMTP_PORT_PROPERTY).getPropertyValue());
+        applicationPropertyService.findByName(MAIL_SMTP_PORT_PROPERTY).propertyValue);
 
     properties.put(MAIL_SMTP_AUTH_PROPERTY,
-        applicationPropertyService.findByName(MAIL_SMTP_AUTH_PROPERTY).getPropertyValue());
+        applicationPropertyService.findByName(MAIL_SMTP_AUTH_PROPERTY).propertyValue);
 
     applicationPropertyService.find(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY).ifPresent(
         property -> properties
-            .put(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY, property.getPropertyValue()));
+            .put(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY, property.propertyValue));
 
     applicationPropertyService.find(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY)
         .ifPresent(property -> properties
-            .put(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY, property.getPropertyValue()));
+            .put(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY, property.propertyValue));
 
     return properties;
   }
@@ -140,7 +139,7 @@ public class EmailService extends ServiceSuperclass {
 
     for (int i = 0; i < tickets.size(); i++) {
       emailContent
-          .addBodyPart(createTicketQrCodeAttachment(tickets.get(i).getQrCode(), ticketCIDs.get(i)));
+          .addBodyPart(createTicketQrCodeAttachment(tickets.get(i).qrCode, ticketCIDs.get(i)));
     }
 
     return emailContent;
@@ -169,18 +168,18 @@ public class EmailService extends ServiceSuperclass {
       TicketDTO ticket = tickets.get(i);
       ticketQrCodes
           .append("<p>")
-          .append(ticket.getSightEvent().getName())
+          .append(ticket.ticketDefinition.name)
           .append("</p>")
           .append("<p>")
-          .append(ticket.getName())
+          .append(ticket.name)
           .append("</p>")
           .append("<p>")
           .append("Numer biletu: ")
-          .append(ticket.getSerialNumber())
+          .append(ticket.serialNumber)
           .append("</p>")
           .append("<p>")
           .append("Data wydarzenia: ")
-          .append(makeDateHuman(ticket.getDate()))
+          .append(makeDateHuman(ticket.date))
           .append("</p>");
       ticketQrCodes
           .append("<img style=\"margin-bottom: 200px\" src=\"cid:")
