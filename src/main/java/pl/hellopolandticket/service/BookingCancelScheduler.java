@@ -1,7 +1,6 @@
 package pl.hellopolandticket.service;
 
 import static java.lang.Integer.valueOf;
-
 import java.util.Calendar;
 import java.util.List;
 import javax.ejb.Schedule;
@@ -30,12 +29,11 @@ public class BookingCancelScheduler extends ServiceSuperclass {
     calendar.add(Calendar.MINUTE, -valueOf(
         applicationPropertyService.findByName(TICKET_BOOKED_TIME_TO_BUY_PROPERTY).propertyValue));
 
-    List<Booking> expiredBookings = bookingDao
-        .findBookingsExceededMaxBookingTime(calendar.getTime());
+    List<Booking> expiredBookings =
+        bookingDao.findBookingsExceededMaxBookingTime(calendar.getTime());
 
     for (Booking booking : expiredBookings) {
-      log.debug("For the booking {} changed status to invalid. The ticket wasn't bought.",
-          booking);
+      log.debug("For the booking {} changed status to invalid. The ticket wasn't bought.", booking);
 
       booking.makeInvalid();
     }

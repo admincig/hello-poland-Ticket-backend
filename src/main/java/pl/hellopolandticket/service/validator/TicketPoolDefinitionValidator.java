@@ -4,7 +4,6 @@ import static pl.hellopolandticket.model.ticket.partner.FrequencyType.DAILY;
 import static pl.hellopolandticket.model.ticket.partner.FrequencyType.MONTHLY;
 import static pl.hellopolandticket.model.ticket.partner.FrequencyType.WEEKLY;
 import static pl.hellopolandticket.model.ticket.partner.FrequencyType.YEARLY;
-
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,8 +23,7 @@ public class TicketPoolDefinitionValidator {
 
   public void validateRequestedDateBetweenStartDateAndEndDate(Date startDate, Date endDate,
       Date requestedDate) {
-    if (requestedDate == null
-        || (startDate != null && startDate.after(requestedDate))
+    if (requestedDate == null || (startDate != null && startDate.after(requestedDate))
         || (endDate != null && endDate.before(requestedDate))) {
       throw exceptionFactory.requestedDateOutsideRequestedTicketDefinitionPoolException();
     }
@@ -51,15 +49,15 @@ public class TicketPoolDefinitionValidator {
 
     if (!startDateCalendar.equals(requestedDateCalendar)) {
       if (frequencyData.getFrequencyType() == DAILY) {
-        long daysBetween = ChronoUnit.DAYS
-            .between(startDate.toInstant(), requestedDate.toInstant());
+        long daysBetween =
+            ChronoUnit.DAYS.between(startDate.toInstant(), requestedDate.toInstant());
 
         if (!isAnotherOccurrence(daysBetween, frequencyData.getFrequency())) {
           throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
         }
       } else if (frequencyData.getFrequencyType() == WEEKLY) {
-        if (frequencyData.getDayOfWeek().getValue() + 1 != (requestedDateCalendar
-            .get(Calendar.DAY_OF_WEEK))) {
+        if (frequencyData.getDayOfWeek().getValue()
+            + 1 != (requestedDateCalendar.get(Calendar.DAY_OF_WEEK))) {
           throw exceptionFactory.eventDoesNotTakePlaceOnChosenDateException();
         }
         long weeksBetween =
@@ -71,9 +69,8 @@ public class TicketPoolDefinitionValidator {
       } else if (frequencyData.getFrequencyType() == MONTHLY) {
         int yearsBetween =
             requestedDateCalendar.get(Calendar.YEAR) - startDateCalendar.get(Calendar.YEAR);
-        int monthsBetween =
-            yearsBetween * 12 + requestedDateCalendar.get(Calendar.MONTH) - startDateCalendar
-                .get(Calendar.MONTH);
+        int monthsBetween = yearsBetween * 12 + requestedDateCalendar.get(Calendar.MONTH)
+            - startDateCalendar.get(Calendar.MONTH);
 
         if (!frequencyData.getDayOfMonth().equals(requestedDateCalendar.get(Calendar.DAY_OF_MONTH))
             || !isAnotherOccurrence(monthsBetween, frequencyData.getFrequency())) {

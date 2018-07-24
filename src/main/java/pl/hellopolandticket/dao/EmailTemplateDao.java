@@ -22,9 +22,7 @@ public class EmailTemplateDao {
     return entityManager
         .createQuery("from EmailTemplate emailTemplate where emailTemplate.name=:name",
             EmailTemplate.class)
-        .setParameter("name", name)
-        .getResultStream()
-        .findFirst()
+        .setParameter("name", name).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 }

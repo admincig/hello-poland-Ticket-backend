@@ -14,9 +14,7 @@ public class ExpiredTokenService {
   private ExpiredTokenDao expiredTokenDao;
 
   public ExpiredToken addTokenToExpiredTokensList(String token) {
-    ExpiredToken expiredToken = ExpiredToken.builder()
-        .token(token)
-        .build();
+    ExpiredToken expiredToken = ExpiredToken.builder().token(token).build();
 
     return expiredTokenDao.persist(expiredToken);
   }

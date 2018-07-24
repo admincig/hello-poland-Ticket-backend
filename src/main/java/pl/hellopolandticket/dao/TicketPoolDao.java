@@ -1,7 +1,6 @@
 package pl.hellopolandticket.dao;
 
 import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -32,16 +31,12 @@ public class TicketPoolDao {
   public TicketPool findById(Long ticketPoolId) {
     return entityManager
         .createQuery("from TicketPool ticketPool where ticketPool.id=:id", TicketPool.class)
-        .setParameter("id", ticketPoolId)
-        .getResultStream()
-        .findFirst()
+        .setParameter("id", ticketPoolId).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
   public List<TicketPool> findAll() {
-    return entityManager
-        .createQuery("from TicketPool ticketPool", TicketPool.class)
-        .getResultStream()
-        .collect(toList());
+    return entityManager.createQuery("from TicketPool ticketPool", TicketPool.class)
+        .getResultStream().collect(toList());
   }
 }

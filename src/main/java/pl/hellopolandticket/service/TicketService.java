@@ -2,7 +2,6 @@ package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicket;
-
 import java.util.Date;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -27,8 +26,7 @@ public class TicketService extends ServiceSuperclass {
   @Inject
   private UserService userService;
 
-  public TicketDTO punchTicket(CurrentUser currentUser, Long ticketPoolId,
-      String serialNumber) {
+  public TicketDTO punchTicket(CurrentUser currentUser, Long ticketPoolId, String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
 
     ticketValidator.validateAccessingProperTicket(ticketPoolId,

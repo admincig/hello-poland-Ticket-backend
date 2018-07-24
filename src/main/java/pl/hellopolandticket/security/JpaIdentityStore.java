@@ -2,7 +2,6 @@ package pl.hellopolandticket.security;
 
 import static javax.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
-
 import java.util.Set;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;

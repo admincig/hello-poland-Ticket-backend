@@ -3,7 +3,6 @@ package pl.hellopolandticket.model.ticket.partner;
 import static javax.persistence.CascadeType.ALL;
 import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
 import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

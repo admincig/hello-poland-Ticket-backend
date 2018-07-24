@@ -2,7 +2,6 @@ package pl.hellopolandticket.security.jwt;
 
 import static java.util.stream.Collectors.joining;
 import static pl.hellopolandticket.security.jwt.TokenType.ACCESS_TOKEN;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -21,7 +20,8 @@ public class TokenProvider {
 
   private static final String AUTHORITIES_KEY = "auth";
   private static final String JWT_ACCESS_TOKEN_VALIDITY_PROPERTY = "jwt.accessTokenValidityMillis";
-  private static final String JWT_REFRESH_TOKEN_VALIDITY_PROPERTY = "jwt.refreshTokenValidityMillis";
+  private static final String JWT_REFRESH_TOKEN_VALIDITY_PROPERTY =
+      "jwt.refreshTokenValidityMillis";
   private static final String JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY = "jwt.accessTokenSecretKey";
   private static final String JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY = "jwt.refreshTokenSecretKey";
 
@@ -57,12 +57,10 @@ public class TokenProvider {
     long accessTokenValidity = getTokenValidity(JWT_ACCESS_TOKEN_VALIDITY_PROPERTY);
     String accessTokenSecretKey = getTokenSecretKey(JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY);
 
-    return Jwts.builder()
-        .setSubject(username)
+    return Jwts.builder().setSubject(username)
         .claim(AUTHORITIES_KEY, authorities.stream().collect(joining(",")))
         .signWith(SignatureAlgorithm.HS512, accessTokenSecretKey)
-        .setExpiration(new Date(now + accessTokenValidity))
-        .compact();
+        .setExpiration(new Date(now + accessTokenValidity)).compact();
   }
 
   private String createRefreshToken(String username, Set<String> authorities) {
@@ -70,12 +68,10 @@ public class TokenProvider {
     long refreshTokenValidity = getTokenValidity(JWT_REFRESH_TOKEN_VALIDITY_PROPERTY);
     String refreshTokenSecretKey = getTokenSecretKey(JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY);
 
-    return Jwts.builder()
-        .setSubject(username)
+    return Jwts.builder().setSubject(username)
         .claim(AUTHORITIES_KEY, authorities.stream().collect(joining(",")))
         .signWith(SignatureAlgorithm.HS512, refreshTokenSecretKey)
-        .setExpiration(new Date(now + refreshTokenValidity))
-        .compact();
+        .setExpiration(new Date(now + refreshTokenValidity)).compact();
   }
 
   private long getTokenValidity(String propertyName) {
@@ -112,19 +108,12 @@ public class TokenProvider {
   }
 
   private JwtCredential getCredential(String token, String secretKey) {
-    Claims claims = Jwts.parser()
-        .setSigningKey(secretKey)
-        .parseClaimsJws(token)
-        .getBody();
+    Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
 
-    Set<String> authorities
-        = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+    Set<String> authorities = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
         .collect(Collectors.toSet());
 
-    return JwtCredential.builder()
-        .principal(claims.getSubject())
-        .authorities(authorities)
-        .build();
+    return JwtCredential.builder().principal(claims.getSubject()).authorities(authorities).build();
   }
 
 }

@@ -6,7 +6,6 @@ import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
 import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicketPool;
-
 import java.util.Date;
 import java.util.List;
 import javax.ejb.LocalBean;
@@ -39,20 +38,15 @@ public class TicketPoolService extends ServiceSuperclass {
 
 
   public TicketPool createTicketPoolInstanceForCyclicalTicketPoolDefinition(
-      TicketPoolDefinition ticketPoolDefinition,
-      Date requestedDate) {
+      TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
     validateCreatingTicketPoolInstanceIsPossible(ticketPoolDefinition, requestedDate);
 
-    TicketPool ticketPool = TicketPool.builder()
-        .name(ticketPoolDefinition.getName())
+    TicketPool ticketPool = TicketPool.builder().name(ticketPoolDefinition.getName())
         .availableTicketsNumber(ticketPoolDefinition.getAvailableTicketsNumber())
-        .startDate(ticketPoolDefinition.getStartDate())
-        .endDate(ticketPoolDefinition.getEndDate())
-        .predefinedDate(ticketPoolDefinition.getPredefinedDate())
-        .date(requestedDate)
+        .startDate(ticketPoolDefinition.getStartDate()).endDate(ticketPoolDefinition.getEndDate())
+        .predefinedDate(ticketPoolDefinition.getPredefinedDate()).date(requestedDate)
         .dateType(ticketPoolDefinition.getDateType())
-        .sightEvent(ticketPoolDefinition.getSightEvent())
-        .build();
+        .sightEvent(ticketPoolDefinition.getSightEvent()).build();
 
     ticketPoolDao.persist(ticketPool);
 
@@ -66,22 +60,16 @@ public class TicketPoolService extends ServiceSuperclass {
   }
 
   public TicketPool createTicketPoolInstanceForNotCyclicalTicketPoolDefinition(
-      TicketPoolDefinition ticketPoolDefinition,
-      Date requestedDate) {
-    ticketPoolDefinitionValidator
-        .validateRequestedDateBetweenStartDateAndEndDate(ticketPoolDefinition.getStartDate(),
-            ticketPoolDefinition.getEndDate(), requestedDate);
+      TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
+    ticketPoolDefinitionValidator.validateRequestedDateBetweenStartDateAndEndDate(
+        ticketPoolDefinition.getStartDate(), ticketPoolDefinition.getEndDate(), requestedDate);
 
-    TicketPool ticketPool = TicketPool.builder()
-        .name(ticketPoolDefinition.getName())
+    TicketPool ticketPool = TicketPool.builder().name(ticketPoolDefinition.getName())
         .availableTicketsNumber(ticketPoolDefinition.getAvailableTicketsNumber())
-        .startDate(ticketPoolDefinition.getStartDate())
-        .endDate(ticketPoolDefinition.getEndDate())
-        .predefinedDate(ticketPoolDefinition.getPredefinedDate())
-        .date(requestedDate)
+        .startDate(ticketPoolDefinition.getStartDate()).endDate(ticketPoolDefinition.getEndDate())
+        .predefinedDate(ticketPoolDefinition.getPredefinedDate()).date(requestedDate)
         .dateType(ticketPoolDefinition.getDateType())
-        .sightEvent(ticketPoolDefinition.getSightEvent())
-        .build();
+        .sightEvent(ticketPoolDefinition.getSightEvent()).build();
 
     ticketPoolDao.persist(ticketPool);
 
@@ -96,25 +84,24 @@ public class TicketPoolService extends ServiceSuperclass {
 
   private void validateCreatingTicketPoolInstanceIsPossible(
       TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
-    ticketPoolDefinitionValidator
-        .validateRequestedDateBetweenStartDateAndEndDate(ticketPoolDefinition.getStartDate(),
-            ticketPoolDefinition.getEndDate(), requestedDate);
+    ticketPoolDefinitionValidator.validateRequestedDateBetweenStartDateAndEndDate(
+        ticketPoolDefinition.getStartDate(), ticketPoolDefinition.getEndDate(), requestedDate);
 
     ticketPoolDefinitionValidator.validateCyclicalPool(ticketPoolDefinition.getCyclicalPool(),
         ticketPoolDefinition.getFrequencyData());
 
-    ticketPoolDefinitionValidator
-        .validateFrequencyDataPermitsToCreateTicketPool(ticketPoolDefinition.getFrequencyData(),
-            ticketPoolDefinition.getStartDate(), requestedDate);
+    ticketPoolDefinitionValidator.validateFrequencyDataPermitsToCreateTicketPool(
+        ticketPoolDefinition.getFrequencyData(), ticketPoolDefinition.getStartDate(),
+        requestedDate);
   }
 
   private TicketPoolDTO toTicketPoolDTO(TicketPool ticketPool) {
-    int totalTicketsNumber = ticketDao
-        .countTicketsByTicketPoolIdAndTicketStatusInTicketStatuses(ticketPool.getId(),
+    int totalTicketsNumber =
+        ticketDao.countTicketsByTicketPoolIdAndTicketStatusInTicketStatuses(ticketPool.getId(),
             asList(BOUGHT, PUNCHED)).intValue();
 
-    int boughtTicketsNumber = ticketDao
-        .countTicketsByTicketPoolIdAndTicketStatusInTicketStatuses(ticketPool.getId(),
+    int boughtTicketsNumber =
+        ticketDao.countTicketsByTicketPoolIdAndTicketStatusInTicketStatuses(ticketPool.getId(),
             singletonList(BOUGHT)).intValue();
 
     TicketPoolDTO ticketPoolDTO = ofTicketPool(ticketPool);
@@ -128,13 +115,10 @@ public class TicketPoolService extends ServiceSuperclass {
   private TicketDefinition copyTicketDefinition(TicketDefinition ticketDefinition,
       TicketPool ticketPool) {
     TicketDefinition copiedTicketDefinition = TicketDefinition.builder()
-        .name(ticketDefinition.getName())
-        .price(ticketDefinition.getPrice())
-        .partner(ticketDefinition.getPartner())
-        .ticketPool(ticketPool)
+        .name(ticketDefinition.getName()).price(ticketDefinition.getPrice())
+        .partner(ticketDefinition.getPartner()).ticketPool(ticketPool)
         .availableTicketsNumber(ticketDefinition.getAvailableTicketsNumber())
-        .originalTicketDefinition(ticketDefinition)
-        .build();
+        .originalTicketDefinition(ticketDefinition).build();
 
     return ticketDefinitionDao.persist(copiedTicketDefinition);
   }

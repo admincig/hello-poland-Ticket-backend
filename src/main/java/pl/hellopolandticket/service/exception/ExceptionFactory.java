@@ -42,8 +42,9 @@ public class ExceptionFactory {
   }
 
   public WrongTicketStatusException wrongTicketStatusException(TicketDTO ticket) {
-    return new WrongTicketStatusException(exceptionMessagesService
-        .getMessage(WrongTicketStatusException.class.getSimpleName()), ticket);
+    return new WrongTicketStatusException(
+        exceptionMessagesService.getMessage(WrongTicketStatusException.class.getSimpleName()),
+        ticket);
   }
 
   public ResourceNotFoundException resourceNotFoundException() {
@@ -73,20 +74,19 @@ public class ExceptionFactory {
   }
 
   public TicketTakerWithoutAccessToSightException ticketTakerWithoutAccessToSightException() {
-    return new TicketTakerWithoutAccessToSightException(
-        exceptionMessagesService
-            .getMessage(TicketTakerWithoutAccessToSightException.class.getSimpleName()));
+    return new TicketTakerWithoutAccessToSightException(exceptionMessagesService
+        .getMessage(TicketTakerWithoutAccessToSightException.class.getSimpleName()));
   }
 
   public RequestedDateOutsideRequestedTicketDefinitionPoolException requestedDateOutsideRequestedTicketDefinitionPoolException() {
-    return new RequestedDateOutsideRequestedTicketDefinitionPoolException(exceptionMessagesService
-        .getMessage(
+    return new RequestedDateOutsideRequestedTicketDefinitionPoolException(
+        exceptionMessagesService.getMessage(
             RequestedDateOutsideRequestedTicketDefinitionPoolException.class.getSimpleName()));
   }
 
   public CannotCreateTicketPoolForNotCyclicalPoolDefinitionException cannotCreateTicketPoolForNotCyclicalPoolDefinitionException() {
-    return new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(exceptionMessagesService
-        .getMessage(
+    return new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+        exceptionMessagesService.getMessage(
             CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class.getSimpleName()));
   }
 

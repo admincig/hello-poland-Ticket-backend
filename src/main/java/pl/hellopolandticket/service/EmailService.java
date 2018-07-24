@@ -8,7 +8,6 @@ import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 import static java.util.stream.Collectors.toList;
 import static javax.mail.Message.RecipientType.TO;
-
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -57,7 +56,8 @@ public class EmailService extends ServiceSuperclass {
   private static final String MAIL_SMTP_PORT_PROPERTY = "mail.smtp.port";
   private static final String MAIL_SMTP_AUTH_PROPERTY = "mail.smtp.auth";
   private static final String MAIL_SMTP_STARTTLS_ENABLE_PROPERTY = "mail.smtp.starttls.enable";
-  private static final String MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY = "mail.smtp.socketFactory.class";
+  private static final String MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY =
+      "mail.smtp.socketFactory.class";
 
   @Inject
   private ApplicationPropertyService applicationPropertyService;
@@ -67,8 +67,8 @@ public class EmailService extends ServiceSuperclass {
 
   public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets)
       throws MessagingException, IOException, TemplateException {
-    String messageFrom = applicationPropertyService
-        .findByName(MAIL_USERNAME_PROPERTY).propertyValue;
+    String messageFrom =
+        applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
 
     EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
 
@@ -76,7 +76,7 @@ public class EmailService extends ServiceSuperclass {
 
     MimeMessage message = new MimeMessage(session);
     message.setFrom(new InternetAddress(messageFrom));
-    message.setRecipients(TO, new InternetAddress[]{new InternetAddress(email)});
+    message.setRecipients(TO, new InternetAddress[] {new InternetAddress(email)});
     message.setSubject(emailTemplate.getSubject(), "UTF-8");
     message.setContent(createEmailContent(username, emailTemplate, tickets));
 
@@ -84,8 +84,7 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private Session createSessionForEmail() {
-    String username = applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY)
-        .propertyValue;
+    String username = applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
     String password = applicationPropertyService.findByName(MAIL_PASSWORD_PROPERTY).propertyValue;
 
     return Session.getInstance(createSessionProperties(),
@@ -104,13 +103,12 @@ public class EmailService extends ServiceSuperclass {
     properties.put(MAIL_SMTP_AUTH_PROPERTY,
         applicationPropertyService.findByName(MAIL_SMTP_AUTH_PROPERTY).propertyValue);
 
-    applicationPropertyService.find(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY).ifPresent(
-        property -> properties
-            .put(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY, property.propertyValue));
+    applicationPropertyService.find(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY)
+        .ifPresent(property -> properties.put(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY,
+            property.propertyValue));
 
-    applicationPropertyService.find(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY)
-        .ifPresent(property -> properties
-            .put(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY, property.propertyValue));
+    applicationPropertyService.find(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY).ifPresent(
+        property -> properties.put(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY, property.propertyValue));
 
     return properties;
   }
@@ -124,14 +122,13 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private Multipart createEmailContent(String username, EmailTemplate emailTemplate,
-      List<TicketDTO> tickets)
-      throws IOException, TemplateException, MessagingException {
+      List<TicketDTO> tickets) throws IOException, TemplateException, MessagingException {
     Multipart emailContent = new MimeMultipart("related");
 
     List<String> ticketCIDs = generateCIDs(tickets.size());
 
-    String bodyContent = fillQrCodeEmailTemplateWithData(emailTemplate.getTemplate(), username,
-        tickets, ticketCIDs);
+    String bodyContent =
+        fillQrCodeEmailTemplateWithData(emailTemplate.getTemplate(), username, tickets, ticketCIDs);
 
     MimeBodyPart emailBody = new MimeBodyPart();
     emailBody.setContent(bodyContent, "text/html; charset=utf-8");
@@ -146,8 +143,7 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private List<String> generateCIDs(int numberOfCIDs) {
-    return IntStream.rangeClosed(1, numberOfCIDs).boxed()
-        .map(integer -> "image" + integer)
+    return IntStream.rangeClosed(1, numberOfCIDs).boxed().map(integer -> "image" + integer)
         .collect(toList());
   }
 
@@ -166,25 +162,12 @@ public class EmailService extends ServiceSuperclass {
 
     for (int i = 0; i < tickets.size(); i++) {
       TicketDTO ticket = tickets.get(i);
-      ticketQrCodes
-          .append("<p>")
-          .append(ticket.ticketDefinition.name)
-          .append("</p>")
-          .append("<p>")
-          .append(ticket.name)
-          .append("</p>")
-          .append("<p>")
-          .append("Numer biletu: ")
-          .append(ticket.serialNumber)
-          .append("</p>")
-          .append("<p>")
-          .append("Data wydarzenia: ")
-          .append(makeDateHuman(ticket.date))
-          .append("</p>");
-      ticketQrCodes
-          .append("<img style=\"margin-bottom: 200px\" src=\"cid:")
-          .append(ticketCIDs.get(i))
-          .append("\">");
+      ticketQrCodes.append("<p>").append(ticket.ticketDefinition.name).append("</p>").append("<p>")
+          .append(ticket.name).append("</p>").append("<p>").append("Numer biletu: ")
+          .append(ticket.serialNumber).append("</p>").append("<p>").append("Data wydarzenia: ")
+          .append(makeDateHuman(ticket.date)).append("</p>");
+      ticketQrCodes.append("<img style=\"margin-bottom: 200px\" src=\"cid:")
+          .append(ticketCIDs.get(i)).append("\">");
     }
     variablesMap.put("qrCodes", ticketQrCodes.toString());
 
@@ -207,11 +190,11 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private String makeDateHuman(Date date) {
-    String[] daysOfWeek = new String[]{"Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek",
+    String[] daysOfWeek = new String[] {"Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek",
         "Sobota", "Niedziela"};
 
-    Calendar calendar = GregorianCalendar
-        .from(ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()));
+    Calendar calendar =
+        GregorianCalendar.from(ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()));
     String dayOfWeek = daysOfWeek[calendar.get(DAY_OF_WEEK)];
 
     String dayOfMonth = calendar.get(DAY_OF_MONTH) < 10 ? "0" + calendar.get(DAY_OF_MONTH)

@@ -14,8 +14,8 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 @Logger
 public class LoggingHandler {
 
-  private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(
-      "yyyy-MM-dd HH:mm:ss.SSS");
+  private static final SimpleDateFormat DATE_FORMATTER =
+      new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
   private static final String NEW_LINE_STRING = "\n\t";
 
   @AroundInvoke
@@ -29,8 +29,7 @@ public class LoggingHandler {
       Object result = invocationCtx.proceed();
       long elapsedTime = System.currentTimeMillis() - start;
 
-      log.info(
-          prepareServiceLogInfo(className, methodName, arguments, start, elapsedTime, result));
+      log.info(prepareServiceLogInfo(className, methodName, arguments, start, elapsedTime, result));
 
       return result;
     } catch (Exception e) {
@@ -46,11 +45,10 @@ public class LoggingHandler {
 
   private String prepareServiceLogInfo(String className, String methodName, Object[] arguments,
       long start, long elapsedTime, Object result) {
-    return NEW_LINE_STRING + "Executing: " + className + "." + methodName + "()" +
-        NEW_LINE_STRING + "Arguments: " + Arrays.toString(arguments) +
-        NEW_LINE_STRING + "Time: " + DATE_FORMATTER.format(new Date(start)) +
-        NEW_LINE_STRING + "Execution time: " + elapsedTime + "ms" +
-        NEW_LINE_STRING + "Result: " + getValue(result);
+    return NEW_LINE_STRING + "Executing: " + className + "." + methodName + "()" + NEW_LINE_STRING
+        + "Arguments: " + Arrays.toString(arguments) + NEW_LINE_STRING + "Time: "
+        + DATE_FORMATTER.format(new Date(start)) + NEW_LINE_STRING + "Execution time: "
+        + elapsedTime + "ms" + NEW_LINE_STRING + "Result: " + getValue(result);
   }
 
   private String getValue(Object result) {

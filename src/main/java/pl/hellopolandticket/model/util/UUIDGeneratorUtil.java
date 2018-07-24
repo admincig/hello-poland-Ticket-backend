@@ -2,7 +2,6 @@ package pl.hellopolandticket.model.util;
 
 import static java.util.UUID.randomUUID;
 import static javax.xml.bind.DatatypeConverter.printHexBinary;
-
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

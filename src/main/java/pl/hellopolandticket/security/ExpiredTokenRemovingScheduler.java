@@ -50,15 +50,15 @@ public class ExpiredTokenRemovingScheduler {
   }
 
   private void validateAccessTokenIsStillValid(ExpiredToken expiredToken) {
-    String accessTokenSecretKey = applicationPropertyService
-        .findByName(JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY).propertyValue;
+    String accessTokenSecretKey =
+        applicationPropertyService.findByName(JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY).propertyValue;
 
     validateTokenStillValid(accessTokenSecretKey, expiredToken);
   }
 
   private void validateRefreshTokenStillValid(ExpiredToken expiredToken) {
-    String refreshTokenSecretKey = applicationPropertyService
-        .findByName(JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY).propertyValue;
+    String refreshTokenSecretKey =
+        applicationPropertyService.findByName(JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY).propertyValue;
 
     validateTokenStillValid(refreshTokenSecretKey, expiredToken);
   }

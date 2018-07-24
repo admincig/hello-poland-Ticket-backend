@@ -1,7 +1,6 @@
 package pl.hellopolandticket.dao;
 
 import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -31,9 +30,7 @@ public class SightEventDao {
   public SightEvent findById(Long sightEventId) {
     return entityManager
         .createQuery("from SightEvent sightEvent where sightEvent.id=:id", SightEvent.class)
-        .setParameter("id", sightEventId)
-        .getResultStream()
-        .findFirst()
+        .setParameter("id", sightEventId).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
@@ -41,15 +38,11 @@ public class SightEventDao {
     return entityManager
         .createQuery("from SightEvent sightEvent WHERE sightEvent.id IN :sightIds",
             SightEvent.class)
-        .setParameter("sightIds", sightIds)
-        .getResultStream()
-        .collect(toList());
+        .setParameter("sightIds", sightIds).getResultStream().collect(toList());
   }
 
   public List<SightEvent> findAll() {
-    return entityManager
-        .createQuery("from SightEvent sightEvent", SightEvent.class)
-        .getResultStream()
-        .collect(toList());
+    return entityManager.createQuery("from SightEvent sightEvent", SightEvent.class)
+        .getResultStream().collect(toList());
   }
 }

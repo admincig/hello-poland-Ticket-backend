@@ -5,7 +5,6 @@ import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
 import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
 import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
 import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;

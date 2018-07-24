@@ -3,7 +3,6 @@ package pl.hellopolandticket.rest;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofCollection;
-
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
@@ -46,8 +45,8 @@ public class SightEventRestService extends RestServiceSuperclass {
     if (!sightEventIds.isEmpty()) {
       collectionWrapper = ofCollection(sightEventService.findByIdsIn(sightEventIds));
     } else {
-      collectionWrapper = ofCollection(
-          sightEventService.findForPartner(currentUser.getPrincipal()));
+      collectionWrapper =
+          ofCollection(sightEventService.findForPartner(currentUser.getPrincipal()));
     }
 
     return Response.ok(collectionWrapper).build();

@@ -4,7 +4,6 @@ import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
 import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
-
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +39,8 @@ public class BookingRestServiceTest extends BaseTest {
     Response response = bookingRestService.makeBooking(bookingCreate);
     BookingDTO booking = (BookingDTO) response.getEntity();
 
-    int expectedNumberOfTickets = bookingCreate.ticketBookings.stream()
-        .mapToInt(t -> t.numberOfTickets.intValue())
-        .sum();
+    int expectedNumberOfTickets =
+        bookingCreate.ticketBookings.stream().mapToInt(t -> t.numberOfTickets.intValue()).sum();
 
     assertEquals(bookingCreate.customerName, booking.customerName);
     assertEquals(bookingCreate.customerEmail, booking.customerEmail);

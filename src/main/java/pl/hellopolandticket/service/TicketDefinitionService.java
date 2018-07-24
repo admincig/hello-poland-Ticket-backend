@@ -1,11 +1,9 @@
 package pl.hellopolandticket.service;
 
 import static java.util.Optional.ofNullable;
-
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -48,23 +46,17 @@ public class TicketDefinitionService extends ServiceSuperclass {
     Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
 
     TicketPool ticketPool = ofNullable(ticketDefinitionDTO.ticketPoolId)
-        .map(ticketPoolId -> ticketPoolDao.findById(ticketPoolId))
-        .orElse(null);
+        .map(ticketPoolId -> ticketPoolDao.findById(ticketPoolId)).orElse(null);
 
-    List<TicketPoolDefinition> ticketPoolDefinitions = ofNullable(
-        ticketDefinitionDTO.ticketPoolDefinitionIds)
-        .map(
+    List<TicketPoolDefinition> ticketPoolDefinitions =
+        ofNullable(ticketDefinitionDTO.ticketPoolDefinitionIds).map(
             ticketPoolDefinitionIds -> ticketPoolDefinitionDao.findByIdsIn(ticketPoolDefinitionIds))
-        .orElse(null);
+            .orElse(null);
 
-    TicketDefinition ticketDefinition = TicketDefinition.builder()
-        .name(ticketDefinitionDTO.name)
-        .price(ticketDefinitionDTO.price)
-        .partner(partner)
-        .availableTicketsNumber(ticketDefinitionDTO.availableTicketsNumber)
-        .ticketPool(ticketPool)
-        .ticketPoolDefinitions(ticketPoolDefinitions)
-        .build();
+    TicketDefinition ticketDefinition =
+        TicketDefinition.builder().name(ticketDefinitionDTO.name).price(ticketDefinitionDTO.price)
+            .partner(partner).availableTicketsNumber(ticketDefinitionDTO.availableTicketsNumber)
+            .ticketPool(ticketPool).ticketPoolDefinitions(ticketPoolDefinitions).build();
 
     ticketDefinitionDao.persist(ticketDefinition);
 
@@ -80,26 +72,24 @@ public class TicketDefinitionService extends ServiceSuperclass {
     TicketDefinition ticketDefinition = ticketDefinitionDao.findById(ticketDefinitionId);
 
     if (hasTicketPool(ticketDefinition)) {
-      ticketPoolValidator
-          .validateRequestedDateEqualsStartDate(ticketDefinition.getTicketPool().getStartDate(),
-              requestedDate);
+      ticketPoolValidator.validateRequestedDateEqualsStartDate(
+          ticketDefinition.getTicketPool().getStartDate(), requestedDate);
 
       ticketDefinitionWithTicketPool = ticketDefinition;
     } else {
-      TicketPoolDefinition ticketPoolDefinition = ticketPoolDefinitionDao
-          .findById(ticketPoolDefinitionId);
+      TicketPoolDefinition ticketPoolDefinition =
+          ticketPoolDefinitionDao.findById(ticketPoolDefinitionId);
 
-      ticketDefinitionWithTicketPool = findInTicketDefinitionInstances(ticketDefinition,
-          requestedDate);
+      ticketDefinitionWithTicketPool =
+          findInTicketDefinitionInstances(ticketDefinition, requestedDate);
       if (ticketDefinitionWithTicketPool == null) {
-        TicketPool ticketPool = ticketPoolService
-            .createTicketPoolInstanceForCyclicalTicketPoolDefinition(ticketPoolDefinition,
-                requestedDate);
+        TicketPool ticketPool =
+            ticketPoolService.createTicketPoolInstanceForCyclicalTicketPoolDefinition(
+                ticketPoolDefinition, requestedDate);
 
         return ticketPool.getTicketDefinitions().stream()
             .filter(td -> td.getOriginalTicketDefinition().getId().equals(ticketDefinitionId))
-            .findFirst()
-            .orElse(null);
+            .findFirst().orElse(null);
       }
     }
 
@@ -113,14 +103,15 @@ public class TicketDefinitionService extends ServiceSuperclass {
   private TicketDefinition findInTicketDefinitionInstances(TicketDefinition ticketDefinition,
       Date requestedDate) {
     return ticketDefinition.getTicketDefinitionInstances().stream()
-        .filter(td -> td.getTicketPool().getDate().equals(requestedDate) && td.getName()
-            .equals(ticketDefinition.getName()))
-        .findFirst()
-        .orElse(null);
+        .filter(td -> td.getTicketPool().getDate().equals(requestedDate)
+            && td.getName().equals(ticketDefinition.getName()))
+        .findFirst().orElse(null);
   }
 
   public List<TicketDefinitionDTO> getList(CurrentUser currentUser) {
-	List<TicketDefinition> bos = ticketDefinitionDao.getList(partnerDao.findByUserEmail(currentUser.getPrincipal()));
-	return bos.stream().map(ModelObjectsToDTOConverter::ofTicketDefinition).collect(Collectors.toList());
+    List<TicketDefinition> bos =
+        ticketDefinitionDao.getList(partnerDao.findByUserEmail(currentUser.getPrincipal()));
+    return bos.stream().map(ModelObjectsToDTOConverter::ofTicketDefinition)
+        .collect(Collectors.toList());
   }
 }

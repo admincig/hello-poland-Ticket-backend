@@ -24,11 +24,9 @@ public class HPLService extends ServiceSuperclass {
   private Event<HPLPushEvent> hplPushEvent;
 
   public void pushDataToHPL(CurrentUser currentUser) {
-    hplPushEvent.fireAsync(
-        HPLPushEvent.builder()
-            .URLPath(applicationPropertyService
-                .findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).propertyValue)
-            .push(sightEventService.findAllAndConvertToPushDTOObject(currentUser))
-            .build());
+    hplPushEvent.fireAsync(HPLPushEvent.builder()
+        .URLPath(
+            applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).propertyValue)
+        .push(sightEventService.findAllAndConvertToPushDTOObject(currentUser)).build());
   }
 }

@@ -1,7 +1,6 @@
 package pl.hellopolandticket.security;
 
 import static java.lang.String.join;
-
 import java.io.IOException;
 import java.util.List;
 import javax.ws.rs.container.ContainerRequestContext;

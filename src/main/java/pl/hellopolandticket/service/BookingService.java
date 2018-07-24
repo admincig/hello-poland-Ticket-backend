@@ -6,7 +6,6 @@ import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
 import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofBooking;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicketWithQrCode;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -51,11 +50,8 @@ public class BookingService extends ServiceSuperclass {
   private ExceptionFactory exceptionFactory;
 
   public BookingDTO createBooking(BookingDTO booking) {
-    Booking bookingToPersist = Booking.builder()
-        .date(new Date())
-        .customerName(booking.customerName)
-        .customerEmail(booking.customerEmail)
-        .build();
+    Booking bookingToPersist = Booking.builder().date(new Date()).customerName(booking.customerName)
+        .customerEmail(booking.customerEmail).build();
 
     List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
 
@@ -81,8 +77,8 @@ public class BookingService extends ServiceSuperclass {
     return ofBooking(booking);
   }
 
-  private synchronized List<Ticket> bookTickets(
-      Collection<TicketOrderDTO> ticketBookingDTOs, Booking booking) {
+  private synchronized List<Ticket> bookTickets(Collection<TicketOrderDTO> ticketBookingDTOs,
+      Booking booking) {
     if (isANewBooking(ticketBookingDTOs)) {
       return book(ticketBookingDTOs, booking);
     } else {
@@ -90,8 +86,7 @@ public class BookingService extends ServiceSuperclass {
     }
   }
 
-  private List<Ticket> book(Collection<TicketOrderDTO> ticketBookingDTOs,
-      Booking booking) {
+  private List<Ticket> book(Collection<TicketOrderDTO> ticketBookingDTOs, Booking booking) {
     List<Ticket> bookedTickets = new ArrayList<>();
 
     for (TicketOrderDTO ticketBookingDTO : ticketBookingDTOs) {
@@ -99,26 +94,20 @@ public class BookingService extends ServiceSuperclass {
           .findTicketDefinitionWithTicketPool(ticketBookingDTO.ticketDefinitionId,
               ticketBookingDTO.ticketPoolDefinitionId, ticketBookingDTO.date);
 
-      Date date =
-          ticketDefinition.getTicketPool().getPredefinedDate() ? ticketDefinition.getTicketPool()
-              .getDate() : ticketBookingDTO.date;
+      Date date = ticketDefinition.getTicketPool().getPredefinedDate()
+          ? ticketDefinition.getTicketPool().getDate()
+          : ticketBookingDTO.date;
 
       for (int i = 0; i < ticketBookingDTO.numberOfTickets; i++) {
-        Ticket ticket = Ticket.builder()
-            .name(ticketDefinition.getName())
-            .price(ticketDefinition.getPrice())
-            .date(date)
-            .dateType(ticketDefinition.getTicketPool().getDateType())
-            .status(BOOKED)
-            .booking(booking)
-            .ticketDefinition(ticketDefinition)
-            .build();
+        Ticket ticket =
+            Ticket.builder().name(ticketDefinition.getName()).price(ticketDefinition.getPrice())
+                .date(date).dateType(ticketDefinition.getTicketPool().getDateType()).status(BOOKED)
+                .booking(booking).ticketDefinition(ticketDefinition).build();
 
         bookedTickets.add(ticket);
       }
 
-      ticketDefinition.decreaseAvailableTicketsNumber(
-          ticketBookingDTO.numberOfTickets.intValue());
+      ticketDefinition.decreaseAvailableTicketsNumber(ticketBookingDTO.numberOfTickets.intValue());
     }
 
     return ticketDao.persist(bookedTickets);
@@ -141,19 +130,17 @@ public class BookingService extends ServiceSuperclass {
   }
 
   private void sendEmailWithTicketQrCodes(Booking booking) {
-    int qrCodeWidth = valueOf(
-        applicationPropertyService.findByName(TICKET_QR_CODE_WIDTH_PROPERTY).propertyValue);
+    int qrCodeWidth =
+        valueOf(applicationPropertyService.findByName(TICKET_QR_CODE_WIDTH_PROPERTY).propertyValue);
     int qrCodeHeight = valueOf(
         applicationPropertyService.findByName(TICKET_QR_CODE_HEIGHT_PROPERTY).propertyValue);
 
-    bookingMarkedAsBoughtEvent.fireAsync(
-        BookingMarkedAsBoughtEvent.builder()
-            .customerName(booking.getCustomerName())
-            .customerEmail(booking.getCustomerEmail())
-            .tickets(booking.getTickets().stream()
-                .map(ticket -> ofTicketWithQrCode(ticket,
-                    ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
-                .collect(toList()))
-            .build());
+    bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
+        .customerName(booking.getCustomerName()).customerEmail(booking.getCustomerEmail())
+        .tickets(booking.getTickets().stream()
+            .map(ticket -> ofTicketWithQrCode(ticket,
+                ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
+            .collect(toList()))
+        .build());
   }
 }

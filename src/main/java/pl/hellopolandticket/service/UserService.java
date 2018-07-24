@@ -1,7 +1,6 @@
 package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofUser;
-
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -26,8 +25,8 @@ public class UserService extends ServiceSuperclass {
   }
 
   public UserDTO findByEmail(String email) {
-    return ofUser(userDao.findByEmail(email)
-        .orElseThrow(() -> exceptionFactory.resourceNotFoundException()));
+    return ofUser(
+        userDao.findByEmail(email).orElseThrow(() -> exceptionFactory.resourceNotFoundException()));
   }
 
   public User save(User user) {

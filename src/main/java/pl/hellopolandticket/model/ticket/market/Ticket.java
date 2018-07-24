@@ -3,7 +3,6 @@ package pl.hellopolandticket.model.ticket.market;
 import static javax.persistence.CascadeType.PERSIST;
 import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
 import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
-
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
@@ -124,8 +123,8 @@ public class Ticket implements Serializable {
   public ByteArrayOutputStream encodeSerialNumberAsQrCode(int qrCodeWidth, int qrCodeHeight) {
     try {
       QRCodeWriter qrCodeWriter = new QRCodeWriter();
-      BitMatrix bitMatrix = qrCodeWriter
-          .encode(getSerialNumber(), BarcodeFormat.QR_CODE, qrCodeWidth, qrCodeHeight);
+      BitMatrix bitMatrix =
+          qrCodeWriter.encode(getSerialNumber(), BarcodeFormat.QR_CODE, qrCodeWidth, qrCodeHeight);
 
       ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
       MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);

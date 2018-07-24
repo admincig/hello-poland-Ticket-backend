@@ -2,7 +2,6 @@ package pl.hellopolandticket.rest;
 
 import static java.util.Arrays.asList;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
-
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -58,7 +57,6 @@ public class BookingRestService extends RestServiceSuperclass {
 
     BookingDTO persistedBooking = bookingService.createBooking(booking);
 
-    return Response.ok(bookingService.markBookingAsBought(persistedBooking.serialNumber))
-        .build();
+    return Response.ok(bookingService.markBookingAsBought(persistedBooking.serialNumber)).build();
   }
 }
