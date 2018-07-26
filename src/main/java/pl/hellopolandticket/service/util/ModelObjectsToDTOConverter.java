@@ -224,8 +224,8 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDTO.availableTicketsNumber = ticketPool.getAvailableTicketsNumber();
     ticketPoolDTO.startDate = ticketPool.getStartDate();
     ticketPoolDTO.endDate = ticketPool.getEndDate();
-    // ticketPoolDTO.entryStartDate = ticketPool.getEntryStartDate();
-    // ticketPoolDTO.entryEndDate = ticketPool.getEntryEndDate();
+    ticketPoolDTO.entryStartDate = ticketPool.getEntryStartDate();
+    ticketPoolDTO.entryEndDate = ticketPool.getEntryEndDate();
     ticketPoolDTO.dateType = DateTypeDTO.valueOf(ticketPool.getDateType().name());
     ticketPoolDTO.sightEventId = ticketPool.getSightEvent().getId();
     ticketPoolDTO.ticketDefinitions =
