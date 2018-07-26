@@ -235,7 +235,7 @@ public class ModelObjectsToDTOConverter {
     return ticketPoolDTO;
   }
 
-  private static TicketPoolDefinitionDTO ofTicketPoolDefinition(
+  public static TicketPoolDefinitionDTO ofTicketPoolDefinition(
       TicketPoolDefinition ticketPoolDefinition) {
     TicketPoolDefinitionDTO ticketPoolDefinitionDTO = new TicketPoolDefinitionDTO();
 
