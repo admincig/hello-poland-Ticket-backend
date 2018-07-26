@@ -38,6 +38,7 @@ public class TicketPoolDefinitionRestService {
   }
 
   @GET
+  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response getTicketPoolDef() {
     return Response.ok(ticketPoolDefinitionService.getAllForPartner(currentUser)).build();
   }
