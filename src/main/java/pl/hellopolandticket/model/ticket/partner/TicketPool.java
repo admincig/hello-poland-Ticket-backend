@@ -63,6 +63,14 @@ public class TicketPool implements Serializable {
   private Date endDate;
 
   @Setter
+  @Column(name = "ENTRY_START_DATE")
+  private Date entryStartDate;
+
+  @Setter
+  @Column(name = "ENTRY_END_DATE")
+  private Date entryEndDate;
+
+  @Setter
   @NotNull
   @Column(name = "PREDEFINED_DATE", nullable = false)
   private Boolean predefinedDate;
@@ -89,11 +97,13 @@ public class TicketPool implements Serializable {
 
   @Builder
   public TicketPool(String name, Integer availableTicketsNumber, Date startDate, Date endDate,
-      Boolean predefinedDate, Date date, DateType dateType, SightEvent sightEvent,
-      List<TicketDefinition> ticketDefinitions) {
+      Date entryStartDate, Date entryEndDate, Boolean predefinedDate, Date date, DateType dateType,
+      SightEvent sightEvent, List<TicketDefinition> ticketDefinitions) {
     this.name = name;
     this.startDate = startDate;
     this.endDate = endDate;
+    this.entryStartDate = entryStartDate != null ? entryStartDate : startDate;
+    this.entryEndDate = entryEndDate != null ? entryEndDate : endDate;
     this.predefinedDate = predefinedDate;
     this.date = date;
     this.dateType = dateType;

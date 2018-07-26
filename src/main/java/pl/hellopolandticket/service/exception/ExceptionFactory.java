@@ -10,7 +10,10 @@ import pl.hellopolandticket.service.exception.conflict.EventDoesNotTakePlaceOnCh
 import pl.hellopolandticket.service.exception.conflict.NotBookedException;
 import pl.hellopolandticket.service.exception.conflict.PunchingTicketForWrongSightException;
 import pl.hellopolandticket.service.exception.conflict.RequestedDateOutsideRequestedTicketDefinitionPoolException;
+import pl.hellopolandticket.service.exception.conflict.TicketAfterEntryEndDateException;
 import pl.hellopolandticket.service.exception.conflict.TicketAlreadyPunchedException;
+import pl.hellopolandticket.service.exception.conflict.TicketBeforeEntryStartDateException;
+import pl.hellopolandticket.service.exception.conflict.TicketDefinitionHasNoPoolException;
 import pl.hellopolandticket.service.exception.conflict.TicketForAnotherDateException;
 import pl.hellopolandticket.service.exception.conflict.TicketInvalidException;
 import pl.hellopolandticket.service.exception.conflict.TicketTakerWithoutAccessToSightException;
@@ -93,5 +96,20 @@ public class ExceptionFactory {
   public EventDoesNotTakePlaceOnChosenDateException eventDoesNotTakePlaceOnChosenDateException() {
     return new EventDoesNotTakePlaceOnChosenDateException(exceptionMessagesService
         .getMessage(EventDoesNotTakePlaceOnChosenDateException.class.getSimpleName()));
+  }
+
+  public TicketBeforeEntryStartDateException ticketBeforeEntryStartDateException() {
+    return new TicketBeforeEntryStartDateException(exceptionMessagesService
+        .getMessage(TicketBeforeEntryStartDateException.class.getSimpleName()));
+  }
+
+  public TicketAfterEntryEndDateException ticketAfterEntryEndDateException() {
+    return new TicketAfterEntryEndDateException(exceptionMessagesService
+        .getMessage(TicketAfterEntryEndDateException.class.getSimpleName()));
+  }
+
+  public TicketDefinitionHasNoPoolException ticketDefinitionHasNoPoolException() {
+    return new TicketDefinitionHasNoPoolException(exceptionMessagesService
+        .getMessage(TicketDefinitionHasNoPoolException.class.getSimpleName()));
   }
 }
