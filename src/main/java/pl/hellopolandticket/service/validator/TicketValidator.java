@@ -60,11 +60,6 @@ public class TicketValidator {
     if (eEndDate != null && now.after(eEndDate)) {
       throw exceptionFactory.ticketAfterEntryEndDateException();
     }
-
-    // if (now.(ticket.getDate())) {
-    //
-    // }
-
   }
 
 }
