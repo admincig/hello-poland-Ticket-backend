@@ -50,6 +50,7 @@ public class ModelObjectsToDTOConverter {
     sightEventDTO.mainImage.original = sightEvent.getMainImageUrl();
     sightEventDTO.email = sightEvent.getEmail();
     sightEventDTO.phone = sightEvent.getPhone();
+    sightEventDTO.generalAdmission = sightEvent.getGeneralAdmission();
     sightEventDTO.sightId = sightId;
 
     sightEventDTO.location = ofNullable(sightEvent.getSightEventLocation())
