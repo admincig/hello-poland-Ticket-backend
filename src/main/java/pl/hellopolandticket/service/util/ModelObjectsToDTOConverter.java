@@ -45,6 +45,7 @@ public class ModelObjectsToDTOConverter {
     sightEventDTO.name = sightEvent.getName();
     sightEventDTO.description = sightEvent.getDescription();
     sightEventDTO.duration = sightEvent.getDuration();
+    sightEventDTO.lead = sightEvent.getLead();
     sightEventDTO.mainImage = new ImageDTO();
     sightEventDTO.mainImage.original = sightEvent.getMainImageUrl();
     sightEventDTO.email = sightEvent.getEmail();
