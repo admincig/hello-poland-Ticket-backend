@@ -4,7 +4,6 @@ import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
 import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
 import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicket;
-
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -45,6 +44,6 @@ public class TicketValidator {
   }
 
   public void validateProperTime(Ticket ticket) {
-    //TODO Implement when you divide sights and events
+    // TODO Implement when you divide sights and events
   }
 }

@@ -1,7 +1,6 @@
 package pl.hellopolandticket.dao;
 
 import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
-
 import java.util.Date;
 import java.util.List;
 import javax.ejb.LocalBean;
@@ -32,9 +31,7 @@ public class BookingDao {
   public Booking findBySerialNumber(String serialNumber) {
     return entityManager
         .createQuery("from Booking booking where booking.serialNumber=:serialNumber", Booking.class)
-        .setParameter("serialNumber", serialNumber)
-        .getResultStream()
-        .findFirst()
+        .setParameter("serialNumber", serialNumber).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
@@ -42,8 +39,6 @@ public class BookingDao {
     return entityManager
         .createQuery("from Booking booking where booking.status=:status AND booking.date<:date",
             Booking.class)
-        .setParameter("date", maxBookingTimeEarlier)
-        .setParameter("status", BOOKED)
-        .getResultList();
+        .setParameter("date", maxBookingTimeEarlier).setParameter("status", BOOKED).getResultList();
   }
 }

@@ -5,7 +5,6 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import javax.enterprise.util.AnnotationLiteral;
@@ -19,6 +18,7 @@ public @interface Authenticated {
   static Literal INSTANCE = new Literal();
 
   static class Literal extends AnnotationLiteral<Authenticated> implements Authenticated {
+    private static final long serialVersionUID = 546106729892719270L;
 
   }
 }

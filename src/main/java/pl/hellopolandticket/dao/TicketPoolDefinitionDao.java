@@ -1,7 +1,6 @@
 package pl.hellopolandticket.dao;
 
 import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -33,26 +32,28 @@ public class TicketPoolDefinitionDao {
         .createQuery(
             "from TicketPoolDefinition ticketPoolDefinition where ticketPoolDefinition.id=:id",
             TicketPoolDefinition.class)
-        .setParameter("id", ticketPoolDefinitionId)
-        .getResultStream()
-        .findFirst()
+        .setParameter("id", ticketPoolDefinitionId).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
   public List<TicketPoolDefinition> findAll() {
     return entityManager
         .createQuery("from TicketPoolDefinition ticketPoolDefinition", TicketPoolDefinition.class)
-        .getResultStream()
-        .collect(toList());
+        .getResultStream().collect(toList());
   }
 
   public List<TicketPoolDefinition> findByIdsIn(List<Long> ticketPoolDefinitionIds) {
-    return entityManager
-        .createQuery(
-            "from TicketPoolDefinition ticketPoolDefinition WHERE ticketPoolDefinition.id IN :ticketPoolDefinitionIds",
-            TicketPoolDefinition.class)
-        .setParameter("ticketPoolDefinitionIds", ticketPoolDefinitionIds)
-        .getResultStream()
-        .collect(toList());
+    return entityManager.createQuery(
+        "from TicketPoolDefinition ticketPoolDefinition WHERE ticketPoolDefinition.id IN :ticketPoolDefinitionIds",
+        TicketPoolDefinition.class).setParameter("ticketPoolDefinitionIds", ticketPoolDefinitionIds)
+        .getResultStream().collect(toList());
   }
+
+  public List<TicketPoolDefinition> findAllByPartner(Long partnerId) {
+    return entityManager
+        .createQuery("from TicketPoolDefinition t where t.sightEvent.partner.id = :partnerId",
+            TicketPoolDefinition.class)
+        .setParameter("partnerId", partnerId).getResultList();
+  }
+
 }

@@ -22,9 +22,7 @@ public class PartnerDao {
     return entityManager
         .createQuery("from Partner partner JOIN partner.users user where user.email=:email",
             Partner.class)
-        .setParameter("email", email)
-        .getResultStream()
-        .findFirst()
+        .setParameter("email", email).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
@@ -35,11 +33,7 @@ public class PartnerDao {
   }
 
   public Partner findByName(String name) {
-    return entityManager
-        .createQuery("from Partner partner where partner.name=:name", Partner.class)
-        .setParameter("name", name)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+    return entityManager.createQuery("from Partner partner where partner.name=:name", Partner.class)
+        .setParameter("name", name).getResultStream().findFirst().orElse(null);
   }
 }

@@ -1,7 +1,6 @@
 package pl.hellopolandticket.rest;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
-
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -33,19 +32,16 @@ public class TicketPoolRestService extends RestServiceSuperclass {
   @PATCH
   @Path("/{ticketPoolId}/tickets/{serialNumber}")
   @RolesAllowed({ROLE_USER})
-  public Response punchTicket(
-      @PathParam("ticketPoolId") Long ticketPoolId,
+  public Response punchTicket(@PathParam("ticketPoolId") Long ticketPoolId,
       @PathParam("serialNumber") String serialNumber) {
 
-    return Response.ok(ticketService.punchTicket(currentUser, ticketPoolId, serialNumber))
-        .build();
+    return Response.ok(ticketService.punchTicket(currentUser, ticketPoolId, serialNumber)).build();
   }
 
   @GET
   @Path("/{ticketPoolId}/tickets/{serialNumber}")
   @RolesAllowed({ROLE_USER})
-  public Response getTicket(
-      @PathParam("ticketPoolId") Long ticketPoolId,
+  public Response getTicket(@PathParam("ticketPoolId") Long ticketPoolId,
       @PathParam("serialNumber") String serialNumber) {
 
     return Response.ok(ticketService.findBySerialNumber(currentUser, ticketPoolId, serialNumber))

@@ -27,8 +27,7 @@ public class BookingMarkedAsBoughtEventListener {
       @ObservesAsync BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent) {
     try {
       emailService.sendEmailWithQrCodes(bookingMarkedAsBoughtEvent.getCustomerName(),
-          bookingMarkedAsBoughtEvent.getCustomerEmail(),
-          bookingMarkedAsBoughtEvent.getTickets());
+          bookingMarkedAsBoughtEvent.getCustomerEmail(), bookingMarkedAsBoughtEvent.getTickets());
     } catch (MessagingException | IOException | TemplateException e) {
       log.error(e.getMessage());
       throw exceptionFactory.emailSendingException();

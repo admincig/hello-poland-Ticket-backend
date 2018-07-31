@@ -2,10 +2,8 @@ package pl.hellopolandticket.service.util;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
-import java.util.List;
 import lombok.Builder;
 import pl.hellopoland.dto.AbstractErrorDTO;
 import pl.hellopoland.dto.ApplicationPropertyDTO;
@@ -47,19 +45,19 @@ public class ModelObjectsToDTOConverter {
     sightEventDTO.name = sightEvent.getName();
     sightEventDTO.description = sightEvent.getDescription();
     sightEventDTO.duration = sightEvent.getDuration();
+    sightEventDTO.lead = sightEvent.getLead();
     sightEventDTO.mainImage = new ImageDTO();
     sightEventDTO.mainImage.original = sightEvent.getMainImageUrl();
     sightEventDTO.email = sightEvent.getEmail();
     sightEventDTO.phone = sightEvent.getPhone();
+    sightEventDTO.generalAdmission = sightEvent.getGeneralAdmission();
     sightEventDTO.sightId = sightId;
 
     sightEventDTO.location = ofNullable(sightEvent.getSightEventLocation())
-        .map(ModelObjectsToDTOConverter::ofSightLocation)
-        .orElse(null);
+        .map(ModelObjectsToDTOConverter::ofSightLocation).orElse(null);
 
     sightEventDTO.ticketPoolDefinitions = sightEvent.getTicketPoolDefinitions().stream()
-        .map(ModelObjectsToDTOConverter::ofTicketPoolDefinition)
-        .collect(toList());
+        .map(ModelObjectsToDTOConverter::ofTicketPoolDefinition).collect(toList());
 
     return sightEventDTO;
   }
@@ -77,8 +75,7 @@ public class ModelObjectsToDTOConverter {
     return location;
   }
 
-  public static TicketDefinitionDTO ofTicketDefinition(
-      TicketDefinition ticketDefinition) {
+  public static TicketDefinitionDTO ofTicketDefinition(TicketDefinition ticketDefinition) {
     TicketDefinitionDTO ticketDefinitionDTO = new TicketDefinitionDTO();
 
     ticketDefinitionDTO.id = ticketDefinition.getId();
@@ -86,14 +83,11 @@ public class ModelObjectsToDTOConverter {
     ticketDefinitionDTO.availableTicketsNumber = ticketDefinition.getAvailableTicketsNumber();
     ticketDefinitionDTO.price = ticketDefinition.getPrice();
 
-    ticketDefinitionDTO.ticketPoolId = ofNullable(ticketDefinition.getTicketPool())
-        .map(TicketPool::getId)
-        .orElse(null);
+    ticketDefinitionDTO.ticketPoolId =
+        ofNullable(ticketDefinition.getTicketPool()).map(TicketPool::getId).orElse(null);
 
     ticketDefinitionDTO.ticketPoolDefinitionIds = ticketDefinition.getTicketPoolDefinitions()
-        .stream()
-        .map(TicketPoolDefinition::getId)
-        .collect(toList());
+        .stream().map(TicketPoolDefinition::getId).collect(toList());
 
     return ticketDefinitionDTO;
   }
@@ -135,9 +129,8 @@ public class ModelObjectsToDTOConverter {
 
     bookingDTO.status = StatusDTO.valueOf(booking.getStatus().name());
     bookingDTO.serialNumber = booking.getSerialNumber();
-    bookingDTO.tickets = booking.getTickets().stream()
-        .map(ModelObjectsToDTOConverter::ofTicket)
-        .collect(toList());
+    bookingDTO.tickets =
+        booking.getTickets().stream().map(ModelObjectsToDTOConverter::ofTicket).collect(toList());
 
     return bookingDTO;
   }
@@ -165,12 +158,10 @@ public class ModelObjectsToDTOConverter {
 
     partnerDTO.id = partner.getId();
     partnerDTO.name = partner.getName();
-    partnerDTO.users = partner.getUsers().stream()
-        .map(ModelObjectsToDTOConverter::ofUser)
-        .collect(toList());
+    partnerDTO.users =
+        partner.getUsers().stream().map(ModelObjectsToDTOConverter::ofUser).collect(toList());
     partnerDTO.sightEvents = partner.getSightEvents().stream()
-        .map(ModelObjectsToDTOConverter::ofSightEventBasic)
-        .collect(toList());
+        .map(ModelObjectsToDTOConverter::ofSightEventBasic).collect(toList());
 
     return partnerDTO;
   }
@@ -196,7 +187,7 @@ public class ModelObjectsToDTOConverter {
     return applicationPropertyDTO;
   }
 
-  public static CollectionWrapperDTO ofCollection(Collection collection) {
+  public static CollectionWrapperDTO ofCollection(Collection<?> collection) {
     CollectionWrapperDTO collectionWrapperDTO = new CollectionWrapperDTO();
 
     collectionWrapperDTO.items = collection;
@@ -237,37 +228,36 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDTO.endDate = ticketPool.getEndDate();
     ticketPoolDTO.dateType = DateTypeDTO.valueOf(ticketPool.getDateType().name());
     ticketPoolDTO.sightEventId = ticketPool.getSightEvent().getId();
-    ticketPoolDTO.ticketDefinitions = ofNullable(ticketPool.getTicketDefinitions())
-        .map(ticketDefinitions -> ticketDefinitions.stream()
-            .map(ModelObjectsToDTOConverter::ofTicketDefinition)
-            .collect(toList()))
-        .orElse(null);
+    ticketPoolDTO.ticketDefinitions =
+        ofNullable(ticketPool.getTicketDefinitions())
+            .map(ticketDefinitions -> ticketDefinitions.stream()
+                .map(ModelObjectsToDTOConverter::ofTicketDefinition).collect(toList()))
+            .orElse(null);
 
     return ticketPoolDTO;
   }
 
-  private static TicketPoolDefinitionDTO ofTicketPoolDefinition(
+  public static TicketPoolDefinitionDTO ofTicketPoolDefinition(
       TicketPoolDefinition ticketPoolDefinition) {
     TicketPoolDefinitionDTO ticketPoolDefinitionDTO = new TicketPoolDefinitionDTO();
 
     ticketPoolDefinitionDTO.id = ticketPoolDefinition.getId();
     ticketPoolDefinitionDTO.name = ticketPoolDefinition.getName();
-    ticketPoolDefinitionDTO.availableTicketsNumber = ticketPoolDefinition
-        .getAvailableTicketsNumber();
+    ticketPoolDefinitionDTO.availableTicketsNumber =
+        ticketPoolDefinition.getAvailableTicketsNumber();
     ticketPoolDefinitionDTO.cyclicalPool = ticketPoolDefinition.getCyclicalPool();
-    ticketPoolDefinitionDTO.frequencyData = ofFrequencyData(
-        ticketPoolDefinition.getFrequencyData());
+    ticketPoolDefinitionDTO.frequencyData =
+        ofFrequencyData(ticketPoolDefinition.getFrequencyData());
     ticketPoolDefinitionDTO.startDate = ticketPoolDefinition.getStartDate();
     ticketPoolDefinitionDTO.endDate = ticketPoolDefinition.getEndDate();
-    ticketPoolDefinitionDTO.dateType = DateTypeDTO
-        .valueOf(ticketPoolDefinition.getDateType().name());
+    ticketPoolDefinitionDTO.dateType =
+        DateTypeDTO.valueOf(ticketPoolDefinition.getDateType().name());
     ticketPoolDefinitionDTO.predefinedDate = ticketPoolDefinition.getPredefinedDate();
     ticketPoolDefinitionDTO.date = ticketPoolDefinition.getDate();
     ticketPoolDefinitionDTO.sightEventId = ticketPoolDefinition.getSightEvent().getId();
 
     ticketPoolDefinitionDTO.ticketDefinitions = ticketPoolDefinition.getTicketDefinitions().stream()
-        .map(ModelObjectsToDTOConverter::ofTicketDefinition)
-        .collect(toList());
+        .map(ModelObjectsToDTOConverter::ofTicketDefinition).collect(toList());
 
     return ticketPoolDefinitionDTO;
   }
@@ -275,8 +265,8 @@ public class ModelObjectsToDTOConverter {
   private static FrequencyDataDTO ofFrequencyData(FrequencyData frequencyData) {
     FrequencyDataDTO frequencyDataDTO = new FrequencyDataDTO();
 
-    frequencyDataDTO.frequencyType = FrequencyTypeDTO
-        .valueOf(frequencyData.getFrequencyType().name());
+    frequencyDataDTO.frequencyType =
+        FrequencyTypeDTO.valueOf(frequencyData.getFrequencyType().name());
     frequencyDataDTO.dayOfWeek = frequencyData.getDayOfWeek();
     frequencyDataDTO.month = frequencyData.getMonth();
     frequencyDataDTO.dayOfMonth = frequencyData.getDayOfMonth();

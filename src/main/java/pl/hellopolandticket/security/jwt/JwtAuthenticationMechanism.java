@@ -7,7 +7,6 @@ import static javax.security.enterprise.identitystore.CredentialValidationResult
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.security.jwt.TokenType.ACCESS_TOKEN;
 import static pl.hellopolandticket.security.jwt.TokenType.REFRESH_TOKEN;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Collections;
@@ -28,7 +27,6 @@ import javax.security.enterprise.identitystore.IdentityStoreHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
-import lombok.extern.slf4j.Slf4j;
 import pl.hellopoland.dto.UserAuthDTO;
 import pl.hellopolandticket.dao.UserDao;
 import pl.hellopolandticket.model.auth.User;
@@ -37,7 +35,6 @@ import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.ExpiredTokenService;
 import pl.hellopolandticket.service.exception.preconditionfailed.TokenInExpiredTokensListException;
 
-@Slf4j
 @ApplicationScoped
 public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
@@ -107,16 +104,14 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     String userAuthJson = "";
 
     try {
-      userAuthJson = new BufferedReader(
-          new InputStreamReader(request.getInputStream())).lines()
+      userAuthJson = new BufferedReader(new InputStreamReader(request.getInputStream())).lines()
           .collect(joining("\n"));
     } catch (Exception ignored) {
     }
 
     if (!userAuthJson.isEmpty()) {
       try {
-        userAuthDTO = ofNullable(JsonbBuilder.create()
-            .fromJson(userAuthJson, UserAuthDTO.class));
+        userAuthDTO = ofNullable(JsonbBuilder.create().fromJson(userAuthJson, UserAuthDTO.class));
       } catch (JsonParsingException ignored) {
       }
     }
@@ -147,8 +142,8 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     String authorizationHeader = context.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
 
     if (hasAuthorizationHeader(authorizationHeader)) {
-      token = authorizationHeader
-          .substring(AUTHORIZATION_PREFIX.length(), authorizationHeader.length());
+      token = authorizationHeader.substring(AUTHORIZATION_PREFIX.length(),
+          authorizationHeader.length());
     }
 
     return token;
@@ -169,14 +164,13 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
 
   private boolean isAuthRequest(HttpServletRequest request) {
-    return request.getRequestURI().endsWith(LOGIN_REQUEST_PATH) ||
-        request.getRequestURI().endsWith(REFRESH_TOKEN_REQUEST_PATH) ||
-        request.getRequestURI().endsWith(LOGOUT_REQUEST_PATH);
+    return request.getRequestURI().endsWith(LOGIN_REQUEST_PATH)
+        || request.getRequestURI().endsWith(REFRESH_TOKEN_REQUEST_PATH)
+        || request.getRequestURI().endsWith(LOGOUT_REQUEST_PATH);
   }
 
   private boolean isRefreshingRequest(String token, HttpServletRequest request) {
-    return token != null
-        && AUTHENTICATION_METHOD.equals(request.getMethod())
+    return token != null && AUTHENTICATION_METHOD.equals(request.getMethod())
         && request.getRequestURI().endsWith(REFRESH_TOKEN_REQUEST_PATH);
   }
 
@@ -190,8 +184,8 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
   private AuthenticationStatus login(String login, String password, HttpMessageContext context) {
     AuthenticationStatus authenticationStatus;
 
-    CredentialValidationResult credentialValidationResult = identityStoreHandler
-        .validate(new UsernamePasswordCredential(login, password));
+    CredentialValidationResult credentialValidationResult =
+        identityStoreHandler.validate(new UsernamePasswordCredential(login, password));
 
     if (loggedCorrectly(credentialValidationResult.getStatus())) {
       authenticationStatus = createToken(credentialValidationResult, context);
@@ -246,20 +240,15 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
   private AuthenticationStatus createToken(CredentialValidationResult result,
       HttpMessageContext context) {
 
-    String accessToken = tokenProvider
-        .createToken(result.getCallerPrincipal().getName(), result.getCallerGroups(), ACCESS_TOKEN);
+    String accessToken = tokenProvider.createToken(result.getCallerPrincipal().getName(),
+        result.getCallerGroups(), ACCESS_TOKEN);
 
-    String refreshToken = tokenProvider
-        .createToken(result.getCallerPrincipal().getName(), result.getCallerGroups(),
-            REFRESH_TOKEN);
+    String refreshToken = tokenProvider.createToken(result.getCallerPrincipal().getName(),
+        result.getCallerGroups(), REFRESH_TOKEN);
 
-    authenticatedEvent.fire(
-        CurrentUser.builder()
-            .principal(result.getCallerPrincipal().getName())
-            .roles(result.getCallerGroups())
-            .accessToken(accessToken)
-            .refreshToken(refreshToken)
-            .build());
+    authenticatedEvent.fire(CurrentUser.builder().principal(result.getCallerPrincipal().getName())
+        .roles(result.getCallerGroups()).accessToken(accessToken).refreshToken(refreshToken)
+        .build());
 
     return context.notifyContainerAboutLogin(result.getCallerPrincipal(), result.getCallerGroups());
   }
@@ -267,31 +256,25 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
   private AuthenticationStatus createToken(JwtCredential jwtCredential,
       HttpMessageContext context) {
 
-    String accessToken = tokenProvider
-        .createToken(jwtCredential.getPrincipal(), jwtCredential.getAuthorities(), ACCESS_TOKEN);
+    String accessToken = tokenProvider.createToken(jwtCredential.getPrincipal(),
+        jwtCredential.getAuthorities(), ACCESS_TOKEN);
 
-    String refreshToken = tokenProvider
-        .createToken(jwtCredential.getPrincipal(), jwtCredential.getAuthorities(), REFRESH_TOKEN);
+    String refreshToken = tokenProvider.createToken(jwtCredential.getPrincipal(),
+        jwtCredential.getAuthorities(), REFRESH_TOKEN);
 
-    authenticatedEvent.fire(
-        CurrentUser.builder()
-            .principal(jwtCredential.getPrincipal())
-            .roles(jwtCredential.getAuthorities())
-            .accessToken(accessToken)
-            .refreshToken(refreshToken)
-            .build());
+    authenticatedEvent.fire(CurrentUser.builder().principal(jwtCredential.getPrincipal())
+        .roles(jwtCredential.getAuthorities()).accessToken(accessToken).refreshToken(refreshToken)
+        .build());
 
-    return context
-        .notifyContainerAboutLogin(jwtCredential.getPrincipal(), jwtCredential.getAuthorities());
+    return context.notifyContainerAboutLogin(jwtCredential.getPrincipal(),
+        jwtCredential.getAuthorities());
   }
 
   private AuthenticationStatus signInPartnerUser(User partnerUser, HttpMessageContext context) {
     Set<String> roles = Collections.singleton(ROLE_EXTERNAL_USER);
 
-    authenticatedEvent.fire(CurrentUser.builder()
-        .principal(partnerUser.getEmail())
-        .roles(roles)
-        .build());
+    authenticatedEvent
+        .fire(CurrentUser.builder().principal(partnerUser.getEmail()).roles(roles).build());
 
     return context.notifyContainerAboutLogin(partnerUser.getEmail(), roles);
   }
@@ -301,14 +284,10 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     tokenProvider.validateToken(token, ACCESS_TOKEN);
     JwtCredential credential = tokenProvider.getCredential(token, ACCESS_TOKEN);
 
-    authenticatedEvent.fire(
-        CurrentUser.builder()
-            .principal(credential.getPrincipal())
-            .roles(credential.getAuthorities())
-            .build()
-    );
+    authenticatedEvent.fire(CurrentUser.builder().principal(credential.getPrincipal())
+        .roles(credential.getAuthorities()).build());
 
-    return context
-        .notifyContainerAboutLogin(credential.getPrincipal(), credential.getAuthorities());
+    return context.notifyContainerAboutLogin(credential.getPrincipal(),
+        credential.getAuthorities());
   }
 }

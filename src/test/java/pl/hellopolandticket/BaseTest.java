@@ -19,9 +19,7 @@ public abstract class BaseTest {
 
   @Deployment
   public static Archive<WebArchive> createDeployment() {
-    return ShrinkWrap
-        .create(WebArchive.class, "test.war")
-        .addAsResource("META-INF/persistence.xml")
+    return ShrinkWrap.create(WebArchive.class, "test.war").addAsResource("META-INF/persistence.xml")
         .addPackages(true, "pl.hellopolandticket");
   }
 

@@ -24,9 +24,7 @@ public class ApplicationPropertyDao {
   public Optional<ApplicationProperty> findByPropertyName(String propertyName) {
     return entityManager.createQuery(
         "from ApplicationProperty applicationProperty where applicationProperty.propertyName=:propertyName",
-        ApplicationProperty.class)
-        .setParameter("propertyName", propertyName)
-        .getResultStream()
+        ApplicationProperty.class).setParameter("propertyName", propertyName).getResultStream()
         .findFirst();
   }
 

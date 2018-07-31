@@ -4,10 +4,8 @@ import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
 import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
-
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
-import lombok.extern.slf4j.Slf4j;
 import org.jboss.arquillian.persistence.UsingDataSet;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,7 +20,6 @@ import pl.hellopolandticket.service.exception.conflict.NotBookedException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
-@Slf4j
 @UsingDataSet("scripts/datasets/import.yml")
 @Ignore
 public class BookingRestServiceTest extends BaseTest {
@@ -40,9 +37,8 @@ public class BookingRestServiceTest extends BaseTest {
     Response response = bookingRestService.makeBooking(bookingCreate);
     BookingDTO booking = (BookingDTO) response.getEntity();
 
-    int expectedNumberOfTickets = bookingCreate.ticketBookings.stream()
-        .mapToInt(t -> t.numberOfTickets.intValue())
-        .sum();
+    int expectedNumberOfTickets =
+        bookingCreate.ticketBookings.stream().mapToInt(t -> t.numberOfTickets.intValue()).sum();
 
     assertEquals(bookingCreate.customerName, booking.customerName);
     assertEquals(bookingCreate.customerEmail, booking.customerEmail);
