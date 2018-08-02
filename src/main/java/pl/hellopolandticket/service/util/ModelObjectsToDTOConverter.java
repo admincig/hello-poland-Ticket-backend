@@ -45,10 +45,12 @@ public class ModelObjectsToDTOConverter {
     sightEventDTO.name = sightEvent.getName();
     sightEventDTO.description = sightEvent.getDescription();
     sightEventDTO.duration = sightEvent.getDuration();
+    sightEventDTO.lead = sightEvent.getLead();
     sightEventDTO.mainImage = new ImageDTO();
     sightEventDTO.mainImage.original = sightEvent.getMainImageUrl();
     sightEventDTO.email = sightEvent.getEmail();
     sightEventDTO.phone = sightEvent.getPhone();
+    sightEventDTO.generalAdmission = sightEvent.getGeneralAdmission();
     sightEventDTO.sightId = sightId;
 
     sightEventDTO.location = ofNullable(sightEvent.getSightEventLocation())
@@ -237,7 +239,7 @@ public class ModelObjectsToDTOConverter {
     return ticketPoolDTO;
   }
 
-  private static TicketPoolDefinitionDTO ofTicketPoolDefinition(
+  public static TicketPoolDefinitionDTO ofTicketPoolDefinition(
       TicketPoolDefinition ticketPoolDefinition) {
     TicketPoolDefinitionDTO ticketPoolDefinitionDTO = new TicketPoolDefinitionDTO();
 

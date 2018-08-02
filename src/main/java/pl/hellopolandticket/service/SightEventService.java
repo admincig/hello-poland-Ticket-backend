@@ -86,11 +86,11 @@ public class SightEventService extends ServiceSuperclass {
 
     User user = userService.findUserByEmail(currentUser.getPrincipal());
 
-    SightEvent sightEventToPersist =
-        SightEvent.builder().name(sightEventDTO.name).description(sightEventDTO.description)
-            .mainImageUrl(sightEventDTO.mainImageUrl).email(sightEventDTO.email)
-            .phone(sightEventDTO.phone).sightEventLocation(sightEventLocation)
-            .partner(user.getPartner()).generalAdmission(sightEventDTO.generalAdmission).build();
+    SightEvent sightEventToPersist = SightEvent.builder().name(sightEventDTO.name)
+        .description(sightEventDTO.description).mainImageUrl(sightEventDTO.mainImageUrl)
+        .email(sightEventDTO.email).phone(sightEventDTO.phone).lead(sightEventDTO.lead)
+        .sightEventLocation(sightEventLocation).partner(user.getPartner())
+        .generalAdmission(sightEventDTO.generalAdmission).build();
 
     sightEventToPersist = sightEventDao.persist(sightEventToPersist);
 

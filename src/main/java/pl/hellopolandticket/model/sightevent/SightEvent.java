@@ -50,6 +50,10 @@ public class SightEvent implements Serializable {
   private String description;
 
   @Setter
+  @Column(name = "LEAD")
+  private String lead;
+
+  @Setter
   @Column(name = "DURATION")
   private Integer duration;
 
@@ -94,11 +98,12 @@ public class SightEvent implements Serializable {
   private List<TicketPool> ticketPools = new ArrayList<>();
 
   @Builder
-  public SightEvent(String name, Date date, String description, Integer duration,
+  public SightEvent(String name, Date date, String description, String lead, Integer duration,
       String mainImageUrl, String email, String phone, SightEventLocation sightEventLocation,
       Partner partner, Boolean generalAdmission) {
     this.name = name;
     this.description = description;
+    this.lead = lead;
     this.duration = duration;
     this.mainImageUrl = mainImageUrl;
     this.email = email;
