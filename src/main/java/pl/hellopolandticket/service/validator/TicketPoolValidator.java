@@ -15,7 +15,7 @@ public class TicketPoolValidator {
   private ExceptionFactory exceptionFactory;
 
   public void validateRequestedDateEqualsStartDate(Date startDate, Date requestedDate) {
-    if ((startDate == null || !startDate.equals(requestedDate))) {
+    if (startDate == null || !startDate.equals(requestedDate)) {
       throw exceptionFactory.requestedDateOutsideRequestedTicketDefinitionPoolException();
     }
   }

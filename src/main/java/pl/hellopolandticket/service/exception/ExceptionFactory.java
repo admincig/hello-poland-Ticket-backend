@@ -10,10 +10,7 @@ import pl.hellopolandticket.service.exception.conflict.EventDoesNotTakePlaceOnCh
 import pl.hellopolandticket.service.exception.conflict.NotBookedException;
 import pl.hellopolandticket.service.exception.conflict.PunchingTicketForWrongSightException;
 import pl.hellopolandticket.service.exception.conflict.RequestedDateOutsideRequestedTicketDefinitionPoolException;
-import pl.hellopolandticket.service.exception.conflict.TicketAlreadyPunchedException;
-import pl.hellopolandticket.service.exception.conflict.TicketForAnotherDateException;
-import pl.hellopolandticket.service.exception.conflict.TicketInvalidException;
-import pl.hellopolandticket.service.exception.conflict.TicketTakerWithoutAccessToSightException;
+import pl.hellopolandticket.service.exception.conflict.TicketConflictException;
 import pl.hellopolandticket.service.exception.conflict.WrongTicketStatusException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 import pl.hellopolandticket.service.exception.notfound.TicketNotFoundException;
@@ -47,6 +44,16 @@ public class ExceptionFactory {
         ticket);
   }
 
+  public WrongTicketStatusException ticketAlreadyPunchedException(TicketDTO ticket) {
+    return new WrongTicketStatusException(
+        exceptionMessagesService.getMessage("TicketAlreadyPunchedException"), ticket);
+  }
+
+  public WrongTicketStatusException ticketInvalidException(TicketDTO ticket) {
+    return new WrongTicketStatusException(
+        exceptionMessagesService.getMessage("TicketInvalidException"), ticket);
+  }
+
   public ResourceNotFoundException resourceNotFoundException() {
     return new ResourceNotFoundException(
         exceptionMessagesService.getMessage(ResourceNotFoundException.class.getSimpleName()));
@@ -57,25 +64,29 @@ public class ExceptionFactory {
         exceptionMessagesService.getMessage(TicketNotFoundException.class.getSimpleName()));
   }
 
-  public TicketAlreadyPunchedException ticketAlreadyPunchedException(TicketDTO ticket) {
-    return new TicketAlreadyPunchedException(
-        exceptionMessagesService.getMessage(TicketAlreadyPunchedException.class.getSimpleName()),
-        ticket);
+  public TicketConflictException ticketForAnotherDateException() {
+    return new TicketConflictException(
+        exceptionMessagesService.getMessage("TicketForAnotherDateException"));
   }
 
-  public TicketInvalidException ticketInvalidException(TicketDTO ticket) {
-    return new TicketInvalidException(
-        exceptionMessagesService.getMessage(TicketInvalidException.class.getSimpleName()), ticket);
+  public TicketConflictException ticketTakerWithoutAccessToSightException() {
+    return new TicketConflictException(
+        exceptionMessagesService.getMessage("TicketTakerWithoutAccessToSightException"));
   }
 
-  public TicketForAnotherDateException ticketForAnotherDateException() {
-    return new TicketForAnotherDateException(
-        exceptionMessagesService.getMessage(TicketForAnotherDateException.class.getSimpleName()));
+  public TicketConflictException ticketBeforeEntryStartDateException() {
+    return new TicketConflictException(
+        exceptionMessagesService.getMessage("TicketBeforeEntryStartDateException"));
   }
 
-  public TicketTakerWithoutAccessToSightException ticketTakerWithoutAccessToSightException() {
-    return new TicketTakerWithoutAccessToSightException(exceptionMessagesService
-        .getMessage(TicketTakerWithoutAccessToSightException.class.getSimpleName()));
+  public TicketConflictException ticketAfterEntryEndDateException() {
+    return new TicketConflictException(
+        exceptionMessagesService.getMessage("TicketAfterEntryEndDateException"));
+  }
+
+  public TicketConflictException ticketDefinitionHasNoPoolException() {
+    return new TicketConflictException(
+        exceptionMessagesService.getMessage("TicketDefinitionHasNoPoolException"));
   }
 
   public RequestedDateOutsideRequestedTicketDefinitionPoolException requestedDateOutsideRequestedTicketDefinitionPoolException() {
@@ -94,4 +105,5 @@ public class ExceptionFactory {
     return new EventDoesNotTakePlaceOnChosenDateException(exceptionMessagesService
         .getMessage(EventDoesNotTakePlaceOnChosenDateException.class.getSimpleName()));
   }
+
 }

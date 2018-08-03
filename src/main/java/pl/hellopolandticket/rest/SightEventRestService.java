@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -23,6 +24,7 @@ import pl.hellopoland.dto.SightEventDTO;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.SightEventService;
+import pl.hellopolandticket.service.TicketService;
 
 @Path("/sight-events")
 @RequestScoped
@@ -32,6 +34,8 @@ public class SightEventRestService extends RestServiceSuperclass {
 
   @Inject
   private SightEventService sightEventService;
+  @Inject
+  private TicketService ticketService;
 
   @Inject
   @Authenticated
@@ -79,6 +83,25 @@ public class SightEventRestService extends RestServiceSuperclass {
     sightEventService.delete(sightEventId);
 
     return Response.noContent().build();
+  }
+
+  @PATCH
+  @Path("/{sightEventId}/tickets/{serialNumber}")
+  @RolesAllowed({ROLE_USER})
+  public Response punchTicket(@PathParam("sightEventId") Long sightEventId,
+      @PathParam("serialNumber") String serialNumber) {
+
+    return Response.ok(ticketService.punchTicket(currentUser, sightEventId, serialNumber)).build();
+  }
+
+  @GET
+  @Path("/{sightEventId}/tickets/{serialNumber}")
+  @RolesAllowed({ROLE_USER})
+  public Response getTicket(@PathParam("sightEventId") Long sightEventId,
+      @PathParam("serialNumber") String serialNumber) {
+
+    return Response.ok(ticketService.findBySerialNumber(currentUser, sightEventId, serialNumber))
+        .build();
   }
 
 }

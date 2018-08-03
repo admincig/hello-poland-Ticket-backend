@@ -26,11 +26,11 @@ public class TicketService extends ServiceSuperclass {
   @Inject
   private UserService userService;
 
-  public TicketDTO punchTicket(CurrentUser currentUser, Long ticketPoolId, String serialNumber) {
+  public TicketDTO punchTicket(CurrentUser currentUser, Long sightEventId, String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
 
-    ticketValidator.validateAccessingProperTicket(ticketPoolId,
-        ticket.getTicketDefinition().getTicketPool().getId());
+    ticketValidator.validateAccessingProperTicket(sightEventId,
+        ticket.getTicketDefinition().getTicketPool().getSightEvent().getId());
 
     ticketValidator.validateTicketHasDemandedStatus(ticket);
     ticketValidator.validateProperTime(ticket);
@@ -48,7 +48,7 @@ public class TicketService extends ServiceSuperclass {
     return ofTicket(ticket);
   }
 
-  public TicketDTO findBySerialNumber(CurrentUser currentUser, Long ticketPoolId,
+  public TicketDTO findBySerialNumber(CurrentUser currentUser, Long sightEventId,
       String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
     User ticketTaker = userService.findUserByEmail(currentUser.getPrincipal());
@@ -58,8 +58,8 @@ public class TicketService extends ServiceSuperclass {
         ticketTaker.getPartner().getSightEvents()
 
     );
-    ticketValidator.validateAccessingProperTicket(ticketPoolId,
-        ticket.getTicketDefinition().getTicketPool().getId());
+    ticketValidator.validateAccessingProperTicket(sightEventId,
+        ticket.getTicketDefinition().getTicketPool().getSightEvent().getId());
 
     return ofTicket(ticket);
   }

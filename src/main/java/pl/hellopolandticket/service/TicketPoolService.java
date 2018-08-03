@@ -44,6 +44,8 @@ public class TicketPoolService extends ServiceSuperclass {
     TicketPool ticketPool = TicketPool.builder().name(ticketPoolDefinition.getName())
         .availableTicketsNumber(ticketPoolDefinition.getAvailableTicketsNumber())
         .startDate(ticketPoolDefinition.getStartDate()).endDate(ticketPoolDefinition.getEndDate())
+        .entryStartDate(ticketPoolDefinition.getEntryStartDate())
+        .entryEndDate(ticketPoolDefinition.getEntryEndDate())
         .predefinedDate(ticketPoolDefinition.getPredefinedDate()).date(requestedDate)
         .dateType(ticketPoolDefinition.getDateType())
         .sightEvent(ticketPoolDefinition.getSightEvent()).build();
@@ -67,6 +69,8 @@ public class TicketPoolService extends ServiceSuperclass {
     TicketPool ticketPool = TicketPool.builder().name(ticketPoolDefinition.getName())
         .availableTicketsNumber(ticketPoolDefinition.getAvailableTicketsNumber())
         .startDate(ticketPoolDefinition.getStartDate()).endDate(ticketPoolDefinition.getEndDate())
+        .entryStartDate(ticketPoolDefinition.getEntryStartDate())
+        .entryEndDate(ticketPoolDefinition.getEntryEndDate())
         .predefinedDate(ticketPoolDefinition.getPredefinedDate()).date(requestedDate)
         .dateType(ticketPoolDefinition.getDateType())
         .sightEvent(ticketPoolDefinition.getSightEvent()).build();

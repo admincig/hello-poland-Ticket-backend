@@ -56,6 +56,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
             .availableTicketsNumber(ticketPoolDefinitionDTO.availableTicketsNumber)
             .cyclicalPool(ticketPoolDefinitionDTO.cyclicalPool).frequencyData(frequencyData)
             .startDate(ticketPoolDefinitionDTO.startDate).endDate(ticketPoolDefinitionDTO.endDate)
+            .entryStartDate(ticketPoolDefinitionDTO.entryStartDate)
+            .entryEndDate(ticketPoolDefinitionDTO.entryEndDate)
             .dateType(DateType.valueOf(ticketPoolDefinitionDTO.dateType.name()))
             .predefinedDate(ticketPoolDefinitionDTO.predefinedDate)
             .date(ticketPoolDefinitionDTO.date).sightEvent(sightEvent).build();
