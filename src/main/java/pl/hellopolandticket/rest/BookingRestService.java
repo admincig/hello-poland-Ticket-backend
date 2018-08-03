@@ -2,6 +2,9 @@ package pl.hellopolandticket.rest;
 
 import static java.util.Arrays.asList;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -37,18 +40,26 @@ public class BookingRestService extends RestServiceSuperclass {
 
   @GET
   @Path("/book-buy/{email}")
-  public Response bookAndBuy(@PathParam("email") String email) {
+  public Response bookAndBuy(@PathParam("email") String email) throws ParseException {
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    Date date = df.parse("2018-08-06 10:00:00");
     TicketOrderDTO ticket1 = new TicketOrderDTO();
     ticket1.ticketDefinitionId = 1L;
+    ticket1.ticketPoolDefinitionId = 1L;
     ticket1.numberOfTickets = 2L;
+    ticket1.date = date;
 
     TicketOrderDTO ticket2 = new TicketOrderDTO();
     ticket2.ticketDefinitionId = 2L;
+    ticket2.ticketPoolDefinitionId = 2L;
     ticket2.numberOfTickets = 3L;
+    ticket2.date = date;
 
     TicketOrderDTO ticket3 = new TicketOrderDTO();
     ticket3.ticketDefinitionId = 3L;
+    ticket3.ticketPoolDefinitionId = 3L;
     ticket3.numberOfTickets = 2L;
+    ticket3.date = date;
 
     BookingDTO booking = new BookingDTO();
     booking.customerName = "Jan Kowalski";

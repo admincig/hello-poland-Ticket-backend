@@ -267,15 +267,18 @@ public class ModelObjectsToDTOConverter {
   }
 
   private static FrequencyDataDTO ofFrequencyData(FrequencyData frequencyData) {
-    FrequencyDataDTO frequencyDataDTO = new FrequencyDataDTO();
+    if (frequencyData != null) {
+      FrequencyDataDTO frequencyDataDTO = new FrequencyDataDTO();
 
-    frequencyDataDTO.frequencyType =
-        FrequencyTypeDTO.valueOf(frequencyData.getFrequencyType().name());
-    frequencyDataDTO.dayOfWeek = frequencyData.getDayOfWeek();
-    frequencyDataDTO.month = frequencyData.getMonth();
-    frequencyDataDTO.dayOfMonth = frequencyData.getDayOfMonth();
-    frequencyDataDTO.frequency = frequencyData.getFrequency();
+      frequencyDataDTO.frequencyType =
+          FrequencyTypeDTO.valueOf(frequencyData.getFrequencyType().name());
+      frequencyDataDTO.dayOfWeek = frequencyData.getDayOfWeek();
+      frequencyDataDTO.month = frequencyData.getMonth();
+      frequencyDataDTO.dayOfMonth = frequencyData.getDayOfMonth();
+      frequencyDataDTO.frequency = frequencyData.getFrequency();
 
-    return frequencyDataDTO;
+      return frequencyDataDTO;
+    }
+    return null;
   }
 }
