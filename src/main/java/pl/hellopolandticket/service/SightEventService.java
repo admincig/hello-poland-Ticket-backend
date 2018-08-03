@@ -126,7 +126,11 @@ public class SightEventService extends ServiceSuperclass {
     sightEvent.setEmail(sightEventDTO.email);
     sightEvent.setPhone(sightEventDTO.phone);
 
-    sightEvent.setMainImageUrl(sightEventDTO.mainImageUrl);
+    String mainImageUrl = null;
+    if (sightEventDTO.mainImage != null) {
+      mainImageUrl = sightEventDTO.mainImage.original;
+    }
+    sightEvent.setMainImageUrl(mainImageUrl);
 
     return sightEventDTO;
   }
