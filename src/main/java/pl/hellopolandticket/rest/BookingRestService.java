@@ -42,7 +42,7 @@ public class BookingRestService extends RestServiceSuperclass {
   @Path("/book-buy/{email}")
   public Response bookAndBuy(@PathParam("email") String email) throws ParseException {
     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    Date date = df.parse("2018-08-06 10:00:00");
+    Date date = df.parse("2018-08-03 10:00:00");
     TicketOrderDTO ticket1 = new TicketOrderDTO();
     ticket1.ticketDefinitionId = 1L;
     ticket1.ticketPoolDefinitionId = 1L;
