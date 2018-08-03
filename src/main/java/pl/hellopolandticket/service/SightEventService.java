@@ -85,12 +85,15 @@ public class SightEventService extends ServiceSuperclass {
         ofNullable(sightEventDTO.location).map(this::ofLocation).orElse(null);
 
     User user = userService.findUserByEmail(currentUser.getPrincipal());
-
-    SightEvent sightEventToPersist = SightEvent.builder().name(sightEventDTO.name)
-        .description(sightEventDTO.description).mainImageUrl(sightEventDTO.mainImageUrl)
-        .email(sightEventDTO.email).phone(sightEventDTO.phone).lead(sightEventDTO.lead)
-        .sightEventLocation(sightEventLocation).partner(user.getPartner())
-        .generalAdmission(sightEventDTO.generalAdmission).build();
+    String mainImageUrl = null;
+    if (sightEventDTO.mainImage != null) {
+      mainImageUrl = sightEventDTO.mainImage.original;
+    }
+    SightEvent sightEventToPersist =
+        SightEvent.builder().name(sightEventDTO.name).description(sightEventDTO.description)
+            .mainImageUrl(mainImageUrl).email(sightEventDTO.email).phone(sightEventDTO.phone)
+            .lead(sightEventDTO.lead).sightEventLocation(sightEventLocation)
+            .partner(user.getPartner()).generalAdmission(sightEventDTO.generalAdmission).build();
 
     sightEventToPersist = sightEventDao.persist(sightEventToPersist);
 
