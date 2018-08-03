@@ -46,7 +46,7 @@ public class SightEvent implements Serializable {
   private String name;
 
   @Setter
-  @Column(name = "DESCRIPTION")
+  @Column(name = "DESCRIPTION", columnDefinition = "varchar")
   private String description;
 
   @Setter
