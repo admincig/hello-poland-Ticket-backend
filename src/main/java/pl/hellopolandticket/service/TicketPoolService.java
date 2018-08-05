@@ -91,14 +91,12 @@ public class TicketPoolService extends ServiceSuperclass {
     ticketPoolDefinitionValidator.validateRequestedDateBetweenStartDateAndEndDate(
         ticketPoolDefinition.getStartDate(), ticketPoolDefinition.getEndDate(), requestedDate);
 
-    if (ticketPoolDefinition.getCyclicalPool()) {
-      ticketPoolDefinitionValidator.validateCyclicalPool(ticketPoolDefinition.getCyclicalPool(),
-          ticketPoolDefinition.getFrequencyData());
+    ticketPoolDefinitionValidator.validateCyclicalPool(ticketPoolDefinition.getCyclicalPool(),
+        ticketPoolDefinition.getFrequencyData());
 
-      ticketPoolDefinitionValidator.validateFrequencyDataPermitsToCreateTicketPool(
-          ticketPoolDefinition.getFrequencyData(), ticketPoolDefinition.getStartDate(),
-          requestedDate);
-    }
+    ticketPoolDefinitionValidator.validateFrequencyDataPermitsToCreateTicketPool(
+        ticketPoolDefinition.getFrequencyData(), ticketPoolDefinition.getStartDate(),
+        requestedDate);
   }
 
   private TicketPoolDTO toTicketPoolDTO(TicketPool ticketPool) {

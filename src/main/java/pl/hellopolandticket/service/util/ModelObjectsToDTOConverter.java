@@ -110,7 +110,12 @@ public class ModelObjectsToDTOConverter {
     ticketDTO.date = (ticket.getDate());
     ticketDTO.status = StatusDTO.valueOf(ticket.getStatus().name());
     ticketDTO.serialNumber = ticket.getSerialNumber();
-    ticketDTO.ticketDefinitionId = ticket.getTicketDefinition().getId();
+    if (ticket.getTicketDefinition().getOriginalTicketDefinition() != null) {
+      ticketDTO.ticketDefinitionId =
+          ticket.getTicketDefinition().getOriginalTicketDefinition().getId();
+    } else {
+      ticketDTO.ticketDefinitionId = ticket.getTicketDefinition().getId();
+    }
     ticketDTO.booking = ofBookingBasic(ticket.getBooking());
     ticketDTO.ticketDefinition = ofTicketDefinition(ticket.getTicketDefinition());
 
