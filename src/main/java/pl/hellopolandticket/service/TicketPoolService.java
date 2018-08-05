@@ -37,8 +37,8 @@ public class TicketPoolService extends ServiceSuperclass {
   private TicketPoolDefinitionValidator ticketPoolDefinitionValidator;
 
 
-  public TicketPool createTicketPoolInstanceForCyclicalTicketPoolDefinition(
-      TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
+  public TicketPool createTicketPoolInstance(TicketPoolDefinition ticketPoolDefinition,
+      Date requestedDate) {
     validateCreatingTicketPoolInstanceIsPossible(ticketPoolDefinition, requestedDate);
 
     TicketPool ticketPool = TicketPool.builder().name(ticketPoolDefinition.getName())
