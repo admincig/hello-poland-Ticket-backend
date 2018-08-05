@@ -37,8 +37,8 @@ public class TicketPoolService extends ServiceSuperclass {
   private TicketPoolDefinitionValidator ticketPoolDefinitionValidator;
 
 
-  public TicketPool createTicketPoolInstanceForCyclicalTicketPoolDefinition(
-      TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
+  public TicketPool createTicketPoolInstance(TicketPoolDefinition ticketPoolDefinition,
+      Date requestedDate) {
     validateCreatingTicketPoolInstanceIsPossible(ticketPoolDefinition, requestedDate);
 
     TicketPool ticketPool = TicketPool.builder().name(ticketPoolDefinition.getName())
@@ -91,12 +91,14 @@ public class TicketPoolService extends ServiceSuperclass {
     ticketPoolDefinitionValidator.validateRequestedDateBetweenStartDateAndEndDate(
         ticketPoolDefinition.getStartDate(), ticketPoolDefinition.getEndDate(), requestedDate);
 
-    ticketPoolDefinitionValidator.validateCyclicalPool(ticketPoolDefinition.getCyclicalPool(),
-        ticketPoolDefinition.getFrequencyData());
+    if (ticketPoolDefinition.getCyclicalPool()) {
+      ticketPoolDefinitionValidator.validateCyclicalPool(ticketPoolDefinition.getCyclicalPool(),
+          ticketPoolDefinition.getFrequencyData());
 
-    ticketPoolDefinitionValidator.validateFrequencyDataPermitsToCreateTicketPool(
-        ticketPoolDefinition.getFrequencyData(), ticketPoolDefinition.getStartDate(),
-        requestedDate);
+      ticketPoolDefinitionValidator.validateFrequencyDataPermitsToCreateTicketPool(
+          ticketPoolDefinition.getFrequencyData(), ticketPoolDefinition.getStartDate(),
+          requestedDate);
+    }
   }
 
   private TicketPoolDTO toTicketPoolDTO(TicketPool ticketPool) {
