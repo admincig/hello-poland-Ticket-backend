@@ -49,9 +49,7 @@ public class TicketDefinitionService extends ServiceSuperclass {
         .map(ticketPoolId -> ticketPoolDao.findById(ticketPoolId)).orElse(null);
 
     List<TicketPoolDefinition> ticketPoolDefinitions =
-        ofNullable(ticketDefinitionDTO.ticketPoolDefinitionIds).map(
-            ticketPoolDefinitionIds -> ticketPoolDefinitionDao.findByIdsIn(ticketPoolDefinitionIds))
-            .orElse(null);
+        ticketPoolDefinitionDao.findByIdsIn(ticketDefinitionDTO.ticketPoolDefinitionIds);
 
     TicketDefinition ticketDefinition =
         TicketDefinition.builder().name(ticketDefinitionDTO.name).price(ticketDefinitionDTO.price)
@@ -60,8 +58,11 @@ public class TicketDefinitionService extends ServiceSuperclass {
 
     ticketDefinitionDao.persist(ticketDefinition);
 
-    ticketDefinitionDTO.id = ticketDefinition.getId();
+    ticketPoolDefinitions.forEach(tpd -> {
+      tpd.getTicketDefinitions().add(ticketDefinition);
+    });
 
+    ticketDefinitionDTO.id = ticketDefinition.getId();
     return ticketDefinitionDTO;
   }
 
@@ -70,6 +71,11 @@ public class TicketDefinitionService extends ServiceSuperclass {
     TicketDefinition ticketDefinitionWithTicketPool;
 
     TicketDefinition ticketDefinition = ticketDefinitionDao.findById(ticketDefinitionId);
+    if (ticketDefinition.getTicketDefinitionInstances() != null
+        && !ticketDefinition.getTicketDefinitionInstances().isEmpty()) {
+      ticketDefinition = ticketDefinition.getTicketDefinitionInstances().stream()
+          .max((t1, t2) -> t1.getId().compareTo(t2.getId())).get();
+    }
 
     if (hasTicketPool(ticketDefinition)) {
       ticketPoolValidator.validateRequestedDateEqualsStartDate(
@@ -84,8 +90,7 @@ public class TicketDefinitionService extends ServiceSuperclass {
           findInTicketDefinitionInstances(ticketDefinition, requestedDate);
       if (ticketDefinitionWithTicketPool == null) {
         TicketPool ticketPool =
-            ticketPoolService.createTicketPoolInstance(
-                ticketPoolDefinition, requestedDate);
+            ticketPoolService.createTicketPoolInstance(ticketPoolDefinition, requestedDate);
 
         return ticketPool.getTicketDefinitions().stream()
             .filter(td -> td.getOriginalTicketDefinition().getId().equals(ticketDefinitionId))
