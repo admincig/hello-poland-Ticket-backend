@@ -1,22 +1,16 @@
 package pl.hellopolandticket.model.ticket.partner;
 
-import static javax.persistence.CascadeType.ALL;
 import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
 import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
@@ -25,16 +19,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
 import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
 @Getter
 @Entity
 @Table(name = "TICKET_POOLS")
-@EqualsAndHashCode(exclude = {"ticketDefinitions"})
+@EqualsAndHashCode
 @NoArgsConstructor
-@ToString(exclude = {"ticketDefinitions"})
+@ToString
 public class TicketPool implements Serializable {
 
   private static final long serialVersionUID = -3301750425362262797L;
@@ -71,48 +64,43 @@ public class TicketPool implements Serializable {
   private Date entryEndDate;
 
   @Setter
-  @NotNull
-  @Column(name = "PREDEFINED_DATE", nullable = false)
-  private Boolean predefinedDate;
-
-  @Setter
-  @Column(name = "DATE")
-  private Date date;
-
-  @Setter
-  @NotNull
-  @Enumerated(EnumType.STRING)
-  @Column(name = "DATE_TYPE", nullable = false)
-  private DateType dateType;
-
-  @Setter
-  @NotNull
-  @ManyToOne
-  @JoinColumn(name = "SIGHT_EVENT_ID", nullable = false)
-  private SightEvent sightEvent;
-
-  @Setter
-  @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "ticketPool")
-  private List<TicketDefinition> ticketDefinitions = new ArrayList<>();
+  @Column(name = "TICKET_POOL_DEFINITION_ID")
+  @ManyToOne(optional = false)
+  private TicketPoolDefinition ticketPoolDefinition;
 
   @Builder
-  public TicketPool(String name, Integer availableTicketsNumber, Date startDate, Date endDate,
-      Date entryStartDate, Date entryEndDate, Boolean predefinedDate, Date date, DateType dateType,
-      SightEvent sightEvent, List<TicketDefinition> ticketDefinitions) {
+  public TicketPool(TicketPoolDefinition parent, String name, Integer availableTicketsNumber,
+      Date startDate, Date endDate, Date entryStartDate, Date entryEndDate) {
+    this.ticketPoolDefinition = parent;
     this.name = name;
     this.startDate = startDate;
     this.endDate = endDate;
     this.entryStartDate = entryStartDate != null ? entryStartDate : startDate;
     this.entryEndDate = entryEndDate != null ? entryEndDate : endDate;
-    this.predefinedDate = predefinedDate;
-    this.date = date;
-    this.dateType = dateType;
-    this.sightEvent = sightEvent;
-    this.ticketDefinitions = ticketDefinitions;
 
     this.availableTicketsNumber =
         availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
             : availableTicketsNumber;
+  }
+
+  public TicketPool(TicketPoolDefinition parent) {
+    this.ticketPoolDefinition = parent;
+    this.name = parent.getName();
+    this.availableTicketsNumber = parent.getAvailableTicketsNumber();
+    this.endDate = parent.getEndDate();
+    this.startDate = parent.getStartDate();
+    this.entryStartDate = parent.getEntryStartDate();
+    this.entryEndDate = parent.getEntryEndDate();
+  }
+
+  public boolean isEqualParent() {
+    return Objects.equals(this.name, ticketPoolDefinition.getName())
+        && Objects.equals(this.availableTicketsNumber,
+            ticketPoolDefinition.getAvailableTicketsNumber())
+        && Objects.equals(this.startDate, ticketPoolDefinition.getStartDate())
+        && Objects.equals(this.endDate, ticketPoolDefinition.getEndDate())
+        && Objects.equals(this.entryStartDate, ticketPoolDefinition.getEntryStartDate())
+        && Objects.equals(this.entryEndDate, ticketPoolDefinition.getEntryEndDate());
   }
 
   public void decreaseAvailableTicketsNumber(int numberOfTickets) {

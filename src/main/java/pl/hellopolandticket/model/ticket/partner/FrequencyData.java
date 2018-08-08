@@ -1,7 +1,8 @@
 package pl.hellopolandticket.model.ticket.partner;
 
-import java.time.DayOfWeek;
+import java.util.List;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -27,15 +28,11 @@ public class FrequencyData {
   @Column(name = "FREQUENCY_TYPE")
   private FrequencyType frequencyType;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "DAY_OF_WEEK")
-  private DayOfWeek dayOfWeek;
+  @ElementCollection
+  private List<Integer> daysOfWeek;
 
-  @Column(name = "DAY_OF_MONTH")
-  private Integer dayOfMonth;
-
-  @Column(name = "MONTH")
-  private Integer month;
+  @ElementCollection
+  private List<Integer> monthsOfYear;
 
   @Column(name = "FREQUENCY")
   private Integer frequency;

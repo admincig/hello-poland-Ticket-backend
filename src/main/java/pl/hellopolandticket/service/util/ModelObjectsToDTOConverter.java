@@ -8,7 +8,6 @@ import lombok.Builder;
 import pl.hellopoland.dto.AbstractErrorDTO;
 import pl.hellopoland.dto.ApplicationPropertyDTO;
 import pl.hellopoland.dto.CollectionWrapperDTO;
-import pl.hellopoland.dto.DateTypeDTO;
 import pl.hellopoland.dto.FrequencyDataDTO;
 import pl.hellopoland.dto.FrequencyTypeDTO;
 import pl.hellopoland.dto.ImageDTO;
@@ -83,12 +82,6 @@ public class ModelObjectsToDTOConverter {
     ticketDefinitionDTO.availableTicketsNumber = ticketDefinition.getAvailableTicketsNumber();
     ticketDefinitionDTO.price = ticketDefinition.getPrice();
 
-    ticketDefinitionDTO.ticketPoolId =
-        ofNullable(ticketDefinition.getTicketPool()).map(TicketPool::getId).orElse(null);
-
-    ticketDefinitionDTO.ticketPoolDefinitionIds = ticketDefinition.getTicketPoolDefinitions()
-        .stream().map(TicketPoolDefinition::getId).collect(toList());
-
     return ticketDefinitionDTO;
   }
 
@@ -110,14 +103,8 @@ public class ModelObjectsToDTOConverter {
     ticketDTO.date = (ticket.getDate());
     ticketDTO.status = StatusDTO.valueOf(ticket.getStatus().name());
     ticketDTO.serialNumber = ticket.getSerialNumber();
-    if (ticket.getTicketDefinition().getOriginalTicketDefinition() != null) {
-      ticketDTO.ticketDefinitionId =
-          ticket.getTicketDefinition().getOriginalTicketDefinition().getId();
-    } else {
-      ticketDTO.ticketDefinitionId = ticket.getTicketDefinition().getId();
-    }
-    ticketDTO.booking = ofBookingBasic(ticket.getBooking());
-    ticketDTO.ticketDefinition = ofTicketDefinition(ticket.getTicketDefinition());
+    ticketDTO.ticketDefinitionId = ticket.getTicketDefinition().getId();
+    ticketDTO.bookingId = ticket.getBooking().getId();
 
     return ticketDTO;
   }
@@ -233,13 +220,6 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDTO.endDate = ticketPool.getEndDate();
     ticketPoolDTO.entryStartDate = ticketPool.getEntryStartDate();
     ticketPoolDTO.entryEndDate = ticketPool.getEntryEndDate();
-    ticketPoolDTO.dateType = DateTypeDTO.valueOf(ticketPool.getDateType().name());
-    ticketPoolDTO.sightEventId = ticketPool.getSightEvent().getId();
-    ticketPoolDTO.ticketDefinitions =
-        ofNullable(ticketPool.getTicketDefinitions())
-            .map(ticketDefinitions -> ticketDefinitions.stream()
-                .map(ModelObjectsToDTOConverter::ofTicketDefinition).collect(toList()))
-            .orElse(null);
 
     return ticketPoolDTO;
   }
@@ -252,17 +232,13 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDefinitionDTO.name = ticketPoolDefinition.getName();
     ticketPoolDefinitionDTO.availableTicketsNumber =
         ticketPoolDefinition.getAvailableTicketsNumber();
-    ticketPoolDefinitionDTO.cyclicalPool = ticketPoolDefinition.getCyclicalPool();
+    ticketPoolDefinitionDTO.isCyclic = ticketPoolDefinition.getIsCyclic();
     ticketPoolDefinitionDTO.frequencyData =
         ofFrequencyData(ticketPoolDefinition.getFrequencyData());
     ticketPoolDefinitionDTO.startDate = ticketPoolDefinition.getStartDate();
     ticketPoolDefinitionDTO.endDate = ticketPoolDefinition.getEndDate();
     ticketPoolDefinitionDTO.entryStartDate = ticketPoolDefinition.getEntryStartDate();
     ticketPoolDefinitionDTO.entryEndDate = ticketPoolDefinition.getEntryEndDate();
-    ticketPoolDefinitionDTO.dateType =
-        DateTypeDTO.valueOf(ticketPoolDefinition.getDateType().name());
-    ticketPoolDefinitionDTO.predefinedDate = ticketPoolDefinition.getPredefinedDate();
-    ticketPoolDefinitionDTO.date = ticketPoolDefinition.getDate();
     ticketPoolDefinitionDTO.sightEventId = ticketPoolDefinition.getSightEvent().getId();
 
     ticketPoolDefinitionDTO.ticketDefinitions = ticketPoolDefinition.getTicketDefinitions().stream()
@@ -277,10 +253,9 @@ public class ModelObjectsToDTOConverter {
 
       frequencyDataDTO.frequencyType =
           FrequencyTypeDTO.valueOf(frequencyData.getFrequencyType().name());
-      frequencyDataDTO.dayOfWeek = frequencyData.getDayOfWeek();
-      frequencyDataDTO.month = frequencyData.getMonth();
-      frequencyDataDTO.dayOfMonth = frequencyData.getDayOfMonth();
+      frequencyDataDTO.daysOfWeek = frequencyData.getDaysOfWeek();
       frequencyDataDTO.frequency = frequencyData.getFrequency();
+      frequencyDataDTO.monthsOfYear = frequencyData.getMonthsOfYear();
 
       return frequencyDataDTO;
     }

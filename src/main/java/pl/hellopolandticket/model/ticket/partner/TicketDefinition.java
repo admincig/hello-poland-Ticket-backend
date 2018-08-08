@@ -4,7 +4,6 @@ import static javax.persistence.CascadeType.ALL;
 import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
 import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,9 +30,9 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 @Getter
 @Entity
 @Table(name = "TICKET_DEFINITIONS")
-@EqualsAndHashCode(exclude = {"ticketPoolDefinitions", "tickets", "ticketDefinitionInstances"})
+@EqualsAndHashCode(exclude = {"ticketPoolDefinitions", "tickets"})
 @NoArgsConstructor
-@ToString(exclude = {"ticketPoolDefinitions", "tickets", "ticketDefinitionInstances"})
+@ToString(exclude = {"ticketPoolDefinitions", "tickets"})
 public class TicketDefinition implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
@@ -64,37 +63,20 @@ public class TicketDefinition implements Serializable {
   private Integer availableTicketsNumber;
 
   @Setter
-  @ManyToOne
-  @JoinColumn(name = "TICKET_POOL_ID")
-  private TicketPool ticketPool;
-
-  @Setter
   @ManyToMany(cascade = ALL)
-  private List<TicketPoolDefinition> ticketPoolDefinitions = new ArrayList<>();
+  private List<TicketPoolDefinition> ticketPoolDefinitions;
 
   @Setter
   @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "ticketDefinition")
-  private List<Ticket> tickets = new ArrayList<>();
-
-  @Setter
-  @OneToMany(mappedBy = "originalTicketDefinition")
-  private List<TicketDefinition> ticketDefinitionInstances;
-
-  @Setter
-  @ManyToOne
-  @JoinColumn(name = "ORIGINAL_TICKET_DEFINITION_ID")
-  private TicketDefinition originalTicketDefinition;
+  private List<Ticket> tickets;
 
   @Builder
   public TicketDefinition(String name, Integer availableTicketsNumber, Integer price,
-      Partner partner, TicketPool ticketPool, List<TicketPoolDefinition> ticketPoolDefinitions,
-      TicketDefinition originalTicketDefinition) {
+      Partner partner, List<TicketPoolDefinition> ticketPoolDefinitions) {
     this.name = name;
     this.price = price;
     this.partner = partner;
-    this.ticketPool = ticketPool;
     this.ticketPoolDefinitions = ticketPoolDefinitions;
-    this.originalTicketDefinition = originalTicketDefinition;
 
     this.availableTicketsNumber =
         availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
@@ -107,7 +89,6 @@ public class TicketDefinition implements Serializable {
       throw new NumberOfTicketsNotPositiveException();
     }
 
-    ticketPool.decreaseAvailableTicketsNumber(numberOfTickets);
     if (hasLimitedNumberOfTickets()) {
       if (hasEnoughTickets(numberOfTickets)) {
         availableTicketsNumber = availableTicketsNumber - numberOfTickets;
@@ -119,7 +100,6 @@ public class TicketDefinition implements Serializable {
 
   public void increaseAvailableTicketsNumber() {
     if (hasLimitedNumberOfTickets()) {
-      ticketPool.increaseAvailableTicketsNumber();
       availableTicketsNumber++;
     }
   }

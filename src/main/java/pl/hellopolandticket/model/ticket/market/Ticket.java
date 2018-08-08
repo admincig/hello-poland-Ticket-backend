@@ -30,8 +30,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import pl.hellopolandticket.model.auth.User;
-import pl.hellopolandticket.model.ticket.partner.DateType;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
+import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.service.exception.badrequest.CannotGenerateQrCodeException;
 
 @Getter
@@ -67,12 +67,6 @@ public class Ticket implements Serializable {
   @Setter
   @NotNull
   @Enumerated(EnumType.STRING)
-  @Column(name = "DATE_TYPE", nullable = false)
-  private DateType dateType;
-
-  @Setter
-  @NotNull
-  @Enumerated(EnumType.STRING)
   @Column(name = "STATUS", nullable = false)
   private Status status = BOOKED;
 
@@ -89,25 +83,30 @@ public class Ticket implements Serializable {
   @Setter
   @NotNull
   @ManyToOne(optional = false)
-  @JoinColumn(name = "TICKET_DEFINITION", nullable = false)
+  @JoinColumn(name = "TICKET_DEFINITION_ID", nullable = false)
   private TicketDefinition ticketDefinition;
 
   @Setter
+  @NotNull
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "TICKET_POOL_ID", nullable = false)
+  private TicketPool ticketPool;
+
+  @Setter
   @ManyToOne
-  @JoinColumn(name = "TICKET_TAKER")
+  @JoinColumn(name = "TICKET_TAKER_ID")
   private User ticketTaker;
 
   @Setter
-  @Column(name = "PUNCHING_DATE")
+  @Column(name = "PUNCHING_DATE_ID")
   private Date punchingDate;
 
   @Builder
-  public Ticket(String name, Integer price, Date date, DateType dateType, Status status,
-      String serialNumber, Booking booking, TicketDefinition ticketDefinition) {
+  public Ticket(String name, Integer price, Date date, Status status, String serialNumber,
+      Booking booking, TicketDefinition ticketDefinition) {
     this.name = name;
     this.price = price;
     this.date = date;
-    this.dateType = dateType;
     this.status = status;
     this.serialNumber = serialNumber;
     this.booking = booking;
