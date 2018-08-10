@@ -18,7 +18,7 @@ import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.sightevent.SightEventLocation;
-import pl.hellopolandticket.model.ticket.partner.TicketPool;
+import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
@@ -67,8 +67,8 @@ public class SightEventService extends ServiceSuperclass {
         partner.getSightEvents().stream().map(SightEvent::getId).collect(toList());
 
     List<SightEvent> sightEvents = sightEventDao.findBySightEventIdsIn(sightEventIds);
-    sightEvents.forEach(
-        sightEvent -> sightEvent.getTicketPools().forEach(TicketPool::getTicketDefinitions));
+    sightEvents.forEach(sightEvent -> sightEvent.getTicketPoolDefinitions()
+        .forEach(TicketPoolDefinition::getTicketDefinitions));
 
     PushDTO sightEventsPushDTO = new PushDTO();
 

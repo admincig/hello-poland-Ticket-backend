@@ -103,13 +103,14 @@ public class Ticket implements Serializable {
 
   @Builder
   public Ticket(String name, Integer price, Date date, Status status, String serialNumber,
-      Booking booking, TicketDefinition ticketDefinition) {
+      Booking booking, TicketPool ticketPool, TicketDefinition ticketDefinition) {
     this.name = name;
     this.price = price;
     this.date = date;
     this.status = status;
     this.serialNumber = serialNumber;
     this.booking = booking;
+    this.ticketPool = ticketPool;
     this.ticketDefinition = ticketDefinition;
   }
 

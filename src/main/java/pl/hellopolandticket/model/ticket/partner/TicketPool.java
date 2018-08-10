@@ -4,6 +4,7 @@ import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.MIN
 import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
@@ -19,6 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
 import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
@@ -68,6 +71,10 @@ public class TicketPool implements Serializable {
   @ManyToOne(optional = false)
   private TicketPoolDefinition ticketPoolDefinition;
 
+  @Setter
+  @OneToMany(mappedBy = "ticketPool")
+  private List<Ticket> tickets;
+
   @Builder
   public TicketPool(TicketPoolDefinition parent, String name, Integer availableTicketsNumber,
       Date startDate, Date endDate, Date entryStartDate, Date entryEndDate) {
@@ -94,9 +101,14 @@ public class TicketPool implements Serializable {
   }
 
   public boolean isEqualParent() {
+    int availableTicketsNumber = this.availableTicketsNumber;
+    if (this.tickets != null) {
+      availableTicketsNumber += this.tickets.size();
+    }
+
+    // TODO fix equality for different frequency days
     return Objects.equals(this.name, ticketPoolDefinition.getName())
-        && Objects.equals(this.availableTicketsNumber,
-            ticketPoolDefinition.getAvailableTicketsNumber())
+        && Objects.equals(availableTicketsNumber, ticketPoolDefinition.getAvailableTicketsNumber())
         && Objects.equals(this.startDate, ticketPoolDefinition.getStartDate())
         && Objects.equals(this.endDate, ticketPoolDefinition.getEndDate())
         && Objects.equals(this.entryStartDate, ticketPoolDefinition.getEntryStartDate())

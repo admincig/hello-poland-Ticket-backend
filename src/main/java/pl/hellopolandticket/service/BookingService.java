@@ -21,8 +21,11 @@ import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.ticket.market.Booking;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
+import pl.hellopolandticket.model.ticket.partner.TicketPool;
+import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
+import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 
 @Stateless
 @LocalBean
@@ -39,6 +42,12 @@ public class BookingService extends ServiceSuperclass {
 
   @Inject
   private TicketDefinitionService ticketDefinitionService;
+
+  @Inject
+  private TicketPoolService ticketPoolService;
+
+  @Inject
+  private TicketPoolDefinitionService ticketPoolDefinitionService;
 
   @Inject
   private ApplicationPropertyService applicationPropertyService;
@@ -86,28 +95,28 @@ public class BookingService extends ServiceSuperclass {
     }
   }
 
-  private List<Ticket> book(Collection<TicketOrderDTO> ticketBookingDTOs, Booking booking) {
+  private List<Ticket> book(Collection<TicketOrderDTO> dtos, Booking booking) {
     List<Ticket> bookedTickets = new ArrayList<>();
 
-    for (TicketOrderDTO ticketBookingDTO : ticketBookingDTOs) {
-      TicketDefinition ticketDefinition = ticketDefinitionService
-          .findTicketDefinitionWithTicketPool(ticketBookingDTO.ticketDefinitionId,
-              ticketBookingDTO.ticketPoolDefinitionId, ticketBookingDTO.date);
+    for (TicketOrderDTO dto : dtos) {
+      TicketDefinition ticketDefinition = ticketDefinitionService.get(dto.ticketDefinitionId);
+      if (!ticketDefinition.isConnectedWithPoolDefiniton(dto.ticketPoolDefinitionId)) {
+        throw new ResourceNotFoundException(
+            "Ticket definition does not belong to given pool definition");
+      }
+      TicketPoolDefinition poolDefinition =
+          ticketPoolDefinitionService.get(dto.ticketPoolDefinitionId);
+      TicketPool pool = ticketPoolService.findOrCreateNew(poolDefinition, dto.date);
 
-      Date date = ticketDefinition.getTicketPool().getPredefinedDate()
-          ? ticketDefinition.getTicketPool().getDate()
-          : ticketBookingDTO.date;
-
-      for (int i = 0; i < ticketBookingDTO.numberOfTickets; i++) {
-        Ticket ticket =
-            Ticket.builder().name(ticketDefinition.getName()).price(ticketDefinition.getPrice())
-                .date(date).dateType(ticketDefinition.getTicketPool().getDateType()).status(BOOKED)
-                .booking(booking).ticketDefinition(ticketDefinition).build();
+      for (int i = 0; i < dto.numberOfTickets; i++) {
+        Ticket ticket = Ticket.builder().name(ticketDefinition.getName())
+            .price(ticketDefinition.getPrice()).date(dto.date).status(BOOKED).booking(booking)
+            .ticketDefinition(ticketDefinition).ticketPool(pool).build();
 
         bookedTickets.add(ticket);
       }
 
-      ticketDefinition.decreaseAvailableTicketsNumber(ticketBookingDTO.numberOfTickets.intValue());
+      pool.decreaseAvailableTicketsNumber(dto.numberOfTickets.intValue());
     }
 
     return ticketDao.persist(bookedTickets);
@@ -117,7 +126,7 @@ public class BookingService extends ServiceSuperclass {
     List<Ticket> tickets = booking.getTickets();
 
     for (Ticket ticket : tickets) {
-      ticket.getTicketDefinition().decreaseAvailableTicketsNumber(1);
+      ticket.getTicketPool().decreaseAvailableTicketsNumber(1);
       ticket.setStatus(BOOKED);
     }
     booking.setStatus(BOOKED);

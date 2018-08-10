@@ -14,7 +14,6 @@ import pl.hellopolandticket.dao.SightEventDao;
 import pl.hellopolandticket.dao.TicketPoolDefinitionDao;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
-import pl.hellopolandticket.model.ticket.partner.DateType;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.FrequencyType;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
@@ -102,6 +101,10 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
     return tpd.stream().map(d -> ModelObjectsToDTOConverter.ofTicketPoolDefinition(d))
         .collect(Collectors.toList());
+  }
+
+  public TicketPoolDefinition get(Long id) {
+    return ticketPoolDefinitionDao.findById(id);
   }
 
 }

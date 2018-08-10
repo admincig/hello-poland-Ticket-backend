@@ -1,8 +1,6 @@
 package pl.hellopolandticket.model.ticket.partner;
 
 import static javax.persistence.CascadeType.ALL;
-import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
-import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Column;
@@ -24,8 +22,6 @@ import lombok.Setter;
 import lombok.ToString;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.ticket.market.Ticket;
-import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
-import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
 @Getter
 @Entity
@@ -59,10 +55,6 @@ public class TicketDefinition implements Serializable {
   private Partner partner;
 
   @Setter
-  @Column(name = "AVAILABLE_TICKETS_NUMBER")
-  private Integer availableTicketsNumber;
-
-  @Setter
   @ManyToMany(cascade = ALL)
   private List<TicketPoolDefinition> ticketPoolDefinitions;
 
@@ -71,45 +63,17 @@ public class TicketDefinition implements Serializable {
   private List<Ticket> tickets;
 
   @Builder
-  public TicketDefinition(String name, Integer availableTicketsNumber, Integer price,
-      Partner partner, List<TicketPoolDefinition> ticketPoolDefinitions) {
+  public TicketDefinition(String name, Integer price, Partner partner,
+      List<TicketPoolDefinition> ticketPoolDefinitions) {
     this.name = name;
     this.price = price;
     this.partner = partner;
     this.ticketPoolDefinitions = ticketPoolDefinitions;
-
-    this.availableTicketsNumber =
-        availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
-            : availableTicketsNumber;
   }
 
-
-  public void decreaseAvailableTicketsNumber(int numberOfTickets) {
-    if (numberOfTickets <= 0) {
-      throw new NumberOfTicketsNotPositiveException();
-    }
-
-    if (hasLimitedNumberOfTickets()) {
-      if (hasEnoughTickets(numberOfTickets)) {
-        availableTicketsNumber = availableTicketsNumber - numberOfTickets;
-      } else {
-        throw new NoAvailableTicketsException();
-      }
-    }
-  }
-
-  public void increaseAvailableTicketsNumber() {
-    if (hasLimitedNumberOfTickets()) {
-      availableTicketsNumber++;
-    }
-  }
-
-  private boolean hasLimitedNumberOfTickets() {
-    return availableTicketsNumber != UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
-  }
-
-  private boolean hasEnoughTickets(int numberOfTickets) {
-    return availableTicketsNumber - numberOfTickets >= MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+  public boolean isConnectedWithPoolDefiniton(Long poolDefinitionId) {
+    return getTicketPoolDefinitions().stream()
+        .anyMatch(tpd -> tpd.getId().equals(poolDefinitionId));
   }
 
 }

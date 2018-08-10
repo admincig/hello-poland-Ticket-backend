@@ -1,5 +1,6 @@
 package pl.hellopolandticket.model.ticket.partner;
 
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -36,4 +37,17 @@ public class FrequencyData {
 
   @Column(name = "FREQUENCY")
   private Integer frequency;
+
+  @Column(name = "FREQUENCY_START_DATE")
+  private Date startDate;
+
+  @Column(name = "FREQUENCY_END_DATE")
+  private Date endDate;
+
+  public FrequencyData(FrequencyType type, Integer frequency, Date startDate, Date endDate) {
+    this.frequencyType = type;
+    this.frequency = frequency;
+    this.startDate = startDate;
+    this.endDate = endDate;
+  }
 }

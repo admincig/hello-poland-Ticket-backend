@@ -119,4 +119,8 @@ public class TicketDefinitionService extends ServiceSuperclass {
     return bos.stream().map(ModelObjectsToDTOConverter::ofTicketDefinition)
         .collect(Collectors.toList());
   }
+
+  public TicketDefinition get(Long id) {
+    return ticketDefinitionDao.findById(id);
+  }
 }

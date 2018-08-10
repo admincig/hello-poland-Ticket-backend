@@ -2,11 +2,6 @@ package pl.hellopolandticket.model.ticket.partner;
 
 public enum FrequencyType {
 
-  DAILY,
+  CUSTOM, DAILY, MONTHLY, WEEKDAYS, WEEKENDS, WEEKLY, YEARLY;
 
-  WEEKLY,
-
-  MONTHLY,
-
-  YEARLY;
 }
