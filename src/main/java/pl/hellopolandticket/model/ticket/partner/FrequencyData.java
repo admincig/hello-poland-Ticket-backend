@@ -50,4 +50,5 @@ public class FrequencyData {
     this.startDate = startDate;
     this.endDate = endDate;
   }
+
 }

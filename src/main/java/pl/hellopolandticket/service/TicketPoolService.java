@@ -39,11 +39,11 @@ public class TicketPoolService extends ServiceSuperclass {
     if (pool == null) {
       Date startDate = getStartDateForNewInstance(ticketPoolDefinition, requestedDate);
       Date endDate = getEndDateForNewInstance(ticketPoolDefinition, startDate);
-      // validateCreatingTicketPoolInstanceIsPossible(ticketPoolDefinition, requestedDate);
       pool = new TicketPool(ticketPoolDefinition);
       pool.setStartDate(startDate);
       pool.setEndDate(endDate);
       ticketPoolDao.persist(pool);
+      pool.recountEntryDates();
     }
 
     return pool;
@@ -60,6 +60,18 @@ public class TicketPoolService extends ServiceSuperclass {
   }
 
   Date getStartDateForNewInstance(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
+    if (ticketPoolDefinition.getIsCyclic()) {
+      return getStartDateForNewInstanceOfCyclicPool(ticketPoolDefinition, requestedDate);
+    } else if (requestedDate == null) { // proper noncyclic pool
+      return ticketPoolDefinition.getStartDate();
+    } else {
+      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+          "Ządana data poza zakresem definicji puli");
+    }
+  }
+
+  private Date getStartDateForNewInstanceOfCyclicPool(TicketPoolDefinition ticketPoolDefinition,
+      Date requestedDate) {
     if (requestedDate.after(ticketPoolDefinition.getFrequencyData().getEndDate())
         || requestedDate.before(ticketPoolDefinition.getFrequencyData().getStartDate())) {
       throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(

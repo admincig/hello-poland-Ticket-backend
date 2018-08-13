@@ -3,6 +3,8 @@ package pl.hellopolandticket.model.ticket.partner;
 import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
 import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
 import java.io.Serializable;
+import java.time.Duration;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -11,6 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -28,7 +31,7 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 @Getter
 @Entity
 @Table(name = "TICKET_POOLS")
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "tickets")
 @NoArgsConstructor
 @ToString
 public class TicketPool implements Serializable {
@@ -67,8 +70,8 @@ public class TicketPool implements Serializable {
   private Date entryEndDate;
 
   @Setter
-  @Column(name = "TICKET_POOL_DEFINITION_ID")
   @ManyToOne(optional = false)
+  @JoinColumn(name = "TICKET_POOL_DEFINITION_ID")
   private TicketPoolDefinition ticketPoolDefinition;
 
   @Setter
@@ -141,5 +144,18 @@ public class TicketPool implements Serializable {
 
   private boolean hasEnoughTickets(int numberOfTickets) {
     return availableTicketsNumber - numberOfTickets >= MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+  }
+
+  public void recountEntryDates() {
+    Calendar startDateCal = Calendar.getInstance();
+    startDateCal.setTime(startDate);
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(entryStartDate);
+    long duration =
+        Duration.between(entryStartDate.toInstant(), entryEndDate.toInstant()).toMillis();
+    cal.set(Calendar.DAY_OF_YEAR, startDateCal.get(Calendar.DAY_OF_YEAR));
+    entryStartDate = cal.getTime();
+    cal.add(Calendar.MILLISECOND, (int) duration);
+    entryEndDate = cal.getTime();
   }
 }

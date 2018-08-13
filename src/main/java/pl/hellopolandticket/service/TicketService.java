@@ -30,7 +30,7 @@ public class TicketService extends ServiceSuperclass {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
 
     ticketValidator.validateAccessingProperTicket(sightEventId,
-        ticket.getTicketDefinition().getTicketPool().getSightEvent().getId());
+        ticket.getTicketPool().getTicketPoolDefinition().getSightEvent().getId());
 
     ticketValidator.validateTicketHasDemandedStatus(ticket);
     ticketValidator.validateProperTime(ticket);
@@ -38,7 +38,7 @@ public class TicketService extends ServiceSuperclass {
     User ticketTaker = userService.findUserByEmail(currentUser.getPrincipal());
 
     ticketValidator.validateTicketTakerHasAccessToSightEvent(
-        ticket.getTicketDefinition().getTicketPool().getSightEvent(),
+        ticket.getTicketPool().getTicketPoolDefinition().getSightEvent(),
         ticketTaker.getPartner().getSightEvents());
 
     ticket.setTicketTaker(ticketTaker);
@@ -54,12 +54,12 @@ public class TicketService extends ServiceSuperclass {
     User ticketTaker = userService.findUserByEmail(currentUser.getPrincipal());
 
     ticketValidator.validateTicketTakerHasAccessToSightEvent(
-        ticket.getTicketDefinition().getTicketPool().getSightEvent(),
+        ticket.getTicketPool().getTicketPoolDefinition().getSightEvent(),
         ticketTaker.getPartner().getSightEvents()
 
     );
     ticketValidator.validateAccessingProperTicket(sightEventId,
-        ticket.getTicketDefinition().getTicketPool().getSightEvent().getId());
+        ticket.getTicketPool().getTicketPoolDefinition().getSightEvent().getId());
 
     return ofTicket(ticket);
   }

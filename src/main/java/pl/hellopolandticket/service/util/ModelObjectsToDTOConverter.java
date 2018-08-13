@@ -79,7 +79,6 @@ public class ModelObjectsToDTOConverter {
 
     ticketDefinitionDTO.id = ticketDefinition.getId();
     ticketDefinitionDTO.name = ticketDefinition.getName();
-    ticketDefinitionDTO.availableTicketsNumber = ticketDefinition.getAvailableTicketsNumber();
     ticketDefinitionDTO.price = ticketDefinition.getPrice();
 
     return ticketDefinitionDTO;
@@ -248,7 +247,7 @@ public class ModelObjectsToDTOConverter {
   }
 
   private static FrequencyDataDTO ofFrequencyData(FrequencyData frequencyData) {
-    if (frequencyData != null) {
+    if (frequencyData != null && frequencyData.getFrequencyType() != null) {
       FrequencyDataDTO frequencyDataDTO = new FrequencyDataDTO();
 
       frequencyDataDTO.frequencyType =
