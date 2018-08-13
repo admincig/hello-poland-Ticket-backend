@@ -101,4 +101,9 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     return ticketPoolDefinitionDao.findById(id);
   }
 
+  public TicketPoolDefinitionDTO getForPartner(Long id, CurrentUser currentUser) {
+    return ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinitionDao
+        .findByIdForPartner(id, partnerDao.findByUserEmail(currentUser.getPrincipal()).getId()));
+  }
+
 }
