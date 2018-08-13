@@ -28,6 +28,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.DAILY, 1, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -50,6 +51,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.DAILY, 1, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -72,6 +74,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.DAILY, 2, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -93,6 +96,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.DAILY, 2, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -113,6 +117,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.DAILY, 2, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -133,6 +138,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.DAILY, 2, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -154,6 +160,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.DAILY, 2, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -175,6 +182,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.DAILY, 2, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -195,6 +203,8 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.DAILY, 1, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -215,6 +225,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.DAILY, 1, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -235,6 +246,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.DAILY, 1, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -255,6 +267,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.DAILY, 1, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -278,6 +291,7 @@ public class TicketPoolServiceTest {
     List<Integer> days = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
     fd.setDaysOfWeek(days);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -301,6 +315,7 @@ public class TicketPoolServiceTest {
     List<Integer> days = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
     fd.setDaysOfWeek(days);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -323,6 +338,7 @@ public class TicketPoolServiceTest {
     List<Integer> days = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
     fd.setDaysOfWeek(days);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -346,6 +362,7 @@ public class TicketPoolServiceTest {
     List<Integer> days = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
     fd.setDaysOfWeek(days);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -370,6 +387,7 @@ public class TicketPoolServiceTest {
     List<Integer> days = Arrays.asList(1);
     fd.setDaysOfWeek(days);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -392,6 +410,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.WEEKLY, 1, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -414,6 +433,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.WEEKLY, 1, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -435,6 +455,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.WEEKLY, 1, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -456,6 +477,7 @@ public class TicketPoolServiceTest {
     FrequencyData fd =
         new FrequencyData(FrequencyType.WEEKENDS, null, frequencyStartDate, frequencyEndDate);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -480,6 +502,7 @@ public class TicketPoolServiceTest {
     List<Integer> days = Arrays.asList(1);
     fd.setDaysOfWeek(days);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -504,6 +527,7 @@ public class TicketPoolServiceTest {
     List<Integer> days = Arrays.asList(7);
     fd.setDaysOfWeek(days);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -527,6 +551,7 @@ public class TicketPoolServiceTest {
     List<Integer> days = Arrays.asList(1);
     fd.setDaysOfWeek(days);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -549,6 +574,7 @@ public class TicketPoolServiceTest {
     List<Integer> days = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
     fd.setDaysOfWeek(days);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);
@@ -572,6 +598,7 @@ public class TicketPoolServiceTest {
     List<Integer> days = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
     fd.setDaysOfWeek(days);
     TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
     tpd.setFrequencyData(fd);
     tpd.setStartDate(startDate);
     tpd.setEndDate(endDate);

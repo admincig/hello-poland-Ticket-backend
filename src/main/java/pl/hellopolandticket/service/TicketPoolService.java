@@ -95,14 +95,15 @@ public class TicketPoolService extends ServiceSuperclass {
     }
   }
 
-  @SuppressWarnings("deprecation")
   private Date getWeeklyStartDate(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
     FrequencyData frequencyData = ticketPoolDefinition.getFrequencyData();
     Date startDate = ticketPoolDefinition.getStartDate();
+    Calendar startDateCal = Calendar.getInstance();
+    startDateCal.setTime(startDate);
     Date endDate = ticketPoolDefinition.getEndDate();
 
     Duration durationBetweenStartDateAndRequestDate =
-        Duration.between(startDate.toInstant(), requestedDate.toInstant());
+        Duration.between(startDateCal.toInstant(), requestedDate.toInstant());
     long weeksBetween = durationBetweenStartDateAndRequestDate.toDays() / 7;
     double divide = 1.0 * weeksBetween / ticketPoolDefinition.getFrequencyData().getFrequency();
     if (divide - (int) divide > 0.01 || dateTimeNotInRange(requestedDate, startDate, endDate)) {
@@ -122,9 +123,9 @@ public class TicketPoolService extends ServiceSuperclass {
     }
     Calendar cal = Calendar.getInstance();
     cal.setTime(requestedDate);
-    cal.set(Calendar.HOUR, startDate.getHours());
-    cal.set(Calendar.MINUTE, startDate.getMinutes());
-    cal.set(Calendar.SECOND, startDate.getSeconds());
+    cal.set(Calendar.HOUR_OF_DAY, startDateCal.get(Calendar.HOUR_OF_DAY));
+    cal.set(Calendar.MINUTE, startDateCal.get(Calendar.MINUTE));
+    cal.set(Calendar.SECOND, startDateCal.get(Calendar.SECOND));
     cal.add(Calendar.DAY_OF_YEAR, -daysOfWeekDifference);
     return cal.getTime();
   }
