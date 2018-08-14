@@ -104,6 +104,7 @@ public class ModelObjectsToDTOConverter {
     ticketDTO.serialNumber = ticket.getSerialNumber();
     ticketDTO.ticketDefinitionId = ticket.getTicketDefinition().getId();
     ticketDTO.bookingId = ticket.getBooking().getId();
+    ticketDTO.booking = ofBookingBasic(ticket.getBooking());
 
     return ticketDTO;
   }
