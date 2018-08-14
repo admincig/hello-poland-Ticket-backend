@@ -130,4 +130,5 @@ public class TicketPoolDefinition implements Serializable {
         availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
             : availableTicketsNumber;
   }
+
 }
