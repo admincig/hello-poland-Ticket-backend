@@ -1,10 +1,5 @@
 package pl.hellopolandticket.service;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
-import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
-import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicketPool;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,8 +11,6 @@ import java.util.Date;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import pl.hellopoland.dto.TicketPoolDTO;
-import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.dao.TicketPoolDao;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
@@ -30,9 +23,6 @@ public class TicketPoolService extends ServiceSuperclass {
 
   @Inject
   private TicketPoolDao ticketPoolDao;
-
-  @Inject
-  private TicketDao ticketDao;
 
   public TicketPool findOrCreateNew(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
     TicketPool pool = ticketPoolDao.find(ticketPoolDefinition, requestedDate);
@@ -51,11 +41,11 @@ public class TicketPoolService extends ServiceSuperclass {
 
   private Date getEndDateForNewInstance(TicketPoolDefinition ticketPoolDefinition,
       Date requestedDate) {
-    int hoursBetween = (int) Duration.between(ticketPoolDefinition.getStartDate().toInstant(),
-        ticketPoolDefinition.getEndDate().toInstant()).toHours();
+    int millisBetween = (int) Duration.between(ticketPoolDefinition.getStartDate().toInstant(),
+        ticketPoolDefinition.getEndDate().toInstant()).toMillis();
     Calendar cal = Calendar.getInstance();
     cal.setTime(requestedDate);
-    cal.add(Calendar.HOUR, hoursBetween);
+    cal.add(Calendar.MILLISECOND, millisBetween);
     return cal.getTime();
   }
 
@@ -125,7 +115,6 @@ public class TicketPoolService extends ServiceSuperclass {
     cal.setTime(requestedDate);
     cal.set(Calendar.HOUR_OF_DAY, startDateCal.get(Calendar.HOUR_OF_DAY));
     cal.set(Calendar.MINUTE, startDateCal.get(Calendar.MINUTE));
-    cal.set(Calendar.SECOND, startDateCal.get(Calendar.SECOND));
     cal.add(Calendar.DAY_OF_YEAR, -daysOfWeekDifference);
     return cal.getTime();
   }
@@ -151,7 +140,6 @@ public class TicketPoolService extends ServiceSuperclass {
     }
   }
 
-  @SuppressWarnings("deprecation")
   private Date getDailyStartDate(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
     Date startDate = ticketPoolDefinition.getStartDate();
     Date endDate = ticketPoolDefinition.getEndDate();
@@ -165,11 +153,13 @@ public class TicketPoolService extends ServiceSuperclass {
       throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
           "Ządana data jest poza zakresem definicji puli");
     }
-
-    requestedDate.setHours(startDate.getHours());
-    requestedDate.setMinutes(startDate.getMinutes());
-    requestedDate.setSeconds(startDate.getSeconds());
-    return requestedDate;
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(startDate);
+    Calendar reqCal = Calendar.getInstance();
+    reqCal.setTime(requestedDate);
+    reqCal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY));
+    reqCal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE));
+    return reqCal.getTime();
   }
 
   private boolean timeNotInRange(Date requestedDate, Date startDate, Date endDate) {
@@ -177,23 +167,6 @@ public class TicketPoolService extends ServiceSuperclass {
     LocalTime slt = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
     LocalTime elt = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
     return rlt.isBefore(slt) || rlt.isAfter(elt);
-  }
-
-  private TicketPoolDTO toTicketPoolDTO(TicketPool ticketPool) {
-    int totalTicketsNumber =
-        ticketDao.countTicketsByTicketPoolIdAndTicketStatusInTicketStatuses(ticketPool.getId(),
-            asList(BOUGHT, PUNCHED)).intValue();
-
-    int boughtTicketsNumber =
-        ticketDao.countTicketsByTicketPoolIdAndTicketStatusInTicketStatuses(ticketPool.getId(),
-            singletonList(BOUGHT)).intValue();
-
-    TicketPoolDTO ticketPoolDTO = ofTicketPool(ticketPool);
-
-    ticketPoolDTO.totalTicketsNumber = totalTicketsNumber;
-    ticketPoolDTO.boughtTicketNumber = boughtTicketsNumber;
-
-    return ticketPoolDTO;
   }
 
 }
