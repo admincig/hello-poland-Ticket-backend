@@ -80,9 +80,46 @@ public class TicketPoolService extends ServiceSuperclass {
         return getWeeklyStartDate(ticketPoolDefinition, requestedDate);
       case WEEKLY:
         return getWeeklyStartDate(ticketPoolDefinition, requestedDate);
+      case MONTHLY:
+        return getMonthlyStartDate(ticketPoolDefinition, requestedDate);
       default:
         return null;
     }
+  }
+
+  private Date getMonthlyStartDate(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
+    FrequencyData frequencyData = ticketPoolDefinition.getFrequencyData();
+    Date startDate = ticketPoolDefinition.getStartDate();
+    Calendar startDateCal = Calendar.getInstance();
+    startDateCal.setTime(startDate);
+    Date endDate = ticketPoolDefinition.getEndDate();
+
+    Duration durationBetweenStartDateAndRequestDate =
+        Duration.between(startDateCal.toInstant(), requestedDate.toInstant());
+    long monthsBetween = durationBetweenStartDateAndRequestDate.toDays() / 30;
+    double divide = 1.0 * monthsBetween / ticketPoolDefinition.getFrequencyData().getFrequency();
+    if (divide - (int) divide > 0.01
+        || dateTimeNotInMonthlyRange(requestedDate, startDate, endDate)) {
+      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+          "Ządana data jest poza zakresem definicji puli");
+    }
+    int daysOfMonthDifference = 0;
+    if (frequencyData.getDaysOfMonth() != null && !frequencyData.getDaysOfMonth().isEmpty()) {
+      LocalDate ld = requestedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+      int dom = ld.getDayOfMonth();
+      if (!frequencyData.getDaysOfMonth().contains(dom)) {
+        throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+            "Ządana data jest poza zakresem definicji puli");
+      }
+    } else {
+      daysOfMonthDifference = (int) (durationBetweenStartDateAndRequestDate.toDays() % 30);
+    }
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(requestedDate);
+    cal.set(Calendar.HOUR_OF_DAY, startDateCal.get(Calendar.HOUR_OF_DAY));
+    cal.set(Calendar.MINUTE, startDateCal.get(Calendar.MINUTE));
+    cal.add(Calendar.DAY_OF_YEAR, -daysOfMonthDifference);
+    return cal.getTime();
   }
 
   private Date getWeeklyStartDate(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
@@ -96,7 +133,8 @@ public class TicketPoolService extends ServiceSuperclass {
         Duration.between(startDateCal.toInstant(), requestedDate.toInstant());
     long weeksBetween = durationBetweenStartDateAndRequestDate.toDays() / 7;
     double divide = 1.0 * weeksBetween / ticketPoolDefinition.getFrequencyData().getFrequency();
-    if (divide - (int) divide > 0.01 || dateTimeNotInRange(requestedDate, startDate, endDate)) {
+    if (divide - (int) divide > 0.01
+        || dateTimeNotInWeeklyRange(requestedDate, startDate, endDate)) {
       throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
           "Ządana data jest poza zakresem definicji puli");
     }
@@ -119,8 +157,7 @@ public class TicketPoolService extends ServiceSuperclass {
     return cal.getTime();
   }
 
-  private boolean dateTimeNotInRange(Date requestedDate, Date startDate, Date endDate) {
-
+  private boolean dateTimeNotInWeeklyRange(Date requestedDate, Date startDate, Date endDate) {
     LocalDateTime slt = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     LocalDateTime elt = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     if (Duration.between(slt, elt).toDays() > 0) { // period
@@ -131,6 +168,26 @@ public class TicketPoolService extends ServiceSuperclass {
       int requestedDay = rlt.getDayOfWeek().getValue();
       if (startDay > endDay) {
         endDay += 7;
+      }
+      return requestedDay < startDay || requestedDay > endDay
+          || (requestedDay == startDay ? rlt.toLocalTime().isBefore(slt.toLocalTime())
+              : requestedDay == endDay ? rlt.toLocalTime().isAfter(elt.toLocalTime()) : false);
+    } else { // single day
+      return timeNotInRange(requestedDate, startDate, endDate);
+    }
+  }
+
+  private boolean dateTimeNotInMonthlyRange(Date requestedDate, Date startDate, Date endDate) {
+    LocalDateTime slt = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    LocalDateTime elt = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    if (Duration.between(slt, elt).toDays() > 0) { // period
+      LocalDateTime rlt =
+          requestedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+      int startDay = slt.getDayOfMonth();
+      int endDay = elt.getDayOfMonth();
+      int requestedDay = rlt.getDayOfMonth();
+      if (startDay > endDay) {
+        endDay += 30;
       }
       return requestedDay < startDay || requestedDay > endDay
           || (requestedDay == startDay ? rlt.toLocalTime().isBefore(slt.toLocalTime())

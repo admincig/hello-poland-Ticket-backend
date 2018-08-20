@@ -33,7 +33,7 @@ public class FrequencyData {
   private List<Integer> daysOfWeek;
 
   @ElementCollection
-  private List<Integer> monthsOfYear;
+  private List<Integer> daysOfMonth;
 
   @Column(name = "FREQUENCY")
   private Integer frequency;

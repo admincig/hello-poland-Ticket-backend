@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -605,6 +606,88 @@ public class TicketPoolServiceTest {
 
     Date result = new TicketPoolService().getStartDateForNewInstance(tpd, requestDate);
     Assert.assertEquals(expected, result);
+  }
+
+  @Test
+  public void monthly_frequency_1() throws Exception {
+    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    Date frequencyStartDate = df.parse("2018-01-01 00:00:00");
+    Date frequencyEndDate = df.parse("2018-12-31 23:59:59");
+    Date startDate = df.parse("2018-01-01 10:00:00");
+    Date endDate = df.parse("2018-01-01 10:00:00");
+    Date requestDate = df.parse("2018-07-01 10:00:00");
+    Date expected = df.parse("2018-07-01 10:00:00");
+
+    FrequencyData fd =
+        new FrequencyData(FrequencyType.MONTHLY, 1, frequencyStartDate, frequencyEndDate);
+    List<Integer> days = new ArrayList<>();
+    for (int i = 1; i <= 31; i++) {
+      days.add(i);
+    }
+    fd.setDaysOfMonth(days);
+    TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
+    tpd.setFrequencyData(fd);
+    tpd.setStartDate(startDate);
+    tpd.setEndDate(endDate);
+
+    Date result = new TicketPoolService().getStartDateForNewInstance(tpd, requestDate);
+    Assert.assertEquals(expected, result);
+  }
+
+  @Test
+  public void monthly_frequency_4() throws Exception {
+    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    Date frequencyStartDate = df.parse("2018-01-01 00:00:00");
+    Date frequencyEndDate = df.parse("2018-12-31 23:59:59");
+    Date startDate = df.parse("2018-01-01 10:00:00");
+    Date endDate = df.parse("2018-01-01 10:00:00");
+    Date requestDate = df.parse("2018-09-01 10:00:00");
+    Date expected = df.parse("2018-09-01 10:00:00");
+
+    FrequencyData fd =
+        new FrequencyData(FrequencyType.MONTHLY, 4, frequencyStartDate, frequencyEndDate);
+    List<Integer> days = new ArrayList<>();
+    for (int i = 1; i <= 31; i++) {
+      days.add(i);
+    }
+    fd.setDaysOfMonth(days);
+    TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
+    tpd.setFrequencyData(fd);
+    tpd.setStartDate(startDate);
+    tpd.setEndDate(endDate);
+
+    Date result = new TicketPoolService().getStartDateForNewInstance(tpd, requestDate);
+    Assert.assertEquals(expected, result);
+  }
+
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  public void monthly_invalid_frequency_4() throws Exception {
+    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    Date frequencyStartDate = df.parse("2018-01-01 00:00:00");
+    Date frequencyEndDate = df.parse("2018-12-31 23:59:59");
+    Date startDate = df.parse("2018-01-01 10:00:00");
+    Date endDate = df.parse("2018-01-01 10:00:00");
+    Date requestDate = df.parse("2018-07-01 10:00:00");
+
+    FrequencyData fd =
+        new FrequencyData(FrequencyType.MONTHLY, 4, frequencyStartDate, frequencyEndDate);
+    List<Integer> days = new ArrayList<>();
+    for (int i = 1; i <= 31; i++) {
+      days.add(i);
+    }
+    fd.setDaysOfMonth(days);
+    TicketPoolDefinition tpd = new TicketPoolDefinition();
+    tpd.setIsCyclic(true);
+    tpd.setFrequencyData(fd);
+    tpd.setStartDate(startDate);
+    tpd.setEndDate(endDate);
+
+    new TicketPoolService().getStartDateForNewInstance(tpd, requestDate);
   }
 
 }
