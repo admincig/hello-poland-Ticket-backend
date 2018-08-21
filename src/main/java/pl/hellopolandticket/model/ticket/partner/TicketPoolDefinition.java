@@ -7,8 +7,6 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -16,6 +14,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
@@ -29,9 +29,9 @@ import pl.hellopolandticket.model.sightevent.SightEvent;
 @Getter
 @Entity
 @Table(name = "TICKET_POOL_DEFINITIONS")
-@EqualsAndHashCode(exclude = {"ticketDefinitions"})
+@EqualsAndHashCode(exclude = {"ticketDefinitions", "ticketPools"})
 @NoArgsConstructor
-@ToString(exclude = {"ticketDefinitions"})
+@ToString(exclude = {"ticketDefinitions", "ticketPools"})
 public class TicketPoolDefinition implements Serializable {
 
   private static final long serialVersionUID = 8904209837208814831L;
@@ -57,8 +57,8 @@ public class TicketPoolDefinition implements Serializable {
 
   @Setter
   @NotNull
-  @Column(name = "CYCLICAL_POOL", nullable = false)
-  private Boolean cyclicalPool;
+  @Column(name = "IS_CYCLIC", nullable = false)
+  private Boolean isCyclic;
 
   @Setter
   @Embedded
@@ -83,21 +83,6 @@ public class TicketPoolDefinition implements Serializable {
 
   @Setter
   @NotNull
-  @Column(name = "PREDEFINED_DATE", nullable = false)
-  private Boolean predefinedDate;
-
-  @Setter
-  @Column(name = "DATE")
-  private Date date;
-
-  @Setter
-  @NotNull
-  @Enumerated(EnumType.STRING)
-  @Column(name = "DATE_TYPE", nullable = false)
-  private DateType dateType;
-
-  @Setter
-  @NotNull
   @ManyToOne
   @JoinColumn(name = "SIGHT_EVENT_ID", nullable = false)
   private SightEvent sightEvent;
@@ -109,21 +94,22 @@ public class TicketPoolDefinition implements Serializable {
       inverseJoinColumns = {@JoinColumn(name = "TICKET_DEFINITION_ID")})
   private List<TicketDefinition> ticketDefinitions = new ArrayList<>();
 
+  @Setter
+  @OneToMany(mappedBy = "ticketPoolDefinition")
+  @OrderBy("id desc")
+  private List<TicketPool> ticketPools;
+
   @Builder
-  public TicketPoolDefinition(String name, Integer availableTicketsNumber, Boolean cyclicalPool,
+  public TicketPoolDefinition(String name, Integer availableTicketsNumber, Boolean isCyclic,
       FrequencyData frequencyData, Date startDate, Date endDate, Date entryStartDate,
-      Date entryEndDate, DateType dateType, Boolean predefinedDate, Date date,
-      SightEvent sightEvent) {
+      Date entryEndDate, SightEvent sightEvent) {
     this.name = name;
-    this.cyclicalPool = cyclicalPool;
+    this.isCyclic = isCyclic;
     this.frequencyData = frequencyData;
     this.startDate = startDate;
     this.endDate = endDate;
     this.entryStartDate = entryStartDate != null ? entryStartDate : startDate;
     this.entryEndDate = entryEndDate != null ? entryEndDate : endDate;
-    this.dateType = dateType;
-    this.predefinedDate = predefinedDate;
-    this.date = date;
     this.sightEvent = sightEvent;
 
     this.availableTicketsNumber =

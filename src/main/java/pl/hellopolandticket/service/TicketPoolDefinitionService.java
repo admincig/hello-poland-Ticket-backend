@@ -1,6 +1,5 @@
 package pl.hellopolandticket.service;
 
-import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +13,6 @@ import pl.hellopolandticket.dao.SightEventDao;
 import pl.hellopolandticket.dao.TicketPoolDefinitionDao;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
-import pl.hellopolandticket.model.ticket.partner.DateType;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.FrequencyType;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
@@ -47,20 +45,17 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     FrequencyData frequencyData = ofNullable(ticketPoolDefinitionDTO.frequencyData)
         .map(frequencyDataDTO -> FrequencyData.builder()
             .frequencyType(FrequencyType.valueOf(frequencyDataDTO.frequencyType.name()))
-            .dayOfWeek(frequencyDataDTO.dayOfWeek).dayOfMonth(frequencyDataDTO.dayOfMonth)
-            .month(frequencyDataDTO.month).frequency(frequencyDataDTO.frequency).build())
-        .orElse(null);
+            .daysOfWeek(frequencyDataDTO.daysOfWeek).startDate(frequencyDataDTO.startDate)
+            .endDate(frequencyDataDTO.endDate).frequency(frequencyDataDTO.frequency).build())
+        .orElse(new FrequencyData());
 
     TicketPoolDefinition ticketPoolDefinition =
         TicketPoolDefinition.builder().name(ticketPoolDefinitionDTO.name)
             .availableTicketsNumber(ticketPoolDefinitionDTO.availableTicketsNumber)
-            .cyclicalPool(ticketPoolDefinitionDTO.cyclicalPool).frequencyData(frequencyData)
+            .isCyclic(ticketPoolDefinitionDTO.isCyclic).frequencyData(frequencyData)
             .startDate(ticketPoolDefinitionDTO.startDate).endDate(ticketPoolDefinitionDTO.endDate)
             .entryStartDate(ticketPoolDefinitionDTO.entryStartDate)
-            .entryEndDate(ticketPoolDefinitionDTO.entryEndDate)
-            .dateType(DateType.valueOf(ticketPoolDefinitionDTO.dateType.name()))
-            .predefinedDate(ticketPoolDefinitionDTO.predefinedDate)
-            .date(ticketPoolDefinitionDTO.date).sightEvent(sightEvent).build();
+            .entryEndDate(ticketPoolDefinitionDTO.entryEndDate).sightEvent(sightEvent).build();
 
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
 
@@ -69,9 +64,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
     ticketPoolDefinitionDTO.id = ticketPoolDefinition.getId();
 
-    if (!ticketPoolDefinition.getCyclicalPool()) {
-      ticketPoolService.createTicketPoolInstanceForNotCyclicalTicketPoolDefinition(
-          ticketPoolDefinition, ticketPoolDefinition.getStartDate());
+    if (!ticketPoolDefinition.getIsCyclic()) {
+      ticketPoolService.findOrCreateNew(ticketPoolDefinition, null);
     }
 
     return ticketPoolDefinitionDTO;
@@ -82,12 +76,11 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
       CurrentUser currentUser) {
     if (ticketDefinitions != null) {
       for (TicketDefinitionDTO ticketDefinitionDTO : ticketDefinitions) {
-        ticketDefinitionDTO.ticketPoolDefinitionIds = singletonList(ticketPoolDefinitionId);
-
         TicketDefinitionDTO persistedTicketDefinitionDTO =
-            ticketDefinitionService.add(ticketDefinitionDTO, currentUser);
+            ticketDefinitionService.add(ticketDefinitionDTO, ticketPoolDefinitionId, currentUser);
 
         ticketDefinitionDTO.id = persistedTicketDefinitionDTO.id;
+        ticketDefinitionDTO.poolId = ticketPoolDefinitionId;
       }
     }
 
@@ -102,6 +95,15 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
     return tpd.stream().map(d -> ModelObjectsToDTOConverter.ofTicketPoolDefinition(d))
         .collect(Collectors.toList());
+  }
+
+  public TicketPoolDefinition get(Long id) {
+    return ticketPoolDefinitionDao.findById(id);
+  }
+
+  public TicketPoolDefinitionDTO getForPartner(Long id, CurrentUser currentUser) {
+    return ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinitionDao
+        .findByIdForPartner(id, partnerDao.findByUserEmail(currentUser.getPrincipal()).getId()));
   }
 
 }

@@ -48,7 +48,7 @@ public class TicketValidator {
 
   public void validateProperTime(Ticket ticket) {
     Date now = new Date();
-    TicketPool ticketPool = Optional.ofNullable(ticket.getTicketDefinition().getTicketPool())
+    TicketPool ticketPool = Optional.ofNullable(ticket.getTicketPool())
         .orElseThrow(() -> exceptionFactory.ticketDefinitionHasNoPoolException());
 
     Date eStartDate = ticketPool.getEntryStartDate();

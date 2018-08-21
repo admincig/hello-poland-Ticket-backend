@@ -25,6 +25,11 @@
         <scope>import</scope>
         <type>pom</type>
       </dependency>
+      <dependency>
+      	<groupId>pl.hellopoland</groupId>
+      	<artifactId>hellopoland-dto</artifactId>
+      	<version>0.5.7-SNAPSHOT</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -58,7 +63,6 @@
     <dependency>
       <groupId>pl.hellopoland</groupId>
       <artifactId>hellopoland-dto</artifactId>
-      <version>0.4.16-SNAPSHOT</version>
     </dependency>
 
 

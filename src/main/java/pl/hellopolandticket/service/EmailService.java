@@ -161,7 +161,7 @@ public class EmailService extends ServiceSuperclass {
 
     for (int i = 0; i < tickets.size(); i++) {
       TicketDTO ticket = tickets.get(i);
-      ticketQrCodes.append("<p>").append(ticket.ticketDefinition.name).append("</p>").append("<p>")
+      ticketQrCodes.append("<p>").append(ticket.name).append("</p>").append("<p>")
           .append(ticket.name).append("</p>").append("<p>").append("Numer biletu: ")
           .append(ticket.serialNumber).append("</p>").append("<p>").append("Data wydarzenia: ")
           .append(makeDateHuman(ticket.date)).append("</p>");

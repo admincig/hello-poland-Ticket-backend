@@ -1,10 +1,7 @@
 package pl.hellopolandticket.model.ticket.partner;
 
 import static javax.persistence.CascadeType.ALL;
-import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
-import static pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition.UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,15 +22,13 @@ import lombok.Setter;
 import lombok.ToString;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.ticket.market.Ticket;
-import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
-import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
 
 @Getter
 @Entity
 @Table(name = "TICKET_DEFINITIONS")
-@EqualsAndHashCode(exclude = {"ticketPoolDefinitions", "tickets", "ticketDefinitionInstances"})
+@EqualsAndHashCode(exclude = {"ticketPoolDefinitions", "tickets"})
 @NoArgsConstructor
-@ToString(exclude = {"ticketPoolDefinitions", "tickets", "ticketDefinitionInstances"})
+@ToString(exclude = {"ticketPoolDefinitions", "tickets"})
 public class TicketDefinition implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
@@ -60,76 +55,25 @@ public class TicketDefinition implements Serializable {
   private Partner partner;
 
   @Setter
-  @Column(name = "AVAILABLE_TICKETS_NUMBER")
-  private Integer availableTicketsNumber;
-
-  @Setter
-  @ManyToOne
-  @JoinColumn(name = "TICKET_POOL_ID")
-  private TicketPool ticketPool;
-
-  @Setter
   @ManyToMany(cascade = ALL)
-  private List<TicketPoolDefinition> ticketPoolDefinitions = new ArrayList<>();
+  private List<TicketPoolDefinition> ticketPoolDefinitions;
 
   @Setter
   @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "ticketDefinition")
-  private List<Ticket> tickets = new ArrayList<>();
-
-  @Setter
-  @OneToMany(mappedBy = "originalTicketDefinition")
-  private List<TicketDefinition> ticketDefinitionInstances;
-
-  @Setter
-  @ManyToOne
-  @JoinColumn(name = "ORIGINAL_TICKET_DEFINITION_ID")
-  private TicketDefinition originalTicketDefinition;
+  private List<Ticket> tickets;
 
   @Builder
-  public TicketDefinition(String name, Integer availableTicketsNumber, Integer price,
-      Partner partner, TicketPool ticketPool, List<TicketPoolDefinition> ticketPoolDefinitions,
-      TicketDefinition originalTicketDefinition) {
+  public TicketDefinition(String name, Integer price, Partner partner,
+      List<TicketPoolDefinition> ticketPoolDefinitions) {
     this.name = name;
     this.price = price;
     this.partner = partner;
-    this.ticketPool = ticketPool;
     this.ticketPoolDefinitions = ticketPoolDefinitions;
-    this.originalTicketDefinition = originalTicketDefinition;
-
-    this.availableTicketsNumber =
-        availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
-            : availableTicketsNumber;
   }
 
-
-  public void decreaseAvailableTicketsNumber(int numberOfTickets) {
-    if (numberOfTickets <= 0) {
-      throw new NumberOfTicketsNotPositiveException();
-    }
-
-    ticketPool.decreaseAvailableTicketsNumber(numberOfTickets);
-    if (hasLimitedNumberOfTickets()) {
-      if (hasEnoughTickets(numberOfTickets)) {
-        availableTicketsNumber = availableTicketsNumber - numberOfTickets;
-      } else {
-        throw new NoAvailableTicketsException();
-      }
-    }
-  }
-
-  public void increaseAvailableTicketsNumber() {
-    if (hasLimitedNumberOfTickets()) {
-      ticketPool.increaseAvailableTicketsNumber();
-      availableTicketsNumber++;
-    }
-  }
-
-  private boolean hasLimitedNumberOfTickets() {
-    return availableTicketsNumber != UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
-  }
-
-  private boolean hasEnoughTickets(int numberOfTickets) {
-    return availableTicketsNumber - numberOfTickets >= MIN_NUMBER_OF_AVAILABLE_TICKETS_VALUE;
+  public boolean isConnectedWithPoolDefiniton(Long poolDefinitionId) {
+    return getTicketPoolDefinitions().stream()
+        .anyMatch(tpd -> tpd.getId().equals(poolDefinitionId));
   }
 
 }

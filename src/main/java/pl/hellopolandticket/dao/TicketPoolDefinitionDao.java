@@ -56,4 +56,12 @@ public class TicketPoolDefinitionDao {
         .setParameter("partnerId", partnerId).getResultList();
   }
 
+  public TicketPoolDefinition findByIdForPartner(Long id, Long partnerId) {
+    return entityManager
+        .createQuery(
+            "from TicketPoolDefinition t where t.sightEvent.partner.id = :partnerId and t.id=:id",
+            TicketPoolDefinition.class)
+        .setParameter("partnerId", partnerId).setParameter("id", id).getSingleResult();
+  }
+
 }
