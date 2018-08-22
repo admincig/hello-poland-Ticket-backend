@@ -68,8 +68,8 @@ public class TicketPoolDefinitionDao {
         .setParameter("partnerId", partnerId).setParameter("id", id).getSingleResult();
   }
 
-  public void deleteTicketPoolDefinition(Long id) {
-    TicketPoolDefinition dao = findById(id);
+  public void deleteTicketPoolDefinition(Long id, Long partnerId) {
+    TicketPoolDefinition dao = findByIdForPartner(id, partnerId);
     dao.setDeleted(true);
     List<TicketPool> ticketPools = dao.getTicketPools();
     if (ticketPools != null && !ticketPools.isEmpty()) {

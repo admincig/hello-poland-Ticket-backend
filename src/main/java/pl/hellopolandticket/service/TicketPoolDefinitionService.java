@@ -107,8 +107,9 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         .findByIdForPartner(id, partnerDao.findByUserEmail(currentUser.getPrincipal()).getId()));
   }
 
-  public void deleteTicketPoolDefinition(Long id) {
-    ticketPoolDefinitionDao.deleteTicketPoolDefinition(id);
+  public void deleteTicketPoolDefinition(Long id, CurrentUser currentUser) {
+    ticketPoolDefinitionDao.deleteTicketPoolDefinition(id,
+        partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
   }
 
 }
