@@ -7,6 +7,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
@@ -19,6 +20,9 @@ public class TicketPoolDefinitionDao {
 
   @Inject
   private ExceptionFactory exceptionFactory;
+
+  @Inject
+  private TicketPoolDao ticketPoolDao;
 
   public TicketPoolDefinition persist(TicketPoolDefinition ticketPoolDefinition) {
     entityManager.persist(ticketPoolDefinition);
@@ -62,6 +66,15 @@ public class TicketPoolDefinitionDao {
             "from TicketPoolDefinition t where t.sightEvent.partner.id = :partnerId and t.id=:id",
             TicketPoolDefinition.class)
         .setParameter("partnerId", partnerId).setParameter("id", id).getSingleResult();
+  }
+
+  public void deleteTicketPoolDefinition(Long id) {
+    TicketPoolDefinition dao = findById(id);
+    dao.setDeleted(true);
+    List<TicketPool> ticketPools = dao.getTicketPools();
+    if (ticketPools != null && !ticketPools.isEmpty()) {
+      ticketPools.forEach(tp -> tp.setAvailableTicketsNumber(0));
+    }
   }
 
 }
