@@ -99,10 +99,15 @@ public class TicketPoolDefinition implements Serializable {
   @OrderBy("id desc")
   private List<TicketPool> ticketPools;
 
+  @Setter
+  @NotNull
+  @Column(name = "DELETED", nullable = false)
+  private boolean deleted;
+
   @Builder
   public TicketPoolDefinition(String name, Integer availableTicketsNumber, Boolean isCyclic,
       FrequencyData frequencyData, Date startDate, Date endDate, Date entryStartDate,
-      Date entryEndDate, SightEvent sightEvent) {
+      Date entryEndDate, SightEvent sightEvent, boolean deleted) {
     this.name = name;
     this.isCyclic = isCyclic;
     this.frequencyData = frequencyData;
@@ -111,7 +116,7 @@ public class TicketPoolDefinition implements Serializable {
     this.entryStartDate = entryStartDate != null ? entryStartDate : startDate;
     this.entryEndDate = entryEndDate != null ? entryEndDate : endDate;
     this.sightEvent = sightEvent;
-
+    this.deleted = deleted;
     this.availableTicketsNumber =
         availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
             : availableTicketsNumber;

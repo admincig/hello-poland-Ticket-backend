@@ -55,7 +55,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
             .isCyclic(ticketPoolDefinitionDTO.isCyclic).frequencyData(frequencyData)
             .startDate(ticketPoolDefinitionDTO.startDate).endDate(ticketPoolDefinitionDTO.endDate)
             .entryStartDate(ticketPoolDefinitionDTO.entryStartDate)
-            .entryEndDate(ticketPoolDefinitionDTO.entryEndDate).sightEvent(sightEvent).build();
+            .entryEndDate(ticketPoolDefinitionDTO.entryEndDate).sightEvent(sightEvent)
+            .deleted(false).build();
 
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
 
@@ -104,6 +105,11 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   public TicketPoolDefinitionDTO getForPartner(Long id, CurrentUser currentUser) {
     return ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinitionDao
         .findByIdForPartner(id, partnerDao.findByUserEmail(currentUser.getPrincipal()).getId()));
+  }
+
+  public void deleteTicketPoolDefinition(Long id, CurrentUser currentUser) {
+    ticketPoolDefinitionDao.deleteTicketPoolDefinition(id,
+        partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
   }
 
 }
