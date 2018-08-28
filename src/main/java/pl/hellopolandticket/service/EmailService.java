@@ -1,11 +1,5 @@
 package pl.hellopolandticket.service;
 
-import static java.util.Calendar.DAY_OF_MONTH;
-import static java.util.Calendar.DAY_OF_WEEK;
-import static java.util.Calendar.HOUR;
-import static java.util.Calendar.MINUTE;
-import static java.util.Calendar.MONTH;
-import static java.util.Calendar.YEAR;
 import static java.util.stream.Collectors.toList;
 import static javax.mail.Message.RecipientType.TO;
 import java.io.ByteArrayOutputStream;
@@ -13,13 +7,13 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
+import java.time.format.TextStyle;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.IntStream;
@@ -189,26 +183,21 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private String makeDateHuman(Date date) {
-    String[] daysOfWeek = new String[] {"Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek",
-        "Sobota", "Niedziela"};
+    LocalDateTime ldt = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-    Calendar calendar =
-        GregorianCalendar.from(ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()));
-    String dayOfWeek = daysOfWeek[calendar.get(DAY_OF_WEEK)];
-
-    String dayOfMonth = calendar.get(DAY_OF_MONTH) < 10 ? "0" + calendar.get(DAY_OF_MONTH)
-        : ((Integer) calendar.get(DAY_OF_MONTH)).toString();
-    String month = (calendar.get(MONTH) + 1) < 10 ? "0" + (calendar.get(MONTH) + 1)
-        : ((Integer) (calendar.get(MONTH) + 1)).toString();
-    String year = ((Integer) calendar.get(YEAR)).toString();
-    String hour = calendar.get(HOUR) < 10 ? "0" + calendar.get(HOUR)
-        : ((Integer) calendar.get(HOUR)).toString();
-    String minute = calendar.get(MINUTE) < 10 ? "0" + calendar.get(MINUTE)
-        : ((Integer) calendar.get(MINUTE)).toString();
+    String dayOfWeek = ldt.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("pl", "PL"));
+    String dayOfMonth =
+        String.valueOf(ldt.getDayOfMonth() < 10 ? "0" + ldt.getDayOfMonth() : ldt.getDayOfMonth());
+    String month =
+        String.valueOf(ldt.getMonthValue() < 10 ? "0" + ldt.getMonthValue() : ldt.getMonthValue());
+    String year = String.valueOf(ldt.getYear());
+    String hour = String.valueOf(ldt.getHour() < 10 ? "0" + ldt.getHour() : ldt.getHour());
+    String minute = String.valueOf(ldt.getMinute() < 10 ? "0" + ldt.getMinute() : ldt.getMinute());
 
     String dayMonthYear = dayOfMonth + "." + month + "." + year;
     String hourAndMinute = hour + ":" + minute;
 
     return dayOfWeek + ", " + dayMonthYear + " godzina " + hourAndMinute;
   }
+
 }
