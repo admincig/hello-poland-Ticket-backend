@@ -4,18 +4,22 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEvent;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEventBasic;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import pl.hellopoland.dto.LocationDTO;
+import pl.hellopoland.dto.OpeningHoursDTO;
 import pl.hellopoland.dto.PushDTO;
 import pl.hellopoland.dto.SightEventDTO;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightEventDao;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
+import pl.hellopolandticket.model.sightevent.OpeningHours;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.sightevent.SightEventLocation;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
@@ -96,6 +100,7 @@ public class SightEventService extends ServiceSuperclass {
             .partner(user.getPartner()).generalAdmission(sightEventDTO.generalAdmission).build();
 
     sightEventToPersist = sightEventDao.persist(sightEventToPersist);
+    sightEventToPersist.setOpeningHours(getOpeningHoursCollectionFromDTO(sightEventDTO));
 
     SightEventDTO persistedSightEvent = ofSightEvent(sightEventToPersist, sightEventDTO.sightId);
     PushDTO sightEventsPushDTO = new PushDTO();
@@ -104,6 +109,17 @@ public class SightEventService extends ServiceSuperclass {
     sightEventsPushDTO.secret = user.getToken();
 
     return persistedSightEvent;
+  }
+
+  private ArrayList<OpeningHours> getOpeningHoursCollectionFromDTO(SightEventDTO dto) {
+    return ofNullable(dto.openingHours).map(
+        l -> l.stream().map(this::ofOpeningHours).collect(Collectors.toCollection(ArrayList::new)))
+        .orElse(null);
+  }
+
+  private OpeningHours ofOpeningHours(OpeningHoursDTO dto) {
+    return OpeningHours.builder().closeTime(dto.closeTime).day(dto.day).openTime(dto.openTime)
+        .build();
   }
 
   public void delete(Long sightEventId) {
