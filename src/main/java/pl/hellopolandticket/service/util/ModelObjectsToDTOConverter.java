@@ -240,7 +240,7 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDefinitionDTO.entryStartDate = ticketPoolDefinition.getEntryStartDate();
     ticketPoolDefinitionDTO.entryEndDate = ticketPoolDefinition.getEntryEndDate();
     ticketPoolDefinitionDTO.sightEventId = ticketPoolDefinition.getSightEvent().getId();
-
+    ticketPoolDefinitionDTO.deleted = ticketPoolDefinition.isDeleted();
     ticketPoolDefinitionDTO.ticketDefinitions = ticketPoolDefinition.getTicketDefinitions().stream()
         .map(ModelObjectsToDTOConverter::ofTicketDefinition).collect(toList());
 
