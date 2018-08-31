@@ -157,6 +157,17 @@ public class SightEventService extends ServiceSuperclass {
     }
     sightEvent.setMainImageUrl(mainImageUrl);
 
+    oHoursService.remove(sightEvent.getOpeningHours());
+    ArrayList<OpeningHours> oHoursList = getOpeningHoursCollectionFromDTO(sightEventDTO);
+    if (oHoursList != null && !oHoursList.isEmpty()) {
+      oHoursList.stream().forEach(oh -> {
+        oh.setSightEvent(sightEvent);
+        oHoursService.persist(oh);
+      });
+    }
+    sightEvent.setOpeningHours(null);
+    sightEvent.setOpeningHours(oHoursList);
+
     return sightEventDTO;
   }
 }
