@@ -39,6 +39,9 @@ public class SightEventService extends ServiceSuperclass {
   @Inject
   private UserService userService;
 
+  @Inject
+  private OpeningHoursService oHoursService;
+
   public SightEventDTO findById(Long sightEventId) {
     return ofSightEventBasic(sightEventDao.findById(sightEventId));
   }
@@ -93,14 +96,20 @@ public class SightEventService extends ServiceSuperclass {
     if (sightEventDTO.mainImage != null) {
       mainImageUrl = sightEventDTO.mainImage.original;
     }
-    SightEvent sightEventToPersist =
+    SightEvent sightEventToPersist = sightEventDao.persist(
         SightEvent.builder().name(sightEventDTO.name).description(sightEventDTO.description)
             .mainImageUrl(mainImageUrl).email(sightEventDTO.email).phone(sightEventDTO.phone)
             .lead(sightEventDTO.lead).sightEventLocation(sightEventLocation)
-            .partner(user.getPartner()).generalAdmission(sightEventDTO.generalAdmission).build();
+            .partner(user.getPartner()).generalAdmission(sightEventDTO.generalAdmission).build());
 
-    sightEventToPersist = sightEventDao.persist(sightEventToPersist);
-    sightEventToPersist.setOpeningHours(getOpeningHoursCollectionFromDTO(sightEventDTO));
+    ArrayList<OpeningHours> oHoursList = getOpeningHoursCollectionFromDTO(sightEventDTO);
+    if (oHoursList != null && !oHoursList.isEmpty()) {
+      oHoursList.stream().forEach(oh -> {
+        oh.setSightEvent(sightEventToPersist);
+        oHoursService.persist(oh);
+      });
+      sightEventToPersist.setOpeningHours(oHoursList);
+    }
 
     SightEventDTO persistedSightEvent = ofSightEvent(sightEventToPersist, sightEventDTO.sightId);
     PushDTO sightEventsPushDTO = new PushDTO();

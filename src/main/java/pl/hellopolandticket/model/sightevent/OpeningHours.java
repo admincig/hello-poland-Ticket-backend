@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
@@ -31,15 +32,19 @@ public class OpeningHours implements Serializable {
   @Column(name = "OPENING_HOURS_ID")
   private Long id;
 
+  @Setter
   @ManyToOne(optional = true)
   private SightEvent sightEvent;
 
+  @Setter
   @NotNull
   private Integer day;
 
+  @Setter
   @NotNull
   private LocalTime openTime;
 
+  @Setter
   @NotNull
   private LocalTime closeTime;
 
