@@ -12,6 +12,7 @@ import pl.hellopolandticket.dao.TicketDefinitionDao;
 import pl.hellopolandticket.dao.TicketPoolDefinitionDao;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
+import pl.hellopolandticket.model.ticket.partner.TicketDefinition.TicketDefinitionBuilder;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
@@ -32,20 +33,22 @@ public class TicketDefinitionService extends ServiceSuperclass {
   public TicketDefinitionDTO add(TicketDefinitionDTO ticketDefinitionDTO,
       Long ticketPoolDefinitionId, CurrentUser currentUser) {
     Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
-
-    List<TicketPoolDefinition> ticketPoolDefinitions =
-        Collections.singletonList(ticketPoolDefinitionDao.findById(ticketPoolDefinitionId));
-
-    TicketDefinition ticketDefinition =
-        TicketDefinition.builder().name(ticketDefinitionDTO.name).price(ticketDefinitionDTO.price)
-            .partner(partner).ticketPoolDefinitions(ticketPoolDefinitions).build();
-
+    TicketDefinitionBuilder ticketDefinitionBuilder = TicketDefinition.builder()
+        .name(ticketDefinitionDTO.name).price(ticketDefinitionDTO.price).partner(partner);
+    List<TicketPoolDefinition> ticketPoolDefinitions = null;
+    if (ticketPoolDefinitionId != null) {
+      ticketPoolDefinitions =
+          Collections.singletonList(ticketPoolDefinitionDao.findById(ticketPoolDefinitionId));
+      ticketDefinitionBuilder =
+          ticketDefinitionBuilder.ticketPoolDefinitions(ticketPoolDefinitions);
+    }
+    TicketDefinition ticketDefinition = ticketDefinitionBuilder.build();
     ticketDefinitionDao.persist(ticketDefinition);
-
-    ticketPoolDefinitions.forEach(tpd -> {
-      tpd.getTicketDefinitions().add(ticketDefinition);
-    });
-
+    if (ticketPoolDefinitions != null && !ticketPoolDefinitions.isEmpty()) {
+      ticketPoolDefinitions.forEach(tpd -> {
+        tpd.getTicketDefinitions().add(ticketDefinition);
+      });
+    }
     ticketDefinitionDTO.id = ticketDefinition.getId();
     return ticketDefinitionDTO;
   }
