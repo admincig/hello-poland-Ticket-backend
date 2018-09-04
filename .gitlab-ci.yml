@@ -2,7 +2,7 @@ stages:
     - build
 
 variables:
-    JAVA_VERSION: "8"
+    JAVA_VERSION: "10"
 
 #
 # build stage tasks
