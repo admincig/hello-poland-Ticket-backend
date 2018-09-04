@@ -89,9 +89,6 @@ public class TicketPoolDefinition implements Serializable {
 
   @Setter
   @ManyToMany(mappedBy = "ticketPoolDefinitions")
-  @JoinTable(name = "TICKET_POOL_DEFINITIONS_TICKET_DEFINITIONS",
-      joinColumns = {@JoinColumn(name = "TICKET_POOL_DEFINITION_ID")},
-      inverseJoinColumns = {@JoinColumn(name = "TICKET_DEFINITION_ID")})
   private List<TicketDefinition> ticketDefinitions = new ArrayList<>();
 
   @Setter
