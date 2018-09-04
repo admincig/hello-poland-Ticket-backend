@@ -12,8 +12,8 @@ public class JsonbConfig implements ContextResolver<Jsonb> {
 
   public static Jsonb getInstance() {
     if (instance == null) {
-      javax.json.bind.JsonbConfig config =
-          new javax.json.bind.JsonbConfig().withDateFormat("yyyy-MM-dd'T'HH:mmXXX", null);
+      javax.json.bind.JsonbConfig config = new javax.json.bind.JsonbConfig()
+          .withDateFormat("yyyy-MM-dd'T'HH:mmXXX", null).withAdapters(new LocalTimeCustomAdapter());
       instance = JsonbBuilder.create(config);
     }
     return instance;

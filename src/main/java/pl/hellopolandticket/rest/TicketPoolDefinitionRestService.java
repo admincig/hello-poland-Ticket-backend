@@ -57,7 +57,7 @@ public class TicketPoolDefinitionRestService {
   @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response deleteTicketPoolDef(@PathParam("id") Long id) {
     ticketPoolDefinitionService.deleteTicketPoolDefinition(id, currentUser);
-    return Response.ok().build();
+    return Response.noContent().build();
   }
 
 }

@@ -1,7 +1,5 @@
 package pl.hellopolandticket.app;
 
-import java.io.IOException;
-import java.io.InputStream;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.enterprise.inject.Produces;
@@ -15,15 +13,6 @@ import pl.hellopolandticket.security.password.PasswordEncoder;
 @Singleton
 @Interceptors(value = LoggingHandler.class)
 public class Configuration {
-
-  public Configuration() {
-    java.util.Properties systemProps = System.getProperties();
-    try (InputStream customProps = Configuration.class.getResourceAsStream("/config.properties")) {
-      systemProps.load(customProps);
-    } catch (IOException e) {
-      log.warn("Failed to load custom properties. {}", e.getMessage());
-    }
-  }
 
   @Produces
   public PasswordEncoder passwordEncoder() {
