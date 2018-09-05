@@ -33,7 +33,7 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 @Table(name = "TICKET_POOLS")
 @EqualsAndHashCode(exclude = "tickets")
 @NoArgsConstructor
-@ToString
+@ToString(exclude = {"tickets"})
 public class TicketPool implements Serializable {
 
   private static final long serialVersionUID = -3301750425362262797L;
