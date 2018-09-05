@@ -39,7 +39,7 @@ import pl.hellopolandticket.service.exception.badrequest.CannotGenerateQrCodeExc
 @Table(name = "TICKETS")
 @EqualsAndHashCode
 @NoArgsConstructor
-@ToString
+@ToString(exclude = {"ticketPool"})
 public class Ticket implements Serializable {
 
   private static final long serialVersionUID = 8362327972408128723L;

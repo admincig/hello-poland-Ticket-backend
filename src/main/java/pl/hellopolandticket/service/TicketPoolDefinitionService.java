@@ -3,7 +3,6 @@ package pl.hellopolandticket.service;
 import static java.util.Optional.ofNullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -118,8 +117,11 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
             .map(principal -> partnerDao.findByUserEmail(principal)).map(Partner::getId)
             .orElse(null));
 
-    return tpd.stream().map(d -> ModelObjectsToDTOConverter.ofTicketPoolDefinition(d))
-        .collect(Collectors.toList());
+    List<TicketPoolDefinitionDTO> dtos = new ArrayList<>();
+    for (var d : tpd) {
+      dtos.add(ModelObjectsToDTOConverter.ofTicketPoolDefinition(d));
+    }
+    return dtos;
   }
 
   public TicketPoolDefinition get(Long id) {

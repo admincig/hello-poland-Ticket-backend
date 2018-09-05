@@ -12,6 +12,7 @@ import pl.hellopoland.dto.FrequencyDataDTO;
 import pl.hellopoland.dto.FrequencyTypeDTO;
 import pl.hellopoland.dto.ImageDTO;
 import pl.hellopoland.dto.LocationDTO;
+import pl.hellopoland.dto.OpeningHoursDTO;
 import pl.hellopoland.dto.PartnerDTO;
 import pl.hellopoland.dto.SightEventDTO;
 import pl.hellopoland.dto.StatusDTO;
@@ -25,6 +26,7 @@ import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.config.ApplicationProperty;
 import pl.hellopolandticket.model.partner.Partner;
+import pl.hellopolandticket.model.sightevent.OpeningHours;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.sightevent.SightEventLocation;
 import pl.hellopolandticket.model.ticket.market.Booking;
@@ -58,7 +60,19 @@ public class ModelObjectsToDTOConverter {
     sightEventDTO.ticketPoolDefinitions = sightEvent.getTicketPoolDefinitions().stream()
         .map(ModelObjectsToDTOConverter::ofTicketPoolDefinition).collect(toList());
 
+    sightEventDTO.openingHours = ofNullable(sightEvent.getOpeningHours())
+        .map(v -> v.stream().map(ModelObjectsToDTOConverter::ofOpeningHours).collect(toList()))
+        .orElse(null);
+
     return sightEventDTO;
+  }
+
+  private static OpeningHoursDTO ofOpeningHours(OpeningHours openingHours) {
+    OpeningHoursDTO dto = new OpeningHoursDTO();
+    dto.closeTime = openingHours.getCloseTime();
+    dto.day = openingHours.getDay();
+    dto.openTime = openingHours.getOpenTime();
+    return dto;
   }
 
   private static LocationDTO ofSightLocation(SightEventLocation sightEventLocation) {
@@ -240,7 +254,7 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDefinitionDTO.entryStartDate = ticketPoolDefinition.getEntryStartDate();
     ticketPoolDefinitionDTO.entryEndDate = ticketPoolDefinition.getEntryEndDate();
     ticketPoolDefinitionDTO.sightEventId = ticketPoolDefinition.getSightEvent().getId();
-
+    ticketPoolDefinitionDTO.deleted = ticketPoolDefinition.isDeleted();
     ticketPoolDefinitionDTO.ticketDefinitions = ticketPoolDefinition.getTicketDefinitions().stream()
         .map(ModelObjectsToDTOConverter::ofTicketDefinition).collect(toList());
 
