@@ -30,11 +30,17 @@ public class TicketDefinitionService extends ServiceSuperclass {
   @Inject
   private TicketPoolDefinitionDao ticketPoolDefinitionDao;
 
+
+
+  // nie perzystowac td (bo juz sa w bazie) tylko uzupelnic im informacje o tpd!!!
   public TicketDefinitionDTO add(TicketDefinitionDTO ticketDefinitionDTO,
       Long ticketPoolDefinitionId, CurrentUser currentUser) {
+
     Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
+
     TicketDefinitionBuilder ticketDefinitionBuilder = TicketDefinition.builder()
         .name(ticketDefinitionDTO.name).price(ticketDefinitionDTO.price).partner(partner);
+
     List<TicketPoolDefinition> ticketPoolDefinitions = null;
     if (ticketPoolDefinitionId != null) {
       ticketPoolDefinitions =
@@ -43,7 +49,13 @@ public class TicketDefinitionService extends ServiceSuperclass {
           ticketDefinitionBuilder.ticketPoolDefinitions(ticketPoolDefinitions);
     }
     TicketDefinition ticketDefinition = ticketDefinitionBuilder.build();
+
+
+
     ticketDefinitionDao.persist(ticketDefinition);
+
+
+
     if (ticketPoolDefinitions != null && !ticketPoolDefinitions.isEmpty()) {
       ticketPoolDefinitions.forEach(tpd -> {
         tpd.getTicketDefinitions().add(ticketDefinition);

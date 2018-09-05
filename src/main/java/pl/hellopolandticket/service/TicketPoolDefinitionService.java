@@ -1,6 +1,7 @@
 package pl.hellopolandticket.service;
 
 import static java.util.Optional.ofNullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.ejb.LocalBean;
@@ -15,6 +16,7 @@ import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.FrequencyType;
+import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
@@ -58,18 +60,39 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
             .entryEndDate(ticketPoolDefinitionDTO.entryEndDate).sightEvent(sightEvent)
             .deleted(false).build();
 
+    ticketPoolDefinition
+        .setTicketDefinitions(getTicketDefinitions(ticketPoolDefinitionDTO.ticketDefinitions));
+
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
 
-    addAllTicketDefinitionsForTicketPoolDefinition(ticketPoolDefinitionDTO.ticketDefinitions,
-        ticketPoolDefinition.getId(), currentUser);
+    // addAllTicketDefinitionsForTicketPoolDefinition(ticketPoolDefinitionDTO.ticketDefinitions,
+    // ticketPoolDefinition.getId(), currentUser);
 
-    ticketPoolDefinitionDTO.id = ticketPoolDefinition.getId();
+    // ticketPoolDefinitionDTO.id = ticketPoolDefinition.getId();
 
     if (!ticketPoolDefinition.getIsCyclic()) {
       ticketPoolService.findOrCreateNew(ticketPoolDefinition, null);
     }
 
+
+
+    ticketPoolDefinitionDTO =
+        ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
+
+
+
     return ticketPoolDefinitionDTO;
+  }
+
+  private List<TicketDefinition> getTicketDefinitions(List<TicketDefinitionDTO> ticketDefinitions) {
+    if (ticketDefinitions != null) {
+      List<TicketDefinition> tickets = new ArrayList<>();
+      for (TicketDefinitionDTO ticketDefinitionDTO : ticketDefinitions) {
+        tickets.add(ticketDefinitionService.get(ticketDefinitionDTO.id));
+      }
+      return tickets;
+    }
+    return null;
   }
 
   private List<TicketDefinitionDTO> addAllTicketDefinitionsForTicketPoolDefinition(
@@ -77,10 +100,11 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
       CurrentUser currentUser) {
     if (ticketDefinitions != null) {
       for (TicketDefinitionDTO ticketDefinitionDTO : ticketDefinitions) {
-        TicketDefinitionDTO persistedTicketDefinitionDTO =
-            ticketDefinitionService.add(ticketDefinitionDTO, ticketPoolDefinitionId, currentUser);
 
-        ticketDefinitionDTO.id = persistedTicketDefinitionDTO.id;
+        // TicketDefinitionDTO persistedTicketDefinitionDTO =
+        // ticketDefinitionService.add(ticketDefinitionDTO, ticketPoolDefinitionId, currentUser);
+
+        // ticketDefinitionDTO.id = persistedTicketDefinitionDTO.id;
         ticketDefinitionDTO.poolId = ticketPoolDefinitionId;
       }
     }
