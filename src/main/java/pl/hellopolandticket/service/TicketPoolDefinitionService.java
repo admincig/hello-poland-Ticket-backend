@@ -64,22 +64,19 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
 
-    // addAllTicketDefinitionsForTicketPoolDefinition(ticketPoolDefinitionDTO.ticketDefinitions,
-    // ticketPoolDefinition.getId(), currentUser);
+    ticketPoolDefinitionDTO =
+        ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
 
-    // ticketPoolDefinitionDTO.id = ticketPoolDefinition.getId();
+    var tds = ticketPoolDefinitionDTO.ticketDefinitions;
+    if (tds != null && !tds.isEmpty()) {
+      tds.forEach(td -> td.poolId = ticketPoolDefinition.getId());
+    }
+
+    ticketPoolDefinitionDTO.id = ticketPoolDefinition.getId();
 
     if (!ticketPoolDefinition.getIsCyclic()) {
       ticketPoolService.findOrCreateNew(ticketPoolDefinition, null);
     }
-
-
-
-    ticketPoolDefinitionDTO =
-        ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
-
-
-
     return ticketPoolDefinitionDTO;
   }
 
@@ -92,23 +89,6 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
       return tickets;
     }
     return null;
-  }
-
-  private List<TicketDefinitionDTO> addAllTicketDefinitionsForTicketPoolDefinition(
-      List<TicketDefinitionDTO> ticketDefinitions, Long ticketPoolDefinitionId,
-      CurrentUser currentUser) {
-    if (ticketDefinitions != null) {
-      for (TicketDefinitionDTO ticketDefinitionDTO : ticketDefinitions) {
-
-        // TicketDefinitionDTO persistedTicketDefinitionDTO =
-        // ticketDefinitionService.add(ticketDefinitionDTO, ticketPoolDefinitionId, currentUser);
-
-        // ticketDefinitionDTO.id = persistedTicketDefinitionDTO.id;
-        ticketDefinitionDTO.poolId = ticketPoolDefinitionId;
-      }
-    }
-
-    return ticketDefinitions;
   }
 
   public List<TicketPoolDefinitionDTO> getAllForPartner(CurrentUser currentUser) {
