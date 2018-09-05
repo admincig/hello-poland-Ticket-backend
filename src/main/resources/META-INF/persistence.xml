@@ -9,15 +9,13 @@
 	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
 	OF ANY KIND, either express or implied. See the License for the specific 
 	language governing permissions and limitations under the License. -->
-<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.2"
-    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
-  <persistence-unit name="primary">
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.1" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+  <persistence-unit name="primary" transaction-type="JTA">
 
-    <jta-data-source>java:/jboss/datasources/hellopolandticket</jta-data-source>
+    <jta-data-source>java:jboss/datasources/hellopolandticket</jta-data-source>
     <properties>
       <property name="javax.persistence.schema-generation.database.action" value="@javax.persistence.schema-generation.database.action@"/>
       <property name="javax.persistence.sql-load-script-source" value="@javax.persistence.sql-load-script-source@"/>
-    </properties>
+    </properties> 
   </persistence-unit>
 </persistence>
