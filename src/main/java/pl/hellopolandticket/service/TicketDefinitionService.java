@@ -30,9 +30,6 @@ public class TicketDefinitionService extends ServiceSuperclass {
   @Inject
   private TicketPoolDefinitionDao ticketPoolDefinitionDao;
 
-
-
-  // nie perzystowac td (bo juz sa w bazie) tylko uzupelnic im informacje o tpd!!!
   public TicketDefinitionDTO add(TicketDefinitionDTO ticketDefinitionDTO,
       Long ticketPoolDefinitionId, CurrentUser currentUser) {
 
@@ -49,12 +46,7 @@ public class TicketDefinitionService extends ServiceSuperclass {
           ticketDefinitionBuilder.ticketPoolDefinitions(ticketPoolDefinitions);
     }
     TicketDefinition ticketDefinition = ticketDefinitionBuilder.build();
-
-
-
     ticketDefinitionDao.persist(ticketDefinition);
-
-
 
     if (ticketPoolDefinitions != null && !ticketPoolDefinitions.isEmpty()) {
       ticketPoolDefinitions.forEach(tpd -> {
