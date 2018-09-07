@@ -20,9 +20,13 @@ public class UserDao {
   }
 
   public Optional<User> findByEmailAndNotHidden(String email) {
-    return entityManager
+    Optional<User> optional = entityManager
         .createQuery("from User user where user.email=:email and user.hidden=false", User.class)
         .setParameter("email", email).getResultStream().findFirst();
+    if (optional.isPresent()) {
+      optional.get().getAuthorities().size();
+    }
+    return optional;
   }
 
   public Optional<User> findByToken(String token) {
