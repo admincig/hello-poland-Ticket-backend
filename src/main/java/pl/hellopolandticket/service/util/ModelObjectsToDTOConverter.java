@@ -267,8 +267,10 @@ public class ModelObjectsToDTOConverter {
 
       frequencyDataDTO.frequencyType =
           FrequencyTypeDTO.valueOf(frequencyData.getFrequencyType().name());
-      // fetch first
-      frequencyData.getDaysOfWeek().size();
+      if (frequencyData.getDaysOfWeek() != null) {
+        // fetch first
+        frequencyData.getDaysOfWeek().size();
+      }
       frequencyDataDTO.daysOfWeek = frequencyData.getDaysOfWeek();
       frequencyDataDTO.frequency = frequencyData.getFrequency();
 

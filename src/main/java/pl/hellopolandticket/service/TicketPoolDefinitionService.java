@@ -15,6 +15,7 @@ import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.FrequencyType;
+import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
@@ -58,34 +59,36 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
             .entryEndDate(ticketPoolDefinitionDTO.entryEndDate).sightEvent(sightEvent)
             .deleted(false).build();
 
+    ticketPoolDefinition
+        .setTicketDefinitions(getTicketDefinitions(ticketPoolDefinitionDTO.ticketDefinitions));
+
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
 
-    addAllTicketDefinitionsForTicketPoolDefinition(ticketPoolDefinitionDTO.ticketDefinitions,
-        ticketPoolDefinition.getId(), currentUser);
+    ticketPoolDefinitionDTO =
+        ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
+
+    var tds = ticketPoolDefinitionDTO.ticketDefinitions;
+    if (tds != null && !tds.isEmpty()) {
+      tds.forEach(td -> td.poolId = ticketPoolDefinition.getId());
+    }
 
     ticketPoolDefinitionDTO.id = ticketPoolDefinition.getId();
 
     if (!ticketPoolDefinition.getIsCyclic()) {
       ticketPoolService.findOrCreateNew(ticketPoolDefinition, null);
     }
-
     return ticketPoolDefinitionDTO;
   }
 
-  private List<TicketDefinitionDTO> addAllTicketDefinitionsForTicketPoolDefinition(
-      List<TicketDefinitionDTO> ticketDefinitions, Long ticketPoolDefinitionId,
-      CurrentUser currentUser) {
+  private List<TicketDefinition> getTicketDefinitions(List<TicketDefinitionDTO> ticketDefinitions) {
     if (ticketDefinitions != null) {
+      List<TicketDefinition> tickets = new ArrayList<>();
       for (TicketDefinitionDTO ticketDefinitionDTO : ticketDefinitions) {
-        TicketDefinitionDTO persistedTicketDefinitionDTO =
-            ticketDefinitionService.add(ticketDefinitionDTO, ticketPoolDefinitionId, currentUser);
-
-        ticketDefinitionDTO.id = persistedTicketDefinitionDTO.id;
-        ticketDefinitionDTO.poolId = ticketPoolDefinitionId;
+        tickets.add(ticketDefinitionService.get(ticketDefinitionDTO.id));
       }
+      return tickets;
     }
-
-    return ticketDefinitions;
+    return null;
   }
 
   public List<TicketPoolDefinitionDTO> getAllForPartner(CurrentUser currentUser) {
