@@ -11,11 +11,13 @@ import java.util.Date;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import pl.hellopoland.dto.TicketPoolDTO;
 import pl.hellopolandticket.dao.TicketPoolDao;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionException;
+import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
 @LocalBean
@@ -37,6 +39,10 @@ public class TicketPoolService extends ServiceSuperclass {
     }
 
     return pool;
+  }
+
+  public TicketPoolDTO getForSightEvent(Long sightEventId) {
+    return ModelObjectsToDTOConverter.ofTicketPool(ticketPoolDao.findBySightEventId(sightEventId));
   }
 
   private Date getEndDateForNewInstance(TicketPoolDefinition ticketPoolDefinition,
