@@ -12,21 +12,21 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import pl.hellopolandticket.service.TicketPoolService;
+import pl.hellopolandticket.service.AvailableTicketNumberAssociationService;
 
 @Path("/ticket-pools")
 @RequestScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class TicketPoolRestService {
+public class AvailableTicketNumberAssociationRestService {
 
   @Inject
-  private TicketPoolService service;
+  private AvailableTicketNumberAssociationService service;
 
   @GET
   @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
-  public Response getTicketPoolForSightEvent(@QueryParam("sightEventId") Long id) {
-    return Response.ok(service.getForSightEvent(id)).build();
+  public Response checkAvailabilityOfTickets(@QueryParam("ticketPoolDefinitionId") Long id) {
+    return Response.ok(service.checkAvailabilityOfTickets(id)).build();
   }
 
 }

@@ -49,13 +49,4 @@ public class TicketPoolDao {
     }
     return resultList.get(0);
   }
-
-  public TicketPool findBySightEventId(Long sightEventId) {
-    return entityManager
-        .createQuery("from TicketPool e where e.ticketPoolDefinition.sightEvent.id = :id",
-            TicketPool.class)
-        .setParameter("id", sightEventId).getResultStream().findFirst()
-        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
-  }
-
 }

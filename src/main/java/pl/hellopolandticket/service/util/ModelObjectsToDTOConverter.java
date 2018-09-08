@@ -7,6 +7,7 @@ import java.util.Collection;
 import lombok.Builder;
 import pl.hellopoland.dto.AbstractErrorDTO;
 import pl.hellopoland.dto.ApplicationPropertyDTO;
+import pl.hellopoland.dto.AvailableTicketNumberAssociationDTO;
 import pl.hellopoland.dto.CollectionWrapperDTO;
 import pl.hellopoland.dto.FrequencyDataDTO;
 import pl.hellopoland.dto.FrequencyTypeDTO;
@@ -35,6 +36,7 @@ import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
+import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
 
 public class ModelObjectsToDTOConverter {
@@ -278,4 +280,16 @@ public class ModelObjectsToDTOConverter {
     }
     return null;
   }
+
+  public static AvailableTicketNumberAssociationDTO ofAvailableTicketNumberAssociation(
+      AvailableTicketNumberAssociation bo) {
+    var dto = new AvailableTicketNumberAssociationDTO();
+    dto.availableTicketsNumber = bo.getAvailableTicketsNumber();
+    dto.ticketDefinitionId = bo.getTicketDefinition().getId();
+    dto.ticketPoolDefinitionId =
+        bo.getTicketPoolDefinition() != null ? bo.getTicketPoolDefinition().getId() : null;
+    dto.ticketPoolId = bo.getTicketPool() != null ? bo.getTicketPool().getId() : null;
+    return dto;
+  }
+
 }
