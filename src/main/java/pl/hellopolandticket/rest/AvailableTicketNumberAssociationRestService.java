@@ -47,7 +47,7 @@ public class AvailableTicketNumberAssociationRestService {
   @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response checkAvailabilityOfTickets(@QueryParam("ticketPoolDefinitionId") Long id,
       @QueryParam("date") Date date) {
-    // return Response.ok(service.checkAvailabilityOfTickets(id)).build();
+    // return Response.ok(service.checkAvailabilityOfTickets(id, date)).build();
     return Response.ok(getMock()).build();
   }
 

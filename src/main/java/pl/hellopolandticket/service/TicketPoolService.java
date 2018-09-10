@@ -24,6 +24,9 @@ public class TicketPoolService extends ServiceSuperclass {
   @Inject
   private TicketPoolDao ticketPoolDao;
 
+  @Inject
+  private AvailableTicketNumberAssociationService atnaService;
+
   public TicketPool findOrCreateNew(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
     TicketPool pool = ticketPoolDao.find(ticketPoolDefinition, requestedDate);
     if (pool == null) {
@@ -34,8 +37,8 @@ public class TicketPoolService extends ServiceSuperclass {
       pool.setEndDate(endDate);
       ticketPoolDao.persist(pool);
       pool.recountEntryDates();
+      atnaService.add(pool, ticketPoolDefinition);
     }
-
     return pool;
   }
 

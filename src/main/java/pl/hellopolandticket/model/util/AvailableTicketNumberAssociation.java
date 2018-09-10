@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -20,7 +21,8 @@ import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 
 @Getter
 @Entity
-@Table(name = "AVAILABLE_TICKET_NUMBER_ASSOCIATION")
+@Table(name = "AVAILABLE_TICKET_NUMBER_ASSOCIATION", uniqueConstraints = @UniqueConstraint(
+    columnNames = {"ticketDefinition", "ticketPoolDefinition", "ticketPool"}))
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString()
