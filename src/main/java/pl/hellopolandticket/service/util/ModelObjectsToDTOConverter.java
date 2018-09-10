@@ -285,10 +285,11 @@ public class ModelObjectsToDTOConverter {
       AvailableTicketNumberAssociation bo) {
     var dto = new AvailableTicketNumberAssociationDTO();
     dto.availableTicketsNumber = bo.getAvailableTicketsNumber();
-    dto.ticketDefinitionId = bo.getTicketDefinition().getId();
-    dto.ticketPoolDefinitionId =
-        bo.getTicketPoolDefinition() != null ? bo.getTicketPoolDefinition().getId() : null;
-    dto.ticketPoolId = bo.getTicketPool() != null ? bo.getTicketPool().getId() : null;
+    dto.ticketDefinition = ofTicketDefinition(bo.getTicketDefinition());
+    dto.ticketPoolDefinition =
+        bo.getTicketPoolDefinition() != null ? ofTicketPoolDefinition(bo.getTicketPoolDefinition())
+            : null;
+    dto.ticketPool = bo.getTicketPool() != null ? ofTicketPool(bo.getTicketPool()) : null;
     return dto;
   }
 
