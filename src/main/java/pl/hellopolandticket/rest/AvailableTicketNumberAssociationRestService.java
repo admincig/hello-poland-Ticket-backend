@@ -16,6 +16,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopoland.dto.AvailableTicketNumberAssociationDTO;
+import pl.hellopolandticket.annotation.DateTimeFormat;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
@@ -46,9 +47,9 @@ public class AvailableTicketNumberAssociationRestService {
   @GET
   @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response checkAvailabilityOfTickets(@QueryParam("ticketPoolDefinitionId") Long id,
-      @QueryParam("date") Date date) {
-    // return Response.ok(service.checkAvailabilityOfTickets(id, date)).build();
-    return Response.ok(getMock()).build();
+      @QueryParam("date") @DateTimeFormat Date date) {
+    return Response.ok(service.checkAvailabilityOfTickets(id, date)).build();
+    // return Response.ok(getMock()).build();
   }
 
   private List<AvailableTicketNumberAssociationDTO> getMock() {

@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
@@ -22,7 +24,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 @Getter
 @Entity
 @Table(name = "AVAILABLE_TICKET_NUMBER_ASSOCIATION", uniqueConstraints = @UniqueConstraint(
-    columnNames = {"ticketDefinition", "ticketPoolDefinition", "ticketPool"}))
+    columnNames = {"TICKET_DEFINITION_ID", "TICKET_POOL_DEFINITION_ID", "TICKET_POOL_ID"}))
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString()
@@ -41,15 +43,18 @@ public class AvailableTicketNumberAssociation implements Serializable {
 
   @Setter
   @NotNull
-  @Column(name = "TICKET_DEFINITION", nullable = false)
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "TICKET_DEFINITION_ID", nullable = false)
   private TicketDefinition ticketDefinition;
 
   @Setter
-  @Column(name = "TICKET_POOL_DEFINITION")
+  @ManyToOne
+  @JoinColumn(name = "TICKET_POOL_DEFINITION_ID")
   private TicketPoolDefinition ticketPoolDefinition;
 
   @Setter
-  @Column(name = "TICKET_POOL")
+  @ManyToOne
+  @JoinColumn(name = "TICKET_POOL_ID")
   private TicketPool ticketPool;
 
   @Builder
