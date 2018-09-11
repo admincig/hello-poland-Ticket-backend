@@ -92,6 +92,30 @@ public class BookingService extends ServiceSuperclass {
     return ofBooking(booking);
   }
 
+  public void makeInvalid(Booking expiredBooking) {
+    expiredBooking.setStatus(INVALID);
+    for (Ticket t : expiredBooking.getTickets()) {
+      var tp = t.getTicketPool();
+      var td = t.getTicketDefinition();
+      AvailableTicketNumberAssociation association =
+          atnaDao.findForTicketPoolAndTicketDefinition(tp, td);
+      Integer availableTicketsNumber = association.getAvailableTicketsNumber();
+      Integer poolAvailableTicketNumber = tp.getAvailableTicketsNumber();
+      if (poolAvailableTicketNumber == -1 && availableTicketsNumber == -1) {
+        // nothing to do
+      } else if (poolAvailableTicketNumber == -1 && availableTicketsNumber > -1) {
+        association.setAvailableTicketsNumber(availableTicketsNumber + 1);
+        atnaDao.update(association);
+      } else if (poolAvailableTicketNumber > -1 && availableTicketsNumber == -1) {
+        tp.increaseAvailableTicketsNumber();
+      } else if (poolAvailableTicketNumber > -1 && availableTicketsNumber > -1) {
+        tp.increaseAvailableTicketsNumber();
+        association.setAvailableTicketsNumber(availableTicketsNumber + 1);
+        atnaDao.update(association);
+      }
+    }
+  }
+
   private synchronized List<Ticket> bookTickets(Collection<TicketOrderDTO> ticketBookingDTOs,
       Booking booking) {
     if (isANewBooking(ticketBookingDTOs)) {
@@ -120,7 +144,7 @@ public class BookingService extends ServiceSuperclass {
 
         bookedTickets.add(ticket);
       }
-      checkAndProcessAvailability(pool, ticketDefinition, dto.numberOfTickets.intValue());
+      checkAndDecreaseAvailability(pool, ticketDefinition, dto.numberOfTickets.intValue());
       // pool.decreaseAvailableTicketsNumber(dto.numberOfTickets.intValue());
     }
     return ticketDao.persist(bookedTickets);
@@ -129,7 +153,7 @@ public class BookingService extends ServiceSuperclass {
   private List<Ticket> rebook(Booking booking) {
     List<Ticket> tickets = booking.getTickets();
     for (Ticket ticket : tickets) {
-      checkAndProcessAvailability(ticket.getTicketPool(), ticket.getTicketDefinition(), 1);
+      checkAndDecreaseAvailability(ticket.getTicketPool(), ticket.getTicketDefinition(), 1);
       // ticket.getTicketPool().decreaseAvailableTicketsNumber(1);
       ticket.setStatus(BOOKED);
     }
@@ -156,7 +180,7 @@ public class BookingService extends ServiceSuperclass {
         .build());
   }
 
-  private void checkAndProcessAvailability(TicketPool pool, TicketDefinition ticketDefinition,
+  private void checkAndDecreaseAvailability(TicketPool pool, TicketDefinition ticketDefinition,
       int numberOfTickets) {
     Integer poolAvailableTicketNumber = pool.getAvailableTicketsNumber();
     AvailableTicketNumberAssociation association =
