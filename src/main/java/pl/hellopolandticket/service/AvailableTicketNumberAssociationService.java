@@ -38,7 +38,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
           var bo = AvailableTicketNumberAssociation.builder()
               .ticketDefinition(tdService.get(tdDto.id)).ticketPoolDefinition(ticketPoolDefinition)
               .availableTicketsNumber(tdDto.availableTicketsNumber).build();
-          dao.persiste(bo);
+          dao.persist(bo);
         }
       }
     }
@@ -52,7 +52,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
             dao.findForTicketPoolDefinitionAndTicketDefinition(ticketPoolDefinition, td);
         var bo = AvailableTicketNumberAssociation.builder().ticketDefinition(td).ticketPool(pool)
             .availableTicketsNumber(association.getAvailableTicketsNumber()).build();
-        dao.persiste(bo);
+        dao.persist(bo);
       }
     }
 

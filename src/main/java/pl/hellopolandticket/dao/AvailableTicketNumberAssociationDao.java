@@ -22,7 +22,7 @@ public class AvailableTicketNumberAssociationDao {
   @Inject
   private ExceptionFactory exceptionFactory;
 
-  public AvailableTicketNumberAssociation persiste(AvailableTicketNumberAssociation bo) {
+  public AvailableTicketNumberAssociation persist(AvailableTicketNumberAssociation bo) {
     entityManager.persist(bo);
     entityManager.flush();
     return bo;
