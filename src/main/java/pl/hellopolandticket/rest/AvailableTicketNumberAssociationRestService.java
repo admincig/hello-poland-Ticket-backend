@@ -14,9 +14,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopolandticket.annotation.DateTimeFormat;
-import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.service.AvailableTicketNumberAssociationService;
-import pl.hellopolandticket.service.SightEventService;
 
 @Path("/available-ticket-number-associations")
 @RequestScoped
@@ -27,11 +25,11 @@ public class AvailableTicketNumberAssociationRestService {
   @Inject
   private AvailableTicketNumberAssociationService service;
 
-  @Inject
-  private SightEventService seService;
-
-  @Inject
-  private PartnerDao partnerDao;
+  // @Inject
+  // private SightEventService seService;
+  //
+  // @Inject
+  // private PartnerDao partnerDao;
 
   @GET
   @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
