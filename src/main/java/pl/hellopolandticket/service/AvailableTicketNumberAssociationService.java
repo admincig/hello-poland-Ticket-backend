@@ -25,6 +25,9 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   private AvailableTicketNumberAssociationDao dao;
 
   @Inject
+  private SightEventService seService;
+
+  @Inject
   private TicketDefinitionService tdService;
 
   @Inject
@@ -58,22 +61,27 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
 
   }
 
-  public List<AvailableTicketNumberAssociationDTO> checkAvailabilityOfTickets(
-      Long ticketPoolDefinitionId, Date date) {
-    var tpd = tpdService.get(ticketPoolDefinitionId);
-    List<TicketPool> ticketPools = tpd.getTicketPools();
-    if (ticketPools == null || ticketPools.isEmpty()) {
-      return getForTicketPoolDefinition(tpd).stream()
-          .map(bo -> ModelObjectsToDTOConverter.ofAvailableTicketNumberAssociation(bo))
-          .collect(Collectors.toList());
-    } else {
-      var availableTicketNumbers = new ArrayList<AvailableTicketNumberAssociation>();
-      tpd.getTicketPools().stream().filter(p -> areDatesEquals(date, p.getStartDate()))
-          .forEach(tp -> availableTicketNumbers.addAll(getForTicketPool(tp)));
-      return availableTicketNumbers.stream()
-          .map(bo -> ModelObjectsToDTOConverter.ofAvailableTicketNumberAssociation(bo))
-          .collect(Collectors.toList());
-    }
+  public List<AvailableTicketNumberAssociationDTO> checkAvailabilityOfTickets(Long sightEventId,
+      Date date) {
+    var se = seService.findSightEventById(sightEventId);
+    se.getTicketPoolDefinitions().size();
+    var result = new ArrayList<AvailableTicketNumberAssociationDTO>();
+    se.getTicketPoolDefinitions().forEach(tpd -> {
+      List<TicketPool> ticketPools = tpd.getTicketPools();
+      if (ticketPools == null || ticketPools.isEmpty()) {
+        result.addAll(getForTicketPoolDefinition(tpd).stream()
+            .map(bo -> ModelObjectsToDTOConverter.ofAvailableTicketNumberAssociation(bo))
+            .collect(Collectors.toList()));
+      } else {
+        var availableTicketNumbers = new ArrayList<AvailableTicketNumberAssociation>();
+        tpd.getTicketPools().stream().filter(p -> areDatesEquals(date, p.getStartDate()))
+            .forEach(tp -> availableTicketNumbers.addAll(getForTicketPool(tp)));
+        result.addAll(availableTicketNumbers.stream()
+            .map(bo -> ModelObjectsToDTOConverter.ofAvailableTicketNumberAssociation(bo))
+            .collect(Collectors.toList()));
+      }
+    });
+    return result;
   }
 
   private boolean areDatesEquals(Date date1, Date date2) {
