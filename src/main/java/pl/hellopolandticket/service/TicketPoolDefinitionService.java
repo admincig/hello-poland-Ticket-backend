@@ -62,11 +62,11 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
             .entryEndDate(ticketPoolDefinitionDTO.entryEndDate).sightEvent(sightEvent)
             .deleted(false).build();
 
-    ticketPoolDefinition
-        .setTicketDefinitions(getTicketDefinitions(ticketPoolDefinitionDTO.ticketDefinitions));
-
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
     atnaService.add(ticketPoolDefinition, ticketPoolDefinitionDTO.ticketDefinitions);
+
+    ticketPoolDefinition.setTicketDefinitions(
+        getTicketDefinitions(ticketPoolDefinitionDTO.ticketDefinitions, ticketPoolDefinition));
 
     ticketPoolDefinitionDTO =
         ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
@@ -84,11 +84,14 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     return ticketPoolDefinitionDTO;
   }
 
-  private List<TicketDefinition> getTicketDefinitions(List<TicketDefinitionDTO> ticketDefinitions) {
+  private List<TicketDefinition> getTicketDefinitions(List<TicketDefinitionDTO> ticketDefinitions,
+      TicketPoolDefinition ticketPoolDefinition) {
     if (ticketDefinitions != null) {
       List<TicketDefinition> tickets = new ArrayList<>();
       for (TicketDefinitionDTO ticketDefinitionDTO : ticketDefinitions) {
-        tickets.add(ticketDefinitionService.get(ticketDefinitionDTO.id));
+        var td = ticketDefinitionService.get(ticketDefinitionDTO.id);
+        td.setTicketPoolDefinitions(List.of(ticketPoolDefinition));
+        tickets.add(ticketDefinitionService.get(td.getId()));
       }
       return tickets;
     }
