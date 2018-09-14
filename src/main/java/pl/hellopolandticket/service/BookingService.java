@@ -16,6 +16,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import pl.hellopoland.dto.booking.BookingDTO;
 import pl.hellopoland.dto.booking.TicketOrderDTO;
+import pl.hellopolandticket.dao.AvailableTicketNumberAssociationDao;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.ticket.market.Booking;
@@ -23,8 +24,10 @@ import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
+import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
+import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 
 @Stateless
@@ -51,6 +54,9 @@ public class BookingService extends ServiceSuperclass {
 
   @Inject
   private ApplicationPropertyService applicationPropertyService;
+
+  @Inject
+  private AvailableTicketNumberAssociationDao atnaDao;
 
   @Inject
   private Event<BookingMarkedAsBoughtEvent> bookingMarkedAsBoughtEvent;
@@ -86,6 +92,30 @@ public class BookingService extends ServiceSuperclass {
     return ofBooking(booking);
   }
 
+  public void makeInvalid(Booking expiredBooking) {
+    expiredBooking.setStatus(INVALID);
+    for (Ticket t : expiredBooking.getTickets()) {
+      var tp = t.getTicketPool();
+      var td = t.getTicketDefinition();
+      AvailableTicketNumberAssociation association =
+          atnaDao.findForTicketPoolAndTicketDefinition(tp, td);
+      Integer availableTicketsNumber = association.getAvailableTicketsNumber();
+      Integer poolAvailableTicketNumber = tp.getAvailableTicketsNumber();
+      if (poolAvailableTicketNumber == -1 && availableTicketsNumber == -1) {
+        // nothing to do
+      } else if (poolAvailableTicketNumber == -1 && availableTicketsNumber > -1) {
+        association.setAvailableTicketsNumber(availableTicketsNumber + 1);
+        atnaDao.update(association);
+      } else if (poolAvailableTicketNumber > -1 && availableTicketsNumber == -1) {
+        tp.increaseAvailableTicketsNumber();
+      } else if (poolAvailableTicketNumber > -1 && availableTicketsNumber > -1) {
+        tp.increaseAvailableTicketsNumber();
+        association.setAvailableTicketsNumber(availableTicketsNumber + 1);
+        atnaDao.update(association);
+      }
+    }
+  }
+
   private synchronized List<Ticket> bookTickets(Collection<TicketOrderDTO> ticketBookingDTOs,
       Booking booking) {
     if (isANewBooking(ticketBookingDTOs)) {
@@ -97,7 +127,6 @@ public class BookingService extends ServiceSuperclass {
 
   private List<Ticket> book(Collection<TicketOrderDTO> dtos, Booking booking) {
     List<Ticket> bookedTickets = new ArrayList<>();
-
     for (TicketOrderDTO dto : dtos) {
       TicketDefinition ticketDefinition = ticketDefinitionService.get(dto.ticketDefinitionId);
       if (!ticketDefinition.isConnectedWithPoolDefiniton(dto.ticketPoolDefinitionId)) {
@@ -115,22 +144,20 @@ public class BookingService extends ServiceSuperclass {
 
         bookedTickets.add(ticket);
       }
-
-      pool.decreaseAvailableTicketsNumber(dto.numberOfTickets.intValue());
+      checkAndDecreaseAvailability(pool, ticketDefinition, dto.numberOfTickets.intValue());
+      // pool.decreaseAvailableTicketsNumber(dto.numberOfTickets.intValue());
     }
-
     return ticketDao.persist(bookedTickets);
   }
 
   private List<Ticket> rebook(Booking booking) {
     List<Ticket> tickets = booking.getTickets();
-
     for (Ticket ticket : tickets) {
-      ticket.getTicketPool().decreaseAvailableTicketsNumber(1);
+      checkAndDecreaseAvailability(ticket.getTicketPool(), ticket.getTicketDefinition(), 1);
+      // ticket.getTicketPool().decreaseAvailableTicketsNumber(1);
       ticket.setStatus(BOOKED);
     }
     booking.setStatus(BOOKED);
-
     return tickets;
   }
 
@@ -152,4 +179,46 @@ public class BookingService extends ServiceSuperclass {
             .collect(toList()))
         .build());
   }
+
+  private void checkAndDecreaseAvailability(TicketPool pool, TicketDefinition ticketDefinition,
+      int numberOfTickets) {
+    Integer poolAvailableTicketNumber = pool.getAvailableTicketsNumber();
+    AvailableTicketNumberAssociation association =
+        atnaDao.findForTicketPoolAndTicketDefinition(pool, ticketDefinition);
+    Integer availableTicketsNumber = association.getAvailableTicketsNumber();
+    if (poolAvailableTicketNumber == -1 && availableTicketsNumber == -1) {
+      // nothing to do
+      return;
+    } else if (poolAvailableTicketNumber == -1 && availableTicketsNumber > 0) {
+      var number = availableTicketsNumber - numberOfTickets;
+      if (number >= 0) {
+        association.setAvailableTicketsNumber(number);
+        atnaDao.update(association);
+      } else {
+        throw new NoAvailableTicketsException();
+      }
+      return;
+    } else if (poolAvailableTicketNumber > 0 && availableTicketsNumber == -1) {
+      var number = poolAvailableTicketNumber - numberOfTickets;
+      if (number >= 0) {
+        pool.decreaseAvailableTicketsNumber(numberOfTickets);
+      } else {
+        throw new NoAvailableTicketsException();
+      }
+      return;
+    } else if (poolAvailableTicketNumber > 0 && availableTicketsNumber > 0) {
+      var poolNumber = poolAvailableTicketNumber - numberOfTickets;
+      var availableNumber = availableTicketsNumber - numberOfTickets;
+      if (poolNumber >= 0 && availableNumber >= 0) {
+        pool.decreaseAvailableTicketsNumber(numberOfTickets);
+        association.setAvailableTicketsNumber(availableNumber);
+        atnaDao.update(association);
+      } else {
+        throw new NoAvailableTicketsException();
+      }
+      return;
+    }
+    throw new NoAvailableTicketsException();
+  }
+
 }

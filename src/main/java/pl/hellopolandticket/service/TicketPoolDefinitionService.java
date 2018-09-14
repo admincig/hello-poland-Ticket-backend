@@ -39,6 +39,9 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   @Inject
   private PartnerDao partnerDao;
 
+  @Inject
+  private AvailableTicketNumberAssociationService atnaService;
+
   public TicketPoolDefinitionDTO add(TicketPoolDefinitionDTO ticketPoolDefinitionDTO,
       CurrentUser currentUser) {
     SightEvent sightEvent = sightEventDao.findById(ticketPoolDefinitionDTO.sightEventId);
@@ -60,6 +63,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
             .deleted(false).build();
 
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
+    atnaService.add(ticketPoolDefinition, ticketPoolDefinitionDTO.ticketDefinitions);
 
     ticketPoolDefinition.setTicketDefinitions(
         getTicketDefinitions(ticketPoolDefinitionDTO.ticketDefinitions, ticketPoolDefinition));
