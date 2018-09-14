@@ -201,7 +201,7 @@ public class BookingService extends ServiceSuperclass {
     } else if (poolAvailableTicketNumber > 0 && availableTicketsNumber == -1) {
       var number = poolAvailableTicketNumber - numberOfTickets;
       if (number >= 0) {
-        pool.decreaseAvailableTicketsNumber(number);
+        pool.decreaseAvailableTicketsNumber(numberOfTickets);
       } else {
         throw new NoAvailableTicketsException();
       }
@@ -210,7 +210,7 @@ public class BookingService extends ServiceSuperclass {
       var poolNumber = poolAvailableTicketNumber - numberOfTickets;
       var availableNumber = availableTicketsNumber - numberOfTickets;
       if (poolNumber >= 0 && availableNumber >= 0) {
-        pool.decreaseAvailableTicketsNumber(poolNumber);
+        pool.decreaseAvailableTicketsNumber(numberOfTickets);
         association.setAvailableTicketsNumber(availableNumber);
         atnaDao.update(association);
       } else {
