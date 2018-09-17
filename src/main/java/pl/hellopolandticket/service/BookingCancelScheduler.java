@@ -20,6 +20,9 @@ public class BookingCancelScheduler extends ServiceSuperclass {
   private BookingDao bookingDao;
 
   @Inject
+  private BookingService service;
+
+  @Inject
   private ApplicationPropertyService applicationPropertyService;
 
   @Schedule(hour = "*", minute = "*/5", second = "0", year = "*", dayOfMonth = "*", dayOfWeek = "*",
@@ -34,8 +37,8 @@ public class BookingCancelScheduler extends ServiceSuperclass {
 
     for (Booking booking : expiredBookings) {
       log.debug("For the booking {} changed status to invalid. The ticket wasn't bought.", booking);
-
-      booking.makeInvalid();
+      service.makeInvalid(booking);
     }
   }
+
 }
