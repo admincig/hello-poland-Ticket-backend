@@ -4,6 +4,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -61,26 +63,58 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
 
   }
 
-  public List<AvailableTicketNumberAssociationDTO> checkAvailabilityOfTickets(Long sightEventId,
+  public AvailableTicketNumberAssociationDTO checkAvailabilityOfTickets(Long sightEventId,
       Date date) {
     var se = seService.findSightEventById(sightEventId);
     se.getTicketPoolDefinitions().size();
-    var result = new ArrayList<AvailableTicketNumberAssociationDTO>();
+
+    var associationsTPD = new ArrayList<AvailableTicketNumberAssociation>();
+    var associationsTP = new ArrayList<AvailableTicketNumberAssociation>();
+
     se.getTicketPoolDefinitions().forEach(tpd -> {
       List<TicketPool> ticketPools = tpd.getTicketPools();
       if (ticketPools == null || ticketPools.isEmpty()) {
-        result.addAll(getForTicketPoolDefinition(tpd).stream()
-            .map(bo -> ModelObjectsToDTOConverter.ofAvailableTicketNumberAssociation(bo))
-            .collect(Collectors.toList()));
+        associationsTPD.addAll(getForTicketPoolDefinition(tpd));
       } else {
         var availableTicketNumbers = new ArrayList<AvailableTicketNumberAssociation>();
         tpd.getTicketPools().stream().filter(p -> areDatesEquals(date, p.getStartDate()))
             .forEach(tp -> availableTicketNumbers.addAll(getForTicketPool(tp)));
-        result.addAll(availableTicketNumbers.stream()
-            .map(bo -> ModelObjectsToDTOConverter.ofAvailableTicketNumberAssociation(bo))
-            .collect(Collectors.toList()));
+        associationsTP.addAll(availableTicketNumbers);
       }
     });
+
+    var result = new AvailableTicketNumberAssociationDTO();
+    result.ticketPools = new ArrayList<>();
+
+    Map<TicketPoolDefinition, List<AvailableTicketNumberAssociation>> grupedByTPD =
+        associationsTPD.stream().collect(Collectors.groupingBy(a -> a.getTicketPoolDefinition()));
+    for (Entry<TicketPoolDefinition, List<AvailableTicketNumberAssociation>> entry : grupedByTPD
+        .entrySet()) {
+      var tpdDTO = ModelObjectsToDTOConverter.ofTicketPoolDefinitionBasic(entry.getKey());
+      var tdDTOs = new ArrayList<TicketDefinitionDTO>();
+      for (AvailableTicketNumberAssociation a : entry.getValue()) {
+        var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
+        tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
+        tdDTOs.add(tdDTO);
+      }
+      tpdDTO.ticketDefinitions = tdDTOs;
+      result.ticketPools.add(tpdDTO);
+    }
+
+    Map<TicketPool, List<AvailableTicketNumberAssociation>> grupedByTP =
+        associationsTP.stream().collect(Collectors.groupingBy(a -> a.getTicketPool()));
+    for (Entry<TicketPool, List<AvailableTicketNumberAssociation>> entry : grupedByTP.entrySet()) {
+      var tpDTO = ModelObjectsToDTOConverter.ofTicketPool(entry.getKey());
+      var tdDTOs = new ArrayList<TicketDefinitionDTO>();
+      for (AvailableTicketNumberAssociation a : entry.getValue()) {
+        var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
+        tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
+        tdDTOs.add(tdDTO);
+      }
+      tpDTO.ticketDefinitions = tdDTOs;
+      result.ticketPools.add(tpDTO);
+    }
+
     return result;
   }
 
