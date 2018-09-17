@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.hellopolandticket.service.dto.TicketDTO;
+import pl.hellopoland.dto.booking.TicketDTO;
 
 @Setter
 @Getter

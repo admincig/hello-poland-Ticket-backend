@@ -5,7 +5,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.Partner;
+import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
@@ -20,11 +20,8 @@ public class PartnerDao {
 
   public Partner findByUserEmail(String email) {
     return entityManager
-        .createQuery("from Partner partner JOIN partner.users user where user.email=:email",
-            Partner.class)
-        .setParameter("email", email)
-        .getResultStream()
-        .findFirst()
+        .createQuery("select user.partner from User user where user.email=:email", Partner.class)
+        .setParameter("email", email).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
@@ -35,11 +32,7 @@ public class PartnerDao {
   }
 
   public Partner findByName(String name) {
-    return entityManager
-        .createQuery("from Partner partner where partner.name=:name", Partner.class)
-        .setParameter("name", name)
-        .getResultStream()
-        .findFirst()
-        .orElse(null);
+    return entityManager.createQuery("from Partner partner where partner.name=:name", Partner.class)
+        .setParameter("name", name).getResultStream().findFirst().orElse(null);
   }
 }

@@ -5,7 +5,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.EmailTemplate;
+import pl.hellopolandticket.model.config.EmailTemplate;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
@@ -22,9 +22,7 @@ public class EmailTemplateDao {
     return entityManager
         .createQuery("from EmailTemplate emailTemplate where emailTemplate.name=:name",
             EmailTemplate.class)
-        .setParameter("name", name)
-        .getResultStream()
-        .findFirst()
+        .setParameter("name", name).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 }

@@ -1,0 +1,80 @@
+package pl.hellopolandticket.dao;
+
+import static java.util.stream.Collectors.toList;
+import java.util.List;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import pl.hellopolandticket.model.ticket.partner.TicketPool;
+import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
+import pl.hellopolandticket.service.exception.ExceptionFactory;
+
+@Stateless
+@LocalBean
+public class TicketPoolDefinitionDao {
+
+  @PersistenceContext
+  private EntityManager entityManager;
+
+  @Inject
+  private ExceptionFactory exceptionFactory;
+
+  @Inject
+  private TicketPoolDao ticketPoolDao;
+
+  public TicketPoolDefinition persist(TicketPoolDefinition ticketPoolDefinition) {
+    entityManager.persist(ticketPoolDefinition);
+    entityManager.flush();
+
+    return ticketPoolDefinition;
+  }
+
+  public TicketPoolDefinition findById(Long ticketPoolDefinitionId) {
+    return entityManager
+        .createQuery(
+            "from TicketPoolDefinition ticketPoolDefinition where ticketPoolDefinition.id=:id",
+            TicketPoolDefinition.class)
+        .setParameter("id", ticketPoolDefinitionId).getResultStream().findFirst()
+        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
+  }
+
+  public List<TicketPoolDefinition> findAll() {
+    return entityManager
+        .createQuery("from TicketPoolDefinition ticketPoolDefinition", TicketPoolDefinition.class)
+        .getResultStream().collect(toList());
+  }
+
+  public List<TicketPoolDefinition> findByIdsIn(List<Long> ticketPoolDefinitionIds) {
+    return entityManager.createQuery(
+        "from TicketPoolDefinition ticketPoolDefinition WHERE ticketPoolDefinition.id IN :ticketPoolDefinitionIds",
+        TicketPoolDefinition.class).setParameter("ticketPoolDefinitionIds", ticketPoolDefinitionIds)
+        .getResultStream().collect(toList());
+  }
+
+  public List<TicketPoolDefinition> findAllByPartner(Long partnerId) {
+    return entityManager
+        .createQuery("from TicketPoolDefinition t where t.sightEvent.partner.id = :partnerId",
+            TicketPoolDefinition.class)
+        .setParameter("partnerId", partnerId).getResultList();
+  }
+
+  public TicketPoolDefinition findByIdForPartner(Long id, Long partnerId) {
+    return entityManager
+        .createQuery(
+            "from TicketPoolDefinition t where t.sightEvent.partner.id = :partnerId and t.id=:id",
+            TicketPoolDefinition.class)
+        .setParameter("partnerId", partnerId).setParameter("id", id).getSingleResult();
+  }
+
+  public void deleteTicketPoolDefinition(Long id, Long partnerId) {
+    TicketPoolDefinition dao = findByIdForPartner(id, partnerId);
+    dao.setDeleted(true);
+    List<TicketPool> ticketPools = dao.getTicketPools();
+    if (ticketPools != null && !ticketPools.isEmpty()) {
+      ticketPools.forEach(tp -> tp.setAvailableTicketsNumber(0));
+    }
+  }
+
+}

@@ -1,7 +1,6 @@
 package pl.hellopolandticket.service;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -21,8 +20,8 @@ public class HttpClient extends ServiceSuperclass implements Serializable {
 
   public void sendPostRequest(@ObservesAsync HPLPushEvent hplPushEvent) {
     try {
-      HttpURLConnection httpURLConnection = createHttpConnectionWithPostRequestMethod(
-          hplPushEvent.getURLPath());
+      HttpURLConnection httpURLConnection =
+          createHttpConnectionWithPostRequestMethod(hplPushEvent.getURLPath());
 
       String postJsonData = JsonbBuilder.create().toJson(hplPushEvent.getPush());
 

@@ -6,7 +6,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.ApplicationProperty;
+import pl.hellopolandticket.model.config.ApplicationProperty;
 
 @Stateless
 @LocalBean
@@ -24,9 +24,7 @@ public class ApplicationPropertyDao {
   public Optional<ApplicationProperty> findByPropertyName(String propertyName) {
     return entityManager.createQuery(
         "from ApplicationProperty applicationProperty where applicationProperty.propertyName=:propertyName",
-        ApplicationProperty.class)
-        .setParameter("propertyName", propertyName)
-        .getResultStream()
+        ApplicationProperty.class).setParameter("propertyName", propertyName).getResultStream()
         .findFirst();
   }
 

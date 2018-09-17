@@ -6,7 +6,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.ExpiredToken;
+import pl.hellopolandticket.model.auth.ExpiredToken;
 
 @Stateless
 @LocalBean
@@ -25,14 +25,11 @@ public class ExpiredTokenDao {
     return entityManager
         .createQuery("from ExpiredToken expiredToken where expiredToken.token=:token",
             ExpiredToken.class)
-        .setParameter("token", token)
-        .getResultStream()
-        .findFirst();
+        .setParameter("token", token).getResultStream().findFirst();
   }
 
   public List<ExpiredToken> findAll() {
-    return entityManager
-        .createQuery("from ExpiredToken expiredToken", ExpiredToken.class)
+    return entityManager.createQuery("from ExpiredToken expiredToken", ExpiredToken.class)
         .getResultList();
   }
 

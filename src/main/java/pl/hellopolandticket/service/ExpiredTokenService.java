@@ -4,7 +4,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import pl.hellopolandticket.dao.ExpiredTokenDao;
-import pl.hellopolandticket.model.ExpiredToken;
+import pl.hellopolandticket.model.auth.ExpiredToken;
 
 @Stateless
 @LocalBean
@@ -14,9 +14,7 @@ public class ExpiredTokenService {
   private ExpiredTokenDao expiredTokenDao;
 
   public ExpiredToken addTokenToExpiredTokensList(String token) {
-    ExpiredToken expiredToken = ExpiredToken.builder()
-        .token(token)
-        .build();
+    ExpiredToken expiredToken = ExpiredToken.builder().token(token).build();
 
     return expiredTokenDao.persist(expiredToken);
   }

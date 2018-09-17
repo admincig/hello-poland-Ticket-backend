@@ -12,8 +12,8 @@ public class ExceptionMessagesService extends ServiceSuperclass {
   private ResourceBundle resourceBundle;
 
   public ExceptionMessagesService() {
-    resourceBundle = ResourceBundle
-        .getBundle("i18n/messages", new Locale("pl"), new Utf8ResourceBundleControl());
+    resourceBundle = ResourceBundle.getBundle("i18n/messages", new Locale("pl"),
+        new Utf8ResourceBundleControl());
   }
 
   public String getMessage(String exceptionSimpleClassName) {

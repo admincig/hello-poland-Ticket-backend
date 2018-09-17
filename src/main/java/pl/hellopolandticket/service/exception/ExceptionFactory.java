@@ -3,19 +3,18 @@ package pl.hellopolandticket.service.exception;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
+import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.app.LoggingHandler;
-import pl.hellopolandticket.service.dto.TicketDTO;
 import pl.hellopolandticket.service.exception.badrequest.EmailSendingException;
-import pl.hellopolandticket.service.exception.badrequest.ImportingDataException;
+import pl.hellopolandticket.service.exception.conflict.EventDoesNotTakePlaceOnChosenDateException;
 import pl.hellopolandticket.service.exception.conflict.NotBookedException;
 import pl.hellopolandticket.service.exception.conflict.PunchingTicketForWrongSightException;
-import pl.hellopolandticket.service.exception.conflict.TicketAlreadyPunchedException;
-import pl.hellopolandticket.service.exception.conflict.TicketForAnotherDateException;
-import pl.hellopolandticket.service.exception.conflict.TicketInvalidException;
-import pl.hellopolandticket.service.exception.conflict.TicketTakerWithoutAccessToSightException;
+import pl.hellopolandticket.service.exception.conflict.RequestedDateOutsideRequestedTicketDefinitionPoolException;
+import pl.hellopolandticket.service.exception.conflict.TicketConflictException;
 import pl.hellopolandticket.service.exception.conflict.WrongTicketStatusException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 import pl.hellopolandticket.service.exception.notfound.TicketNotFoundException;
+import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionException;
 
 @ApplicationScoped
 @Interceptors(value = LoggingHandler.class)
@@ -29,11 +28,6 @@ public class ExceptionFactory {
         exceptionMessagesService.getMessage(EmailSendingException.class.getSimpleName()));
   }
 
-  public ImportingDataException importingDataException() {
-    return new ImportingDataException(
-        exceptionMessagesService.getMessage(ImportingDataException.class.getSimpleName()));
-  }
-
   public NotBookedException notBookedException() {
     return new NotBookedException(
         exceptionMessagesService.getMessage(NotBookedException.class.getSimpleName()));
@@ -45,8 +39,19 @@ public class ExceptionFactory {
   }
 
   public WrongTicketStatusException wrongTicketStatusException(TicketDTO ticket) {
-    return new WrongTicketStatusException(exceptionMessagesService
-        .getMessage(WrongTicketStatusException.class.getSimpleName()), ticket);
+    return new WrongTicketStatusException(
+        exceptionMessagesService.getMessage(WrongTicketStatusException.class.getSimpleName()),
+        ticket);
+  }
+
+  public WrongTicketStatusException ticketAlreadyPunchedException(TicketDTO ticket) {
+    return new WrongTicketStatusException(
+        exceptionMessagesService.getMessage("TicketAlreadyPunchedException"), ticket);
+  }
+
+  public WrongTicketStatusException ticketInvalidException(TicketDTO ticket) {
+    return new WrongTicketStatusException(
+        exceptionMessagesService.getMessage("TicketInvalidException"), ticket);
   }
 
   public ResourceNotFoundException resourceNotFoundException() {
@@ -59,25 +64,46 @@ public class ExceptionFactory {
         exceptionMessagesService.getMessage(TicketNotFoundException.class.getSimpleName()));
   }
 
-  public TicketAlreadyPunchedException ticketAlreadyPunchedException(TicketDTO ticket) {
-    return new TicketAlreadyPunchedException(
-        exceptionMessagesService.getMessage(TicketAlreadyPunchedException.class.getSimpleName()),
-        ticket);
+  public TicketConflictException ticketForAnotherDateException() {
+    return new TicketConflictException(
+        exceptionMessagesService.getMessage("TicketForAnotherDateException"));
   }
 
-  public TicketInvalidException ticketInvalidException(TicketDTO ticket) {
-    return new TicketInvalidException(
-        exceptionMessagesService.getMessage(TicketInvalidException.class.getSimpleName()), ticket);
+  public TicketConflictException ticketTakerWithoutAccessToSightException() {
+    return new TicketConflictException(
+        exceptionMessagesService.getMessage("TicketTakerWithoutAccessToSightException"));
   }
 
-  public TicketForAnotherDateException ticketForAnotherDateException() {
-    return new TicketForAnotherDateException(
-        exceptionMessagesService.getMessage(TicketForAnotherDateException.class.getSimpleName()));
+  public TicketConflictException ticketBeforeEntryStartDateException() {
+    return new TicketConflictException(
+        exceptionMessagesService.getMessage("TicketBeforeEntryStartDateException"));
   }
 
-  public TicketTakerWithoutAccessToSightException ticketTakerWithoutAccessToSightException() {
-    return new TicketTakerWithoutAccessToSightException(
-        exceptionMessagesService
-            .getMessage(TicketTakerWithoutAccessToSightException.class.getSimpleName()));
+  public TicketConflictException ticketAfterEntryEndDateException() {
+    return new TicketConflictException(
+        exceptionMessagesService.getMessage("TicketAfterEntryEndDateException"));
   }
+
+  public TicketConflictException ticketDefinitionHasNoPoolException() {
+    return new TicketConflictException(
+        exceptionMessagesService.getMessage("TicketDefinitionHasNoPoolException"));
+  }
+
+  public RequestedDateOutsideRequestedTicketDefinitionPoolException requestedDateOutsideRequestedTicketDefinitionPoolException() {
+    return new RequestedDateOutsideRequestedTicketDefinitionPoolException(
+        exceptionMessagesService.getMessage(
+            RequestedDateOutsideRequestedTicketDefinitionPoolException.class.getSimpleName()));
+  }
+
+  public CannotCreateTicketPoolForNotCyclicalPoolDefinitionException cannotCreateTicketPoolForNotCyclicalPoolDefinitionException() {
+    return new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+        exceptionMessagesService.getMessage(
+            CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class.getSimpleName()));
+  }
+
+  public EventDoesNotTakePlaceOnChosenDateException eventDoesNotTakePlaceOnChosenDateException() {
+    return new EventDoesNotTakePlaceOnChosenDateException(exceptionMessagesService
+        .getMessage(EventDoesNotTakePlaceOnChosenDateException.class.getSimpleName()));
+  }
+
 }

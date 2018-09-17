@@ -7,8 +7,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import pl.hellopolandticket.model.Status;
-import pl.hellopolandticket.model.Ticket;
+import pl.hellopolandticket.model.ticket.market.Status;
+import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
@@ -30,33 +30,24 @@ public class TicketDao {
   }
 
   public Ticket findById(Long ticketId) {
-    return entityManager
-        .createQuery("from Ticket ticket where ticket.id=:id", Ticket.class)
-        .setParameter("id", ticketId)
-        .getResultStream()
-        .findFirst()
+    return entityManager.createQuery("from Ticket ticket where ticket.id=:id", Ticket.class)
+        .setParameter("id", ticketId).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
   }
 
   public Ticket findBySerialNumber(String serialNumber) {
     return entityManager
         .createQuery("from Ticket ticket where ticket.serialNumber=:serialNumber", Ticket.class)
-        .setParameter("serialNumber", serialNumber)
-        .getResultStream()
-        .findFirst()
+        .setParameter("serialNumber", serialNumber).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
   }
 
-  public Long countTicketsBySightEventIdAndTicketStatusInTicketStatuses(Long sightEventId,
+  public Long countTicketsByTicketPoolIdAndTicketStatusInTicketStatuses(Long ticketPoolId,
       List<Status> statuses) {
-    return entityManager
-        .createQuery(
-            "SELECT COUNT(ticket) from Ticket ticket where ticket.sightEvent.id=:sightEventId AND ticket.status IN :statuses",
-            Long.class)
-        .setParameter("sightEventId", sightEventId)
-        .setParameter("statuses", statuses)
-        .getResultStream()
-        .findFirst()
+    return entityManager.createQuery(
+        "SELECT COUNT(ticket) from Ticket ticket JOIN ticket.ticketDefinition ticketDefinition JOIN ticketDefinition.ticketPool ticketPool where ticketPool.id=:ticketPoolId AND ticket.status IN :statuses",
+        Long.class).setParameter("ticketPoolId", ticketPoolId).setParameter("statuses", statuses)
+        .getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 }

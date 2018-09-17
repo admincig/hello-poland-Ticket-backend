@@ -12,9 +12,6 @@ public class HPLService extends ServiceSuperclass {
   private static final String SIGHT_EVENTS_UPLOAD_URL_PROPERTY = "rest.url.sightEventsUpload";
 
   @Inject
-  private HttpClient httpClient;
-
-  @Inject
   private ApplicationPropertyService applicationPropertyService;
 
   @Inject
@@ -24,11 +21,9 @@ public class HPLService extends ServiceSuperclass {
   private Event<HPLPushEvent> hplPushEvent;
 
   public void pushDataToHPL(CurrentUser currentUser) {
-    hplPushEvent.fireAsync(
-        HPLPushEvent.builder()
-            .URLPath(applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY)
-                .getPropertyValue())
-            .push(sightEventService.findAllAndConvertToPushDTOObject(currentUser))
-            .build());
+    hplPushEvent.fireAsync(HPLPushEvent.builder()
+        .URLPath(
+            applicationPropertyService.findByName(SIGHT_EVENTS_UPLOAD_URL_PROPERTY).propertyValue)
+        .push(sightEventService.findAllAndConvertToPushDTOObject(currentUser)).build());
   }
 }

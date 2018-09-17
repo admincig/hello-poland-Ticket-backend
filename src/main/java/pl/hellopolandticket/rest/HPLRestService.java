@@ -1,7 +1,6 @@
 package pl.hellopolandticket.rest;
 
-import static pl.hellopolandticket.model.Role.ROLE_EXTERNAL_USER;
-
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;

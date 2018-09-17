@@ -1,41 +1,34 @@
 package pl.hellopolandticket.service;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static pl.hellopolandticket.model.Status.BOUGHT;
-import static pl.hellopolandticket.model.Status.PUNCHED;
-import static pl.hellopolandticket.service.dto.ModelObjectsToDTOConverter.ofSightEvent;
-import static pl.hellopolandticket.service.dto.SightEventDTO.ofSightEventBasic;
-import static pl.hellopolandticket.service.dto.SightEventDTO.ofSightEventWithBoughtAndTotalTickets;
-
+import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEvent;
+import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEventBasic;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
-import pl.hellopoland.dto.Location;
-import pl.hellopoland.dto.Push;
+import pl.hellopoland.dto.LocationDTO;
+import pl.hellopoland.dto.OpeningHoursDTO;
+import pl.hellopoland.dto.PushDTO;
+import pl.hellopoland.dto.SightEventDTO;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightEventDao;
-import pl.hellopolandticket.dao.TicketDao;
-import pl.hellopolandticket.model.Partner;
-import pl.hellopolandticket.model.SightEvent;
-import pl.hellopolandticket.model.SightLocation;
-import pl.hellopolandticket.model.User;
+import pl.hellopolandticket.model.auth.User;
+import pl.hellopolandticket.model.partner.Partner;
+import pl.hellopolandticket.model.sightevent.OpeningHours;
+import pl.hellopolandticket.model.sightevent.SightEvent;
+import pl.hellopolandticket.model.sightevent.SightEventLocation;
+import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.security.CurrentUser;
-import pl.hellopolandticket.service.dto.SightEventDTO;
-import pl.hellopolandticket.service.event.HPLPushEvent;
+import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
-@Slf4j
 @Stateless
 @LocalBean
 public class SightEventService extends ServiceSuperclass {
-
-  private static final String SIGHT_EVENTS_UPLOAD_URL_PROPERTY = "rest.url.sightEventsUpload";
 
   @Inject
   private SightEventDao sightEventDao;
@@ -44,22 +37,20 @@ public class SightEventService extends ServiceSuperclass {
   private PartnerDao partnerDao;
 
   @Inject
-  private TicketDao ticketDao;
-
-  @Inject
-  private HttpClient httpClient;
-
-  @Inject
-  private ApplicationPropertyService applicationPropertyService;
-
-  @Inject
   private UserService userService;
 
   @Inject
-  private Event<HPLPushEvent> hplPushEvent;
+  private OpeningHoursService oHoursService;
 
   public SightEventDTO findById(Long sightEventId) {
     return ofSightEventBasic(sightEventDao.findById(sightEventId));
+  }
+
+  public List<SightEventDTO> findByIdsIn(List<Long> sightEventId) {
+    return sightEventDao.findBySightEventIdsIn(sightEventId).stream().map(sightEvent -> {
+      sightEvent.getTicketPoolDefinitions().size();
+      return ofSightEvent(sightEvent, null);
+    }).collect(toList());
   }
 
   public SightEvent findSightEventById(Long sightEventId) {
@@ -71,66 +62,73 @@ public class SightEventService extends ServiceSuperclass {
         .orElseGet(() -> partnerDao.findByUserEmail(principal));
 
     return partner.getSightEvents().stream()
-        .map(this::toSightEventDTO)
-        .collect(toList());
+        .map(se -> ModelObjectsToDTOConverter.ofSightEvent(se, null)).collect(toList());
   }
 
-  public Push findAllAndConvertToPushDTOObject(CurrentUser currentUser) {
+  public PushDTO findAllAndConvertToPushDTOObject(CurrentUser currentUser) {
     User user = userService.findUserByEmail(currentUser.getPrincipal());
 
     Partner partner = user.getPartner();
 
-    List<Long> sightEventIds = partner.getSightEvents().stream()
-        .map(SightEvent::getId)
-        .collect(toList());
+    List<Long> sightEventIds =
+        partner.getSightEvents().stream().map(SightEvent::getId).collect(toList());
 
     List<SightEvent> sightEvents = sightEventDao.findBySightEventIdsIn(sightEventIds);
-    sightEvents.forEach(SightEvent::getTicketDefinitions);
+    sightEvents.forEach(sightEvent -> sightEvent.getTicketPoolDefinitions()
+        .forEach(TicketPoolDefinition::getTicketDefinitions));
 
-    Push sightEventsPushDTO = new Push();
+    PushDTO sightEventsPushDTO = new PushDTO();
 
-    sightEventsPushDTO.sightEvents = sightEvents.stream()
-        .map(sightEvent -> ofSightEvent(sightEvent, null))
-        .collect(toList());
+    sightEventsPushDTO.sightEvents =
+        sightEvents.stream().map(sightEvent -> ofSightEvent(sightEvent, null)).collect(toList());
 
     sightEventsPushDTO.secret = user.getToken();
 
     return sightEventsPushDTO;
   }
 
-  public pl.hellopoland.dto.SightEvent addSightEvent(
-      pl.hellopoland.dto.SightEvent sightEventDTO,
-      CurrentUser currentUser) {
-    SightLocation sightLocation = ofNullable(sightEventDTO.location)
-        .map(this::ofLocation)
-        .orElse(null);
+  public SightEventDTO addSightEvent(SightEventDTO sightEventDTO, CurrentUser currentUser) {
+    SightEventLocation sightEventLocation =
+        ofNullable(sightEventDTO.location).map(this::ofLocation).orElse(null);
 
     User user = userService.findUserByEmail(currentUser.getPrincipal());
+    String mainImageUrl = null;
+    if (sightEventDTO.mainImage != null) {
+      mainImageUrl = sightEventDTO.mainImage.original;
+    }
+    SightEvent sightEventToPersist = sightEventDao.persist(
+        SightEvent.builder().name(sightEventDTO.name).description(sightEventDTO.description)
+            .mainImageUrl(mainImageUrl).email(sightEventDTO.email).phone(sightEventDTO.phone)
+            .lead(sightEventDTO.lead).sightEventLocation(sightEventLocation)
+            .partner(user.getPartner()).generalAdmission(sightEventDTO.generalAdmission).build());
 
-    SightEvent sightEventToPersist = SightEvent.builder()
-        .name(sightEventDTO.name)
-        .date(sightEventDTO.date)
-        .description(sightEventDTO.description)
-        .mainImageUrl(ofNullable(sightEventDTO.mainImage)
-            .map(mainImage -> mainImage.original)
-            .orElse(null))
-        .email(sightEventDTO.email)
-        .phone(sightEventDTO.phone)
-        .sightLocation(sightLocation)
-        .partner(user.getPartner())
-        .generalAdmission(sightEventDTO.generalAdmission)
-        .build();
+    ArrayList<OpeningHours> oHoursList = getOpeningHoursCollectionFromDTO(sightEventDTO);
+    if (oHoursList != null && !oHoursList.isEmpty()) {
+      oHoursList.stream().forEach(oh -> {
+        oh.setSightEvent(sightEventToPersist);
+        oHoursService.persist(oh);
+      });
+      sightEventToPersist.setOpeningHours(oHoursList);
+    }
 
-    sightEventToPersist = sightEventDao.persist(sightEventToPersist);
-
-    pl.hellopoland.dto.SightEvent persistedSightEvent = ofSightEvent(sightEventToPersist,
-        sightEventDTO.sightId);
-    Push sightEventsPushDTO = new Push();
+    SightEventDTO persistedSightEvent = ofSightEvent(sightEventToPersist, sightEventDTO.sightId);
+    PushDTO sightEventsPushDTO = new PushDTO();
 
     sightEventsPushDTO.sightEvents = Stream.of(persistedSightEvent).collect(toList());
     sightEventsPushDTO.secret = user.getToken();
 
     return persistedSightEvent;
+  }
+
+  private ArrayList<OpeningHours> getOpeningHoursCollectionFromDTO(SightEventDTO dto) {
+    return ofNullable(dto.openingHours).map(
+        l -> l.stream().map(this::ofOpeningHours).collect(Collectors.toCollection(ArrayList::new)))
+        .orElse(null);
+  }
+
+  private OpeningHours ofOpeningHours(OpeningHoursDTO dto) {
+    return OpeningHours.builder().closeTime(dto.closeTime).day(dto.day).openTime(dto.openTime)
+        .build();
   }
 
   public void delete(Long sightEventId) {
@@ -139,43 +137,36 @@ public class SightEventService extends ServiceSuperclass {
     sightEvent.setActive(false);
   }
 
-  private SightLocation ofLocation(Location location) {
-    return SightLocation.builder()
-        .latitude(location.latitude)
-        .longitude(location.longitude)
-        .street(location.street)
-        .zipCode(location.zipCode)
-        .city(location.city)
-        .country(location.country)
-        .build();
+  private SightEventLocation ofLocation(LocationDTO location) {
+    return SightEventLocation.builder().latitude(location.latitude).longitude(location.longitude)
+        .street(location.street).zipCode(location.zipCode).city(location.city)
+        .country(location.country).build();
   }
 
-  private SightEventDTO toSightEventDTO(SightEvent sightEvent) {
-    int totalTicketsNumber = ticketDao
-        .countTicketsBySightEventIdAndTicketStatusInTicketStatuses(sightEvent.getId(),
-            asList(BOUGHT, PUNCHED)).intValue();
-
-    int boughtTicketsNumber = ticketDao
-        .countTicketsBySightEventIdAndTicketStatusInTicketStatuses(sightEvent.getId(),
-            singletonList(BOUGHT)).intValue();
-
-    return ofSightEventWithBoughtAndTotalTickets(sightEvent, boughtTicketsNumber,
-        totalTicketsNumber);
-  }
-
-  public pl.hellopoland.dto.SightEvent updateSightEvent(Long sightId,
-      pl.hellopoland.dto.SightEvent sightEventDTO) {
+  public SightEventDTO updateSightEvent(Long sightId, SightEventDTO sightEventDTO) {
     SightEvent sightEvent = sightEventDao.findById(sightId);
 
     sightEvent.setName(sightEventDTO.name);
-    sightEvent.setDate(sightEventDTO.date);
     sightEvent.setDescription(sightEventDTO.description);
     sightEvent.setEmail(sightEventDTO.email);
     sightEvent.setPhone(sightEventDTO.phone);
 
-    sightEvent.setMainImageUrl(ofNullable(sightEventDTO.mainImage)
-        .map(s -> s.original)
-        .orElse(null));
+    String mainImageUrl = null;
+    if (sightEventDTO.mainImage != null) {
+      mainImageUrl = sightEventDTO.mainImage.original;
+    }
+    sightEvent.setMainImageUrl(mainImageUrl);
+
+    oHoursService.remove(sightEvent.getOpeningHours());
+    ArrayList<OpeningHours> oHoursList = getOpeningHoursCollectionFromDTO(sightEventDTO);
+    if (oHoursList != null && !oHoursList.isEmpty()) {
+      oHoursList.stream().forEach(oh -> {
+        oh.setSightEvent(sightEvent);
+        oHoursService.persist(oh);
+      });
+    }
+    sightEvent.setOpeningHours(null);
+    sightEvent.setOpeningHours(oHoursList);
 
     return sightEventDTO;
   }

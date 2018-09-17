@@ -1,30 +1,19 @@
 package pl.hellopolandticket.service;
 
-import static java.util.Calendar.DAY_OF_MONTH;
-import static java.util.Calendar.DAY_OF_WEEK;
-import static java.util.Calendar.HOUR;
-import static java.util.Calendar.MINUTE;
-import static java.util.Calendar.MONTH;
-import static java.util.Calendar.YEAR;
 import static java.util.stream.Collectors.toList;
 import static javax.mail.Message.RecipientType.TO;
-
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import freemarker.template.TemplateExceptionHandler;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
+import java.time.format.TextStyle;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.IntStream;
@@ -42,12 +31,14 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
-import lombok.extern.slf4j.Slf4j;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateExceptionHandler;
+import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.dao.EmailTemplateDao;
-import pl.hellopolandticket.model.EmailTemplate;
-import pl.hellopolandticket.service.dto.TicketDTO;
+import pl.hellopolandticket.model.config.EmailTemplate;
 
-@Slf4j
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
 
@@ -57,7 +48,8 @@ public class EmailService extends ServiceSuperclass {
   private static final String MAIL_SMTP_PORT_PROPERTY = "mail.smtp.port";
   private static final String MAIL_SMTP_AUTH_PROPERTY = "mail.smtp.auth";
   private static final String MAIL_SMTP_STARTTLS_ENABLE_PROPERTY = "mail.smtp.starttls.enable";
-  private static final String MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY = "mail.smtp.socketFactory.class";
+  private static final String MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY =
+      "mail.smtp.socketFactory.class";
 
   @Inject
   private ApplicationPropertyService applicationPropertyService;
@@ -67,8 +59,8 @@ public class EmailService extends ServiceSuperclass {
 
   public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets)
       throws MessagingException, IOException, TemplateException {
-    String messageFrom = applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY)
-        .getPropertyValue();
+    String messageFrom =
+        applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
 
     EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
 
@@ -76,7 +68,7 @@ public class EmailService extends ServiceSuperclass {
 
     MimeMessage message = new MimeMessage(session);
     message.setFrom(new InternetAddress(messageFrom));
-    message.setRecipients(TO, new InternetAddress[]{new InternetAddress(email)});
+    message.setRecipients(TO, new InternetAddress[] {new InternetAddress(email)});
     message.setSubject(emailTemplate.getSubject(), "UTF-8");
     message.setContent(createEmailContent(username, emailTemplate, tickets));
 
@@ -84,10 +76,8 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private Session createSessionForEmail() {
-    String username = applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY)
-        .getPropertyValue();
-    String password = applicationPropertyService.findByName(MAIL_PASSWORD_PROPERTY)
-        .getPropertyValue();
+    String username = applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
+    String password = applicationPropertyService.findByName(MAIL_PASSWORD_PROPERTY).propertyValue;
 
     return Session.getInstance(createSessionProperties(),
         createSessionAuthenticator(username, password));
@@ -97,27 +87,27 @@ public class EmailService extends ServiceSuperclass {
     Properties properties = new Properties();
 
     properties.put(MAIL_SMTP_HOST_PROPERTY,
-        applicationPropertyService.findByName(MAIL_SMTP_HOST_PROPERTY).getPropertyValue());
+        applicationPropertyService.findByName(MAIL_SMTP_HOST_PROPERTY).propertyValue);
 
     properties.put(MAIL_SMTP_PORT_PROPERTY,
-        applicationPropertyService.findByName(MAIL_SMTP_PORT_PROPERTY).getPropertyValue());
+        applicationPropertyService.findByName(MAIL_SMTP_PORT_PROPERTY).propertyValue);
 
     properties.put(MAIL_SMTP_AUTH_PROPERTY,
-        applicationPropertyService.findByName(MAIL_SMTP_AUTH_PROPERTY).getPropertyValue());
+        applicationPropertyService.findByName(MAIL_SMTP_AUTH_PROPERTY).propertyValue);
 
-    applicationPropertyService.find(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY).ifPresent(
-        property -> properties
-            .put(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY, property.getPropertyValue()));
+    applicationPropertyService.find(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY)
+        .ifPresent(property -> properties.put(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY,
+            property.propertyValue));
 
-    applicationPropertyService.find(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY)
-        .ifPresent(property -> properties
-            .put(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY, property.getPropertyValue()));
+    applicationPropertyService.find(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY).ifPresent(
+        property -> properties.put(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY, property.propertyValue));
 
     return properties;
   }
 
   private Authenticator createSessionAuthenticator(String username, String password) {
     return new Authenticator() {
+      @Override
       public PasswordAuthentication getPasswordAuthentication() {
         return new PasswordAuthentication(username, password);
       }
@@ -125,14 +115,13 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private Multipart createEmailContent(String username, EmailTemplate emailTemplate,
-      List<TicketDTO> tickets)
-      throws IOException, TemplateException, MessagingException {
+      List<TicketDTO> tickets) throws IOException, TemplateException, MessagingException {
     Multipart emailContent = new MimeMultipart("related");
 
     List<String> ticketCIDs = generateCIDs(tickets.size());
 
-    String bodyContent = fillQrCodeEmailTemplateWithData(emailTemplate.getTemplate(), username,
-        tickets, ticketCIDs);
+    String bodyContent =
+        fillQrCodeEmailTemplateWithData(emailTemplate.getTemplate(), username, tickets, ticketCIDs);
 
     MimeBodyPart emailBody = new MimeBodyPart();
     emailBody.setContent(bodyContent, "text/html; charset=utf-8");
@@ -140,15 +129,14 @@ public class EmailService extends ServiceSuperclass {
 
     for (int i = 0; i < tickets.size(); i++) {
       emailContent
-          .addBodyPart(createTicketQrCodeAttachment(tickets.get(i).getQrCode(), ticketCIDs.get(i)));
+          .addBodyPart(createTicketQrCodeAttachment(tickets.get(i).qrCode, ticketCIDs.get(i)));
     }
 
     return emailContent;
   }
 
   private List<String> generateCIDs(int numberOfCIDs) {
-    return IntStream.rangeClosed(1, numberOfCIDs).boxed()
-        .map(integer -> "image" + integer)
+    return IntStream.rangeClosed(1, numberOfCIDs).boxed().map(integer -> "image" + integer)
         .collect(toList());
   }
 
@@ -167,25 +155,12 @@ public class EmailService extends ServiceSuperclass {
 
     for (int i = 0; i < tickets.size(); i++) {
       TicketDTO ticket = tickets.get(i);
-      ticketQrCodes
-          .append("<p>")
-          .append(ticket.getSightEvent().getName())
-          .append("</p>")
-          .append("<p>")
-          .append(ticket.getName())
-          .append("</p>")
-          .append("<p>")
-          .append("Numer biletu: ")
-          .append(ticket.getSerialNumber())
-          .append("</p>")
-          .append("<p>")
-          .append("Data wydarzenia: ")
-          .append(makeDateHuman(ticket.getDate()))
-          .append("</p>");
-      ticketQrCodes
-          .append("<img style=\"margin-bottom: 200px\" src=\"cid:")
-          .append(ticketCIDs.get(i))
-          .append("\">");
+      ticketQrCodes.append("<p>").append(ticket.name).append("</p>").append("<p>")
+          .append(ticket.name).append("</p>").append("<p>").append("Numer biletu: ")
+          .append(ticket.serialNumber).append("</p>").append("<p>").append("Data wydarzenia: ")
+          .append(makeDateHuman(ticket.date)).append("</p>");
+      ticketQrCodes.append("<img style=\"margin-bottom: 200px\" src=\"cid:")
+          .append(ticketCIDs.get(i)).append("\">");
     }
     variablesMap.put("qrCodes", ticketQrCodes.toString());
 
@@ -208,26 +183,21 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private String makeDateHuman(Date date) {
-    String[] daysOfWeek = new String[]{"Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek",
-        "Sobota", "Niedziela"};
+    LocalDateTime ldt = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-    Calendar calendar = GregorianCalendar
-        .from(ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()));
-    String dayOfWeek = daysOfWeek[calendar.get(DAY_OF_WEEK)];
-
-    String dayOfMonth = calendar.get(DAY_OF_MONTH) < 10 ? "0" + calendar.get(DAY_OF_MONTH)
-        : ((Integer) calendar.get(DAY_OF_MONTH)).toString();
-    String month = (calendar.get(MONTH) + 1) < 10 ? "0" + (calendar.get(MONTH) + 1)
-        : ((Integer) (calendar.get(MONTH) + 1)).toString();
-    String year = ((Integer) calendar.get(YEAR)).toString();
-    String hour = calendar.get(HOUR) < 10 ? "0" + calendar.get(HOUR)
-        : ((Integer) calendar.get(HOUR)).toString();
-    String minute = calendar.get(MINUTE) < 10 ? "0" + calendar.get(MINUTE)
-        : ((Integer) calendar.get(MINUTE)).toString();
+    String dayOfWeek = ldt.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("pl", "PL"));
+    String dayOfMonth =
+        String.valueOf(ldt.getDayOfMonth() < 10 ? "0" + ldt.getDayOfMonth() : ldt.getDayOfMonth());
+    String month =
+        String.valueOf(ldt.getMonthValue() < 10 ? "0" + ldt.getMonthValue() : ldt.getMonthValue());
+    String year = String.valueOf(ldt.getYear());
+    String hour = String.valueOf(ldt.getHour() < 10 ? "0" + ldt.getHour() : ldt.getHour());
+    String minute = String.valueOf(ldt.getMinute() < 10 ? "0" + ldt.getMinute() : ldt.getMinute());
 
     String dayMonthYear = dayOfMonth + "." + month + "." + year;
     String hourAndMinute = hour + ":" + minute;
 
     return dayOfWeek + ", " + dayMonthYear + " godzina " + hourAndMinute;
   }
+
 }
