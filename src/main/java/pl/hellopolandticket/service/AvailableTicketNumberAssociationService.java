@@ -39,12 +39,13 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       List<TicketDefinitionDTO> ticketDefinitionDtos) {
     if (ticketDefinitionDtos != null && !ticketDefinitionDtos.isEmpty()) {
       for (var tdDto : ticketDefinitionDtos) {
-        if (tdDto.availableTicketsNumber != null) {
-          var bo = AvailableTicketNumberAssociation.builder()
-              .ticketDefinition(tdService.get(tdDto.id)).ticketPoolDefinition(ticketPoolDefinition)
-              .availableTicketsNumber(tdDto.availableTicketsNumber).build();
-          dao.persist(bo);
-        }
+        var bo = AvailableTicketNumberAssociation.builder()
+            .ticketDefinition(tdService.get(tdDto.id)).ticketPoolDefinition(ticketPoolDefinition)
+            .availableTicketsNumber(
+                tdDto.availableTicketsNumber != null ? tdDto.availableTicketsNumber
+                    : ticketPoolDefinition.getAvailableTicketsNumber())
+            .build();
+        dao.persist(bo);
       }
     }
   }

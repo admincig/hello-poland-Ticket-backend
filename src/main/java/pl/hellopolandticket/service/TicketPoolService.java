@@ -8,8 +8,6 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -30,10 +28,6 @@ public class TicketPoolService extends ServiceSuperclass {
   private AvailableTicketNumberAssociationService atnaService;
 
   public TicketPool findOrCreateNew(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
-    Logger logger = Logger.getLogger(TicketPoolService.class.getName());
-    logger.log(Level.INFO, "ticketPoolDefinitionId = " + ticketPoolDefinition.getId()
-        + "requestedDate: " + requestedDate);
-
     TicketPool pool = ticketPoolDao.find(ticketPoolDefinition, requestedDate);
     if (pool == null) {
       Date startDate = getStartDateForNewInstance(ticketPoolDefinition, requestedDate);
