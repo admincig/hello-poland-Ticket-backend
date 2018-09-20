@@ -11,7 +11,7 @@ import org.junit.Test;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.FrequencyType;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
-import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionException;
+import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException;
 
 public class TicketPoolServiceTest {
 
@@ -84,7 +84,7 @@ public class TicketPoolServiceTest {
     Assert.assertEquals(expected, result);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void daily_invalid_single_frequency_2() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -105,7 +105,7 @@ public class TicketPoolServiceTest {
     new TicketPoolService().getStartDateForNewInstance(tpd, requestDate);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void daily_invalid_frequency_2_period_after_end_date() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -126,7 +126,7 @@ public class TicketPoolServiceTest {
     new TicketPoolService().getStartDateForNewInstance(tpd, requestDate);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void daily_invalid_frequency_2_period_before_start_date() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -170,7 +170,7 @@ public class TicketPoolServiceTest {
     Assert.assertEquals(expected, result);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void daily_invalid_single_frequency_4() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -191,7 +191,7 @@ public class TicketPoolServiceTest {
     new TicketPoolService().getStartDateForNewInstance(tpd, requestDate);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void daily_invalid_after_end_date() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -213,7 +213,7 @@ public class TicketPoolServiceTest {
     new TicketPoolService().getStartDateForNewInstance(tpd, requestDate);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void daily_invalid_before_start_date() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -234,7 +234,7 @@ public class TicketPoolServiceTest {
     new TicketPoolService().getStartDateForNewInstance(tpd, requestDate);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void daily_invalid_after_frequency_end_date() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -255,7 +255,7 @@ public class TicketPoolServiceTest {
     new TicketPoolService().getStartDateForNewInstance(tpd, requestDate);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void daily_invalid_before_frequency_start_date() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -301,7 +301,7 @@ public class TicketPoolServiceTest {
     Assert.assertEquals(expected, result);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void weekly_invalid_every_day_after_frequency_end_date() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -324,7 +324,7 @@ public class TicketPoolServiceTest {
     new TicketPoolService().getStartDateForNewInstance(tpd, requestDate);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void weekly_invalid_every_day_before_frequency_start_date() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -443,7 +443,7 @@ public class TicketPoolServiceTest {
     Assert.assertEquals(expected, result);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void weekly_invalid_period_through_weekend() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -537,7 +537,7 @@ public class TicketPoolServiceTest {
     Assert.assertEquals(expected, result);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void weekly_invalid_mondays() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -560,7 +560,7 @@ public class TicketPoolServiceTest {
     new TicketPoolService().getStartDateForNewInstance(tpd, requestDate);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void weekly_invalid_frequency_4() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -664,7 +664,7 @@ public class TicketPoolServiceTest {
     Assert.assertEquals(expected, result);
   }
 
-  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class)
+  @Test(expected = CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class)
   public void monthly_invalid_frequency_4() throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 

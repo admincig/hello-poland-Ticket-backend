@@ -14,7 +14,7 @@ import pl.hellopolandticket.service.exception.conflict.TicketConflictException;
 import pl.hellopolandticket.service.exception.conflict.WrongTicketStatusException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 import pl.hellopolandticket.service.exception.notfound.TicketNotFoundException;
-import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionException;
+import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException;
 
 @ApplicationScoped
 @Interceptors(value = LoggingHandler.class)
@@ -95,10 +95,10 @@ public class ExceptionFactory {
             RequestedDateOutsideRequestedTicketDefinitionPoolException.class.getSimpleName()));
   }
 
-  public CannotCreateTicketPoolForNotCyclicalPoolDefinitionException cannotCreateTicketPoolForNotCyclicalPoolDefinitionException() {
-    return new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+  public CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException cannotCreateTicketPoolForNotCyclicalPoolDefinitionException() {
+    return new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
         exceptionMessagesService.getMessage(
-            CannotCreateTicketPoolForNotCyclicalPoolDefinitionException.class.getSimpleName()));
+            CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class.getSimpleName()));
   }
 
   public EventDoesNotTakePlaceOnChosenDateException eventDoesNotTakePlaceOnChosenDateException() {

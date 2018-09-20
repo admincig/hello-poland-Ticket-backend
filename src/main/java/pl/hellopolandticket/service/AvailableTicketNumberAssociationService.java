@@ -1,6 +1,5 @@
 package pl.hellopolandticket.service;
 
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +16,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
+import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
@@ -31,6 +31,9 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
 
   @Inject
   private TicketDefinitionService tdService;
+
+  @Inject
+  private TicketPoolService tpService;
 
   @Inject
   private TicketPoolDefinitionService tpdService;
@@ -72,14 +75,24 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     var associationsTPD = new ArrayList<AvailableTicketNumberAssociation>();
     var associationsTP = new ArrayList<AvailableTicketNumberAssociation>();
 
-    se.getTicketPoolDefinitions().forEach(tpd -> {
+    se.getTicketPoolDefinitions().stream().filter(tpd -> checkDates(date, tpd)).forEach(tpd -> {
       List<TicketPool> ticketPools = tpd.getTicketPools();
+      tpd.getTicketPools().size();
       if (ticketPools == null || ticketPools.isEmpty()) {
         associationsTPD.addAll(getForTicketPoolDefinition(tpd));
       } else {
         var availableTicketNumbers = new ArrayList<AvailableTicketNumberAssociation>();
-        tpd.getTicketPools().stream().filter(p -> areDatesEquals(date, p.getStartDate()))
-            .forEach(tp -> availableTicketNumbers.addAll(getForTicketPool(tp)));
+
+
+
+        ticketPools.stream().filter(p -> {
+          boolean b = p.getStartDate().getTime() == date.getTime();
+          return b;
+          // return areDatesEquals(p.getStartDate(), date);
+        }).forEach(tp -> availableTicketNumbers.addAll(getForTicketPool(tp)));
+
+
+
         associationsTP.addAll(availableTicketNumbers);
       }
     });
@@ -120,8 +133,19 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   }
 
   private boolean areDatesEquals(Date date1, Date date2) {
-    return date1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-        .isEqual(date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+    return date1.equals(date2);
+  }
+
+  private boolean checkDates(Date date, TicketPoolDefinition tpd) {
+    if (tpd.getIsCyclic()) {
+      try {
+        var d = tpService.getStartDateForNewInstanceOfCyclicPool(tpd, date);
+        return date.equals(d);
+      } catch (CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException e) {
+        return false;
+      }
+    }
+    return date.equals(tpd.getStartDate());
   }
 
   private List<AvailableTicketNumberAssociation> getForTicketPool(TicketPool tp) {

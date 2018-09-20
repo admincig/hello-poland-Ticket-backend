@@ -15,7 +15,8 @@ import pl.hellopolandticket.dao.TicketPoolDao;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
-import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionException;
+import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException;
+import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionRollbackException;
 
 @Stateless
 @LocalBean
@@ -30,7 +31,13 @@ public class TicketPoolService extends ServiceSuperclass {
   public TicketPool findOrCreateNew(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
     TicketPool pool = ticketPoolDao.find(ticketPoolDefinition, requestedDate);
     if (pool == null) {
-      Date startDate = getStartDateForNewInstance(ticketPoolDefinition, requestedDate);
+      Date startDate = null;
+      try {
+        startDate = getStartDateForNewInstance(ticketPoolDefinition, requestedDate);
+      } catch (CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException e) {
+        throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionRollbackException(
+            "Ządana data poza zakresem definicji puli");
+      }
       Date endDate = getEndDateForNewInstance(ticketPoolDefinition, startDate);
       pool = new TicketPool(ticketPoolDefinition);
       pool.setStartDate(startDate);
@@ -52,22 +59,28 @@ public class TicketPoolService extends ServiceSuperclass {
     return cal.getTime();
   }
 
-  Date getStartDateForNewInstance(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
+  Date getStartDateForNewInstance(TicketPoolDefinition ticketPoolDefinition, Date requestedDate)
+      throws CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException {
     if (ticketPoolDefinition.getIsCyclic()) {
       return getStartDateForNewInstanceOfCyclicPool(ticketPoolDefinition, requestedDate);
     } else if (requestedDate == null) { // proper noncyclic pool
       return ticketPoolDefinition.getStartDate();
     } else {
-      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
           "Ządana data poza zakresem definicji puli");
     }
   }
 
-  private Date getStartDateForNewInstanceOfCyclicPool(TicketPoolDefinition ticketPoolDefinition,
-      Date requestedDate) {
-    if (requestedDate.after(ticketPoolDefinition.getFrequencyData().getEndDate())
-        || requestedDate.before(ticketPoolDefinition.getFrequencyData().getStartDate())) {
-      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+  public Date getStartDateForNewInstanceOfCyclicPool(TicketPoolDefinition ticketPoolDefinition,
+      Date requestedDate)
+      throws CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException {
+    if (requestedDate.before(ticketPoolDefinition.getStartDate())) {
+      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
+          "Ządana data jest poza zakresem definicji puli");
+    }
+    if (ticketPoolDefinition.getFrequencyData().getEndDate() != null
+        && requestedDate.after(ticketPoolDefinition.getFrequencyData().getEndDate())) {
+      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
           "Ządana data jest poza zakresem definicji puli");
     }
     switch (ticketPoolDefinition.getFrequencyData().getFrequencyType()) {
@@ -90,7 +103,8 @@ public class TicketPoolService extends ServiceSuperclass {
     }
   }
 
-  private Date getMonthlyStartDate(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
+  private Date getMonthlyStartDate(TicketPoolDefinition ticketPoolDefinition, Date requestedDate)
+      throws CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException {
     FrequencyData frequencyData = ticketPoolDefinition.getFrequencyData();
     Date startDate = ticketPoolDefinition.getStartDate();
     Calendar startDateCal = Calendar.getInstance();
@@ -103,7 +117,7 @@ public class TicketPoolService extends ServiceSuperclass {
     double divide = 1.0 * monthsBetween / ticketPoolDefinition.getFrequencyData().getFrequency();
     if (divide - (int) divide > 0.01
         || dateTimeNotInMonthlyRange(requestedDate, startDate, endDate)) {
-      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
           "Ządana data jest poza zakresem definicji puli");
     }
     int daysOfMonthDifference = 0;
@@ -111,7 +125,7 @@ public class TicketPoolService extends ServiceSuperclass {
       LocalDate ld = requestedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
       int dom = ld.getDayOfMonth();
       if (!frequencyData.getDaysOfMonth().contains(dom)) {
-        throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+        throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
             "Ządana data jest poza zakresem definicji puli");
       }
     } else {
@@ -125,7 +139,8 @@ public class TicketPoolService extends ServiceSuperclass {
     return cal.getTime();
   }
 
-  private Date getWeeklyStartDate(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
+  private Date getWeeklyStartDate(TicketPoolDefinition ticketPoolDefinition, Date requestedDate)
+      throws CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException {
     FrequencyData frequencyData = ticketPoolDefinition.getFrequencyData();
     Date startDate = ticketPoolDefinition.getStartDate();
     Calendar startDateCal = Calendar.getInstance();
@@ -138,7 +153,7 @@ public class TicketPoolService extends ServiceSuperclass {
     double divide = 1.0 * weeksBetween / ticketPoolDefinition.getFrequencyData().getFrequency();
     if (divide - (int) divide > 0.01
         || dateTimeNotInWeeklyRange(requestedDate, startDate, endDate)) {
-      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
           "Ządana data jest poza zakresem definicji puli");
     }
     int daysOfWeekDifference = 0;
@@ -146,7 +161,7 @@ public class TicketPoolService extends ServiceSuperclass {
       LocalDate ld = requestedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
       int dow = ld.getDayOfWeek().getValue();
       if (!frequencyData.getDaysOfWeek().contains(dow)) {
-        throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+        throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
             "Ządana data jest poza zakresem definicji puli");
       }
     } else {
@@ -200,7 +215,8 @@ public class TicketPoolService extends ServiceSuperclass {
     }
   }
 
-  private Date getDailyStartDate(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
+  private Date getDailyStartDate(TicketPoolDefinition ticketPoolDefinition, Date requestedDate)
+      throws CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException {
     Date startDate = ticketPoolDefinition.getStartDate();
     Date endDate = ticketPoolDefinition.getEndDate();
 
@@ -210,7 +226,7 @@ public class TicketPoolService extends ServiceSuperclass {
         / ticketPoolDefinition.getFrequencyData().getFrequency();
 
     if (divide - (int) divide > 0.01 || timeNotInRange(requestedDate, startDate, endDate)) {
-      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionException(
+      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
           "Ządana data jest poza zakresem definicji puli");
     }
     Calendar cal = Calendar.getInstance();
@@ -226,6 +242,17 @@ public class TicketPoolService extends ServiceSuperclass {
     LocalTime rlt = requestedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
     LocalTime slt = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
     LocalTime elt = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+
+
+    if (startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+        .isBefore(endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate())) {
+
+
+      return rlt.isBefore(elt);
+    }
+
+
+
     return rlt.isBefore(slt) || rlt.isAfter(elt);
   }
 

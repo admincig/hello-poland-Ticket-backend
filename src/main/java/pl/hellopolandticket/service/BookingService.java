@@ -135,8 +135,9 @@ public class BookingService extends ServiceSuperclass {
       }
       TicketPoolDefinition poolDefinition =
           ticketPoolDefinitionService.get(dto.ticketPoolDefinitionId);
-      TicketPool pool = ticketPoolService.findOrCreateNew(poolDefinition,
-          poolDefinition.getIsCyclic() ? dto.date : null);
+      TicketPool pool = ticketPoolService.findOrCreateNew(poolDefinition, dto.date);
+      // TicketPool pool = ticketPoolService.findOrCreateNew(poolDefinition,
+      // poolDefinition.getIsCyclic() ? dto.date : null);
 
       for (int i = 0; i < dto.numberOfTickets; i++) {
         Ticket ticket = Ticket.builder().name(ticketDefinition.getName())
