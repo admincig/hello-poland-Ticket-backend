@@ -35,9 +35,6 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   @Inject
   private TicketPoolService tpService;
 
-  @Inject
-  private TicketPoolDefinitionService tpdService;
-
   public void add(TicketPoolDefinition ticketPoolDefinition,
       List<TicketDefinitionDTO> ticketDefinitionDtos) {
     if (ticketDefinitionDtos != null && !ticketDefinitionDtos.isEmpty()) {
@@ -64,7 +61,6 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         dao.persist(bo);
       }
     }
-
   }
 
   public AvailableTicketNumberAssociationDTO checkAvailabilityOfTickets(Long sightEventId,
@@ -82,22 +78,14 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         associationsTPD.addAll(getForTicketPoolDefinition(tpd));
       } else {
         var availableTicketNumbers = new ArrayList<AvailableTicketNumberAssociation>();
-
-
-
-        ticketPools.stream().filter(p -> {
-          boolean b = p.getStartDate().getTime() == date.getTime();
-          return b;
-          // return areDatesEquals(p.getStartDate(), date);
-        }).forEach(tp -> availableTicketNumbers.addAll(getForTicketPool(tp)));
-
-
-
+        ticketPools.stream().filter(p -> p.getStartDate().getTime() == date.getTime())
+            .forEach(tp -> availableTicketNumbers.addAll(getForTicketPool(tp)));
         associationsTP.addAll(availableTicketNumbers);
       }
     });
 
     var result = new AvailableTicketNumberAssociationDTO();
+    result.ticketPoolDefinitions = new ArrayList<>();
     result.ticketPools = new ArrayList<>();
 
     Map<TicketPoolDefinition, List<AvailableTicketNumberAssociation>> grupedByTPD =
@@ -112,7 +100,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         tdDTOs.add(tdDTO);
       }
       tpdDTO.ticketDefinitions = tdDTOs;
-      result.ticketPools.add(tpdDTO);
+      result.ticketPoolDefinitions.add(tpdDTO);
     }
 
     Map<TicketPool, List<AvailableTicketNumberAssociation>> grupedByTP =
@@ -130,10 +118,6 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     }
 
     return result;
-  }
-
-  private boolean areDatesEquals(Date date1, Date date2) {
-    return date1.equals(date2);
   }
 
   private boolean checkDates(Date date, TicketPoolDefinition tpd) {

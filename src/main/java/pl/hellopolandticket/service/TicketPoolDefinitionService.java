@@ -90,7 +90,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
       List<TicketDefinition> tickets = new ArrayList<>();
       for (TicketDefinitionDTO ticketDefinitionDTO : ticketDefinitions) {
         var td = ticketDefinitionService.get(ticketDefinitionDTO.id);
-        td.setTicketPoolDefinitions(List.of(ticketPoolDefinition));
+        td.getTicketPoolDefinitions().add(ticketPoolDefinition);
         tickets.add(ticketDefinitionService.get(td.getId()));
       }
       return tickets;

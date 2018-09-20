@@ -242,17 +242,10 @@ public class TicketPoolService extends ServiceSuperclass {
     LocalTime rlt = requestedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
     LocalTime slt = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
     LocalTime elt = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
-
-
     if (startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
         .isBefore(endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate())) {
-
-
       return rlt.isBefore(elt);
     }
-
-
-
     return rlt.isBefore(slt) || rlt.isAfter(elt);
   }
 
