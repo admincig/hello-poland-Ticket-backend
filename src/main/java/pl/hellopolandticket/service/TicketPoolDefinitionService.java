@@ -44,7 +44,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
   public TicketPoolDefinitionDTO add(TicketPoolDefinitionDTO ticketPoolDefinitionDTO,
       CurrentUser currentUser) {
-    SightEvent sightEvent = sightEventDao.findById(ticketPoolDefinitionDTO.sightEventId);
+    SightEvent sightEvent = sightEventDao.findByIdAndPartner(ticketPoolDefinitionDTO.sightEventId,
+        partnerDao.findByUserEmail(currentUser.getPrincipal()));
 
     FrequencyData frequencyData = ofNullable(ticketPoolDefinitionDTO.frequencyData)
         .map(frequencyDataDTO -> FrequencyData.builder()
