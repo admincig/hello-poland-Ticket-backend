@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -75,20 +76,16 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       List<TicketPool> ticketPools = tpd.getTicketPools();
       tpd.getTicketPools().size();
       if (!tpd.getIsCyclic() && ticketPools != null && !ticketPools.isEmpty()) {
-        // get from TPs:
-        var tps = ticketPools.stream().filter(p -> p.getStartDate().getTime() == date.getTime())
-            .collect(Collectors.toList());
+        var tps = getFilteredTpsByDates(date, ticketPools);
         if (!tps.isEmpty()) {
           fillFromTPs(associationsTP, tps);
         }
       }
       if (ticketPools == null || ticketPools.isEmpty()) {
-        // get from TPD:
         fillFromTPD(associationsTPD, tpd);
       }
       if (tpd.getIsCyclic() && ticketPools != null && !ticketPools.isEmpty()) {
-        var tps = ticketPools.stream().filter(p -> p.getStartDate().getTime() == date.getTime())
-            .collect(Collectors.toList());
+        var tps = getFilteredTpsByDates(date, ticketPools);
         if (!tps.isEmpty()) {
           fillFromTPs(associationsTP, tps);
         } else {
@@ -133,6 +130,11 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     return result;
   }
 
+  private List<TicketPool> getFilteredTpsByDates(Date date, List<TicketPool> ticketPools) {
+    return ticketPools.stream().filter(p -> areDatesequals(p.getStartDate(), date))
+        .collect(Collectors.toList());
+  }
+
   private void fillFromTPs(ArrayList<AvailableTicketNumberAssociation> associationsTP,
       List<TicketPool> tps) {
     var availableTicketNumbers = new ArrayList<AvailableTicketNumberAssociation>();
@@ -148,13 +150,22 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   private boolean checkDates(Date date, TicketPoolDefinition tpd) {
     if (tpd.getIsCyclic()) {
       try {
+        var dateLd = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        var dateLdt = dateLd
+            .atTime(tpd.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
+        date = Date.from(dateLdt.atZone(ZoneId.systemDefault()).toInstant());
         var d = tpService.getStartDateForNewInstanceOfCyclicPool(tpd, date);
         return date.equals(d);
       } catch (CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException e) {
         return false;
       }
     }
-    return date.equals(tpd.getStartDate());
+    return areDatesequals(date, tpd.getStartDate());
+  }
+
+  private boolean areDatesequals(Date date1, Date date2) {
+    return date1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+        .isEqual(date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
   }
 
   private List<AvailableTicketNumberAssociation> getForTicketPool(TicketPool tp) {
