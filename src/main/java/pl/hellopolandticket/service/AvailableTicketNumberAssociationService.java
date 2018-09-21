@@ -74,13 +74,26 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     se.getTicketPoolDefinitions().stream().filter(tpd -> checkDates(date, tpd)).forEach(tpd -> {
       List<TicketPool> ticketPools = tpd.getTicketPools();
       tpd.getTicketPools().size();
+      if (!tpd.getIsCyclic() && ticketPools != null && !ticketPools.isEmpty()) {
+        // get from TPs:
+        var tps = ticketPools.stream().filter(p -> p.getStartDate().getTime() == date.getTime())
+            .collect(Collectors.toList());
+        if (!tps.isEmpty()) {
+          fillFromTPs(associationsTP, tps);
+        }
+      }
       if (ticketPools == null || ticketPools.isEmpty()) {
-        associationsTPD.addAll(getForTicketPoolDefinition(tpd));
-      } else {
-        var availableTicketNumbers = new ArrayList<AvailableTicketNumberAssociation>();
-        ticketPools.stream().filter(p -> p.getStartDate().getTime() == date.getTime())
-            .forEach(tp -> availableTicketNumbers.addAll(getForTicketPool(tp)));
-        associationsTP.addAll(availableTicketNumbers);
+        // get from TPD:
+        fillFromTPD(associationsTPD, tpd);
+      }
+      if (tpd.getIsCyclic() && ticketPools != null && !ticketPools.isEmpty()) {
+        var tps = ticketPools.stream().filter(p -> p.getStartDate().getTime() == date.getTime())
+            .collect(Collectors.toList());
+        if (!tps.isEmpty()) {
+          fillFromTPs(associationsTP, tps);
+        } else {
+          fillFromTPD(associationsTPD, tpd);
+        }
       }
     });
 
@@ -118,6 +131,18 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     }
 
     return result;
+  }
+
+  private void fillFromTPs(ArrayList<AvailableTicketNumberAssociation> associationsTP,
+      List<TicketPool> tps) {
+    var availableTicketNumbers = new ArrayList<AvailableTicketNumberAssociation>();
+    tps.forEach(tp -> availableTicketNumbers.addAll(getForTicketPool(tp)));
+    associationsTP.addAll(availableTicketNumbers);
+  }
+
+  private void fillFromTPD(ArrayList<AvailableTicketNumberAssociation> associationsTPD,
+      TicketPoolDefinition tpd) {
+    associationsTPD.addAll(getForTicketPoolDefinition(tpd));
   }
 
   private boolean checkDates(Date date, TicketPoolDefinition tpd) {
