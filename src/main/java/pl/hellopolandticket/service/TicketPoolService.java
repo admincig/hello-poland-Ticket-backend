@@ -247,16 +247,13 @@ public class TicketPoolService extends ServiceSuperclass {
     LocalDate sld = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     LocalDate eld = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-    if (sld.isEqual(eld) && rld.isEqual(sld)) {
-      return rlt.isBefore(slt) || rlt.isAfter(elt);
-    }
     if (sld.isBefore(eld) && rld.isEqual(sld)) {
       return rlt.isBefore(slt) || rlt.isBefore(elt);
     }
     if (sld.isBefore(eld) && rld.isEqual(eld)) {
       return rlt.isAfter(elt);
     }
-    return false;
+    return rlt.isBefore(slt) || rlt.isAfter(elt);
   }
 
 }
