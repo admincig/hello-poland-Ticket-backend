@@ -25,92 +25,11 @@ public class AvailableTicketNumberAssociationRestService {
   @Inject
   private AvailableTicketNumberAssociationService service;
 
-  // @Inject
-  // private SightEventService seService;
-  //
-  // @Inject
-  // private PartnerDao partnerDao;
-
   @GET
   @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response checkAvailabilityOfTickets(@QueryParam("sightEventId") Long id,
       @QueryParam("date") @DateTimeFormat Date date) {
     return Response.ok(service.checkAvailabilityOfTickets(id, date)).build();
-    // return Response.ok(getMock()).build();
   }
-
-  // private List<AvailableTicketNumberAssociationDTO> getMock() {
-  // var partner = partnerDao.findByName("Zoo");
-  //
-  // var sightEvent = seService.findSightEventById(seService.findForPartner("Zoo").get(0).id);
-  //
-  // var tpdCic = getTicketPoolDefinition("cyclicalPool", -1, true, sightEvent);
-  // var tdCic1 = getTicketDefinition("Ulgowy", 1500, partner, List.of(tpdCic));
-  // var tdCic2 = getTicketDefinition("Normalny", 2000, partner, List.of(tpdCic));
-  //
-  // var tpdNonCic = getTicketPoolDefinition("nonCyclicalPool", 500, false, sightEvent);
-  // var tdNonCic1 = getTicketDefinition("VIP", 10000, partner, List.of(tpdCic));
-  // var tdNonCic2 = getTicketDefinition("Normalny", 3000, partner, List.of(tpdCic));
-  //
-  // var bo1 = ModelObjectsToDTOConverter.ofAvailableTicketNumberAssociation(
-  // AvailableTicketNumberAssociation.builder().ticketDefinition(tdCic1)
-  // .ticketPoolDefinition(tpdCic).availableTicketsNumber(-1).build());
-  //
-  // var bo2 = ModelObjectsToDTOConverter.ofAvailableTicketNumberAssociation(
-  // AvailableTicketNumberAssociation.builder().ticketDefinition(tdCic2)
-  // .ticketPoolDefinition(tpdCic).availableTicketsNumber(-1).build());
-  //
-  // var bo3 = ModelObjectsToDTOConverter.ofAvailableTicketNumberAssociation(
-  // AvailableTicketNumberAssociation.builder().ticketDefinition(tdNonCic1)
-  // .ticketPoolDefinition(tpdNonCic).availableTicketsNumber(100).build());
-  //
-  // var bo4 = ModelObjectsToDTOConverter.ofAvailableTicketNumberAssociation(
-  // AvailableTicketNumberAssociation.builder().ticketDefinition(tdNonCic2)
-  // .ticketPoolDefinition(tpdNonCic).availableTicketsNumber(389).build());
-  //
-  // return List.of(bo1, bo2, bo3, bo4);
-  // }
-  //
-  // private TicketPoolDefinition getTicketPoolDefinition(String name, Integer
-  // availableTicketsNumber,
-  // boolean isCyclic, SightEvent sightEvent) {
-  //
-  // var tpd = TicketPoolDefinition.builder().sightEvent(sightEvent).name(name).isCyclic(isCyclic)
-  // .availableTicketsNumber(availableTicketsNumber).deleted(false);
-  //
-  // Date startDate = new Date();
-  // startDate.setSeconds(0);
-  // startDate.setMinutes(0);
-  // startDate.setHours(0);
-  //
-  // Date endDate = new Date();
-  // endDate.setHours(23);
-  // endDate.setMinutes(59);
-  // endDate.setSeconds(59);
-  //
-  // if (isCyclic) {
-  // var frequencyData = new FrequencyData();
-  // frequencyData.setFrequencyType(FrequencyType.DAILY);
-  // frequencyData.setFrequency(1);
-  // frequencyData.setStartDate(startDate);
-  // Calendar cal = Calendar.getInstance();
-  // cal.set(Calendar.DAY_OF_YEAR, 365);
-  // frequencyData.setEndDate(cal.getTime());
-  // tpd.frequencyData(frequencyData).startDate(startDate).endDate(endDate);
-  // }
-  // if (!isCyclic) {
-  // startDate.setMonth(startDate.getMonth() + 1);
-  // endDate.setMonth(endDate.getMonth() + 1);
-  // tpd.startDate(startDate).endDate(endDate);
-  // }
-  // return tpd.build();
-  // }
-  //
-  // private TicketDefinition getTicketDefinition(String name, int price, Partner partner,
-  // List<TicketPoolDefinition> ticketPoolDefinitions) {
-  // var td = TicketDefinition.builder().name(name).price(price).partner(partner)
-  // .ticketPoolDefinitions(ticketPoolDefinitions);
-  // return td.build();
-  // }
 
 }
