@@ -13,7 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import pl.hellopolandticket.annotation.DateTimeFormat;
+import pl.hellopolandticket.annotation.DateFormat;
 import pl.hellopolandticket.service.AvailableTicketNumberAssociationService;
 
 @Path("/available-ticket-number-associations")
@@ -28,7 +28,7 @@ public class AvailableTicketNumberAssociationRestService {
   @GET
   @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response checkAvailabilityOfTickets(@QueryParam("sightEventId") Long id,
-      @QueryParam("date") @DateTimeFormat Date date) {
+      @QueryParam("date") @DateFormat Date date) {
     return Response.ok(service.checkAvailabilityOfTickets(id, date)).build();
   }
 
