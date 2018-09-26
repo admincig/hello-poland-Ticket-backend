@@ -1,6 +1,7 @@
 package pl.hellopolandticket.service;
 
 import static java.util.stream.Collectors.toList;
+import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.TO;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,6 +43,7 @@ import pl.hellopolandticket.model.config.EmailTemplate;
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
 
+  private static final String MAIL_TICKET_COPY = "ticket.copy@hello-poland.pl";
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
   private static final String MAIL_SMTP_HOST_PROPERTY = "mail.smtp.host";
@@ -69,6 +71,7 @@ public class EmailService extends ServiceSuperclass {
     MimeMessage message = new MimeMessage(session);
     message.setFrom(new InternetAddress(messageFrom));
     message.setRecipients(TO, new InternetAddress[] {new InternetAddress(email)});
+    message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
     message.setSubject(emailTemplate.getSubject(), "UTF-8");
     message.setContent(createEmailContent(username, emailTemplate, tickets));
 
