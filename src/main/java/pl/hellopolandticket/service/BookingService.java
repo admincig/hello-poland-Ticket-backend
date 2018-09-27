@@ -143,7 +143,7 @@ public class BookingService extends ServiceSuperclass {
 
         bookedTickets.add(ticket);
       }
-      checkAndDecreaseAvailability(pool, ticketDefinition, dto.numberOfTickets.intValue());
+      // checkAndDecreaseAvailability(pool, ticketDefinition, dto.numberOfTickets.intValue());
       // pool.decreaseAvailableTicketsNumber(dto.numberOfTickets.intValue());
     }
     return ticketDao.persist(bookedTickets);

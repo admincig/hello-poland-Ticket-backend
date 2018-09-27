@@ -147,27 +147,42 @@ public class EmailService extends ServiceSuperclass {
     cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
     cfg.setLogTemplateExceptions(false);
     cfg.setWrapUncheckedExceptions(true);
-
     Template template = new Template("qrTemplate", new StringReader(templateHtml), cfg);
-
     Map<String, String> variablesMap = new HashMap<>();
+    variablesMap.put("userName", username);
     StringBuilder ticketQrCodes = new StringBuilder();
-
     for (int i = 0; i < tickets.size(); i++) {
       TicketDTO ticket = tickets.get(i);
-      ticketQrCodes.append("<p>").append(ticket.name).append("</p>").append("<p>")
-          .append(ticket.name).append("</p>").append("<p>").append("Numer biletu: ")
-          .append(ticket.serialNumber).append("</p>").append("<p>").append("Data wydarzenia: ")
-          .append(makeDateHuman(ticket.date)).append("</p>");
-      ticketQrCodes.append("<img style=\"margin-bottom: 200px\" src=\"cid:")
-          .append(ticketCIDs.get(i)).append("\">");
+      EmailTemplate ticketTemplate = emailTemplateDao.findByName("ticketQrCodeTemplate");
+      String ticketQR = fillTicketQrCodeTemplate(ticketTemplate, ticket, ticketCIDs.get(i), cfg);
+      ticketQrCodes.append("<p>").append(ticketQR).append("</p>");
     }
     variablesMap.put("qrCodes", ticketQrCodes.toString());
-
     Writer out = new StringWriter();
     template.process(variablesMap, out);
-
     return out.toString();
+  }
+
+  private String fillTicketQrCodeTemplate(EmailTemplate ticketTemplate, TicketDTO ticket,
+      String ticketCID, Configuration cfg) throws IOException, TemplateException {
+    Template template =
+        new Template("ticketQRTemplate", new StringReader(ticketTemplate.getTemplate()), cfg);
+    Map<String, String> variablesMap = new HashMap<>();
+    variablesMap.put("P24_transactionNumber", "P24_transactionNumber");
+    variablesMap.put("sightEventName", "sightEventName");
+    variablesMap.put("sightEventDate", makeDateHuman(ticket.date));
+    variablesMap.put("qrCode", "<img src=\"cid:" + ticketCID + "\">");
+    variablesMap.put("ticketName", ticket.name);
+    variablesMap.put("ticketNumber", ticket.serialNumber);
+    variablesMap.put("ticketPrice", getHumanReadablePrice(ticket.price));
+    Writer out = new StringWriter();
+    template.process(variablesMap, out);
+    return out.toString();
+  }
+
+  private String getHumanReadablePrice(Integer price) {
+    var p = Float.valueOf(price.toString()) / 100;
+    return String.format("%.2f", p) + " PLN";
   }
 
   private MimeBodyPart createTicketQrCodeAttachment(ByteArrayOutputStream image, String cid)
