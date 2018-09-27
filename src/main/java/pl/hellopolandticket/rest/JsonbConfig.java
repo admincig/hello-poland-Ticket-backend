@@ -1,6 +1,5 @@
 package pl.hellopolandticket.rest;
 
-import java.util.Locale;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.ws.rs.ext.ContextResolver;
@@ -13,9 +12,8 @@ public class JsonbConfig implements ContextResolver<Jsonb> {
 
   public static Jsonb getInstance() {
     if (instance == null) {
-      javax.json.bind.JsonbConfig config = new javax.json.bind.JsonbConfig()
-          .withDateFormat("yyyy-MM-dd'T'HH:mm", new Locale("en", "GB"))
-          .withAdapters(new LocalTimeCustomAdapter());
+      var config = new javax.json.bind.JsonbConfig().withAdapters(new LocalTimeCustomAdapter(),
+          new DateCustomAdapter());
       instance = JsonbBuilder.create(config);
     }
     return instance;

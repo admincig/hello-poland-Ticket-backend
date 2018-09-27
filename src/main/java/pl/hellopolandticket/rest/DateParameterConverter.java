@@ -3,7 +3,6 @@ package pl.hellopolandticket.rest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.ext.ParamConverter;
 import pl.hellopolandticket.annotation.DateFormat;
@@ -25,8 +24,6 @@ public class DateParameterConverter implements ParamConverter<Date> {
     }
 
     final var simpleDateFormat = new SimpleDateFormat(format);
-    simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
     try {
       return simpleDateFormat.parse(value);
     } catch (ParseException ex) {
@@ -37,7 +34,6 @@ public class DateParameterConverter implements ParamConverter<Date> {
   @Override
   public String toString(Date value) {
     var dateFormat = new SimpleDateFormat(DEFAULT_FORMAT);
-    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     return dateFormat.format(value);
   }
 

@@ -1,14 +1,12 @@
 package pl.hellopolandticket.rest;
 
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import javax.json.bind.adapter.JsonbAdapter;
 
 public class LocalTimeCustomAdapter implements JsonbAdapter<LocalTime, String> {
 
-  private final static DateTimeFormatter TIME_FORMATTER =
-      DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.of("UTC"));
+  private final static DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
   @Override
   public String adaptToJson(LocalTime obj) throws Exception {
