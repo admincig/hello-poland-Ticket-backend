@@ -7,6 +7,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.market.Status;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
@@ -48,6 +49,13 @@ public class TicketDao {
         "SELECT COUNT(ticket) from Ticket ticket JOIN ticket.ticketDefinition ticketDefinition JOIN ticketDefinition.ticketPool ticketPool where ticketPool.id=:ticketPoolId AND ticket.status IN :statuses",
         Long.class).setParameter("ticketPoolId", ticketPoolId).setParameter("statuses", statuses)
         .getResultStream().findFirst()
+        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
+  }
+
+  public SightEvent findSightEventForTicket(Long id) {
+    return entityManager.createQuery(
+        "SELECT tpd.sightEvent from Ticket t JOIN t.ticketPool tp JOIN tp.ticketPoolDefinition tpd where t.id = :ticketId",
+        SightEvent.class).setParameter("ticketId", id).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 }

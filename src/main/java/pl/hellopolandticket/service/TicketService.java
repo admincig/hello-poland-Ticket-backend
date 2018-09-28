@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.auth.User;
+import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.validator.TicketValidator;
@@ -62,6 +63,10 @@ public class TicketService extends ServiceSuperclass {
         ticket.getTicketPool().getTicketPoolDefinition().getSightEvent().getId());
 
     return ofTicket(ticket);
+  }
+
+  public SightEvent findSightEventForTicket(Long id) {
+    return ticketDao.findSightEventForTicket(id);
   }
 
 

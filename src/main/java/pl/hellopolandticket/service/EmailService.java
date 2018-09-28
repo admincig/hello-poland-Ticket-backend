@@ -38,6 +38,7 @@ import freemarker.template.TemplateExceptionHandler;
 import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.dao.EmailTemplateDao;
 import pl.hellopolandticket.model.config.EmailTemplate;
+import pl.hellopolandticket.model.sightevent.SightEvent;
 
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
@@ -56,6 +57,9 @@ public class EmailService extends ServiceSuperclass {
 
   @Inject
   private EmailTemplateDao emailTemplateDao;
+
+  @Inject
+  private TicketService ticketService;
 
   public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets)
       throws MessagingException, IOException, TemplateException {
@@ -169,7 +173,7 @@ public class EmailService extends ServiceSuperclass {
         new Template("ticketQRTemplate", new StringReader(ticketTemplate.getTemplate()), cfg);
     Map<String, String> variablesMap = new HashMap<>();
     variablesMap.put("P24_transactionNumber", "P24_transactionNumber");
-    variablesMap.put("sightEventName", "sightEventName");
+    variablesMap.put("sightEventName", getSigthEventName(ticket));
     variablesMap.put("sightEventDate", makeDateHuman(ticket.date));
     variablesMap.put("qrCode", "<img src=\"cid:" + ticketCID + "\">");
     variablesMap.put("ticketName", ticket.name);
@@ -178,6 +182,11 @@ public class EmailService extends ServiceSuperclass {
     Writer out = new StringWriter();
     template.process(variablesMap, out);
     return out.toString();
+  }
+
+  private String getSigthEventName(TicketDTO ticket) {
+    SightEvent sightEvent = ticketService.findSightEventForTicket(ticket.id);
+    return sightEvent.getName();
   }
 
   private String getHumanReadablePrice(Integer price) {
