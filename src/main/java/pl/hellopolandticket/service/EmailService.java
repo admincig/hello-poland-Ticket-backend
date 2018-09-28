@@ -39,6 +39,7 @@ import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.dao.EmailTemplateDao;
 import pl.hellopolandticket.model.config.EmailTemplate;
 import pl.hellopolandticket.model.sightevent.SightEvent;
+import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
@@ -61,8 +62,10 @@ public class EmailService extends ServiceSuperclass {
   @Inject
   private TicketService ticketService;
 
-  public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets)
+  public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
+    // public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets)
+    // throws MessagingException, IOException, TemplateException {
     String messageFrom =
         applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
 
@@ -72,9 +75,12 @@ public class EmailService extends ServiceSuperclass {
 
     MimeMessage message = new MimeMessage(session);
     message.setFrom(new InternetAddress(messageFrom));
-    message.setRecipients(TO, new InternetAddress[] {new InternetAddress(email)});
+    message.setRecipients(TO,
+        new InternetAddress[] {new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
     message.setSubject(emailTemplate.getSubject(), "UTF-8");
-    message.setContent(createEmailContent(username, emailTemplate, tickets));
+    message
+        .setContent(createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
+            bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId()));
 
     Transport.send(message);
   }
@@ -119,14 +125,13 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private Multipart createEmailContent(String username, EmailTemplate emailTemplate,
-      List<TicketDTO> tickets) throws IOException, TemplateException, MessagingException {
+      List<TicketDTO> tickets, String p24OrderId)
+      throws IOException, TemplateException, MessagingException {
+
     Multipart emailContent = new MimeMultipart("related");
-
     List<String> ticketCIDs = generateCIDs(tickets.size());
-
-    String bodyContent =
-        fillQrCodeEmailTemplateWithData(emailTemplate.getTemplate(), username, tickets, ticketCIDs);
-
+    String bodyContent = fillQrCodeEmailTemplateWithData(emailTemplate.getTemplate(), username,
+        tickets, ticketCIDs, p24OrderId);
     MimeBodyPart emailBody = new MimeBodyPart();
     emailBody.setContent(bodyContent, "text/html; charset=utf-8");
     emailContent.addBodyPart(emailBody);
@@ -145,7 +150,8 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private String fillQrCodeEmailTemplateWithData(String templateHtml, String username,
-      List<TicketDTO> tickets, List<String> ticketCIDs) throws IOException, TemplateException {
+      List<TicketDTO> tickets, List<String> ticketCIDs, String p24OrderId)
+      throws IOException, TemplateException {
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_27);
     cfg.setDefaultEncoding("UTF-8");
     cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
@@ -158,7 +164,8 @@ public class EmailService extends ServiceSuperclass {
     for (int i = 0; i < tickets.size(); i++) {
       TicketDTO ticket = tickets.get(i);
       EmailTemplate ticketTemplate = emailTemplateDao.findByName("ticketQrCodeTemplate");
-      String ticketQR = fillTicketQrCodeTemplate(ticketTemplate, ticket, ticketCIDs.get(i), cfg);
+      String ticketQR =
+          fillTicketQrCodeTemplate(ticketTemplate, ticket, ticketCIDs.get(i), p24OrderId, cfg);
       ticketQrCodes.append("<p>").append(ticketQR).append("</p>");
     }
     variablesMap.put("qrCodes", ticketQrCodes.toString());
@@ -168,11 +175,12 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private String fillTicketQrCodeTemplate(EmailTemplate ticketTemplate, TicketDTO ticket,
-      String ticketCID, Configuration cfg) throws IOException, TemplateException {
+      String ticketCID, String p24OrderId, Configuration cfg)
+      throws IOException, TemplateException {
     Template template =
         new Template("ticketQRTemplate", new StringReader(ticketTemplate.getTemplate()), cfg);
     Map<String, String> variablesMap = new HashMap<>();
-    variablesMap.put("P24_transactionNumber", "P24_transactionNumber");
+    variablesMap.put("P24_transactionNumber", p24OrderId);
     variablesMap.put("sightEventName", getSigthEventName(ticket));
     variablesMap.put("sightEventDate", makeDateHuman(ticket.date));
     variablesMap.put("qrCode", "<img src=\"cid:" + ticketCID + "\">");
