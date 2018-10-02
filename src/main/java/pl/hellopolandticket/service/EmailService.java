@@ -66,8 +66,6 @@ public class EmailService extends ServiceSuperclass {
 
   public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
-    // public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets)
-    // throws MessagingException, IOException, TemplateException {
     String messageFrom =
         applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
 
