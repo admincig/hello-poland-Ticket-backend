@@ -69,6 +69,10 @@ public class Booking implements Serializable {
   @Column(name = "SERIAL_NUMBER", unique = true)
   private String serialNumber;
 
+  @Setter
+  @Column(name = "P24_ORDER_ID")
+  private String P24OrderId;
+
 
   @Builder
   public Booking(Date date, String customerName, String customerEmail) {
@@ -84,8 +88,9 @@ public class Booking implements Serializable {
     tickets.forEach(this::setTicketStatusesAsInvalidAndIncreaseAvailableTicketsNumber);
   }
 
-  public void makeBought() {
+  public void makeBought(String p24OrderId) {
     setStatus(BOUGHT);
+    setP24OrderId(p24OrderId);
     tickets.forEach(this::setTicketStatusesAsBought);
   }
 

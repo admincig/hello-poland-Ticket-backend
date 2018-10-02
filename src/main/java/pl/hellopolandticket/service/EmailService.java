@@ -38,6 +38,8 @@ import freemarker.template.TemplateExceptionHandler;
 import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.dao.EmailTemplateDao;
 import pl.hellopolandticket.model.config.EmailTemplate;
+import pl.hellopolandticket.model.sightevent.SightEvent;
+import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
@@ -57,8 +59,13 @@ public class EmailService extends ServiceSuperclass {
   @Inject
   private EmailTemplateDao emailTemplateDao;
 
-  public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets)
+  @Inject
+  private TicketService ticketService;
+
+  public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
+    // public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets)
+    // throws MessagingException, IOException, TemplateException {
     String messageFrom =
         applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
 
@@ -68,9 +75,12 @@ public class EmailService extends ServiceSuperclass {
 
     MimeMessage message = new MimeMessage(session);
     message.setFrom(new InternetAddress(messageFrom));
-    message.setRecipients(TO, new InternetAddress[] {new InternetAddress(email)});
+    message.setRecipients(TO,
+        new InternetAddress[] {new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
     message.setSubject(emailTemplate.getSubject(), "UTF-8");
-    message.setContent(createEmailContent(username, emailTemplate, tickets));
+    message
+        .setContent(createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
+            bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId()));
 
     Transport.send(message);
   }
@@ -115,14 +125,13 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private Multipart createEmailContent(String username, EmailTemplate emailTemplate,
-      List<TicketDTO> tickets) throws IOException, TemplateException, MessagingException {
+      List<TicketDTO> tickets, String p24OrderId)
+      throws IOException, TemplateException, MessagingException {
+
     Multipart emailContent = new MimeMultipart("related");
-
     List<String> ticketCIDs = generateCIDs(tickets.size());
-
-    String bodyContent =
-        fillQrCodeEmailTemplateWithData(emailTemplate.getTemplate(), username, tickets, ticketCIDs);
-
+    String bodyContent = fillQrCodeEmailTemplateWithData(emailTemplate.getTemplate(), username,
+        tickets, ticketCIDs, p24OrderId);
     MimeBodyPart emailBody = new MimeBodyPart();
     emailBody.setContent(bodyContent, "text/html; charset=utf-8");
     emailContent.addBodyPart(emailBody);
@@ -141,33 +150,56 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private String fillQrCodeEmailTemplateWithData(String templateHtml, String username,
-      List<TicketDTO> tickets, List<String> ticketCIDs) throws IOException, TemplateException {
+      List<TicketDTO> tickets, List<String> ticketCIDs, String p24OrderId)
+      throws IOException, TemplateException {
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_27);
     cfg.setDefaultEncoding("UTF-8");
     cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
     cfg.setLogTemplateExceptions(false);
     cfg.setWrapUncheckedExceptions(true);
-
     Template template = new Template("qrTemplate", new StringReader(templateHtml), cfg);
-
     Map<String, String> variablesMap = new HashMap<>();
+    variablesMap.put("userName", username);
     StringBuilder ticketQrCodes = new StringBuilder();
-
     for (int i = 0; i < tickets.size(); i++) {
       TicketDTO ticket = tickets.get(i);
-      ticketQrCodes.append("<p>").append(ticket.name).append("</p>").append("<p>")
-          .append(ticket.name).append("</p>").append("<p>").append("Numer biletu: ")
-          .append(ticket.serialNumber).append("</p>").append("<p>").append("Data wydarzenia: ")
-          .append(makeDateHuman(ticket.date)).append("</p>");
-      ticketQrCodes.append("<img style=\"margin-bottom: 200px\" src=\"cid:")
-          .append(ticketCIDs.get(i)).append("\">");
+      EmailTemplate ticketTemplate = emailTemplateDao.findByName("ticketQrCodeTemplate");
+      String ticketQR =
+          fillTicketQrCodeTemplate(ticketTemplate, ticket, ticketCIDs.get(i), p24OrderId, cfg);
+      ticketQrCodes.append("<p>").append(ticketQR).append("</p>");
     }
     variablesMap.put("qrCodes", ticketQrCodes.toString());
-
     Writer out = new StringWriter();
     template.process(variablesMap, out);
-
     return out.toString();
+  }
+
+  private String fillTicketQrCodeTemplate(EmailTemplate ticketTemplate, TicketDTO ticket,
+      String ticketCID, String p24OrderId, Configuration cfg)
+      throws IOException, TemplateException {
+    Template template =
+        new Template("ticketQRTemplate", new StringReader(ticketTemplate.getTemplate()), cfg);
+    Map<String, String> variablesMap = new HashMap<>();
+    variablesMap.put("P24_transactionNumber", p24OrderId);
+    variablesMap.put("sightEventName", getSigthEventName(ticket));
+    variablesMap.put("sightEventDate", makeDateHuman(ticket.date));
+    variablesMap.put("qrCode", "<img src=\"cid:" + ticketCID + "\">");
+    variablesMap.put("ticketName", ticket.name);
+    variablesMap.put("ticketNumber", ticket.serialNumber);
+    variablesMap.put("ticketPrice", getHumanReadablePrice(ticket.price));
+    Writer out = new StringWriter();
+    template.process(variablesMap, out);
+    return out.toString();
+  }
+
+  private String getSigthEventName(TicketDTO ticket) {
+    SightEvent sightEvent = ticketService.findSightEventForTicket(ticket.id);
+    return sightEvent.getName();
+  }
+
+  private String getHumanReadablePrice(Integer price) {
+    var p = Float.valueOf(price.toString()) / 100;
+    return String.format("%.2f", p) + " PLN";
   }
 
   private MimeBodyPart createTicketQrCodeAttachment(ByteArrayOutputStream image, String cid)
