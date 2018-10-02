@@ -52,7 +52,7 @@ public class BookingRestServiceTest extends BaseTest {
     bookingBeforeBoughtRequest.getTickets()
         .forEach(ticket -> assertEquals(BOOKED, ticket.getStatus()));
 
-    Response response = bookingRestService.markBookingAsBought("1");
+    Response response = bookingRestService.markBookingAsBought("1", "P24_TEST:shouldBuyTickets");
     BookingDTO booking = (BookingDTO) response.getEntity();
 
     assertEquals(BOUGHT, Status.valueOf(booking.status.name()));
@@ -64,7 +64,8 @@ public class BookingRestServiceTest extends BaseTest {
     Booking b = bookingDao.findBySerialNumber("1");
     b.makeInvalid();
 
-    Response response = bookingRestService.markBookingAsBought("1");
+    Response response = bookingRestService.markBookingAsBought("1",
+        "P24_TEST:shouldBuyTicketsWhenPreviousBookingIsInvalidAndExistsAvailableTickets");
     BookingDTO booking = (BookingDTO) response.getEntity();
 
     assertEquals(Status.valueOf(booking.status.name()), BOUGHT);
@@ -84,27 +85,31 @@ public class BookingRestServiceTest extends BaseTest {
     bookingRestService.makeBooking(bookingCreate);
     bookingRestService.makeBooking(bookingCreate);
 
-    bookingRestService.markBookingAsBought("1");
+    bookingRestService.markBookingAsBought("1",
+        "P24_TEST:shouldThrowNoAvailableTicketsTryingToBuyWhenBookingIsInvalidAndSomeoneBookedTickets");
   }
 
   @Test(expected = NotBookedException.class)
   public void shouldThrowNotBookedExceptionWhenBookingStatusIsBought() {
-    bookingRestService.markBookingAsBought("2");
+    bookingRestService.markBookingAsBought("2",
+        "P24_TEST:shouldThrowNotBookedExceptionWhenBookingStatusIsBought");
   }
 
   @Test(expected = NotBookedException.class)
   public void shouldThrowNotBookedExceptionWhenBookingStatusIsPunched() {
-    bookingRestService.markBookingAsBought("3");
+    bookingRestService.markBookingAsBought("3",
+        "P24_TEST:shouldThrowNotBookedExceptionWhenBookingStatusIsPunched");
   }
 
   @Test(expected = NotBookedException.class)
   public void shouldThrowNotBookedExceptionWhenBookingStatusIsDeleted() {
-    bookingRestService.markBookingAsBought("4");
+    bookingRestService.markBookingAsBought("4",
+        "P24_TEST:shouldThrowNotBookedExceptionWhenBookingStatusIsDeleted");
   }
 
   @Test(expected = ResourceNotFoundException.class)
   public void shouldThrowResourceNotFoundException() {
-    bookingRestService.markBookingAsBought("200");
+    bookingRestService.markBookingAsBought("200", "P24_TEST:shouldThrowResourceNotFoundException");
   }
 
   @Test(expected = NumberOfTicketsNotPositiveException.class)
