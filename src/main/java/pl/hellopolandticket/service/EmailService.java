@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.IntStream;
 import javax.activation.DataHandler;
 import javax.enterprise.context.RequestScoped;
@@ -64,8 +65,6 @@ public class EmailService extends ServiceSuperclass {
 
   public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
-    // public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets)
-    // throws MessagingException, IOException, TemplateException {
     String messageFrom =
         applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
 
@@ -80,7 +79,8 @@ public class EmailService extends ServiceSuperclass {
     message.setSubject(emailTemplate.getSubject(), "UTF-8");
     message
         .setContent(createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
-            bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId()));
+            bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId(),
+            bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
 
     Transport.send(message);
   }
@@ -125,7 +125,7 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private Multipart createEmailContent(String username, EmailTemplate emailTemplate,
-      List<TicketDTO> tickets, String p24OrderId)
+      List<TicketDTO> tickets, String p24OrderId, Set<String> sightEventPdfAttachmentsPaths)
       throws IOException, TemplateException, MessagingException {
 
     Multipart emailContent = new MimeMultipart("related");
@@ -139,6 +139,9 @@ public class EmailService extends ServiceSuperclass {
     for (int i = 0; i < tickets.size(); i++) {
       emailContent
           .addBodyPart(createTicketQrCodeAttachment(tickets.get(i).qrCode, ticketCIDs.get(i)));
+    }
+    for (String pdfPath : sightEventPdfAttachmentsPaths) {
+      emailContent.addBodyPart(attachFile(pdfPath));
     }
 
     return emailContent;
@@ -212,6 +215,12 @@ public class EmailService extends ServiceSuperclass {
     imagePart.setDisposition(MimeBodyPart.INLINE);
 
     return imagePart;
+  }
+
+  private MimeBodyPart attachFile(String filePath) throws MessagingException, IOException {
+    MimeBodyPart attachmentPart = new MimeBodyPart();
+    attachmentPart.attachFile(filePath);
+    return attachmentPart;
   }
 
   private String makeDateHuman(Date date) {
