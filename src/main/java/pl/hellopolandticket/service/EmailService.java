@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
@@ -24,6 +27,7 @@ import javax.mail.Authenticator;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
+import javax.mail.SendFailedException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -43,6 +47,7 @@ import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
+  private static final Logger HELPDESK_lOG = System.getLogger("helpdesk-logger");
 
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
@@ -64,8 +69,6 @@ public class EmailService extends ServiceSuperclass {
 
   public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
-    // public void sendEmailWithQrCodes(String username, String email, List<TicketDTO> tickets)
-    // throws MessagingException, IOException, TemplateException {
     String messageFrom =
         applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
 
@@ -81,8 +84,28 @@ public class EmailService extends ServiceSuperclass {
     message
         .setContent(createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
             bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId()));
+    try {
+      Transport.send(message);
+    } catch (SendFailedException e) {
+      HELPDESK_lOG.log(Level.INFO,
+          getHelpdeskLogMessage(message, bookingMarkedAsBoughtEvent, false));
+      throw e;
+    }
+    HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(message, bookingMarkedAsBoughtEvent, true));
+  }
 
-    Transport.send(message);
+  private String getHelpdeskLogMessage(MimeMessage message,
+      BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent, boolean mailWasSend)
+      throws MessagingException {
+    final var df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    StringBuilder sb = new StringBuilder();
+    sb.append("DATA PRÓBY WYSŁANIA MAILA: ").append(df.format(message.getSentDate()))
+        .append(" | PŁATNOŚĆ: ").append("").append(" | NR TRANSAKCJI P24: ")
+        .append(bookingMarkedAsBoughtEvent.getP24OrderId()).append(" | CZY MAIL ZOSTAŁ WYSŁANY: ")
+        .append(mailWasSend ? "tak" : "nie").append(" | NAZWA UŻUTKOWNIKA: ")
+        .append(bookingMarkedAsBoughtEvent.getCustomerName()).append(" | ADRES EMAIL: ")
+        .append(message.getRecipients(TO)[0]);
+    return sb.toString();
   }
 
   private Session createSessionForEmail() {

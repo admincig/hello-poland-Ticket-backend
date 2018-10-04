@@ -143,8 +143,7 @@ public class BookingService extends ServiceSuperclass {
 
         bookedTickets.add(ticket);
       }
-      checkAndDecreaseAvailability(pool, ticketDefinition, dto.numberOfTickets.intValue());
-      // pool.decreaseAvailableTicketsNumber(dto.numberOfTickets.intValue());
+      // checkAndDecreaseAvailability(pool, ticketDefinition, dto.numberOfTickets.intValue());
     }
     return ticketDao.persist(bookedTickets);
   }
@@ -153,7 +152,6 @@ public class BookingService extends ServiceSuperclass {
     List<Ticket> tickets = booking.getTickets();
     for (Ticket ticket : tickets) {
       checkAndDecreaseAvailability(ticket.getTicketPool(), ticket.getTicketDefinition(), 1);
-      // ticket.getTicketPool().decreaseAvailableTicketsNumber(1);
       ticket.setStatus(BOOKED);
     }
     booking.setStatus(BOOKED);
