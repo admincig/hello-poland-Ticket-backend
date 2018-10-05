@@ -22,4 +22,5 @@ public class BookingMarkedAsBoughtEvent implements Serializable {
   private String customerEmail;
   private List<TicketDTO> tickets;
   private String p24OrderId;
+  private String p24Currency;
 }

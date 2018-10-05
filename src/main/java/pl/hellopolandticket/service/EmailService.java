@@ -9,7 +9,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.activation.DataHandler;
 import javax.enterprise.context.RequestScoped;
@@ -27,7 +27,6 @@ import javax.mail.Authenticator;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
-import javax.mail.SendFailedException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -69,43 +68,41 @@ public class EmailService extends ServiceSuperclass {
 
   public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
-    String messageFrom =
-        applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
-
-    EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
-
-    Session session = createSessionForEmail();
-
-    MimeMessage message = new MimeMessage(session);
-    message.setFrom(new InternetAddress(messageFrom));
-    message.setRecipients(TO,
-        new InternetAddress[] {new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
-    message.setSubject(emailTemplate.getSubject(), "UTF-8");
-    message
-        .setContent(createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
-            bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId()));
     try {
+      String messageFrom =
+          applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
+      EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
+      Session session = createSessionForEmail();
+      var message = new MimeMessage(session);
+      message.setFrom(new InternetAddress(messageFrom));
+      message.setRecipients(TO, new InternetAddress[] {
+          new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
+      message.setSubject(emailTemplate.getSubject(), "UTF-8");
+      message.setContent(
+          createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
+              bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId()));
       Transport.send(message);
-    } catch (SendFailedException e) {
-      HELPDESK_lOG.log(Level.INFO,
-          getHelpdeskLogMessage(message, bookingMarkedAsBoughtEvent, false));
+      HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, true));
+    } catch (MessagingException | IOException | TemplateException e) {
+      HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
       throw e;
     }
-    HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(message, bookingMarkedAsBoughtEvent, true));
   }
 
-  private String getHelpdeskLogMessage(MimeMessage message,
-      BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent, boolean mailWasSend)
-      throws MessagingException {
-    final var df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+  private String getHelpdeskLogMessage(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent,
+      boolean mailWasSend) throws MessagingException {
     StringBuilder sb = new StringBuilder();
-    sb.append("DATA PRÓBY WYSŁANIA MAILA: ").append(df.format(message.getSentDate()))
-        .append(" | PŁATNOŚĆ: ").append("").append(" | NR TRANSAKCJI P24: ")
+    sb.append("PŁATNOŚĆ: ").append(getValueOfOrder(bookingMarkedAsBoughtEvent.getTickets()))
+        .append(" " + bookingMarkedAsBoughtEvent.getP24Currency()).append(" | NR TRANSAKCJI P24: ")
         .append(bookingMarkedAsBoughtEvent.getP24OrderId()).append(" | CZY MAIL ZOSTAŁ WYSŁANY: ")
         .append(mailWasSend ? "tak" : "nie").append(" | NAZWA UŻUTKOWNIKA: ")
         .append(bookingMarkedAsBoughtEvent.getCustomerName()).append(" | ADRES EMAIL: ")
-        .append(message.getRecipients(TO)[0]);
+        .append(bookingMarkedAsBoughtEvent.getCustomerEmail());
     return sb.toString();
+  }
+
+  private int getValueOfOrder(List<TicketDTO> tickets) {
+    return tickets.stream().collect(Collectors.summingInt(t -> t.price / 100));
   }
 
   private Session createSessionForEmail() {

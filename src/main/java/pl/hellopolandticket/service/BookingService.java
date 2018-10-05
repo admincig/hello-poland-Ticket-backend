@@ -75,20 +75,19 @@ public class BookingService extends ServiceSuperclass {
     return ofBooking(bookingDao.persist(bookingToPersist));
   }
 
-  public BookingDTO markBookingAsBought(String serialNumber, String p24OrderId) {
+  public BookingDTO markBookingAsBought(String serialNumber, String p24OrderId,
+      String p24Currency) {
     Booking booking = bookingDao.findBySerialNumber(serialNumber);
-
     if (booking.getStatus() == BOOKED) {
-      booking.makeBought(p24OrderId);
+      booking.makeBought(p24OrderId, p24Currency);
       sendEmailWithTicketQrCodes(booking);
     } else if (booking.getStatus() == INVALID) {
       bookTickets(null, booking);
 
-      return markBookingAsBought(booking.getSerialNumber(), p24OrderId);
+      return markBookingAsBought(booking.getSerialNumber(), p24OrderId, p24Currency);
     } else {
       throw exceptionFactory.notBookedException();
     }
-
     return ofBooking(booking);
   }
 
@@ -169,8 +168,8 @@ public class BookingService extends ServiceSuperclass {
         applicationPropertyService.findByName(TICKET_QR_CODE_HEIGHT_PROPERTY).propertyValue);
 
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
-        .p24OrderId(booking.getP24OrderId()).customerName(booking.getCustomerName())
-        .customerEmail(booking.getCustomerEmail())
+        .p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())
+        .customerName(booking.getCustomerName()).customerEmail(booking.getCustomerEmail())
         .tickets(booking.getTickets().stream()
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
