@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
@@ -67,6 +68,11 @@ public class BookingService extends ServiceSuperclass {
   public BookingDTO createBooking(BookingDTO booking) {
     Booking bookingToPersist = Booking.builder().date(new Date()).customerName(booking.customerName)
         .customerEmail(booking.customerEmail).build();
+
+    if (booking.sightEventPdfAttachments != null && !booking.sightEventPdfAttachments.isEmpty()) {
+      bookingToPersist.setSightEventPdfAttachmentsPaths(booking.sightEventPdfAttachments.stream()
+          .map(pdf -> pdf.path).collect(Collectors.toSet()));
+    }
 
     List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
 
@@ -170,6 +176,9 @@ public class BookingService extends ServiceSuperclass {
     int qrCodeHeight = valueOf(
         applicationPropertyService.findByName(TICKET_QR_CODE_HEIGHT_PROPERTY).propertyValue);
 
+    if (booking.getSightEventPdfAttachmentsPaths() != null) {
+      booking.getSightEventPdfAttachmentsPaths().size();
+    }
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
         .p24OrderId(booking.getP24OrderId()).customerName(booking.getCustomerName())
         .customerEmail(booking.getCustomerEmail())
@@ -177,7 +186,7 @@ public class BookingService extends ServiceSuperclass {
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
             .collect(toList()))
-        .build());
+        .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
   }
 
   private void checkAndDecreaseAvailability(TicketPool pool, TicketDefinition ticketDefinition,
