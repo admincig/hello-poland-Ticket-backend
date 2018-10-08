@@ -53,7 +53,7 @@ public class TicketService extends ServiceSuperclass {
     ticket.setPunchingDate(new Date());
 
     HELPDESK_LOGGER.log(Level.INFO,
-        "BILETER: " + ticketTaker.getName() + " | PARTNER: " + ticketTaker.getPartner()
+        "BILETER: " + ticketTaker.getName() + " | PARTNER: " + ticketTaker.getPartner().getName()
             + " | KLIENT: " + ticket.getBooking().getCustomerName() + " | WYDARZENIE: "
             + sightEventService.findSightEventById(sightEventId).getName());
 
