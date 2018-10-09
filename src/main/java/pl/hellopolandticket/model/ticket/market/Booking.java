@@ -8,7 +8,9 @@ import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -69,13 +71,21 @@ public class Booking implements Serializable {
   @Column(name = "SERIAL_NUMBER", unique = true)
   private String serialNumber;
 
+  @Setter
+  @Column(name = "P24_ORDER_ID")
+  private String P24OrderId;
+
+  @Setter
+  @ElementCollection
+  private Set<String> sightEventPdfAttachmentsPaths;
 
   @Builder
-  public Booking(Date date, String customerName, String customerEmail) {
+  public Booking(Date date, String customerName, String customerEmail,
+      Set<String> sightEventPdfAttachmentsPaths) {
     this.date = date;
     this.customerName = customerName;
     this.customerEmail = customerEmail;
-
+    this.sightEventPdfAttachmentsPaths = sightEventPdfAttachmentsPaths;
     this.serialNumber = generateUUID();
   }
 
@@ -84,8 +94,9 @@ public class Booking implements Serializable {
     tickets.forEach(this::setTicketStatusesAsInvalidAndIncreaseAvailableTicketsNumber);
   }
 
-  public void makeBought() {
+  public void makeBought(String p24OrderId) {
     setStatus(BOUGHT);
+    setP24OrderId(p24OrderId);
     tickets.forEach(this::setTicketStatusesAsBought);
   }
 

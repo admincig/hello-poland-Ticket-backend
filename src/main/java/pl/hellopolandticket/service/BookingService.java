@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
@@ -68,6 +69,11 @@ public class BookingService extends ServiceSuperclass {
     Booking bookingToPersist = Booking.builder().date(new Date()).customerName(booking.customerName)
         .customerEmail(booking.customerEmail).build();
 
+    if (booking.sightEventPdfAttachments != null && !booking.sightEventPdfAttachments.isEmpty()) {
+      bookingToPersist.setSightEventPdfAttachmentsPaths(booking.sightEventPdfAttachments.stream()
+          .map(pdf -> pdf.path).collect(Collectors.toSet()));
+    }
+
     List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
 
     bookingToPersist.setTickets(tickets);
@@ -75,16 +81,16 @@ public class BookingService extends ServiceSuperclass {
     return ofBooking(bookingDao.persist(bookingToPersist));
   }
 
-  public BookingDTO markBookingAsBought(String serialNumber) {
+  public BookingDTO markBookingAsBought(String serialNumber, String p24OrderId) {
     Booking booking = bookingDao.findBySerialNumber(serialNumber);
 
     if (booking.getStatus() == BOOKED) {
-      booking.makeBought();
+      booking.makeBought(p24OrderId);
       sendEmailWithTicketQrCodes(booking);
     } else if (booking.getStatus() == INVALID) {
       bookTickets(null, booking);
 
-      return markBookingAsBought(booking.getSerialNumber());
+      return markBookingAsBought(booking.getSerialNumber(), p24OrderId);
     } else {
       throw exceptionFactory.notBookedException();
     }
@@ -136,7 +142,6 @@ public class BookingService extends ServiceSuperclass {
       TicketPoolDefinition poolDefinition =
           ticketPoolDefinitionService.get(dto.ticketPoolDefinitionId);
       TicketPool pool = ticketPoolService.findOrCreateNew(poolDefinition, dto.date);
-
       for (int i = 0; i < dto.numberOfTickets; i++) {
         Ticket ticket = Ticket.builder().name(ticketDefinition.getName())
             .price(ticketDefinition.getPrice()).date(dto.date).status(BOOKED).booking(booking)
@@ -171,13 +176,17 @@ public class BookingService extends ServiceSuperclass {
     int qrCodeHeight = valueOf(
         applicationPropertyService.findByName(TICKET_QR_CODE_HEIGHT_PROPERTY).propertyValue);
 
+    if (booking.getSightEventPdfAttachmentsPaths() != null) {
+      booking.getSightEventPdfAttachmentsPaths().size();
+    }
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
-        .customerName(booking.getCustomerName()).customerEmail(booking.getCustomerEmail())
+        .p24OrderId(booking.getP24OrderId()).customerName(booking.getCustomerName())
+        .customerEmail(booking.getCustomerEmail())
         .tickets(booking.getTickets().stream()
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
             .collect(toList()))
-        .build());
+        .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
   }
 
   private void checkAndDecreaseAvailability(TicketPool pool, TicketDefinition ticketDefinition,

@@ -23,8 +23,7 @@ public class DateParameterConverter implements ParamConverter<Date> {
       format = customDateTimeFormat.value();
     }
 
-    final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
-
+    final var simpleDateFormat = new SimpleDateFormat(format);
     try {
       return simpleDateFormat.parse(value);
     } catch (ParseException ex) {
@@ -34,7 +33,8 @@ public class DateParameterConverter implements ParamConverter<Date> {
 
   @Override
   public String toString(Date value) {
-    return new SimpleDateFormat(DEFAULT_FORMAT).format(value);
+    var dateFormat = new SimpleDateFormat(DEFAULT_FORMAT);
+    return dateFormat.format(value);
   }
 
   public void setCustomDateTimeFormat(DateTimeFormat customDateTimeFormat) {

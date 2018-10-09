@@ -7,7 +7,6 @@ import java.util.Collection;
 import lombok.Builder;
 import pl.hellopoland.dto.AbstractErrorDTO;
 import pl.hellopoland.dto.ApplicationPropertyDTO;
-import pl.hellopoland.dto.AvailableTicketNumberAssociationDTO;
 import pl.hellopoland.dto.CollectionWrapperDTO;
 import pl.hellopoland.dto.FrequencyDataDTO;
 import pl.hellopoland.dto.FrequencyTypeDTO;
@@ -36,7 +35,6 @@ import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
-import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
 
 public class ModelObjectsToDTOConverter {
@@ -236,11 +234,13 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDTO.endDate = ticketPool.getEndDate();
     ticketPoolDTO.entryStartDate = ticketPool.getEntryStartDate();
     ticketPoolDTO.entryEndDate = ticketPool.getEntryEndDate();
+    ticketPoolDTO.ticketPoolDefinitionId =
+        ofNullable(ticketPool.getTicketPoolDefinition()).map(tpd -> tpd.getId()).orElse(null);
 
     return ticketPoolDTO;
   }
 
-  public static TicketPoolDefinitionDTO ofTicketPoolDefinition(
+  public static TicketPoolDefinitionDTO ofTicketPoolDefinitionBasic(
       TicketPoolDefinition ticketPoolDefinition) {
     TicketPoolDefinitionDTO ticketPoolDefinitionDTO = new TicketPoolDefinitionDTO();
 
@@ -257,6 +257,15 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDefinitionDTO.entryEndDate = ticketPoolDefinition.getEntryEndDate();
     ticketPoolDefinitionDTO.sightEventId = ticketPoolDefinition.getSightEvent().getId();
     ticketPoolDefinitionDTO.deleted = ticketPoolDefinition.isDeleted();
+
+    return ticketPoolDefinitionDTO;
+  }
+
+  public static TicketPoolDefinitionDTO ofTicketPoolDefinition(
+      TicketPoolDefinition ticketPoolDefinition) {
+    TicketPoolDefinitionDTO ticketPoolDefinitionDTO =
+        ofTicketPoolDefinitionBasic(ticketPoolDefinition);
+
     ticketPoolDefinitionDTO.ticketDefinitions = ticketPoolDefinition.getTicketDefinitions().stream()
         .map(ModelObjectsToDTOConverter::ofTicketDefinition).collect(toList());
 
@@ -284,18 +293,6 @@ public class ModelObjectsToDTOConverter {
       return frequencyDataDTO;
     }
     return null;
-  }
-
-  public static AvailableTicketNumberAssociationDTO ofAvailableTicketNumberAssociation(
-      AvailableTicketNumberAssociation bo) {
-    var dto = new AvailableTicketNumberAssociationDTO();
-    dto.availableTicketsNumber = bo.getAvailableTicketsNumber();
-    dto.ticketDefinition = ofTicketDefinition(bo.getTicketDefinition());
-    dto.ticketPoolDefinition =
-        bo.getTicketPoolDefinition() != null ? ofTicketPoolDefinition(bo.getTicketPoolDefinition())
-            : null;
-    dto.ticketPool = bo.getTicketPool() != null ? ofTicketPool(bo.getTicketPool()) : null;
-    return dto;
   }
 
 }

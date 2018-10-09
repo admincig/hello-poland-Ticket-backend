@@ -7,6 +7,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
@@ -32,6 +33,15 @@ public class SightEventDao {
         .createQuery("from SightEvent sightEvent where sightEvent.id=:id", SightEvent.class)
         .setParameter("id", sightEventId).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
+  }
+
+  public SightEvent findByIdAndPartner(Long sightEventId, Partner partner) {
+    return entityManager
+        .createQuery(
+            "from SightEvent sightEvent where sightEvent.id=:id and sightEvent.partner=:partner",
+            SightEvent.class)
+        .setParameter("id", sightEventId).setParameter("partner", partner).getResultStream()
+        .findFirst().orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
   public List<SightEvent> findBySightEventIdsIn(List<Long> sightIds) {

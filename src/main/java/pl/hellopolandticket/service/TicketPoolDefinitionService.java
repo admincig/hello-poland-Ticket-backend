@@ -44,12 +44,15 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
   public TicketPoolDefinitionDTO add(TicketPoolDefinitionDTO ticketPoolDefinitionDTO,
       CurrentUser currentUser) {
-    SightEvent sightEvent = sightEventDao.findById(ticketPoolDefinitionDTO.sightEventId);
+    SightEvent sightEvent = sightEventDao.findByIdAndPartner(ticketPoolDefinitionDTO.sightEventId,
+        partnerDao.findByUserEmail(currentUser.getPrincipal()));
 
+    var tpdSd = ticketPoolDefinitionDTO.startDate;
     FrequencyData frequencyData = ofNullable(ticketPoolDefinitionDTO.frequencyData)
         .map(frequencyDataDTO -> FrequencyData.builder()
             .frequencyType(FrequencyType.valueOf(frequencyDataDTO.frequencyType.name()))
-            .daysOfWeek(frequencyDataDTO.daysOfWeek).startDate(frequencyDataDTO.startDate)
+            .daysOfWeek(frequencyDataDTO.daysOfWeek)
+            .startDate(frequencyDataDTO.startDate != null ? frequencyDataDTO.startDate : tpdSd)
             .endDate(frequencyDataDTO.endDate).frequency(frequencyDataDTO.frequency).build())
         .orElse(new FrequencyData());
 
@@ -90,7 +93,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
       List<TicketDefinition> tickets = new ArrayList<>();
       for (TicketDefinitionDTO ticketDefinitionDTO : ticketDefinitions) {
         var td = ticketDefinitionService.get(ticketDefinitionDTO.id);
-        td.setTicketPoolDefinitions(List.of(ticketPoolDefinition));
+        td.getTicketPoolDefinitions().add(ticketPoolDefinition);
         tickets.add(ticketDefinitionService.get(td.getId()));
       }
       return tickets;
