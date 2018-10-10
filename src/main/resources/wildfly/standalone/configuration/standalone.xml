@@ -133,11 +133,12 @@
 				<formatter>
 					<named-formatter name="HELPDESK-PATTERN" />
 				</formatter>
-				<file path="@helpdesk.log.dir@/helpdesk-logger.log" />
+				<file relative-to="jboss.server.log.dir" path="helpdesk/orders/helpdesk-orders.log" />
 				<suffix value=".yyyy-MM-dd" />
 				<append value="true" />
+				<encoding value="UTF-8"/>
 			</periodic-rotating-file-handler>
-			<logger category="helpdesk-logger" use-parent-handlers="false">
+			<logger category="helpdesk-orders" use-parent-handlers="false">
 				<level name="INFO" />
 				<handlers>
 					<handler name="HELPDESK-LOGGER" />

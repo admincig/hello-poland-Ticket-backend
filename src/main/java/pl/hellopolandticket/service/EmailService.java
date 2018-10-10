@@ -46,7 +46,7 @@ import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
-  private static final Logger HELPDESK_lOG = System.getLogger("helpdesk-logger");
+  private static final Logger HELPDESK_lOG = System.getLogger("helpdesk-orders");
 
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
