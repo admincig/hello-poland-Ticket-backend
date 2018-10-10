@@ -14,14 +14,14 @@ import javax.ws.rs.core.Response;
 @Path("/helpdesk")
 @RequestScoped
 public class HPHelpdeskRestService extends RestServiceSuperclass {
-  private static final String LOG_DIR = "standalone/log/helpdesk/orders/";
+  private static final String LOG_DIR = "helpdesk/orders/";
 
   @GET
   @Path("/orders/{date}")
   public Response getLogs(@PathParam("date") String date) {
     String now = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now());
 
-    String logDir = System.getProperty("wildfly.home");
+    String logDir = System.getProperty("jboss.server.log.dir");
     logDir = logDir.endsWith("/") ? (logDir + LOG_DIR) : (logDir + "/" + LOG_DIR);
 
     String logPathStr = "";
