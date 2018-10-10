@@ -39,7 +39,7 @@ public class HPHelpdeskRestService extends RestServiceSuperclass {
     try {
       var sb = new StringBuilder();
       Files.readAllLines(logPath).forEach(line -> sb.append(line).append(System.lineSeparator()));
-      return Response.ok(sb.toString()).build();
+      return Response.ok(sb.toString().length() == 0 ? "Brak wpisów." : sb.toString()).build();
     } catch (IOException e) {
       return Response.status(500, e.getMessage()).build();
     }
