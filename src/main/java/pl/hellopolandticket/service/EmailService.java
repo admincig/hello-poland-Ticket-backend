@@ -1,6 +1,7 @@
 package pl.hellopolandticket.service;
 
 import static java.util.stream.Collectors.toList;
+import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.TO;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.activation.DataHandler;
@@ -48,6 +50,7 @@ import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 public class EmailService extends ServiceSuperclass {
   private static final Logger HELPDESK_lOG = System.getLogger("helpdesk-orders");
 
+  private static final String MAIL_TICKET_COPY = "ticket.copy@hello-poland.pl";
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
   private static final String MAIL_SMTP_HOST_PROPERTY = "mail.smtp.host";
@@ -73,20 +76,26 @@ public class EmailService extends ServiceSuperclass {
           applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
       Session session = createSessionForEmail();
-      var message = new MimeMessage(session);
+      MimeMessage message = new MimeMessage(session);
       message.setFrom(new InternetAddress(messageFrom));
+      message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
       message.setRecipients(TO, new InternetAddress[] {
           new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
       message.setSubject(emailTemplate.getSubject(), "UTF-8");
       message.setContent(
           createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
-              bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId()));
+              bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId(),
+              bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
       Transport.send(message);
       HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, true));
     } catch (MessagingException | IOException | TemplateException e) {
       HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
       throw e;
     }
+  }
+
+  private int getValueOfOrder(List<TicketDTO> tickets) {
+    return tickets.stream().collect(Collectors.summingInt(t -> t.price / 100));
   }
 
   private String getHelpdeskLogMessage(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent,
@@ -99,10 +108,6 @@ public class EmailService extends ServiceSuperclass {
         .append(bookingMarkedAsBoughtEvent.getCustomerName()).append(" | ADRES EMAIL: ")
         .append(bookingMarkedAsBoughtEvent.getCustomerEmail());
     return sb.toString();
-  }
-
-  private int getValueOfOrder(List<TicketDTO> tickets) {
-    return tickets.stream().collect(Collectors.summingInt(t -> t.price / 100));
   }
 
   private Session createSessionForEmail() {
@@ -145,7 +150,7 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private Multipart createEmailContent(String username, EmailTemplate emailTemplate,
-      List<TicketDTO> tickets, String p24OrderId)
+      List<TicketDTO> tickets, String p24OrderId, Set<String> sightEventPdfAttachmentsPaths)
       throws IOException, TemplateException, MessagingException {
 
     Multipart emailContent = new MimeMultipart("related");
@@ -159,6 +164,9 @@ public class EmailService extends ServiceSuperclass {
     for (int i = 0; i < tickets.size(); i++) {
       emailContent
           .addBodyPart(createTicketQrCodeAttachment(tickets.get(i).qrCode, ticketCIDs.get(i)));
+    }
+    for (String pdfPath : sightEventPdfAttachmentsPaths) {
+      emailContent.addBodyPart(attachFile(pdfPath));
     }
 
     return emailContent;
@@ -232,6 +240,12 @@ public class EmailService extends ServiceSuperclass {
     imagePart.setDisposition(MimeBodyPart.INLINE);
 
     return imagePart;
+  }
+
+  private MimeBodyPart attachFile(String filePath) throws MessagingException, IOException {
+    MimeBodyPart attachmentPart = new MimeBodyPart();
+    attachmentPart.attachFile(filePath);
+    return attachmentPart;
   }
 
   private String makeDateHuman(Date date) {
