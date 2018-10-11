@@ -263,9 +263,6 @@
 											</excludes>
 										</resource>
 									</resources>
-									<delimiters>
-										<delimiter>@</delimiter>
-									</delimiters>
 								</configuration>
 							</execution>
 						</executions>
