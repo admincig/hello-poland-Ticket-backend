@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
@@ -18,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.activation.DataHandler;
 import javax.enterprise.context.RequestScoped;
@@ -45,6 +48,7 @@ import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
+  private static final Logger HELPDESK_lOG = System.getLogger("helpdesk-orders");
 
   private static final String MAIL_TICKET_COPY = "ticket.copy@hello-poland.pl";
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
@@ -67,25 +71,43 @@ public class EmailService extends ServiceSuperclass {
 
   public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
-    String messageFrom =
-        applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
+    try {
+      String messageFrom =
+          applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
+      EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
+      Session session = createSessionForEmail();
+      MimeMessage message = new MimeMessage(session);
+      message.setFrom(new InternetAddress(messageFrom));
+      message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
+      message.setRecipients(TO, new InternetAddress[] {
+          new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
+      message.setSubject(emailTemplate.getSubject(), "UTF-8");
+      message.setContent(
+          createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
+              bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId(),
+              bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
+      Transport.send(message);
+      HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, true));
+    } catch (MessagingException | IOException | TemplateException e) {
+      HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
+      throw e;
+    }
+  }
 
-    EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
+  private String getHelpdeskLogMessage(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent,
+      boolean mailWasSend) throws MessagingException {
+    StringBuilder sb = new StringBuilder();
+    sb.append("PŁATNOŚĆ: ").append(getValueOfOrder(bookingMarkedAsBoughtEvent.getTickets()))
+        .append(" " + bookingMarkedAsBoughtEvent.getP24Currency()).append(" | NR TRANSAKCJI P24: ")
+        .append(bookingMarkedAsBoughtEvent.getP24OrderId()).append(" | CZY MAIL ZOSTAŁ WYSŁANY: ")
+        .append(mailWasSend ? "tak" : "nie").append(" | NAZWA UŻUTKOWNIKA: ")
+        .append(bookingMarkedAsBoughtEvent.getCustomerName()).append(" | ADRES EMAIL: ")
+        .append(bookingMarkedAsBoughtEvent.getCustomerEmail());
+    return sb.toString();
+  }
 
-    Session session = createSessionForEmail();
-
-    MimeMessage message = new MimeMessage(session);
-    message.setFrom(new InternetAddress(messageFrom));
-    message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
-    message.setRecipients(TO,
-        new InternetAddress[] {new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
-    message.setSubject(emailTemplate.getSubject(), "UTF-8");
-    message
-        .setContent(createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
-            bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId(),
-            bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
-
-    Transport.send(message);
+  private double getValueOfOrder(List<TicketDTO> tickets) {
+    return tickets.stream().collect(Collectors.summingDouble(t -> Double.valueOf(t.price) / 100));
   }
 
   private Session createSessionForEmail() {

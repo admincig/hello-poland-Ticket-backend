@@ -76,6 +76,10 @@ public class Booking implements Serializable {
   private String P24OrderId;
 
   @Setter
+  @Column(name = "P24_CURRENCY")
+  private String p24Currency;
+
+  @Setter
   @ElementCollection
   private Set<String> sightEventPdfAttachmentsPaths;
 
@@ -94,9 +98,10 @@ public class Booking implements Serializable {
     tickets.forEach(this::setTicketStatusesAsInvalidAndIncreaseAvailableTicketsNumber);
   }
 
-  public void makeBought(String p24OrderId) {
+  public void makeBought(String p24OrderId, String p24Currency) {
     setStatus(BOUGHT);
     setP24OrderId(p24OrderId);
+    setP24Currency(p24Currency);
     tickets.forEach(this::setTicketStatusesAsBought);
   }
 
