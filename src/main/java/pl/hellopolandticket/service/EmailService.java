@@ -94,10 +94,6 @@ public class EmailService extends ServiceSuperclass {
     }
   }
 
-  private int getValueOfOrder(List<TicketDTO> tickets) {
-    return tickets.stream().collect(Collectors.summingInt(t -> t.price / 100));
-  }
-
   private String getHelpdeskLogMessage(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent,
       boolean mailWasSend) throws MessagingException {
     StringBuilder sb = new StringBuilder();
@@ -108,6 +104,10 @@ public class EmailService extends ServiceSuperclass {
         .append(bookingMarkedAsBoughtEvent.getCustomerName()).append(" | ADRES EMAIL: ")
         .append(bookingMarkedAsBoughtEvent.getCustomerEmail());
     return sb.toString();
+  }
+
+  private double getValueOfOrder(List<TicketDTO> tickets) {
+    return tickets.stream().collect(Collectors.summingDouble(t -> Double.valueOf(t.price) / 100));
   }
 
   private Session createSessionForEmail() {
