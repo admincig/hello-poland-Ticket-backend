@@ -96,10 +96,20 @@ public class SightEvent implements Serializable {
   @OneToMany(mappedBy = "sightEvent")
   private List<OpeningHours> openingHours = new ArrayList<>();
 
+  @Setter
+  @NotNull
+  @Column(nullable = false)
+  private Boolean published = false;
+
+  @Setter
+  @NotNull
+  @Column(nullable = false)
+  private Boolean blocked = false;
+
   @Builder
   public SightEvent(String name, Date date, String description, String lead, Integer duration,
       String mainImageUrl, String email, String phone, SightEventLocation sightEventLocation,
-      Partner partner, Boolean generalAdmission) {
+      Partner partner, Boolean generalAdmission, Boolean published, Boolean blocked) {
     this.name = name;
     this.description = description;
     this.lead = lead;
@@ -110,6 +120,8 @@ public class SightEvent implements Serializable {
     this.sightEventLocation = sightEventLocation;
     this.partner = partner;
     this.generalAdmission = generalAdmission;
+    this.blocked = blocked != null ? blocked : false;
+    this.published = published != null ? published : false;
   }
 
 }

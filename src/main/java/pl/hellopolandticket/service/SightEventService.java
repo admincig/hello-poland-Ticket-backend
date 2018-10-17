@@ -100,7 +100,8 @@ public class SightEventService extends ServiceSuperclass {
         SightEvent.builder().name(sightEventDTO.name).description(sightEventDTO.description)
             .mainImageUrl(mainImageUrl).email(sightEventDTO.email).phone(sightEventDTO.phone)
             .lead(sightEventDTO.lead).sightEventLocation(sightEventLocation)
-            .partner(user.getPartner()).generalAdmission(sightEventDTO.generalAdmission).build());
+            .partner(user.getPartner()).generalAdmission(sightEventDTO.generalAdmission)
+            .published(sightEventDTO.published).blocked(sightEventDTO.blocked).build());
 
     ArrayList<OpeningHours> oHoursList = getOpeningHoursCollectionFromDTO(sightEventDTO);
     if (oHoursList != null && !oHoursList.isEmpty()) {
@@ -150,6 +151,8 @@ public class SightEventService extends ServiceSuperclass {
     sightEvent.setDescription(sightEventDTO.description);
     sightEvent.setEmail(sightEventDTO.email);
     sightEvent.setPhone(sightEventDTO.phone);
+    sightEvent.setBlocked(sightEventDTO.blocked);
+    sightEvent.setPublished(sightEventDTO.published);
 
     String mainImageUrl = null;
     if (sightEventDTO.mainImage != null) {
