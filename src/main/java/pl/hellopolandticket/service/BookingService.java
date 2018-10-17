@@ -81,20 +81,19 @@ public class BookingService extends ServiceSuperclass {
     return ofBooking(bookingDao.persist(bookingToPersist));
   }
 
-  public BookingDTO markBookingAsBought(String serialNumber, String p24OrderId) {
+  public BookingDTO markBookingAsBought(String serialNumber, String p24OrderId,
+      String p24Currency) {
     Booking booking = bookingDao.findBySerialNumber(serialNumber);
-
     if (booking.getStatus() == BOOKED) {
-      booking.makeBought(p24OrderId);
+      booking.makeBought(p24OrderId, p24Currency);
       sendEmailWithTicketQrCodes(booking);
     } else if (booking.getStatus() == INVALID) {
       bookTickets(null, booking);
 
-      return markBookingAsBought(booking.getSerialNumber(), p24OrderId);
+      return markBookingAsBought(booking.getSerialNumber(), p24OrderId, p24Currency);
     } else {
       throw exceptionFactory.notBookedException();
     }
-
     return ofBooking(booking);
   }
 
@@ -150,7 +149,6 @@ public class BookingService extends ServiceSuperclass {
         bookedTickets.add(ticket);
       }
       checkAndDecreaseAvailability(pool, ticketDefinition, dto.numberOfTickets.intValue());
-      // pool.decreaseAvailableTicketsNumber(dto.numberOfTickets.intValue());
     }
     return ticketDao.persist(bookedTickets);
   }
@@ -159,7 +157,6 @@ public class BookingService extends ServiceSuperclass {
     List<Ticket> tickets = booking.getTickets();
     for (Ticket ticket : tickets) {
       checkAndDecreaseAvailability(ticket.getTicketPool(), ticket.getTicketDefinition(), 1);
-      // ticket.getTicketPool().decreaseAvailableTicketsNumber(1);
       ticket.setStatus(BOOKED);
     }
     booking.setStatus(BOOKED);
@@ -180,8 +177,8 @@ public class BookingService extends ServiceSuperclass {
       booking.getSightEventPdfAttachmentsPaths().size();
     }
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
-        .p24OrderId(booking.getP24OrderId()).customerName(booking.getCustomerName())
-        .customerEmail(booking.getCustomerEmail())
+        .p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())
+        .customerName(booking.getCustomerName()).customerEmail(booking.getCustomerEmail())
         .tickets(booking.getTickets().stream()
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
