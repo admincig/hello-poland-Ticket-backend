@@ -15,6 +15,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition.TicketDefinitionBuilder;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.security.CurrentUser;
+import pl.hellopolandticket.service.exception.badrequest.BadRequestException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
@@ -32,7 +33,9 @@ public class TicketDefinitionService extends ServiceSuperclass {
 
   public TicketDefinitionDTO add(TicketDefinitionDTO ticketDefinitionDTO,
       Long ticketPoolDefinitionId, CurrentUser currentUser) {
-
+    if (ticketDefinitionDTO.price < 0) {
+      throw new BadRequestException("The ticket price must be greater than 0");
+    }
     Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
 
     TicketDefinitionBuilder ticketDefinitionBuilder = TicketDefinition.builder()
