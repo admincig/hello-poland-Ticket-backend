@@ -146,14 +146,16 @@ public class SightEventService extends ServiceSuperclass {
 
   public SightEventDTO updateSightEvent(Long sightId, SightEventDTO sightEventDTO) {
     SightEvent sightEvent = sightEventDao.findById(sightId);
-
     sightEvent.setName(sightEventDTO.name);
     sightEvent.setDescription(sightEventDTO.description);
     sightEvent.setEmail(sightEventDTO.email);
     sightEvent.setPhone(sightEventDTO.phone);
-    sightEvent.setBlocked(sightEventDTO.blocked);
-    sightEvent.setPublished(sightEventDTO.published);
-
+    if (sightEventDTO.blocked != null) {
+      sightEvent.setBlocked(sightEventDTO.blocked);
+    }
+    if (sightEventDTO.published != null) {
+      sightEvent.setPublished(sightEventDTO.published);
+    }
     String mainImageUrl = null;
     if (sightEventDTO.mainImage != null) {
       mainImageUrl = sightEventDTO.mainImage.original;
