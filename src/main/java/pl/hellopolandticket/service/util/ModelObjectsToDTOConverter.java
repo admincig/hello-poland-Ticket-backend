@@ -53,7 +53,8 @@ public class ModelObjectsToDTOConverter {
     sightEventDTO.phone = sightEvent.getPhone();
     sightEventDTO.generalAdmission = sightEvent.getGeneralAdmission();
     sightEventDTO.sightId = sightId;
-
+    sightEventDTO.blocked = sightEvent.getBlocked();
+    sightEventDTO.published = sightEvent.getPublished();
     sightEventDTO.location = ofNullable(sightEvent.getSightEventLocation())
         .map(ModelObjectsToDTOConverter::ofSightLocation).orElse(null);
 
@@ -103,6 +104,8 @@ public class ModelObjectsToDTOConverter {
 
     sightEventDTO.id = sightEvent.getId();
     sightEventDTO.name = sightEvent.getName();
+    sightEventDTO.blocked = sightEvent.getBlocked();
+    sightEventDTO.published = sightEvent.getPublished();
 
     return sightEventDTO;
   }
