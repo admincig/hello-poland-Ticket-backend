@@ -1,7 +1,6 @@
 package pl.hellopolandticket.model.auth;
 
 import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
-import io.jsonwebtoken.Jwts;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
+import io.jsonwebtoken.Jwts;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -87,11 +87,8 @@ public class User implements Serializable {
       Partner partner) {
     User user =
         User.builder().name(name).email(email).authorities(authorities).partner(partner).build();
-
     user.setHidden(true);
-
     user.setToken(Jwts.builder().setSubject(generateUUID()).compact());
-
     return user;
   }
 }
