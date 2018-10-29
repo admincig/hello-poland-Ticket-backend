@@ -2,7 +2,6 @@ package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.auth.User.createHiddenUser;
-import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofPartnerWithToken;
 import java.util.Collections;
 import javax.ejb.LocalBean;
@@ -25,14 +24,13 @@ public class PartnerService extends ServiceSuperclass {
 
   public PartnerDTO save(PartnerDTO partner) {
     Partner partnerToPersist = Partner.builder().name(partner.name).build();
-
     partnerDao.persist(partnerToPersist);
 
-    User user = createHiddenUser(generateUUID(),
-        (partner.name + "@" + partner.name + ".com").replace(" ", ""),
+    User user = createHiddenUser(partner.name, partner.email,
         Collections.singleton(ROLE_EXTERNAL_USER), partnerToPersist);
-
     user = userService.save(user);
+
+    // TODO: tworzenie userow patnera - czy potrzebne w hpt???
 
     return ofPartnerWithToken(partnerToPersist, user.getToken());
   }
