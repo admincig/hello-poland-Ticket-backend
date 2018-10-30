@@ -59,7 +59,8 @@ public class SightEventRestService extends RestServiceSuperclass {
   @POST
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response addSightEvent(SightEventDTO sightEvent) {
-    return Response.ok(sightEventService.addSightEvent(sightEvent, currentUser)).build();
+    var s = sightEventService.addSightEvent(sightEvent, currentUser);
+    return Response.ok(s).build();
   }
 
   @PUT
