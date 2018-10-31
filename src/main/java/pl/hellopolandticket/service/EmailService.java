@@ -111,32 +111,23 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private Session createSessionForEmail() {
-    String username = applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
-    String password = applicationPropertyService.findByName(MAIL_PASSWORD_PROPERTY).propertyValue;
-
-    return Session.getInstance(createSessionProperties(),
-        createSessionAuthenticator(username, password));
+    return Session.getInstance(createSessionProperties(), createSessionAuthenticator(
+        System.getProperty(MAIL_USERNAME_PROPERTY), System.getProperty(MAIL_PASSWORD_PROPERTY)));
   }
 
   private Properties createSessionProperties() {
     Properties properties = new Properties();
-
-    properties.put(MAIL_SMTP_HOST_PROPERTY,
-        applicationPropertyService.findByName(MAIL_SMTP_HOST_PROPERTY).propertyValue);
-
-    properties.put(MAIL_SMTP_PORT_PROPERTY,
-        applicationPropertyService.findByName(MAIL_SMTP_PORT_PROPERTY).propertyValue);
-
-    properties.put(MAIL_SMTP_AUTH_PROPERTY,
-        applicationPropertyService.findByName(MAIL_SMTP_AUTH_PROPERTY).propertyValue);
-
-    applicationPropertyService.find(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY)
-        .ifPresent(property -> properties.put(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY,
-            property.propertyValue));
-
-    applicationPropertyService.find(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY).ifPresent(
-        property -> properties.put(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY, property.propertyValue));
-
+    properties.put(MAIL_SMTP_HOST_PROPERTY, System.getProperty(MAIL_SMTP_HOST_PROPERTY));
+    properties.put(MAIL_SMTP_PORT_PROPERTY, System.getProperty(MAIL_SMTP_PORT_PROPERTY));
+    properties.put(MAIL_SMTP_AUTH_PROPERTY, System.getProperty(MAIL_SMTP_AUTH_PROPERTY));
+    if (System.getProperty(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY) != null) {
+      properties.put(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY,
+          System.getProperty(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY));
+    }
+    if (System.getProperty(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY) != null) {
+      properties.put(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY,
+          System.getProperty(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY));
+    }
     return properties;
   }
 
