@@ -61,9 +61,6 @@ public class EmailService extends ServiceSuperclass {
       "mail.smtp.socketFactory.class";
 
   @Inject
-  private ApplicationPropertyService applicationPropertyService;
-
-  @Inject
   private EmailTemplateDao emailTemplateDao;
 
   @Inject
@@ -72,12 +69,10 @@ public class EmailService extends ServiceSuperclass {
   public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
     try {
-      String messageFrom =
-          applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
       Session session = createSessionForEmail();
       MimeMessage message = new MimeMessage(session);
-      message.setFrom(new InternetAddress(messageFrom));
+      message.setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY)));
       message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
       message.setRecipients(TO, new InternetAddress[] {
           new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
