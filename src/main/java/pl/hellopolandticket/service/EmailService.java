@@ -51,6 +51,7 @@ public class EmailService extends ServiceSuperclass {
   private static final Logger HELPDESK_lOG = System.getLogger("helpdesk-orders");
 
   private static final String MAIL_TICKET_COPY = "ticket.copy@hello-poland.pl";
+  private static final String MAIL_PERSONAL = "Bilety Hello Poland";
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
   private static final String MAIL_SMTP_HOST_PROPERTY = "mail.smtp.host";
@@ -72,7 +73,8 @@ public class EmailService extends ServiceSuperclass {
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
       Session session = createSessionForEmail();
       MimeMessage message = new MimeMessage(session);
-      message.setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY)));
+      message
+          .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
       message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
       message.setRecipients(TO, new InternetAddress[] {
           new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
