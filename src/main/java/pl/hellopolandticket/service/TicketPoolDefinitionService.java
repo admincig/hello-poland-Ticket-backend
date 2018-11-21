@@ -48,13 +48,14 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         partnerDao.findByUserEmail(currentUser.getPrincipal()));
 
     var tpdSd = ticketPoolDefinitionDTO.startDate;
-    FrequencyData frequencyData = ofNullable(ticketPoolDefinitionDTO.frequencyData)
-        .map(frequencyDataDTO -> FrequencyData.builder()
-            .frequencyType(FrequencyType.valueOf(frequencyDataDTO.frequencyType.name()))
-            .daysOfWeek(frequencyDataDTO.daysOfWeek)
-            .startDate(frequencyDataDTO.startDate != null ? frequencyDataDTO.startDate : tpdSd)
-            .endDate(frequencyDataDTO.endDate).frequency(frequencyDataDTO.frequency).build())
-        .orElse(new FrequencyData());
+    FrequencyData frequencyData =
+        ticketPoolDefinitionDTO.isCyclic ? ofNullable(ticketPoolDefinitionDTO.frequencyData)
+            .map(frequencyDataDTO -> FrequencyData.builder()
+                .frequencyType(FrequencyType.valueOf(frequencyDataDTO.frequencyType.name()))
+                .daysOfWeek(frequencyDataDTO.daysOfWeek)
+                .startDate(frequencyDataDTO.startDate != null ? frequencyDataDTO.startDate : tpdSd)
+                .endDate(frequencyDataDTO.endDate).frequency(frequencyDataDTO.frequency).build())
+            .orElse(new FrequencyData()) : null;
 
     TicketPoolDefinition ticketPoolDefinition =
         TicketPoolDefinition.builder().name(ticketPoolDefinitionDTO.name)
