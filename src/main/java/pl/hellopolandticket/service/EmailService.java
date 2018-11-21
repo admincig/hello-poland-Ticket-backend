@@ -51,6 +51,7 @@ public class EmailService extends ServiceSuperclass {
   private static final Logger HELPDESK_lOG = System.getLogger("helpdesk-orders");
 
   private static final String MAIL_TICKET_COPY = "ticket.copy@hello-poland.pl";
+  private static final String MAIL_PERSONAL = "Bilety Hello Poland";
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
   private static final String MAIL_SMTP_HOST_PROPERTY = "mail.smtp.host";
@@ -61,9 +62,6 @@ public class EmailService extends ServiceSuperclass {
       "mail.smtp.socketFactory.class";
 
   @Inject
-  private ApplicationPropertyService applicationPropertyService;
-
-  @Inject
   private EmailTemplateDao emailTemplateDao;
 
   @Inject
@@ -72,12 +70,11 @@ public class EmailService extends ServiceSuperclass {
   public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
     try {
-      String messageFrom =
-          applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
       Session session = createSessionForEmail();
       MimeMessage message = new MimeMessage(session);
-      message.setFrom(new InternetAddress(messageFrom));
+      message
+          .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
       message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
       message.setRecipients(TO, new InternetAddress[] {
           new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
@@ -111,32 +108,23 @@ public class EmailService extends ServiceSuperclass {
   }
 
   private Session createSessionForEmail() {
-    String username = applicationPropertyService.findByName(MAIL_USERNAME_PROPERTY).propertyValue;
-    String password = applicationPropertyService.findByName(MAIL_PASSWORD_PROPERTY).propertyValue;
-
-    return Session.getInstance(createSessionProperties(),
-        createSessionAuthenticator(username, password));
+    return Session.getInstance(createSessionProperties(), createSessionAuthenticator(
+        System.getProperty(MAIL_USERNAME_PROPERTY), System.getProperty(MAIL_PASSWORD_PROPERTY)));
   }
 
   private Properties createSessionProperties() {
     Properties properties = new Properties();
-
-    properties.put(MAIL_SMTP_HOST_PROPERTY,
-        applicationPropertyService.findByName(MAIL_SMTP_HOST_PROPERTY).propertyValue);
-
-    properties.put(MAIL_SMTP_PORT_PROPERTY,
-        applicationPropertyService.findByName(MAIL_SMTP_PORT_PROPERTY).propertyValue);
-
-    properties.put(MAIL_SMTP_AUTH_PROPERTY,
-        applicationPropertyService.findByName(MAIL_SMTP_AUTH_PROPERTY).propertyValue);
-
-    applicationPropertyService.find(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY)
-        .ifPresent(property -> properties.put(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY,
-            property.propertyValue));
-
-    applicationPropertyService.find(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY).ifPresent(
-        property -> properties.put(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY, property.propertyValue));
-
+    properties.put(MAIL_SMTP_HOST_PROPERTY, System.getProperty(MAIL_SMTP_HOST_PROPERTY));
+    properties.put(MAIL_SMTP_PORT_PROPERTY, System.getProperty(MAIL_SMTP_PORT_PROPERTY));
+    properties.put(MAIL_SMTP_AUTH_PROPERTY, System.getProperty(MAIL_SMTP_AUTH_PROPERTY));
+    if (System.getProperty(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY) != null) {
+      properties.put(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY,
+          System.getProperty(MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY));
+    }
+    if (System.getProperty(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY) != null) {
+      properties.put(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY,
+          System.getProperty(MAIL_SMTP_STARTTLS_ENABLE_PROPERTY));
+    }
     return properties;
   }
 
