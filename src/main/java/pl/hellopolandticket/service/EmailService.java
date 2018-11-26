@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
@@ -26,6 +27,7 @@ import javax.activation.DataHandler;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.mail.Authenticator;
+import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
@@ -252,6 +254,25 @@ public class EmailService extends ServiceSuperclass {
     String hourAndMinute = hour + ":" + minute;
 
     return dayOfWeek + ", " + dayMonthYear + " godzina " + hourAndMinute;
+  }
+
+  public void sendSimpleEmail(String recipientEmail, String subject, String msg)
+      throws MessagingException, UnsupportedEncodingException {
+    var message = new MimeMessage(createSessionForEmail());
+    try {
+      message
+          .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
+      message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
+      message.setSubject(subject, "UTF-8");
+      var mimeBodyPart = new MimeBodyPart();
+      mimeBodyPart.setText(msg, "UTF-8");
+      var multipart = new MimeMultipart();
+      multipart.addBodyPart(mimeBodyPart);
+      message.setContent(multipart);
+      Transport.send(message);
+    } catch (MessagingException | UnsupportedEncodingException e) {
+      throw e;
+    }
   }
 
 }
