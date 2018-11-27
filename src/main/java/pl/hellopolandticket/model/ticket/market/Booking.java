@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import pl.hellopolandticket.model.partner.Partner;
 
 @Getter
 @Entity
@@ -66,6 +67,10 @@ public class Booking implements Serializable {
   @Setter
   @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "booking")
   private List<Ticket> tickets;
+
+  @Setter
+  @OneToMany
+  private List<Partner> partners;
 
   @Setter
   @Column(name = "SERIAL_NUMBER", unique = true)
