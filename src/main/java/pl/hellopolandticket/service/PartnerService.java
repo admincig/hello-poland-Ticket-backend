@@ -21,6 +21,7 @@ import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.security.password.PasswordEncoder;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
+import pl.hellopolandticket.service.exception.badrequest.BadRequestException;
 
 @Stateless
 @LocalBean
@@ -37,6 +38,11 @@ public class PartnerService extends ServiceSuperclass {
   private ExceptionFactory exceptionFactory;
 
   public PartnerDTO save(PartnerDTO partner) {
+    var usersDTOs = partner.users;
+    if (usersDTOs == null || usersDTOs.isEmpty() || !isAtLeastOneUsher(usersDTOs)) {
+      throw new BadRequestException("Wymagany jest co najmniej jeden uzytkownik z rolą biletera.");
+    }
+
     Partner partnerToPersist = Partner.builder().name(partner.name).build();
     partnerDao.persist(partnerToPersist);
 
@@ -48,6 +54,10 @@ public class PartnerService extends ServiceSuperclass {
     saveUshers(partner.users, partnerToPersist);
 
     return ofPartnerWithToken(partnerToPersist, user.getToken());
+  }
+
+  private boolean isAtLeastOneUsher(List<UserDTO> usersDTOs) {
+    return usersDTOs.stream().anyMatch(user -> user.roles.contains(RoleDTO.USHER));
   }
 
   private void saveUshers(List<UserDTO> users, Partner partner) {
