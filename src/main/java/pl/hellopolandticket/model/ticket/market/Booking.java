@@ -26,7 +26,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import pl.hellopolandticket.model.partner.Partner;
 
 @Getter
 @Entity
@@ -69,10 +68,6 @@ public class Booking implements Serializable {
   private List<Ticket> tickets;
 
   @Setter
-  @OneToMany
-  private List<Partner> partners;
-
-  @Setter
   @Column(name = "SERIAL_NUMBER", unique = true)
   private String serialNumber;
 
@@ -88,13 +83,18 @@ public class Booking implements Serializable {
   @ElementCollection
   private Set<String> sightEventPdfAttachmentsPaths;
 
+  @Setter
+  @ElementCollection
+  private Set<String> partnersEmails;
+
   @Builder
   public Booking(Date date, String customerName, String customerEmail,
-      Set<String> sightEventPdfAttachmentsPaths) {
+      Set<String> sightEventPdfAttachmentsPaths, Set<String> partnersEmails) {
     this.date = date;
     this.customerName = customerName;
     this.customerEmail = customerEmail;
     this.sightEventPdfAttachmentsPaths = sightEventPdfAttachmentsPaths;
+    this.partnersEmails = partnersEmails;
     this.serialNumber = generateUUID();
   }
 
