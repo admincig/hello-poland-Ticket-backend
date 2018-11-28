@@ -6,6 +6,7 @@ import javax.interceptor.Interceptors;
 import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.service.exception.badrequest.EmailSendingException;
+import pl.hellopolandticket.service.exception.badrequest.EmailSendingRollbackException;
 import pl.hellopolandticket.service.exception.conflict.EventDoesNotTakePlaceOnChosenDateException;
 import pl.hellopolandticket.service.exception.conflict.NotBookedException;
 import pl.hellopolandticket.service.exception.conflict.PunchingTicketForWrongSightException;
@@ -26,6 +27,11 @@ public class ExceptionFactory {
   public EmailSendingException emailSendingException() {
     return new EmailSendingException(
         exceptionMessagesService.getMessage(EmailSendingException.class.getSimpleName()));
+  }
+
+  public EmailSendingRollbackException emailSendingRollbackException() {
+    return new EmailSendingRollbackException(
+        exceptionMessagesService.getMessage(EmailSendingRollbackException.class.getSimpleName()));
   }
 
   public NotBookedException notBookedException() {
@@ -97,8 +103,9 @@ public class ExceptionFactory {
 
   public CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException cannotCreateTicketPoolForNotCyclicalPoolDefinitionException() {
     return new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
-        exceptionMessagesService.getMessage(
-            CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class.getSimpleName()));
+        exceptionMessagesService
+            .getMessage(CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class
+                .getSimpleName()));
   }
 
   public EventDoesNotTakePlaceOnChosenDateException eventDoesNotTakePlaceOnChosenDateException() {

@@ -91,4 +91,13 @@ public class User implements Serializable {
     user.setToken(Jwts.builder().setSubject(generateUUID()).compact());
     return user;
   }
+
+  @Builder
+  public static User createUsher(String name, String email, String password, Partner partner) {
+    User user = User.builder().name(name).email(email).authorities(Set.of(Role.ROLE_USHER))
+        .partner(partner).build();
+    user.setHidden(false);
+    user.setPassword(password);
+    return user;
+  }
 }
