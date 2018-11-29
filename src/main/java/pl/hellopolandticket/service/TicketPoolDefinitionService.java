@@ -109,13 +109,10 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         ticketPoolDefinitionDao.findAllByPartner(ofNullable(currentUser.getPrincipal())
             .map(principal -> partnerDao.findByUserEmail(principal)).map(Partner::getId)
             .orElse(null));
-
     List<TicketPoolDefinitionDTO> dtos = new ArrayList<>();
     for (var d : tpd) {
-
       List<AvailableTicketNumberAssociation> a = atnaService.getForTicketPoolDefinition(d).stream()
           .filter(p -> p.getTicketDefinition() != null).collect(Collectors.toList());
-
       var tpdDto = ModelObjectsToDTOConverter.ofTicketPoolDefinition(d);
       tpdDto.ticketDefinitions.forEach(td -> {
         for (var i : a) {
@@ -125,11 +122,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
           }
         }
       });
-
-
-
       dtos.add(tpdDto);
-      // dtos.add(ModelObjectsToDTOConverter.ofTicketPoolDefinition(d));
     }
     return dtos;
   }
