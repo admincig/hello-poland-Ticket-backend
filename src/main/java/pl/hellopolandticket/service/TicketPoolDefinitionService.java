@@ -128,7 +128,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
 
 
-      dtos.add(ModelObjectsToDTOConverter.ofTicketPoolDefinition(d));
+      dtos.add(tpdDto);
+      // dtos.add(ModelObjectsToDTOConverter.ofTicketPoolDefinition(d));
     }
     return dtos;
   }
