@@ -77,18 +77,11 @@ public class EmailService extends ServiceSuperclass {
       MimeMessage message = new MimeMessage(session);
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
-
-
-
       var bcc = bookingMarkedAsBoughtEvent.getPartnersEmails();
       bcc.add(MAIL_TICKET_COPY);
-      // bcc.stream().map(email -> new InternetAddress(email)).toArray(String[]::new);
-
-
-
-      // message.setRecipients(BCC, bcc.stream().map(email -> new
-      // InternetAddress(email)).toArray(InternetAddress[]::new));
-      message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
+      bcc.stream().collect(Collectors.joining(","));
+      message.setRecipients(BCC, bcc.stream().collect(Collectors.joining(",")));
+      // message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
       message.setRecipients(TO, new InternetAddress[] {
           new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
       message.setSubject(emailTemplate.getSubject(), "UTF-8");
