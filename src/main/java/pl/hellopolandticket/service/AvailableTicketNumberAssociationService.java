@@ -172,7 +172,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     return dao.getForTicketPool(tp);
   }
 
-  private List<AvailableTicketNumberAssociation> getForTicketPoolDefinition(
+  public List<AvailableTicketNumberAssociation> getForTicketPoolDefinition(
       TicketPoolDefinition tpd) {
     return dao.getForTicketPoolDefinition(tpd);
   }
