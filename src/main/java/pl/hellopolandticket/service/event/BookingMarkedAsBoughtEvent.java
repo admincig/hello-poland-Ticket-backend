@@ -25,4 +25,5 @@ public class BookingMarkedAsBoughtEvent implements Serializable {
   private String p24OrderId;
   private String p24Currency;
   private Set<String> sightEventPdfAttachmentsPaths;
+  private Set<String> partnersEmails;
 }

@@ -41,6 +41,10 @@ public class Partner implements Serializable {
   private String name;
 
   @Setter
+  @Column(name = "EMAIL")
+  private String email;
+
+  @Setter
   @OneToMany(mappedBy = "partner")
   private List<User> users;
 
@@ -53,8 +57,9 @@ public class Partner implements Serializable {
   private List<TicketDefinition> ticketDefinitions;
 
   @Builder
-  public Partner(String name) {
+  public Partner(String name, String email) {
     this.name = name;
+    this.email = email;
   }
 
 }
