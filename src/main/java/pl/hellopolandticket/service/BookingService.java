@@ -67,7 +67,7 @@ public class BookingService extends ServiceSuperclass {
 
   public BookingDTO createBooking(BookingDTO booking) {
     Booking bookingToPersist = Booking.builder().date(new Date()).customerName(booking.customerName)
-        .customerEmail(booking.customerEmail).build();
+        .customerEmail(booking.customerEmail).partnersEmails(booking.partnersEmails).build();
 
     if (booking.sightEventPdfAttachments != null && !booking.sightEventPdfAttachments.isEmpty()) {
       bookingToPersist.setSightEventPdfAttachmentsPaths(booking.sightEventPdfAttachments.stream()
@@ -183,7 +183,8 @@ public class BookingService extends ServiceSuperclass {
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
             .collect(toList()))
-        .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
+        .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths())
+        .partnersEmails(booking.getPartnersEmails()).build());
   }
 
   private void checkAndDecreaseAvailability(TicketPool pool, TicketDefinition ticketDefinition,

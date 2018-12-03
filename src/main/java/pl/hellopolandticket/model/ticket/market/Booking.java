@@ -83,13 +83,18 @@ public class Booking implements Serializable {
   @ElementCollection
   private Set<String> sightEventPdfAttachmentsPaths;
 
+  @Setter
+  @ElementCollection
+  private Set<String> partnersEmails;
+
   @Builder
   public Booking(Date date, String customerName, String customerEmail,
-      Set<String> sightEventPdfAttachmentsPaths) {
+      Set<String> sightEventPdfAttachmentsPaths, Set<String> partnersEmails) {
     this.date = date;
     this.customerName = customerName;
     this.customerEmail = customerEmail;
     this.sightEventPdfAttachmentsPaths = sightEventPdfAttachmentsPaths;
+    this.partnersEmails = partnersEmails;
     this.serialNumber = generateUUID();
   }
 
