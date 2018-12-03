@@ -3,6 +3,7 @@ package pl.hellopolandticket.service;
 import static java.util.Optional.ofNullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.FrequencyType;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
+import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
@@ -107,10 +109,20 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         ticketPoolDefinitionDao.findAllByPartner(ofNullable(currentUser.getPrincipal())
             .map(principal -> partnerDao.findByUserEmail(principal)).map(Partner::getId)
             .orElse(null));
-
     List<TicketPoolDefinitionDTO> dtos = new ArrayList<>();
     for (var d : tpd) {
-      dtos.add(ModelObjectsToDTOConverter.ofTicketPoolDefinition(d));
+      List<AvailableTicketNumberAssociation> a = atnaService.getForTicketPoolDefinition(d).stream()
+          .filter(p -> p.getTicketDefinition() != null).collect(Collectors.toList());
+      var tpdDto = ModelObjectsToDTOConverter.ofTicketPoolDefinition(d);
+      tpdDto.ticketDefinitions.forEach(td -> {
+        for (var i : a) {
+          if (i.getTicketDefinition().getId() == td.id) {
+            td.availableTicketsNumber = i.getAvailableTicketsNumber();
+            break;
+          }
+        }
+      });
+      dtos.add(tpdDto);
     }
     return dtos;
   }
