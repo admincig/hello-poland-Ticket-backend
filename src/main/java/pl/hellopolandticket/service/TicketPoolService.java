@@ -63,12 +63,13 @@ public class TicketPoolService extends ServiceSuperclass {
       throws CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException {
     if (ticketPoolDefinition.getIsCyclic()) {
       return getStartDateForNewInstanceOfCyclicPool(ticketPoolDefinition, requestedDate);
-    } else if (requestedDate == null) { // proper noncyclic pool
-      return ticketPoolDefinition.getStartDate();
     } else {
-      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
-          "Ządana data poza zakresem definicji puli");
+      return ticketPoolDefinition.getStartDate();
     }
+    // } else {
+    // throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
+    // "Ządana data poza zakresem definicji puli");
+    // }
   }
 
   public Date getStartDateForNewInstanceOfCyclicPool(TicketPoolDefinition ticketPoolDefinition,
