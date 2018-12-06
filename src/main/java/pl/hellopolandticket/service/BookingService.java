@@ -6,6 +6,7 @@ import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
 import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofBooking;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicketWithQrCode;
+import java.lang.System.Logger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -37,6 +38,8 @@ public class BookingService extends ServiceSuperclass {
 
   private final static String TICKET_QR_CODE_HEIGHT_PROPERTY = "ticket.qrCode.height";
   private final static String TICKET_QR_CODE_WIDTH_PROPERTY = "ticket.qrCode.width";
+
+  protected Logger logger = System.getLogger(this.getClass().getName());
 
   @Inject
   private BookingDao bookingDao;
@@ -74,9 +77,17 @@ public class BookingService extends ServiceSuperclass {
           .map(pdf -> pdf.path).collect(Collectors.toSet()));
     }
 
+
+    logger.log(Logger.Level.INFO, "...........Start booking tickets..............");
+
+
     List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
 
     bookingToPersist.setTickets(tickets);
+
+
+    logger.log(Logger.Level.INFO, "...........End booking tickets..............");
+
 
     return ofBooking(bookingDao.persist(bookingToPersist));
   }
@@ -135,6 +146,14 @@ public class BookingService extends ServiceSuperclass {
     for (TicketOrderDTO dto : dtos) {
       TicketDefinition ticketDefinition = ticketDefinitionService.get(dto.ticketDefinitionId);
       if (!ticketDefinition.isConnectedWithPoolDefiniton(dto.ticketPoolDefinitionId)) {
+
+
+        logger.log(Logger.Level.ERROR,
+            "ResourceNotFoundException: Ticket definition id=[" + ticketDefinition.getId()
+                + "] does not belong to given pool definition id=[" + dto.ticketPoolDefinitionId
+                + "]");
+
+
         throw new ResourceNotFoundException(
             "Ticket definition does not belong to given pool definition");
       }
@@ -202,6 +221,14 @@ public class BookingService extends ServiceSuperclass {
         association.setAvailableTicketsNumber(number);
         atnaDao.update(association);
       } else {
+
+
+        logger.log(Logger.Level.ERROR,
+            "NoAvailableTicketsException: TicketPool id=[" + pool.getId()
+                + "], TicketDefinition id=[" + ticketDefinition.getId() + "], numberOfTickets="
+                + numberOfTickets);
+
+
         throw new NoAvailableTicketsException();
       }
       return;
@@ -210,6 +237,14 @@ public class BookingService extends ServiceSuperclass {
       if (number >= 0) {
         pool.decreaseAvailableTicketsNumber(numberOfTickets);
       } else {
+
+
+        logger.log(Logger.Level.ERROR,
+            "NoAvailableTicketsException: TicketPool id=[" + pool.getId()
+                + "], TicketDefinition id=[" + ticketDefinition.getId() + "], numberOfTickets="
+                + numberOfTickets);
+
+
         throw new NoAvailableTicketsException();
       }
       return;
@@ -221,10 +256,25 @@ public class BookingService extends ServiceSuperclass {
         association.setAvailableTicketsNumber(availableNumber);
         atnaDao.update(association);
       } else {
+
+
+        logger.log(Logger.Level.ERROR,
+            "NoAvailableTicketsException: TicketPool id=[" + pool.getId()
+                + "], TicketDefinition id=[" + ticketDefinition.getId() + "], numberOfTickets="
+                + numberOfTickets);
+
+
         throw new NoAvailableTicketsException();
       }
       return;
     }
+
+
+    logger.log(Logger.Level.ERROR,
+        "NoAvailableTicketsException: TicketPool id=[" + pool.getId() + "], TicketDefinition id=["
+            + ticketDefinition.getId() + "], numberOfTickets=" + numberOfTickets);
+
+
     throw new NoAvailableTicketsException();
   }
 
