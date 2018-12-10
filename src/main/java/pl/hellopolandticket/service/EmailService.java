@@ -51,6 +51,7 @@ import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
   private static final Logger HELPDESK_lOG = System.getLogger("helpdesk-orders");
+  private final Logger logger = System.getLogger(this.getClass().getName());
 
   private static final String MAIL_TICKET_COPY = "ticket.copy@hello-poland.pl";
   private static final String MAIL_PERSONAL = "Bilety Hello Poland";
@@ -71,6 +72,7 @@ public class EmailService extends ServiceSuperclass {
 
   public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
+    logger.log(Level.INFO, "........... Start sending email with qrCodes ..............");
     try {
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
       Session session = createSessionForEmail();
@@ -79,7 +81,6 @@ public class EmailService extends ServiceSuperclass {
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
       var bcc = bookingMarkedAsBoughtEvent.getPartnersEmails();
       bcc.add(MAIL_TICKET_COPY);
-      bcc.stream().collect(Collectors.joining(","));
       message.setRecipients(BCC, bcc.stream().collect(Collectors.joining(",")));
       // message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
       message.setRecipients(TO, new InternetAddress[] {
@@ -93,8 +94,10 @@ public class EmailService extends ServiceSuperclass {
       HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, true));
     } catch (MessagingException | IOException | TemplateException e) {
       HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
+      logger.log(Level.ERROR, e);
       throw e;
     }
+    logger.log(Level.INFO, "........... End sending email with qrCodes ..............");
   }
 
   private String getHelpdeskLogMessage(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent,
