@@ -87,6 +87,9 @@ public class BookingService extends ServiceSuperclass {
       String p24Currency) {
     logger.log(Logger.Level.INFO, "...........Start buying tickets..............");
     Booking booking = bookingDao.findBySerialNumber(serialNumber);
+    if (booking.getPartnersEmails() != null) {
+      booking.getPartnersEmails().size();
+    }
     if (booking.getStatus() == BOOKED) {
       booking.makeBought(p24OrderId, p24Currency);
       sendEmailWithTicketQrCodes(booking);
