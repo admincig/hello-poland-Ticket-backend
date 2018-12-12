@@ -101,10 +101,10 @@ public class EmailService extends ServiceSuperclass {
         // that means the email is sending to the customer, not to the partner
         HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
       }
-      logger.log(Level.ERROR, e.getLocalizedMessage());
+      logger.log(Level.ERROR, e.toString());
       throw e;
     } catch (Exception e) {
-      logger.log(Level.ERROR, e.getLocalizedMessage());
+      logger.log(Level.ERROR, e.toString());
       throw e;
     }
     logger.log(Level.INFO, "........... End sending email with qrCodes ..............");
