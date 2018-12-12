@@ -97,10 +97,10 @@ public class EmailService extends ServiceSuperclass {
       if (bookingMarkedAsBoughtEvent.getReplyToEmail() != null) {
         HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
       }
-      logger.log(Level.ERROR, e);
+      logger.log(Level.ERROR, e.getLocalizedMessage());
       throw e;
     } catch (Exception e) {
-      logger.log(Level.ERROR, e);
+      logger.log(Level.ERROR, e.getLocalizedMessage());
       throw e;
     }
     logger.log(Level.INFO, "........... End sending email with qrCodes ..............");
