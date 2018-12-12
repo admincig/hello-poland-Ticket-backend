@@ -20,10 +20,11 @@ public class BookingMarkedAsBoughtEvent implements Serializable {
   private static final long serialVersionUID = 6300346760308664459L;
 
   private String customerName;
-  private String customerEmail;
+  private String recipientEmail;
   private List<TicketDTO> tickets;
   private String p24OrderId;
   private String p24Currency;
   private Set<String> sightEventPdfAttachmentsPaths;
-  private Set<String> partnersEmails;
+  private String partnersEmail;
+  private String replyToEmail;
 }

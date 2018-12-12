@@ -79,21 +79,24 @@ public class EmailService extends ServiceSuperclass {
       MimeMessage message = new MimeMessage(session);
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
-      var bcc = bookingMarkedAsBoughtEvent.getPartnersEmails();
-      bcc.add(MAIL_TICKET_COPY);
-      message.setRecipients(BCC, bcc.stream().collect(Collectors.joining(",")));
-      // message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
+      message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
       message.setRecipients(TO, new InternetAddress[] {
-          new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
+          new InternetAddress(bookingMarkedAsBoughtEvent.getRecipientEmail())});
+      message.setReplyTo(new InternetAddress[] {
+          new InternetAddress(bookingMarkedAsBoughtEvent.getReplyToEmail())});
       message.setSubject(emailTemplate.getSubject(), "UTF-8");
       message.setContent(
           createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
               bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId(),
               bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
       Transport.send(message);
-      HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, true));
+      if (bookingMarkedAsBoughtEvent.getReplyToEmail() != null) {
+        HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, true));
+      }
     } catch (MessagingException | IOException | TemplateException e) {
-      HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
+      if (bookingMarkedAsBoughtEvent.getReplyToEmail() != null) {
+        HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
+      }
       logger.log(Level.ERROR, e);
       throw e;
     }
@@ -108,7 +111,7 @@ public class EmailService extends ServiceSuperclass {
         .append(bookingMarkedAsBoughtEvent.getP24OrderId()).append(" | CZY MAIL ZOSTAŁ WYSŁANY: ")
         .append(mailWasSend ? "tak" : "nie").append(" | NAZWA UŻUTKOWNIKA: ")
         .append(bookingMarkedAsBoughtEvent.getCustomerName()).append(" | ADRES EMAIL: ")
-        .append(bookingMarkedAsBoughtEvent.getCustomerEmail());
+        .append(bookingMarkedAsBoughtEvent.getRecipientEmail());
     return sb.toString();
   }
 
