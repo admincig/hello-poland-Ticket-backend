@@ -73,6 +73,8 @@ public class EmailService extends ServiceSuperclass {
   public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
     logger.log(Level.INFO, "........... Start sending email with qrCodes ..............");
+    var recipientEmail = bookingMarkedAsBoughtEvent.getRecipientEmail();
+    var replyToEmail = bookingMarkedAsBoughtEvent.getReplyToEmail();
     try {
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
       Session session = createSessionForEmail();
@@ -80,21 +82,23 @@ public class EmailService extends ServiceSuperclass {
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
       message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
-      message.setRecipients(TO, new InternetAddress[] {
-          new InternetAddress(bookingMarkedAsBoughtEvent.getRecipientEmail())});
-      message.setReplyTo(new InternetAddress[] {
-          new InternetAddress(bookingMarkedAsBoughtEvent.getReplyToEmail())});
+      message.setRecipients(TO, new InternetAddress[] {new InternetAddress(recipientEmail)});
+      if (replyToEmail != null) {
+        message.setReplyTo(new InternetAddress[] {new InternetAddress(replyToEmail)});
+      }
       message.setSubject(emailTemplate.getSubject(), "UTF-8");
       message.setContent(
           createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
               bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId(),
               bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
       Transport.send(message);
-      if (bookingMarkedAsBoughtEvent.getReplyToEmail() != null) {
+      if (replyToEmail == null) {
+        // that means the email is sending to the customer, not to the partner
         HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, true));
       }
     } catch (MessagingException | IOException | TemplateException e) {
-      if (bookingMarkedAsBoughtEvent.getReplyToEmail() != null) {
+      if (replyToEmail == null) {
+        // that means the email is sending to the customer, not to the partner
         HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
       }
       logger.log(Level.ERROR, e.getLocalizedMessage());
