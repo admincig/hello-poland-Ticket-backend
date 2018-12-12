@@ -99,6 +99,9 @@ public class EmailService extends ServiceSuperclass {
       }
       logger.log(Level.ERROR, e);
       throw e;
+    } catch (Exception e) {
+      logger.log(Level.ERROR, e);
+      throw e;
     }
     logger.log(Level.INFO, "........... End sending email with qrCodes ..............");
   }
