@@ -72,27 +72,28 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     var associationsTPD = new ArrayList<AvailableTicketNumberAssociation>();
     var associationsTP = new ArrayList<AvailableTicketNumberAssociation>();
 
-    se.getTicketPoolDefinitions().stream().filter(tpd -> checkDates(date, tpd)).forEach(tpd -> {
-      List<TicketPool> ticketPools = tpd.getTicketPools();
-      tpd.getTicketPools().size();
-      if (!tpd.getIsCyclic() && ticketPools != null && !ticketPools.isEmpty()) {
-        var tps = getFilteredTpsByDates(date, ticketPools);
-        if (!tps.isEmpty()) {
-          fillFromTPs(associationsTP, tps);
-        }
-      }
-      if (ticketPools == null || ticketPools.isEmpty()) {
-        fillFromTPD(associationsTPD, tpd);
-      }
-      if (tpd.getIsCyclic() && ticketPools != null && !ticketPools.isEmpty()) {
-        var tps = getFilteredTpsByDates(date, ticketPools);
-        if (!tps.isEmpty()) {
-          fillFromTPs(associationsTP, tps);
-        } else {
-          fillFromTPD(associationsTPD, tpd);
-        }
-      }
-    });
+    se.getTicketPoolDefinitions().stream().filter(tpd -> checkDates(date, tpd) && !tpd.isDeleted())
+        .forEach(tpd -> {
+          List<TicketPool> ticketPools = tpd.getTicketPools();
+          tpd.getTicketPools().size();
+          if (!tpd.getIsCyclic() && ticketPools != null && !ticketPools.isEmpty()) {
+            var tps = getFilteredTpsByDates(date, ticketPools);
+            if (!tps.isEmpty()) {
+              fillFromTPs(associationsTP, tps);
+            }
+          }
+          if (ticketPools == null || ticketPools.isEmpty()) {
+            fillFromTPD(associationsTPD, tpd);
+          }
+          if (tpd.getIsCyclic() && ticketPools != null && !ticketPools.isEmpty()) {
+            var tps = getFilteredTpsByDates(date, ticketPools);
+            if (!tps.isEmpty()) {
+              fillFromTPs(associationsTP, tps);
+            } else {
+              fillFromTPD(associationsTPD, tpd);
+            }
+          }
+        });
 
     var result = new AvailableTicketNumberAssociationDTO();
     result.ticketPoolDefinitions = new ArrayList<>();
