@@ -43,7 +43,7 @@ public class PartnerService extends ServiceSuperclass {
       throw new BadRequestException("Wymagany jest co najmniej jeden uzytkownik z rolą biletera.");
     }
 
-    Partner partnerToPersist = Partner.builder().name(partner.name).build();
+    Partner partnerToPersist = Partner.builder().name(partner.name).email(partner.email).build();
     partnerDao.persist(partnerToPersist);
 
     User user = createHiddenUser(partner.name, partner.email,

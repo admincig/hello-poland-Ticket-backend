@@ -41,7 +41,8 @@ public class Partner implements Serializable {
   private String name;
 
   @Setter
-  @Column(name = "EMAIL")
+  @NotNull
+  @Column(name = "EMAIL", nullable = false, unique = true)
   private String email;
 
   @Setter
