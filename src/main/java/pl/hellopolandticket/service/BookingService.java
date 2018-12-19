@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -21,6 +22,7 @@ import pl.hellopoland.dto.booking.TicketOrderDTO;
 import pl.hellopolandticket.dao.AvailableTicketNumberAssociationDao;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.dao.TicketDao;
+import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.ticket.market.Booking;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
@@ -70,7 +72,7 @@ public class BookingService extends ServiceSuperclass {
 
   public BookingDTO createBooking(BookingDTO booking) {
     Booking bookingToPersist = Booking.builder().date(new Date()).customerName(booking.customerName)
-        .customerEmail(booking.customerEmail).partnersEmails(booking.partnersEmails).build();
+        .customerEmail(booking.customerEmail).build();
 
     if (booking.sightEventPdfAttachments != null && !booking.sightEventPdfAttachments.isEmpty()) {
       bookingToPersist.setSightEventPdfAttachmentsPaths(booking.sightEventPdfAttachments.stream()
@@ -87,9 +89,6 @@ public class BookingService extends ServiceSuperclass {
       String p24Currency) {
     logger.log(Logger.Level.INFO, "...........Start buying tickets..............");
     Booking booking = bookingDao.findBySerialNumber(serialNumber);
-    if (booking.getPartnersEmails() != null) {
-      booking.getPartnersEmails().size();
-    }
     if (booking.getStatus() == BOOKED) {
       booking.makeBought(p24OrderId, p24Currency);
       sendEmailWithTicketQrCodes(booking);
@@ -183,19 +182,32 @@ public class BookingService extends ServiceSuperclass {
         valueOf(applicationPropertyService.findByName(TICKET_QR_CODE_WIDTH_PROPERTY).propertyValue);
     int qrCodeHeight = valueOf(
         applicationPropertyService.findByName(TICKET_QR_CODE_HEIGHT_PROPERTY).propertyValue);
-
     if (booking.getSightEventPdfAttachmentsPaths() != null) {
       booking.getSightEventPdfAttachmentsPaths().size();
     }
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
         .p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())
-        .customerName(booking.getCustomerName()).customerEmail(booking.getCustomerEmail())
+        .customerName(booking.getCustomerName()).recipientEmail(booking.getCustomerEmail())
         .tickets(booking.getTickets().stream()
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
             .collect(toList()))
-        .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths())
-        .partnersEmails(booking.getPartnersEmails()).build());
+        .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
+
+    var ticketsByPartner = booking.getTickets().stream().collect(Collectors
+        .groupingBy(t -> t.getTicketPool().getTicketPoolDefinition().getSightEvent().getPartner()));
+
+    for (Entry<Partner, List<Ticket>> entry : ticketsByPartner.entrySet()) {
+      bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
+          .p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())
+          .customerName(booking.getCustomerName()).recipientEmail(entry.getKey().getEmail())
+          .tickets(entry.getValue().stream()
+              .map(ticket -> ofTicketWithQrCode(ticket,
+                  ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
+              .collect(toList()))
+          .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths())
+          .replyToEmail(booking.getCustomerEmail()).build());
+    }
   }
 
   private void checkAndDecreaseAvailability(TicketPool pool, TicketDefinition ticketDefinition,

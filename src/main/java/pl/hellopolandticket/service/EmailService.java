@@ -73,28 +73,38 @@ public class EmailService extends ServiceSuperclass {
   public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
     logger.log(Level.INFO, "........... Start sending email with qrCodes ..............");
+    var recipientEmail = bookingMarkedAsBoughtEvent.getRecipientEmail();
+    var replyToEmail = bookingMarkedAsBoughtEvent.getReplyToEmail();
     try {
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
       Session session = createSessionForEmail();
       MimeMessage message = new MimeMessage(session);
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
-      // var bcc = bookingMarkedAsBoughtEvent.getPartnersEmails();
-      // bcc.add(MAIL_TICKET_COPY);
-      // message.setRecipients(BCC, bcc.stream().collect(Collectors.joining(",")));
       message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
-      message.setRecipients(TO, new InternetAddress[] {
-          new InternetAddress(bookingMarkedAsBoughtEvent.getCustomerEmail())});
+      message.setRecipients(TO, new InternetAddress[] {new InternetAddress(recipientEmail)});
+      if (replyToEmail != null) {
+        message.setReplyTo(new InternetAddress[] {new InternetAddress(replyToEmail)});
+      }
       message.setSubject(emailTemplate.getSubject(), "UTF-8");
       message.setContent(
           createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
               bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId(),
               bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
       Transport.send(message);
-      HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, true));
+      if (replyToEmail == null) {
+        // that means the email is sending to the customer, not to the partner
+        HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, true));
+      }
     } catch (MessagingException | IOException | TemplateException e) {
-      HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
-      logger.log(Level.ERROR, e);
+      if (replyToEmail == null) {
+        // that means the email is sending to the customer, not to the partner
+        HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
+      }
+      logger.log(Level.ERROR, e.toString());
+      throw e;
+    } catch (Exception e) {
+      logger.log(Level.ERROR, e.toString());
       throw e;
     }
     logger.log(Level.INFO, "........... End sending email with qrCodes ..............");
@@ -108,7 +118,7 @@ public class EmailService extends ServiceSuperclass {
         .append(bookingMarkedAsBoughtEvent.getP24OrderId()).append(" | CZY MAIL ZOSTAŁ WYSŁANY: ")
         .append(mailWasSend ? "tak" : "nie").append(" | NAZWA UŻUTKOWNIKA: ")
         .append(bookingMarkedAsBoughtEvent.getCustomerName()).append(" | ADRES EMAIL: ")
-        .append(bookingMarkedAsBoughtEvent.getCustomerEmail());
+        .append(bookingMarkedAsBoughtEvent.getRecipientEmail());
     return sb.toString();
   }
 
