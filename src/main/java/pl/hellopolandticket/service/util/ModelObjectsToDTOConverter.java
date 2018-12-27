@@ -122,6 +122,7 @@ public class ModelObjectsToDTOConverter {
     ticketDTO.status = StatusDTO.valueOf(ticket.getStatus().name());
     ticketDTO.serialNumber = ticket.getSerialNumber();
     ticketDTO.ticketDefinitionId = ticket.getTicketDefinition().getId();
+    ticketDTO.tickerPoolDefinitionId = ticket.getTicketPool().getTicketPoolDefinition().getId();
     ticketDTO.bookingId = ticket.getBooking().getId();
     ticketDTO.booking = ofBookingBasic(ticket.getBooking());
 
