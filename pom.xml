@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.hellopoland</groupId>
 	<artifactId>helloticket</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>Hello Poland Ticket</name>
 	<description>Hello Poland Ticket backend project</description>
 	<packaging>war</packaging>
@@ -29,7 +29,7 @@
 			<dependency>
 				<groupId>pl.hellopoland</groupId>
 				<artifactId>hellopoland-dto</artifactId>
-				<version>0.5.35-SNAPSHOT</version>
+				<version>1.0.2</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -151,8 +151,12 @@
 
 	<repositories>
 		<repository>
-			<id>fream-nexus</id>
+			<id>fream-nexus-snapshots</id>
 			<url>https://packages.fream.pl/repository/maven-fream-snapshots</url>
+		</repository>
+		<repository>
+			<id>fream-nexus-releases</id>
+			<url>https://packages.fream.pl/repository/maven-fream-releases</url>
 		</repository>
 	</repositories>
 
