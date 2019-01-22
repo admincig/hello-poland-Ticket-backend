@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEvent;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEventBasic;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,6 +23,7 @@ import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.OpeningHours;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.sightevent.SightEventLocation;
+import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
@@ -41,6 +43,12 @@ public class SightEventService extends ServiceSuperclass {
 
   @Inject
   private OpeningHoursService oHoursService;
+
+  @Inject
+  private TicketPoolService ticketPoolService;
+
+  @Inject
+  private AvailableTicketNumberAssociationService atnaService;
 
   public SightEventDTO findById(Long sightEventId) {
     return ofSightEventBasic(sightEventDao.findById(sightEventId));
@@ -134,7 +142,6 @@ public class SightEventService extends ServiceSuperclass {
 
   public void delete(Long sightEventId) {
     SightEvent sightEvent = findSightEventById(sightEventId);
-
     sightEvent.setActive(false);
   }
 
@@ -174,5 +181,24 @@ public class SightEventService extends ServiceSuperclass {
     sightEvent.setOpeningHours(oHoursList);
 
     return sightEventDTO;
+  }
+
+  public void stopSale(Long sightId, Long ticketPoolDefId, Date date) {
+    var sightEvent = sightEventDao.findById(sightId);
+    TicketPoolDefinition tpd = sightEvent.getTicketPoolDefinitions().stream()
+        .filter(t -> !t.isDeleted() && t.getId().equals(ticketPoolDefId)).findFirst().orElseThrow();
+    TicketPool tp = null;
+
+    if (tpd.getIsCyclic()) {
+      tp = ticketPoolService.findOrCreateNew(tpd, date);
+    } else {
+      tp = ticketPoolService.find(tpd, date);
+    }
+
+    tp.setAvailableTicketsNumber(0);
+    for (var atna : atnaService.getForTicketPool(tp)) {
+      atna.setAvailableTicketsNumber(0);
+      atnaService.update(atna);
+    }
   }
 }
