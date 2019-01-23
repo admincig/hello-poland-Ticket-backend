@@ -20,6 +20,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
+import pl.hellopolandticket.service.exception.badrequest.BadRequestException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
@@ -44,50 +45,59 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   @Inject
   private AvailableTicketNumberAssociationService atnaService;
 
-  public TicketPoolDefinitionDTO add(TicketPoolDefinitionDTO ticketPoolDefinitionDTO,
-      CurrentUser currentUser) {
-    SightEvent sightEvent = sightEventDao.findByIdAndPartner(ticketPoolDefinitionDTO.sightEventId,
+  public TicketPoolDefinitionDTO add(TicketPoolDefinitionDTO tpdDTO, CurrentUser currentUser) {
+    List<TicketDefinitionDTO> tdDTOs = tpdDTO.ticketDefinitions;
+    if (tdDTOs == null || tdDTOs.isEmpty()) {
+      throw new BadRequestException("TicketPoolDefinition must have ticket definitions.");
+    }
+    for (TicketDefinitionDTO td : tdDTOs) {
+      if (td.availableTicketsNumber != -1 && tpdDTO.availableTicketsNumber != -1) {
+        throw new BadRequestException("Bad availableTicketsNumber limit combination.");
+      }
+    }
+
+    SightEvent sightEvent = sightEventDao.findByIdAndPartner(tpdDTO.sightEventId,
         partnerDao.findByUserEmail(currentUser.getPrincipal()));
 
-    var tpdSd = ticketPoolDefinitionDTO.startDate;
+    var tpdSd = tpdDTO.startDate;
     FrequencyData frequencyData =
-        ticketPoolDefinitionDTO.isCyclic ? ofNullable(ticketPoolDefinitionDTO.frequencyData)
-            .map(frequencyDataDTO -> FrequencyData.builder()
-                .frequencyType(FrequencyType.valueOf(frequencyDataDTO.frequencyType.name()))
-                .daysOfWeek(frequencyDataDTO.daysOfWeek)
-                .startDate(frequencyDataDTO.startDate != null ? frequencyDataDTO.startDate : tpdSd)
-                .endDate(frequencyDataDTO.endDate).frequency(frequencyDataDTO.frequency).build())
-            .orElse(new FrequencyData()) : null;
+        tpdDTO.isCyclic
+            ? ofNullable(tpdDTO.frequencyData)
+                .map(frequencyDataDTO -> FrequencyData.builder()
+                    .frequencyType(FrequencyType.valueOf(frequencyDataDTO.frequencyType.name()))
+                    .daysOfWeek(frequencyDataDTO.daysOfWeek)
+                    .startDate(
+                        frequencyDataDTO.startDate != null ? frequencyDataDTO.startDate : tpdSd)
+                    .endDate(frequencyDataDTO.endDate).frequency(frequencyDataDTO.frequency)
+                    .build())
+                .orElse(new FrequencyData())
+            : null;
 
-    TicketPoolDefinition ticketPoolDefinition =
-        TicketPoolDefinition.builder().name(ticketPoolDefinitionDTO.name)
-            .availableTicketsNumber(ticketPoolDefinitionDTO.availableTicketsNumber)
-            .isCyclic(ticketPoolDefinitionDTO.isCyclic).frequencyData(frequencyData)
-            .startDate(ticketPoolDefinitionDTO.startDate).endDate(ticketPoolDefinitionDTO.endDate)
-            .entryStartDate(ticketPoolDefinitionDTO.entryStartDate)
-            .entryEndDate(ticketPoolDefinitionDTO.entryEndDate).sightEvent(sightEvent)
-            .deleted(false).build();
+    TicketPoolDefinition ticketPoolDefinition = TicketPoolDefinition.builder().name(tpdDTO.name)
+        .availableTicketsNumber(tpdDTO.availableTicketsNumber).isCyclic(tpdDTO.isCyclic)
+        .frequencyData(frequencyData).startDate(tpdDTO.startDate).endDate(tpdDTO.endDate)
+        .entryStartDate(tpdDTO.entryStartDate).entryEndDate(tpdDTO.entryEndDate)
+        .sightEvent(sightEvent).deleted(false).build();
 
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
-    atnaService.add(ticketPoolDefinition, ticketPoolDefinitionDTO.ticketDefinitions);
+    atnaService.add(ticketPoolDefinition, tdDTOs);
 
-    ticketPoolDefinition.setTicketDefinitions(
-        getTicketDefinitions(ticketPoolDefinitionDTO.ticketDefinitions, ticketPoolDefinition));
+    ticketPoolDefinition.setTicketDefinitions(getTicketDefinitions(tdDTOs, ticketPoolDefinition));
 
-    ticketPoolDefinitionDTO =
-        ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
+    tpdDTO = ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
 
-    var tds = ticketPoolDefinitionDTO.ticketDefinitions;
+    var tds = tpdDTO.ticketDefinitions;
     if (tds != null && !tds.isEmpty()) {
       tds.forEach(td -> td.poolId = ticketPoolDefinition.getId());
     }
 
-    ticketPoolDefinitionDTO.id = ticketPoolDefinition.getId();
+    tpdDTO.id = ticketPoolDefinition.getId();
 
     if (!ticketPoolDefinition.getIsCyclic()) {
       ticketPoolService.findOrCreateNew(ticketPoolDefinition, null);
     }
-    return ticketPoolDefinitionDTO;
+
+    return tpdDTO;
   }
 
   private List<TicketDefinition> getTicketDefinitions(List<TicketDefinitionDTO> ticketDefinitions,
@@ -95,9 +105,9 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     if (ticketDefinitions != null) {
       List<TicketDefinition> tickets = new ArrayList<>();
       for (TicketDefinitionDTO ticketDefinitionDTO : ticketDefinitions) {
-        var td = ticketDefinitionService.get(ticketDefinitionDTO.id);
+        TicketDefinition td = ticketDefinitionService.get(ticketDefinitionDTO.id);
         td.getTicketPoolDefinitions().add(ticketPoolDefinition);
-        tickets.add(ticketDefinitionService.get(td.getId()));
+        tickets.add(td);
       }
       return tickets;
     }
