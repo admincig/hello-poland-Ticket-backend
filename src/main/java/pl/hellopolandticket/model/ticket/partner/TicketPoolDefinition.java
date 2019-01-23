@@ -11,7 +11,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -101,10 +100,15 @@ public class TicketPoolDefinition implements Serializable {
   @Column(name = "DELETED", nullable = false)
   private boolean deleted;
 
+  @Setter
+  @NotNull
+  @Column(name = "WHOLEDAY", nullable = false)
+  private boolean wholeDay;
+
   @Builder
   public TicketPoolDefinition(String name, Integer availableTicketsNumber, Boolean isCyclic,
       FrequencyData frequencyData, Date startDate, Date endDate, Date entryStartDate,
-      Date entryEndDate, SightEvent sightEvent, boolean deleted) {
+      Date entryEndDate, SightEvent sightEvent, boolean deleted, boolean wholeDay) {
     this.name = name;
     this.isCyclic = isCyclic;
     this.frequencyData = frequencyData;
@@ -114,6 +118,7 @@ public class TicketPoolDefinition implements Serializable {
     this.entryEndDate = entryEndDate != null ? entryEndDate : endDate;
     this.sightEvent = sightEvent;
     this.deleted = deleted;
+    this.wholeDay = wholeDay;
     this.availableTicketsNumber =
         availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
             : availableTicketsNumber;

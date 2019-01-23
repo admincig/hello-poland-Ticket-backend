@@ -66,7 +66,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
             .startDate(ticketPoolDefinitionDTO.startDate).endDate(ticketPoolDefinitionDTO.endDate)
             .entryStartDate(ticketPoolDefinitionDTO.entryStartDate)
             .entryEndDate(ticketPoolDefinitionDTO.entryEndDate).sightEvent(sightEvent)
-            .deleted(false).build();
+            .deleted(false).wholeDay(ticketPoolDefinitionDTO.wholeDay).build();
 
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
     atnaService.add(ticketPoolDefinition, ticketPoolDefinitionDTO.ticketDefinitions);
