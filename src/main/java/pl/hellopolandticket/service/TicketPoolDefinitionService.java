@@ -21,6 +21,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.exception.badrequest.BadRequestException;
+import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
@@ -52,7 +53,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     }
     for (TicketDefinitionDTO td : tdDTOs) {
       if (td.availableTicketsNumber != -1 && tpdDTO.availableTicketsNumber != -1) {
-        throw new BadRequestException("Bad availableTicketsNumber limit combination.");
+        throw new ConflictingException("Bad availableTicketsNumber limit combination.");
       }
     }
 
