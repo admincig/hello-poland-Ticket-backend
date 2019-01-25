@@ -125,6 +125,7 @@ public class ModelObjectsToDTOConverter {
     ticketDTO.tickerPoolDefinitionId = ticket.getTicketPool().getTicketPoolDefinition().getId();
     ticketDTO.bookingId = ticket.getBooking().getId();
     ticketDTO.booking = ofBookingBasic(ticket.getBooking());
+    ticketDTO.wholeDay = ticket.getTicketPool().getTicketPoolDefinition().isWholeDay();
 
     return ticketDTO;
   }
