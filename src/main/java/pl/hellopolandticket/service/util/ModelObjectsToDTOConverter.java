@@ -244,7 +244,7 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDTO.entryEndDate = ticketPool.getEntryEndDate();
     ticketPoolDTO.ticketPoolDefinitionId =
         ofNullable(ticketPool.getTicketPoolDefinition()).map(tpd -> tpd.getId()).orElse(null);
-
+    ticketPoolDTO.wholeDay = ticketPool.isWholeDay();
     return ticketPoolDTO;
   }
 
