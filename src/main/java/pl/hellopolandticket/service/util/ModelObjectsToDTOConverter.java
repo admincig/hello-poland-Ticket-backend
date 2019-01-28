@@ -80,14 +80,13 @@ public class ModelObjectsToDTOConverter {
 
   private static LocationDTO ofSightLocation(SightEventLocation sightEventLocation) {
     LocationDTO location = new LocationDTO();
-
     location.latitude = sightEventLocation.getLatitude();
     location.longitude = sightEventLocation.getLongitude();
     location.street = sightEventLocation.getStreet();
     location.zipCode = sightEventLocation.getZipCode();
     location.city = sightEventLocation.getCity();
     location.country = sightEventLocation.getCountry();
-
+    location.directions = sightEventLocation.getDirections();
     return location;
   }
 

@@ -141,7 +141,7 @@ public class SightEventService extends ServiceSuperclass {
   private SightEventLocation ofLocation(LocationDTO location) {
     return SightEventLocation.builder().latitude(location.latitude).longitude(location.longitude)
         .street(location.street).zipCode(location.zipCode).city(location.city)
-        .country(location.country).build();
+        .country(location.country).directions(location.directions).build();
   }
 
   public SightEventDTO updateSightEvent(Long sightId, SightEventDTO sightEventDTO) {
