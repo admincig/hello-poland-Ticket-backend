@@ -38,14 +38,18 @@ public class SightEventLocation implements Serializable {
   @Column(name = "COUNTRY")
   private String country;
 
+  @Column(name = "DIRECTIONS")
+  private String directions;
+
   @Builder
   public SightEventLocation(Double latitude, Double longitude, String street, String zipCode,
-      String city, String country) {
+      String city, String country, String directions) {
     this.latitude = latitude;
     this.longitude = longitude;
     this.street = street;
     this.zipCode = zipCode;
     this.city = city;
     this.country = country;
+    this.directions = directions;
   }
 }
