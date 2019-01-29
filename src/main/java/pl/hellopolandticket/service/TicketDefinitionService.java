@@ -1,6 +1,5 @@
 package pl.hellopolandticket.service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.ejb.LocalBean;
@@ -9,11 +8,8 @@ import javax.inject.Inject;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.TicketDefinitionDao;
-import pl.hellopolandticket.dao.TicketPoolDefinitionDao;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
-import pl.hellopolandticket.model.ticket.partner.TicketDefinition.TicketDefinitionBuilder;
-import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.exception.badrequest.BadRequestException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
@@ -28,34 +24,16 @@ public class TicketDefinitionService extends ServiceSuperclass {
   @Inject
   private PartnerDao partnerDao;
 
-  @Inject
-  private TicketPoolDefinitionDao ticketPoolDefinitionDao;
-
-  public TicketDefinitionDTO add(TicketDefinitionDTO ticketDefinitionDTO,
-      Long ticketPoolDefinitionId, CurrentUser currentUser) {
+  public TicketDefinitionDTO add(TicketDefinitionDTO ticketDefinitionDTO, CurrentUser currentUser) {
     if (ticketDefinitionDTO.price < 0) {
       throw new BadRequestException("The ticket price must be greater than 0");
     }
     Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
 
-    TicketDefinitionBuilder ticketDefinitionBuilder = TicketDefinition.builder()
-        .name(ticketDefinitionDTO.name).price(ticketDefinitionDTO.price).partner(partner);
-
-    List<TicketPoolDefinition> ticketPoolDefinitions = null;
-    if (ticketPoolDefinitionId != null) {
-      ticketPoolDefinitions =
-          Collections.singletonList(ticketPoolDefinitionDao.findById(ticketPoolDefinitionId));
-      ticketDefinitionBuilder =
-          ticketDefinitionBuilder.ticketPoolDefinitions(ticketPoolDefinitions);
-    }
-    TicketDefinition ticketDefinition = ticketDefinitionBuilder.build();
+    TicketDefinition ticketDefinition = TicketDefinition.builder().name(ticketDefinitionDTO.name)
+        .price(ticketDefinitionDTO.price).partner(partner).build();
     ticketDefinitionDao.persist(ticketDefinition);
 
-    if (ticketPoolDefinitions != null && !ticketPoolDefinitions.isEmpty()) {
-      ticketPoolDefinitions.forEach(tpd -> {
-        tpd.getTicketDefinitions().add(ticketDefinition);
-      });
-    }
     ticketDefinitionDTO.id = ticketDefinition.getId();
     return ticketDefinitionDTO;
   }
