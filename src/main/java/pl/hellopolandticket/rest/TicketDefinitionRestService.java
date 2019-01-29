@@ -33,7 +33,7 @@ public class TicketDefinitionRestService {
   @POST
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response add(TicketDefinitionDTO ticketDefinitionDTO) {
-    return Response.ok(ticketDefinitionService.add(ticketDefinitionDTO, null, currentUser)).build();
+    return Response.ok(ticketDefinitionService.add(ticketDefinitionDTO, currentUser)).build();
   }
 
   @GET
