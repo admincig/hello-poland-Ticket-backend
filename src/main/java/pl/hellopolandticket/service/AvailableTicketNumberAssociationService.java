@@ -132,7 +132,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   }
 
   private List<TicketPool> getFilteredTpsByDates(Date date, List<TicketPool> ticketPools) {
-    return ticketPools.stream().filter(p -> areDatesequals(p.getStartDate(), date))
+    return ticketPools.stream().filter(p -> areDatesEquals(p.getStartDate(), date))
         .collect(Collectors.toList());
   }
 
@@ -161,21 +161,25 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         return false;
       }
     }
-    return areDatesequals(date, tpd.getStartDate());
+    return areDatesEquals(date, tpd.getStartDate());
   }
 
-  private boolean areDatesequals(Date date1, Date date2) {
+  private boolean areDatesEquals(Date date1, Date date2) {
     return date1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
         .isEqual(date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
   }
 
-  private List<AvailableTicketNumberAssociation> getForTicketPool(TicketPool tp) {
+  public List<AvailableTicketNumberAssociation> getForTicketPool(TicketPool tp) {
     return dao.getForTicketPool(tp);
   }
 
   public List<AvailableTicketNumberAssociation> getForTicketPoolDefinition(
       TicketPoolDefinition tpd) {
     return dao.getForTicketPoolDefinition(tpd);
+  }
+
+  public AvailableTicketNumberAssociation update(AvailableTicketNumberAssociation bo) {
+    return dao.update(bo);
   }
 
 }
