@@ -78,16 +78,21 @@ public class TicketPool implements Serializable {
   @OneToMany(mappedBy = "ticketPool")
   private List<Ticket> tickets;
 
+  @Setter
+  @NotNull
+  @Column(name = "WHOLEDAY", nullable = false)
+  private boolean wholeDay;
+
   @Builder
   public TicketPool(TicketPoolDefinition parent, String name, Integer availableTicketsNumber,
-      Date startDate, Date endDate, Date entryStartDate, Date entryEndDate) {
+      Date startDate, Date endDate, Date entryStartDate, Date entryEndDate, boolean wholeDay) {
     this.ticketPoolDefinition = parent;
     this.name = name;
     this.startDate = startDate;
     this.endDate = endDate;
     this.entryStartDate = entryStartDate != null ? entryStartDate : startDate;
     this.entryEndDate = entryEndDate != null ? entryEndDate : endDate;
-
+    this.wholeDay = wholeDay;
     this.availableTicketsNumber =
         availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
             : availableTicketsNumber;
@@ -101,6 +106,7 @@ public class TicketPool implements Serializable {
     this.startDate = parent.getStartDate();
     this.entryStartDate = parent.getEntryStartDate();
     this.entryEndDate = parent.getEntryEndDate();
+    this.wholeDay = parent.isWholeDay();
   }
 
   public boolean isEqualParent() {

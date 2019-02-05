@@ -78,7 +78,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         .availableTicketsNumber(tpdDTO.availableTicketsNumber).isCyclic(tpdDTO.isCyclic)
         .frequencyData(frequencyData).startDate(tpdDTO.startDate).endDate(tpdDTO.endDate)
         .entryStartDate(tpdDTO.entryStartDate).entryEndDate(tpdDTO.entryEndDate)
-        .sightEvent(sightEvent).deleted(false).build();
+        .sightEvent(sightEvent).deleted(false).wholeDay(tpdDTO.wholeDay).build();
 
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
     atnaService.add(ticketPoolDefinition, tdDTOs);

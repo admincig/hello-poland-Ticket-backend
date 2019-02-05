@@ -124,6 +124,7 @@ public class ModelObjectsToDTOConverter {
     ticketDTO.tickerPoolDefinitionId = ticket.getTicketPool().getTicketPoolDefinition().getId();
     ticketDTO.bookingId = ticket.getBooking().getId();
     ticketDTO.booking = ofBookingBasic(ticket.getBooking());
+    ticketDTO.wholeDay = ticket.getTicketPool().getTicketPoolDefinition().isWholeDay();
 
     return ticketDTO;
   }
@@ -242,14 +243,13 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDTO.entryEndDate = ticketPool.getEntryEndDate();
     ticketPoolDTO.ticketPoolDefinitionId =
         ofNullable(ticketPool.getTicketPoolDefinition()).map(tpd -> tpd.getId()).orElse(null);
-
+    ticketPoolDTO.wholeDay = ticketPool.isWholeDay();
     return ticketPoolDTO;
   }
 
   public static TicketPoolDefinitionDTO ofTicketPoolDefinitionBasic(
       TicketPoolDefinition ticketPoolDefinition) {
     TicketPoolDefinitionDTO ticketPoolDefinitionDTO = new TicketPoolDefinitionDTO();
-
     ticketPoolDefinitionDTO.id = ticketPoolDefinition.getId();
     ticketPoolDefinitionDTO.name = ticketPoolDefinition.getName();
     ticketPoolDefinitionDTO.availableTicketsNumber =
@@ -263,7 +263,7 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDefinitionDTO.entryEndDate = ticketPoolDefinition.getEntryEndDate();
     ticketPoolDefinitionDTO.sightEventId = ticketPoolDefinition.getSightEvent().getId();
     ticketPoolDefinitionDTO.deleted = ticketPoolDefinition.isDeleted();
-
+    ticketPoolDefinitionDTO.wholeDay = ticketPoolDefinition.isWholeDay();
     return ticketPoolDefinitionDTO;
   }
 
@@ -271,10 +271,8 @@ public class ModelObjectsToDTOConverter {
       TicketPoolDefinition ticketPoolDefinition) {
     TicketPoolDefinitionDTO ticketPoolDefinitionDTO =
         ofTicketPoolDefinitionBasic(ticketPoolDefinition);
-
     ticketPoolDefinitionDTO.ticketDefinitions = ticketPoolDefinition.getTicketDefinitions().stream()
         .map(ModelObjectsToDTOConverter::ofTicketDefinition).collect(toList());
-
     return ticketPoolDefinitionDTO;
   }
 
