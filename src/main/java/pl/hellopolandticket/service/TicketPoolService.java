@@ -28,6 +28,10 @@ public class TicketPoolService extends ServiceSuperclass {
   @Inject
   private AvailableTicketNumberAssociationService atnaService;
 
+  public TicketPool find(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
+    return ticketPoolDao.find(ticketPoolDefinition, requestedDate);
+  }
+
   public TicketPool findOrCreateNew(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
     TicketPool pool = ticketPoolDao.find(ticketPoolDefinition, requestedDate);
     if (pool == null) {

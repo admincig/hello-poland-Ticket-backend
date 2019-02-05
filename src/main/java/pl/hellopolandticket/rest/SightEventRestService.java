@@ -3,6 +3,7 @@ package pl.hellopolandticket.rest;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofCollection;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
@@ -21,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopoland.dto.CollectionWrapperDTO;
 import pl.hellopoland.dto.SightEventDTO;
+import pl.hellopolandticket.annotation.DateTimeFormat;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.SightEventService;
@@ -103,6 +105,18 @@ public class SightEventRestService extends RestServiceSuperclass {
 
     return Response.ok(ticketService.findBySerialNumber(currentUser, sightEventId, serialNumber))
         .build();
+  }
+
+  @DELETE
+  @Path("/{id}/sale")
+  public Response stopSale(@PathParam("id") Long id, @QueryParam("tpdId") Long tpdId,
+      @QueryParam("date") @DateTimeFormat Date date) {
+    try {
+      sightEventService.stopSale(id, tpdId, date);
+      return Response.noContent().build();
+    } catch (Exception e) {
+      return Response.notModified().build();
+    }
   }
 
 }

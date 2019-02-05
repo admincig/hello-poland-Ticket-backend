@@ -143,7 +143,9 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     var associationsTPD = new HashSet<AvailableTicketNumberAssociation>();
     var associationsTP = new HashSet<AvailableTicketNumberAssociation>();
 
-    var fromDateLD = fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    var fromDateLD =
+        fromDate != null ? fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            : LocalDate.now();
     var toDateLD =
         toDate != null ? toDate.toInstant().atZone(ZoneId.systemDefault()).plusDays(1).toLocalDate()
             : fromDate.toInstant().atZone(ZoneId.systemDefault()).plusDays(1).toLocalDate();
@@ -279,13 +281,17 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     return date1.isEqual(date2);
   }
 
-  private List<AvailableTicketNumberAssociation> getForTicketPool(TicketPool tp) {
+  public List<AvailableTicketNumberAssociation> getForTicketPool(TicketPool tp) {
     return dao.getForTicketPool(tp);
   }
 
   public List<AvailableTicketNumberAssociation> getForTicketPoolDefinition(
       TicketPoolDefinition tpd) {
     return dao.getForTicketPoolDefinition(tpd);
+  }
+
+  public AvailableTicketNumberAssociation update(AvailableTicketNumberAssociation bo) {
+    return dao.update(bo);
   }
 
 }

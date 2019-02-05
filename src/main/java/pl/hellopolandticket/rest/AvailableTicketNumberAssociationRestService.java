@@ -31,7 +31,6 @@ public class AvailableTicketNumberAssociationRestService {
       @QueryParam("fromDate") @DateFormat Date fromDate,
       @QueryParam("toDate") @DateFormat Date toDate) {
     return Response.ok(service.checkAvailabilityOfTickets(id, fromDate, toDate)).build();
-    // return Response.ok(service.checkAvailabilityOfTickets(id, fromDate)).build();
   }
 
 }
