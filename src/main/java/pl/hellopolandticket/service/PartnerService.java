@@ -49,8 +49,14 @@ public class PartnerService extends ServiceSuperclass {
         Collections.singleton(ROLE_EXTERNAL_USER), partnerToPersist);
     user = userService.save(user);
 
+    User usher = createUsher(partner);
+    userService.save(usher);
+
     // creating partner's ushers:
-    saveUshers(partner.users, partnerToPersist);
+    List<UserDTO> users = partner.users;
+    if (users != null && !users.isEmpty()) {
+      saveUshers(users, partnerToPersist);
+    }
 
     return ofPartnerWithToken(partnerToPersist, user.getToken());
   }
