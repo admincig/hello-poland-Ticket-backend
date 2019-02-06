@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import pl.hellopoland.dto.PartnerDTO;
 import pl.hellopolandticket.model.partner.Partner;
 
 @Getter
@@ -99,5 +100,10 @@ public class User implements Serializable {
     user.setHidden(false);
     user.setPassword(password);
     return user;
+  }
+
+  @Builder
+  public static User createUsher(PartnerDTO partner) {
+    return createUsher(partner.name, partner.email, partner.password, partner);
   }
 }
