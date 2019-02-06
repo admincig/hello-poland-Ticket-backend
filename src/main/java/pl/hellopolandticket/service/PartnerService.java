@@ -37,11 +37,6 @@ public class PartnerService extends ServiceSuperclass {
   private ExceptionFactory exceptionFactory;
 
   public PartnerDTO save(PartnerDTO partner) {
-    // var usersDTOs = partner.users;
-    // if (usersDTOs == null || usersDTOs.isEmpty() || !isAtLeastOneUsher(usersDTOs)) {
-    // throw new BadRequestException("Wymagany jest co najmniej jeden uzytkownik z rolą biletera.");
-    // }
-
     Partner partnerToPersist = Partner.builder().name(partner.name).email(partner.email).build();
     partnerDao.persist(partnerToPersist);
 
@@ -49,12 +44,13 @@ public class PartnerService extends ServiceSuperclass {
         Collections.singleton(ROLE_EXTERNAL_USER), partnerToPersist);
     user = userService.save(user);
 
-    User usher = createUsher(partner);
+    User usher = createUsher(partner.name, partner.email, passwordEncoder.encode(partner.password),
+        partnerToPersist);
     userService.save(usher);
 
     // creating partner's ushers:
     List<UserDTO> users = partner.users;
-    if (users != null && !users.isEmpty()) {
+    if (users != null && !users.isEmpty() && isAtLeastOneUsher(users)) {
       saveUshers(users, partnerToPersist);
     }
 

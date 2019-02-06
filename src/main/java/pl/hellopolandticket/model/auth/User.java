@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import io.jsonwebtoken.Jwts;
@@ -22,12 +23,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import pl.hellopoland.dto.PartnerDTO;
 import pl.hellopolandticket.model.partner.Partner;
 
 @Getter
 @Entity
-@Table(name = "USERS")
+@Table(name = "USERS", uniqueConstraints = {
+    @UniqueConstraint(name = "email_hidden_unique", columnNames = {"email", "hidden"})})
 @EqualsAndHashCode(exclude = {"authorities"})
 @NoArgsConstructor
 @ToString(exclude = {"name", "password", "email", "authorities", "token"})
@@ -51,7 +52,7 @@ public class User implements Serializable {
 
   @Setter
   @NotNull
-  @Column(name = "EMAIL", nullable = false, unique = true)
+  @Column(name = "EMAIL", nullable = false)
   @Email
   private String email;
 
@@ -102,8 +103,4 @@ public class User implements Serializable {
     return user;
   }
 
-  @Builder
-  public static User createUsher(PartnerDTO partner) {
-    return createUsher(partner.name, partner.email, partner.password, partner);
-  }
 }
