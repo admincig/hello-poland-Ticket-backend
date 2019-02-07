@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import pl.hellopoland.dto.UserDTO;
 import pl.hellopolandticket.dao.UserDao;
 import pl.hellopolandticket.model.auth.User;
+import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
@@ -31,5 +32,9 @@ public class UserService extends ServiceSuperclass {
 
   public User save(User user) {
     return userDao.persist(user);
+  }
+
+  public void changePassword(String password, CurrentUser currentUser) {
+    findUserByEmail(currentUser.getPrincipal()).setPassword(password);
   }
 }
