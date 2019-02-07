@@ -13,7 +13,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import io.jsonwebtoken.Jwts;
@@ -27,8 +26,7 @@ import pl.hellopolandticket.model.partner.Partner;
 
 @Getter
 @Entity
-@Table(name = "USERS", uniqueConstraints = {
-    @UniqueConstraint(name = "email_hidden_unique", columnNames = {"email", "hidden"})})
+@Table(name = "USERS")
 @EqualsAndHashCode(exclude = {"authorities"})
 @NoArgsConstructor
 @ToString(exclude = {"name", "password", "email", "authorities", "token"})
@@ -52,7 +50,7 @@ public class User implements Serializable {
 
   @Setter
   @NotNull
-  @Column(name = "EMAIL", nullable = false)
+  @Column(name = "EMAIL", nullable = false, unique = true)
   @Email
   private String email;
 

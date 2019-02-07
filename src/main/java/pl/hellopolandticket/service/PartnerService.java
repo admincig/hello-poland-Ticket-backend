@@ -1,13 +1,14 @@
 package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.model.auth.User.createHiddenUser;
 import static pl.hellopolandticket.model.auth.User.createUsher;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofPartnerWithToken;
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -41,12 +42,9 @@ public class PartnerService extends ServiceSuperclass {
     partnerDao.persist(partnerToPersist);
 
     User user = createHiddenUser(partner.name, partner.email,
-        Collections.singleton(ROLE_EXTERNAL_USER), partnerToPersist);
+        Set.of(ROLE_EXTERNAL_USER, ROLE_USHER), partnerToPersist);
+    user.setPassword(passwordEncoder.encode(partner.password));
     user = userService.save(user);
-
-    User usher = createUsher(partner.name, partner.email, passwordEncoder.encode(partner.password),
-        partnerToPersist);
-    userService.save(usher);
 
     // creating partner's ushers:
     List<UserDTO> users = partner.users;
