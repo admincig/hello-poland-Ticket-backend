@@ -43,7 +43,8 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         var bo = AvailableTicketNumberAssociation.builder()
             .ticketDefinition(tdService.get(tdDto.id)).ticketPoolDefinition(ticketPoolDefinition)
             .availableTicketsNumber(
-                tdDto.availableTicketsNumber != null ? tdDto.availableTicketsNumber
+                (tdDto.availableTicketsNumber != null && tdDto.availableTicketsNumber > -1)
+                    ? tdDto.availableTicketsNumber
                     : ticketPoolDefinition.getAvailableTicketsNumber())
             .build();
         dao.persist(bo);

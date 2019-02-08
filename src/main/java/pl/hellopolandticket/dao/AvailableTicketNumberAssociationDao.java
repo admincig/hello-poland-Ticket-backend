@@ -34,12 +34,15 @@ public class AvailableTicketNumberAssociationDao {
     List<AvailableTicketNumberAssociation> atp = entityManager.createQuery(
         "from AvailableTicketNumberAssociation a where a.ticketPool.ticketPoolDefinition = :tpd",
         AvailableTicketNumberAssociation.class).setParameter("tpd", tpd).getResultList();
+
     List<AvailableTicketNumberAssociation> atpd = entityManager
         .createQuery("from AvailableTicketNumberAssociation a where a.ticketPoolDefinition = :tpd",
             AvailableTicketNumberAssociation.class)
         .setParameter("tpd", tpd).getResultList();
+
     List<AvailableTicketNumberAssociation> atpdCopy = new ArrayList<>(atpd);
     List<AvailableTicketNumberAssociation> result = new ArrayList<>();
+
     for (AvailableTicketNumberAssociation a1 : atp) {
       for (AvailableTicketNumberAssociation a2 : atpd) {
         if (a1.getTicketDefinition().equals(a2.getTicketDefinition())) {
