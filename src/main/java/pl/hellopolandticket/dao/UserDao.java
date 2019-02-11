@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
+import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
 @LocalBean
@@ -15,10 +17,18 @@ public class UserDao {
 
   @PersistenceContext
   private EntityManager entityManager;
+  @Inject
+  private ExceptionFactory exceptionFactory;
 
   public Optional<User> findByEmail(String email) {
     return entityManager.createQuery("from User user where user.email=:email", User.class)
         .setParameter("email", email).getResultStream().findFirst();
+  }
+
+  public User findByEmailOrThrowException(String email) {
+    return entityManager.createQuery("from User user where user.email=:email", User.class)
+        .setParameter("email", email).getResultStream().findFirst()
+        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
   public Optional<User> findByEmailWithAuthorities(String email) {
@@ -53,10 +63,11 @@ public class UserDao {
   }
 
   public List<User> getUsersByPartnerAndRole(Partner partner, String role) {
-    return entityManager
-        .createQuery("from User user where user.partner = :partner and :role in user.authorities",
-            User.class)
-        .setParameter("partner", partner).setParameter("role", role).getResultList();
+    User loggedUser = findByEmailOrThrowException(partner.getEmail());
+    return entityManager.createQuery(
+        "from User user where user.partner = :partner and user.id != :partnerId and :role in elements(user.authorities)",
+        User.class).setParameter("partner", partner).setParameter("partnerId", loggedUser.getId())
+        .setParameter("role", role).getResultList();
   }
 
 }
