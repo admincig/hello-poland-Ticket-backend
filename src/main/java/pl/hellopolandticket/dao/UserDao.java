@@ -1,11 +1,13 @@
 package pl.hellopolandticket.dao;
 
+import java.util.List;
 import java.util.Optional;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import pl.hellopolandticket.model.auth.User;
+import pl.hellopolandticket.model.partner.Partner;
 
 @Stateless
 @LocalBean
@@ -48,6 +50,13 @@ public class UserDao {
     entityManager.persist(user);
 
     return user;
+  }
+
+  public List<User> getUsersByPartnerAndRole(Partner partner, String role) {
+    return entityManager
+        .createQuery("from User user where user.partner = :partner and :role in user.authorities",
+            User.class)
+        .setParameter("partner", partner).setParameter("role", role).getResultList();
   }
 
 }
