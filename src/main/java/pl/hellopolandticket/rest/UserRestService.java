@@ -6,7 +6,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import pl.hellopoland.dto.UserAuthDTO;
@@ -32,12 +32,12 @@ public class UserRestService extends RestServiceSuperclass {
     return Response.ok(userService.findByEmail(currentUser.getPrincipal())).build();
   }
 
-  @PATCH
+  @PUT
   @Path("/password")
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response changePassword(UserAuthDTO user) {
     userService.changePassword(user.password, currentUser);
-    return Response.ok().build();
+    return Response.ok(new UserAuthDTO()).build();
   }
 
 }
