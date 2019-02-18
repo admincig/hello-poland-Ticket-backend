@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import pl.hellopolandticket.model.auth.User;
-import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
@@ -19,6 +18,8 @@ public class UserDao {
   private EntityManager entityManager;
   @Inject
   private ExceptionFactory exceptionFactory;
+  @Inject
+  private PartnerDao partnerDao;
 
   public Optional<User> findByEmail(String email) {
     return entityManager.createQuery("from User user where user.email=:email", User.class)
@@ -62,12 +63,11 @@ public class UserDao {
     return user;
   }
 
-  public List<User> getUsersByPartnerAndRole(Partner partner, String role) {
-    User loggedUser = findByEmailOrThrowException(partner.getEmail());
+  public List<User> getUsersByCurrentUserAndRole(User loggedUser, String role) {
     return entityManager.createQuery(
-        "from User user where user.partner = :partner and user.id != :partnerId and :role in elements(user.authorities)",
-        User.class).setParameter("partner", partner).setParameter("partnerId", loggedUser.getId())
-        .setParameter("role", role).getResultList();
+        "from User u where u.partner.id = :partnerId and u.id != :partnerId and :role in elements(u.authorities)",
+        User.class).setParameter("partnerId", loggedUser.getId()).setParameter("role", role)
+        .getResultList();
   }
 
 }
