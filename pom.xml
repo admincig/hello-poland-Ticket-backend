@@ -29,7 +29,7 @@
 			<dependency>
 				<groupId>pl.hellopoland</groupId>
 				<artifactId>hellopoland-dto</artifactId>
-				<version>1.0.9</version>
+				<version>1.0.10</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -151,12 +151,12 @@
 
 	<repositories>
 		<repository>
-			<id>fream-nexus-snapshots</id>
-			<url>https://packages.fream.pl/repository/maven-fream-snapshots</url>
-		</repository>
-		<repository>
 			<id>fream-nexus-releases</id>
 			<url>https://packages.fream.pl/repository/maven-fream-releases</url>
+		</repository>
+		<repository>
+			<id>fream-nexus-snapshots</id>
+			<url>https://packages.fream.pl/repository/maven-fream-snapshots</url>
 		</repository>
 	</repositories>
 
