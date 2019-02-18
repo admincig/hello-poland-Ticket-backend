@@ -21,6 +21,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
+import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
@@ -72,17 +73,22 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       Date fromDate, Date toDate) {
     var se = seService.findSightEventById(sightEventId);
     se.getTicketPoolDefinitions().size();
+    var associationsTPD = new HashSet<AvailableTicketNumberAssociation>();
+    var associationsTP = new HashSet<AvailableTicketNumberAssociation>();
+
     LocalDate fromDateLD =
         fromDate != null ? fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
             : LocalDate.now();
-    var associationsTPD = new HashSet<AvailableTicketNumberAssociation>();
-    var associationsTP = new HashSet<AvailableTicketNumberAssociation>();
 
     if (toDate == null) {
       fillTicketAssociations(se, associationsTPD, associationsTP, fromDateLD);
     } else {
       LocalDate toDateLD =
-          toDate.toInstant().atZone(ZoneId.systemDefault()).plusDays(1).toLocalDate();
+          toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().plusDays(1);
+      if (toDateLD.isBefore(fromDateLD)) {
+        throw new ConflictingException(
+            "toDate[" + toDate + "] is before fromDate[" + fromDate + "]");
+      }
       fromDateLD.datesUntil(toDateLD).forEach(ld -> {
         fillTicketAssociations(se, associationsTPD, associationsTP, ld);
       });
