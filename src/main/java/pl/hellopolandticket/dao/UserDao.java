@@ -65,9 +65,9 @@ public class UserDao {
 
   public List<User> getUsersByCurrentUserAndRole(User loggedUser, String role) {
     return entityManager.createQuery(
-        "from User u where u.partner.id = :partnerId and u.id != :partnerId and :role in elements(u.authorities)",
-        User.class).setParameter("partnerId", loggedUser.getId()).setParameter("role", role)
-        .getResultList();
+        "from User u where u.partner = :partner and u != :loggedUser and :role in elements(u.authorities)",
+        User.class).setParameter("partner", loggedUser.getPartner())
+        .setParameter("loggedUser", loggedUser).setParameter("role", role).getResultList();
   }
 
 }
