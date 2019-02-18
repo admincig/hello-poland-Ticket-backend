@@ -1,13 +1,14 @@
 package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.model.auth.User.createHiddenUser;
 import static pl.hellopolandticket.model.auth.User.createUsher;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofPartnerWithToken;
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -21,7 +22,6 @@ import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.security.password.PasswordEncoder;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
-import pl.hellopolandticket.service.exception.badrequest.BadRequestException;
 
 @Stateless
 @LocalBean
@@ -38,20 +38,19 @@ public class PartnerService extends ServiceSuperclass {
   private ExceptionFactory exceptionFactory;
 
   public PartnerDTO save(PartnerDTO partner) {
-    var usersDTOs = partner.users;
-    if (usersDTOs == null || usersDTOs.isEmpty() || !isAtLeastOneUsher(usersDTOs)) {
-      throw new BadRequestException("Wymagany jest co najmniej jeden uzytkownik z rolą biletera.");
-    }
-
     Partner partnerToPersist = Partner.builder().name(partner.name).email(partner.email).build();
     partnerDao.persist(partnerToPersist);
 
     User user = createHiddenUser(partner.name, partner.email,
-        Collections.singleton(ROLE_EXTERNAL_USER), partnerToPersist);
+        Set.of(ROLE_EXTERNAL_USER, ROLE_USHER), partnerToPersist);
+    user.setPassword(passwordEncoder.encode(partner.password));
     user = userService.save(user);
 
     // creating partner's ushers:
-    saveUshers(partner.users, partnerToPersist);
+    List<UserDTO> users = partner.users;
+    if (users != null && !users.isEmpty() && isAtLeastOneUsher(users)) {
+      saveUshers(users, partnerToPersist);
+    }
 
     return ofPartnerWithToken(partnerToPersist, user.getToken());
   }

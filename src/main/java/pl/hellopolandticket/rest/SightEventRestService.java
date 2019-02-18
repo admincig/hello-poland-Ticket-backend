@@ -2,6 +2,7 @@ package pl.hellopolandticket.rest;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofCollection;
 import java.util.Date;
 import java.util.List;
@@ -90,7 +91,7 @@ public class SightEventRestService extends RestServiceSuperclass {
 
   @PATCH
   @Path("/{sightEventId}/tickets/{serialNumber}")
-  @RolesAllowed({ROLE_USER})
+  @RolesAllowed({ROLE_USER, ROLE_USHER})
   public Response punchTicket(@PathParam("sightEventId") Long sightEventId,
       @PathParam("serialNumber") String serialNumber) {
 
