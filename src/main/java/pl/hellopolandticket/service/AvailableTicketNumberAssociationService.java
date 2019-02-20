@@ -77,22 +77,11 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         .forEach(tpd -> {
           List<TicketPool> ticketPools = tpd.getTicketPools();
           tpd.getTicketPools().size();
-          if (!tpd.getIsCyclic() && ticketPools != null && !ticketPools.isEmpty()) {
-            var tps = getFilteredTpsByDates(date, ticketPools);
-            if (!tps.isEmpty()) {
-              fillFromTPs(associationsTP, tps);
-            }
-          }
-          if (ticketPools == null || ticketPools.isEmpty()) {
+          List<TicketPool> tps = getFilteredTpsByDates(date, ticketPools);
+          if (tps != null && !tps.isEmpty()) {
+            fillFromTPs(associationsTP, tps);
+          } else {
             fillFromTPD(associationsTPD, tpd);
-          }
-          if (tpd.getIsCyclic() && ticketPools != null && !ticketPools.isEmpty()) {
-            var tps = getFilteredTpsByDates(date, ticketPools);
-            if (!tps.isEmpty()) {
-              fillFromTPs(associationsTP, tps);
-            } else {
-              fillFromTPD(associationsTPD, tpd);
-            }
           }
         });
 
