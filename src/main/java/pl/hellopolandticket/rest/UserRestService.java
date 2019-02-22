@@ -44,8 +44,8 @@ public class UserRestService extends RestServiceSuperclass {
   @PUT
   @Path("/{id}/password")
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response changeUserPassword(@PathParam("id") long usherId, UserAuthDTO user) {
-    userService.changePassword(user, usherId);
+  public Response changeUserPassword(@PathParam("id") long usherId, UserAuthDTO userAuthDTO) {
+    userService.changePassword(userAuthDTO, usherId);
     return Response.ok(new UserAuthDTO()).build();
   }
 

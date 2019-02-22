@@ -50,12 +50,7 @@ public class UserService extends ServiceSuperclass {
   }
 
   public void changePassword(UserAuthDTO userAuthDTO, Long userId) {
-    User user;
-    if (userId == null) {
-      user = findUserByEmail(currentUser.getPrincipal());
-    } else {
-      user = findUserById(userId);
-    }
+    User user = userId == null ? getLoggedUser() : findUserById(userId);
     if (!passwordEncoder.matches(userAuthDTO.oldPassword, user.getPassword())) {
       throw new ConflictingException("Incorrect old password.");
     }
