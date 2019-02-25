@@ -6,13 +6,16 @@ import java.util.stream.Collectors;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import pl.hellopoland.dto.UserAuthDTO;
 import pl.hellopoland.dto.UserDTO;
 import pl.hellopolandticket.dao.UserDao;
 import pl.hellopolandticket.model.auth.Role;
 import pl.hellopolandticket.model.auth.User;
+import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.security.password.PasswordEncoder;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
+import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
@@ -24,6 +27,13 @@ public class UserService extends ServiceSuperclass {
   private ExceptionFactory exceptionFactory;
   @Inject
   private PasswordEncoder passwordEncoder;
+  @Inject
+  @Authenticated
+  private CurrentUser currentUser;
+
+  public User findUserById(Long id) {
+    return userDao.findUserById(id).orElseThrow(() -> exceptionFactory.resourceNotFoundException());
+  }
 
   public User findUserByEmail(String email) {
     return userDao.findByEmail(email)
@@ -39,8 +49,12 @@ public class UserService extends ServiceSuperclass {
     return userDao.persist(user);
   }
 
-  public void changePassword(String password, CurrentUser currentUser) {
-    findUserByEmail(currentUser.getPrincipal()).setPassword(passwordEncoder.encode(password));
+  public void changePassword(UserAuthDTO userAuthDTO, Long userId) {
+    User user = userId == null ? getLoggedUser() : findUserById(userId);
+    if (!passwordEncoder.matches(userAuthDTO.oldPassword, user.getPassword())) {
+      throw new ConflictingException("Incorrect old password.");
+    }
+    user.setPassword(passwordEncoder.encode(userAuthDTO.password));
   }
 
   public List<UserDTO> getUshers(CurrentUser currentUser) {

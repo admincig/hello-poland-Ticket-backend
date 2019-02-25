@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import pl.hellopoland.dto.UserAuthDTO;
 import pl.hellopolandticket.security.Authenticated;
@@ -33,10 +34,18 @@ public class UserRestService extends RestServiceSuperclass {
   }
 
   @PUT
-  @Path("/password")
+  @Path("/me/password")
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response changePassword(UserAuthDTO user) {
-    userService.changePassword(user.password, currentUser);
+  public Response changeMePassword(UserAuthDTO userDTO) {
+    userService.changePassword(userDTO, null);
+    return Response.ok(new UserAuthDTO()).build();
+  }
+
+  @PUT
+  @Path("/{id}/password")
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public Response changeUserPassword(@PathParam("id") long usherId, UserAuthDTO userAuthDTO) {
+    userService.changePassword(userAuthDTO, usherId);
     return Response.ok(new UserAuthDTO()).build();
   }
 
