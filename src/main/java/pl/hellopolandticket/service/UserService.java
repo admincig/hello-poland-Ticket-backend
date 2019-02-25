@@ -35,6 +35,15 @@ public class UserService extends ServiceSuperclass {
     return userDao.findUserById(id).orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
+  public UserDTO findById(Long id) {
+    return ofUser(findUserById(id));
+  }
+
+  public UserDTO getUserForCurrnetPartner(long userId) {
+    return ofUser(userDao.getUserByCurrentPartnerAndRoleAndId(userId, getLoggedUser().getPartner(),
+        Role.ROLE_USHER));
+  }
+
   public User findUserByEmail(String email) {
     return userDao.findByEmail(email)
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
@@ -57,7 +66,7 @@ public class UserService extends ServiceSuperclass {
     user.setPassword(passwordEncoder.encode(userAuthDTO.password));
   }
 
-  public List<UserDTO> getUshers(CurrentUser currentUser) {
+  public List<UserDTO> getUshersForCurrnetPartner(CurrentUser currentUser) {
     User loggedUser = findUserByEmail(currentUser.getPrincipal());
     return userDao.getUsersByCurrentUserAndRole(loggedUser, Role.ROLE_USHER).stream()
         .map(ModelObjectsToDTOConverter::ofUser).collect(Collectors.toList());
