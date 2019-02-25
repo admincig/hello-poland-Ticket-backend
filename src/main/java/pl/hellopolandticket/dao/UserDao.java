@@ -18,8 +18,10 @@ public class UserDao {
   private EntityManager entityManager;
   @Inject
   private ExceptionFactory exceptionFactory;
-  @Inject
-  private PartnerDao partnerDao;
+
+  public Optional<User> findUserById(Long id) {
+    return Optional.ofNullable(entityManager.find(User.class, id));
+  }
 
   public Optional<User> findByEmail(String email) {
     return entityManager.createQuery("from User user where user.email=:email", User.class)
