@@ -151,11 +151,11 @@
 
 	<repositories>
 		<repository>
-			<id>nexus-releases</id>
+			<id>fream-nexus-releases</id>
 			<url>https://packages.fream.pl/repository/maven-fream-releases</url>
 		</repository>
 		<repository>
-			<id>nexus-snapshots</id>
+			<id>fream-nexus-snapshots</id>
 			<url>https://packages.fream.pl/repository/maven-fream-snapshots</url>
 		</repository>
 	</repositories>
