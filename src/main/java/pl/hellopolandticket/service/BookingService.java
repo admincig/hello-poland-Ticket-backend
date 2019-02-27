@@ -2,6 +2,8 @@ package pl.hellopolandticket.service;
 
 import static java.lang.Integer.valueOf;
 import static java.util.stream.Collectors.toList;
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
 import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofBooking;
@@ -13,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
@@ -70,6 +73,7 @@ public class BookingService extends ServiceSuperclass {
   @Inject
   private ExceptionFactory exceptionFactory;
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public BookingDTO createBooking(BookingDTO booking) {
     Booking bookingToPersist = Booking.builder().date(new Date()).customerName(booking.customerName)
         .customerEmail(booking.customerEmail).build();
@@ -85,6 +89,7 @@ public class BookingService extends ServiceSuperclass {
     return ofBooking(bookingDao.persist(bookingToPersist));
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public BookingDTO markBookingAsBought(String serialNumber, String p24OrderId,
       String p24Currency) {
     logger.log(Logger.Level.INFO, "...........Start buying tickets..............");
@@ -103,6 +108,7 @@ public class BookingService extends ServiceSuperclass {
     return ofBooking(booking);
   }
 
+  @RolesAllowed({ROLE_ADMIN})
   public void makeInvalid(Booking expiredBooking) {
     expiredBooking.setStatus(INVALID);
     for (Ticket t : expiredBooking.getTickets()) {

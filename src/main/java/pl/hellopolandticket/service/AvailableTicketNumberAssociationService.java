@@ -1,5 +1,7 @@
 package pl.hellopolandticket.service;
 
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -65,6 +68,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     }
   }
 
+  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public AvailableTicketNumberAssociationDTO checkAvailabilityOfTickets(Long sightEventId,
       Date date) {
     var se = seService.findSightEventById(sightEventId);

@@ -1,9 +1,6 @@
 package pl.hellopolandticket.rest;
 
-import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
-import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
 import java.util.Date;
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -26,7 +23,6 @@ public class AvailableTicketNumberAssociationRestService {
   private AvailableTicketNumberAssociationService service;
 
   @GET
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response checkAvailabilityOfTickets(@QueryParam("sightEventId") Long id,
       @QueryParam("date") @DateFormat Date date) {
     return Response.ok(service.checkAvailabilityOfTickets(id, date)).build();
