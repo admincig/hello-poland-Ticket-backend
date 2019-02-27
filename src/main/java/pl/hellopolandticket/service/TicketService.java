@@ -2,8 +2,6 @@ package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicket;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.util.Date;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -19,8 +17,6 @@ import pl.hellopolandticket.service.validator.TicketValidator;
 @Stateless
 @LocalBean
 public class TicketService extends ServiceSuperclass {
-  private static final Logger HELPDESK_LOGGER = System.getLogger("helpdesk-TicketService");
-
   @Inject
   private TicketDao ticketDao;
 
@@ -29,9 +25,6 @@ public class TicketService extends ServiceSuperclass {
 
   @Inject
   private UserService userService;
-
-  @Inject
-  private SightEventService sightEventService;
 
   public TicketDTO punchTicket(CurrentUser currentUser, Long sightEventId, String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
@@ -51,11 +44,6 @@ public class TicketService extends ServiceSuperclass {
     ticket.setTicketTaker(ticketTaker);
     ticket.setStatus(PUNCHED);
     ticket.setPunchingDate(new Date());
-
-    HELPDESK_LOGGER.log(Level.INFO,
-        "BILETER: " + ticketTaker.getName() + " | PARTNER: " + ticketTaker.getPartner().getName()
-            + " | KLIENT: " + ticket.getBooking().getCustomerName() + " | WYDARZENIE: "
-            + sightEventService.findSightEventById(sightEventId).getName());
 
     return ofTicket(ticket);
   }

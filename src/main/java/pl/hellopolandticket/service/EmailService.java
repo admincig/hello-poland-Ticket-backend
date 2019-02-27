@@ -21,7 +21,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.activation.DataHandler;
 import javax.enterprise.context.RequestScoped;
@@ -50,7 +49,6 @@ import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
-  private static final Logger HELPDESK_lOG = System.getLogger("helpdesk-orders");
   private final Logger logger = System.getLogger(this.getClass().getName());
 
   private static final String MAIL_TICKET_COPY = "ticket.copy@hello-poland.pl";
@@ -92,15 +90,7 @@ public class EmailService extends ServiceSuperclass {
               bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId(),
               bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
       Transport.send(message);
-      if (replyToEmail == null) {
-        // that means the email is sending to the customer, not to the partner
-        HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, true));
-      }
     } catch (MessagingException | IOException | TemplateException e) {
-      if (replyToEmail == null) {
-        // that means the email is sending to the customer, not to the partner
-        HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
-      }
       logger.log(Level.ERROR, e.toString());
       throw e;
     } catch (Exception e) {
@@ -108,22 +98,6 @@ public class EmailService extends ServiceSuperclass {
       throw e;
     }
     logger.log(Level.INFO, "........... End sending email with qrCodes ..............");
-  }
-
-  private String getHelpdeskLogMessage(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent,
-      boolean mailWasSend) throws MessagingException {
-    StringBuilder sb = new StringBuilder();
-    sb.append("PŁATNOŚĆ: ").append(getValueOfOrder(bookingMarkedAsBoughtEvent.getTickets()))
-        .append(" " + bookingMarkedAsBoughtEvent.getP24Currency()).append(" | NR TRANSAKCJI P24: ")
-        .append(bookingMarkedAsBoughtEvent.getP24OrderId()).append(" | CZY MAIL ZOSTAŁ WYSŁANY: ")
-        .append(mailWasSend ? "tak" : "nie").append(" | NAZWA UŻUTKOWNIKA: ")
-        .append(bookingMarkedAsBoughtEvent.getCustomerName()).append(" | ADRES EMAIL: ")
-        .append(bookingMarkedAsBoughtEvent.getRecipientEmail());
-    return sb.toString();
-  }
-
-  private double getValueOfOrder(List<TicketDTO> tickets) {
-    return tickets.stream().collect(Collectors.summingDouble(t -> Double.valueOf(t.price) / 100));
   }
 
   private Session createSessionForEmail() {
