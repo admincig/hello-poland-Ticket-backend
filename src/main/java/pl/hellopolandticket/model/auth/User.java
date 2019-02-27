@@ -100,4 +100,5 @@ public class User implements Serializable {
     user.setPassword(password);
     return user;
   }
+
 }

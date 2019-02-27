@@ -43,7 +43,6 @@ public class ModelObjectsToDTOConverter {
 
   public static SightEventDTO ofSightEvent(SightEvent sightEvent, Long sightId) {
     SightEventDTO sightEventDTO = new SightEventDTO();
-
     sightEventDTO.id = sightEvent.getId();
     sightEventDTO.name = sightEvent.getName();
     sightEventDTO.description = sightEvent.getDescription();
@@ -59,14 +58,11 @@ public class ModelObjectsToDTOConverter {
     sightEventDTO.published = sightEvent.getPublished();
     sightEventDTO.location = ofNullable(sightEvent.getSightEventLocation())
         .map(ModelObjectsToDTOConverter::ofSightLocation).orElse(null);
-
     sightEventDTO.ticketPoolDefinitions = sightEvent.getTicketPoolDefinitions().stream()
         .map(ModelObjectsToDTOConverter::ofTicketPoolDefinition).collect(toList());
-
     sightEventDTO.openingHours = ofNullable(sightEvent.getOpeningHours())
         .map(v -> v.stream().map(ModelObjectsToDTOConverter::ofOpeningHours).collect(toList()))
         .orElse(null);
-
     return sightEventDTO;
   }
 
@@ -102,18 +98,15 @@ public class ModelObjectsToDTOConverter {
 
   public static SightEventDTO ofSightEventBasic(SightEvent sightEvent) {
     SightEventDTO sightEventDTO = new SightEventDTO();
-
     sightEventDTO.id = sightEvent.getId();
     sightEventDTO.name = sightEvent.getName();
     sightEventDTO.blocked = sightEvent.getBlocked();
     sightEventDTO.published = sightEvent.getPublished();
-
     return sightEventDTO;
   }
 
   public static TicketDTO ofTicket(Ticket ticket) {
     TicketDTO ticketDTO = new TicketDTO();
-
     ticketDTO.id = ticket.getId();
     ticketDTO.name = ticket.getName();
     ticketDTO.price = ticket.getPrice();
@@ -125,36 +118,30 @@ public class ModelObjectsToDTOConverter {
     ticketDTO.bookingId = ticket.getBooking().getId();
     ticketDTO.booking = ofBookingBasic(ticket.getBooking());
     ticketDTO.wholeDay = ticket.getTicketPool().getTicketPoolDefinition().isWholeDay();
-
     return ticketDTO;
   }
 
   public static TicketDTO ofTicketWithQrCode(Ticket ticket, ByteArrayOutputStream qrCode) {
     TicketDTO ticketDTO = ofTicket(ticket);
     ticketDTO.qrCode = qrCode;
-
     return ticketDTO;
   }
 
   public static BookingDTO ofBooking(Booking booking) {
     BookingDTO bookingDTO = ofBookingBasic(booking);
-
     bookingDTO.status = StatusDTO.valueOf(booking.getStatus().name());
     bookingDTO.serialNumber = booking.getSerialNumber();
     bookingDTO.tickets =
         booking.getTickets().stream().map(ModelObjectsToDTOConverter::ofTicket).collect(toList());
-
     return bookingDTO;
   }
 
   public static BookingDTO ofBookingBasic(Booking booking) {
     BookingDTO bookingDTO = new BookingDTO();
-
     bookingDTO.id = booking.getId();
     bookingDTO.date = booking.getDate();
     bookingDTO.customerName = booking.getCustomerName();
     bookingDTO.customerEmail = booking.getCustomerEmail();
-
     return bookingDTO;
   }
 
@@ -167,7 +154,6 @@ public class ModelObjectsToDTOConverter {
 
   public static PartnerDTO ofPartner(Partner partner) {
     PartnerDTO partnerDTO = new PartnerDTO();
-
     partnerDTO.id = partner.getId();
     partnerDTO.name = partner.getName();
     partnerDTO.users = Optional.ofNullable(partner.getUsers()).orElse(Collections.emptyList())
@@ -175,36 +161,28 @@ public class ModelObjectsToDTOConverter {
     partnerDTO.sightEvents =
         Optional.ofNullable(partner.getSightEvents()).orElse(Collections.emptyList()).stream()
             .map(ModelObjectsToDTOConverter::ofSightEventBasic).collect(toList());
-
     return partnerDTO;
   }
 
   public static UserDTO ofUser(User user) {
     UserDTO userDTO = new UserDTO();
-
     userDTO.id = user.getId();
     userDTO.name = user.getName();
     userDTO.email = user.getEmail();
-
     return userDTO;
   }
 
   public static ApplicationPropertyDTO ofApplicationProperty(
       ApplicationProperty applicationProperty) {
-
     ApplicationPropertyDTO applicationPropertyDTO = new ApplicationPropertyDTO();
-
     applicationPropertyDTO.propertyName = applicationProperty.getPropertyName();
     applicationPropertyDTO.propertyValue = applicationProperty.getPropertyValue();
-
     return applicationPropertyDTO;
   }
 
   public static CollectionWrapperDTO ofCollection(Collection<?> collection) {
     CollectionWrapperDTO collectionWrapperDTO = new CollectionWrapperDTO();
-
     collectionWrapperDTO.items = collection;
-
     return collectionWrapperDTO;
   }
 
@@ -212,28 +190,23 @@ public class ModelObjectsToDTOConverter {
   public static AbstractErrorDTO abstractErrorDTO(Class<? extends Exception> exception,
       String message, Object object) {
     AbstractErrorDTO abstractErrorDTO = new AbstractErrorDTO();
-
     abstractErrorDTO.exception = exception.getSimpleName();
     abstractErrorDTO.message = message;
     abstractErrorDTO.object = object;
-
     return abstractErrorDTO;
   }
 
   public static UserAuthDTO ofCurrentUser(CurrentUser currentUser) {
     UserAuthDTO userAuthDTO = new UserAuthDTO();
-
     userAuthDTO.login = currentUser.getPrincipal();
     userAuthDTO.accessToken = currentUser.getAccessToken();
     userAuthDTO.refreshToken = currentUser.getRefreshToken();
-
     return userAuthDTO;
   }
 
 
   public static TicketPoolDTO ofTicketPool(TicketPool ticketPool) {
     TicketPoolDTO ticketPoolDTO = new TicketPoolDTO();
-
     ticketPoolDTO.id = ticketPool.getId();
     ticketPoolDTO.name = ticketPool.getName();
     ticketPoolDTO.availableTicketsNumber = ticketPool.getAvailableTicketsNumber();

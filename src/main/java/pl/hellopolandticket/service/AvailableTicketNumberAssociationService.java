@@ -48,7 +48,8 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         var bo = AvailableTicketNumberAssociation.builder()
             .ticketDefinition(tdService.get(tdDto.id)).ticketPoolDefinition(ticketPoolDefinition)
             .availableTicketsNumber(
-                tdDto.availableTicketsNumber != null ? tdDto.availableTicketsNumber
+                (tdDto.availableTicketsNumber != null && tdDto.availableTicketsNumber > -1)
+                    ? tdDto.availableTicketsNumber
                     : ticketPoolDefinition.getAvailableTicketsNumber())
             .build();
         dao.persist(bo);
@@ -73,6 +74,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       Date fromDate, Date toDate) {
     var se = seService.findSightEventById(sightEventId);
     se.getTicketPoolDefinitions().size();
+    // <<<<<<< HEAD
     var associationsTPD = new HashSet<AvailableTicketNumberAssociation>();
     var associationsTP = new HashSet<AvailableTicketNumberAssociation>();
 
@@ -93,6 +95,24 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         fillTicketAssociations(se, associationsTPD, associationsTP, ld);
       });
     }
+    // =======
+    //
+    // var associationsTPD = new ArrayList<AvailableTicketNumberAssociation>();
+    // var associationsTP = new ArrayList<AvailableTicketNumberAssociation>();
+    //
+    // se.getTicketPoolDefinitions().stream().filter(tpd -> checkDates(date, tpd) &&
+    // !tpd.isDeleted())
+    // .forEach(tpd -> {
+    // List<TicketPool> ticketPools = tpd.getTicketPools();
+    // tpd.getTicketPools().size();
+    // List<TicketPool> tps = getFilteredTpsByDates(date, ticketPools);
+    // if (tps != null && !tps.isEmpty()) {
+    // fillFromTPs(associationsTP, tps);
+    // } else {
+    // fillFromTPD(associationsTPD, tpd);
+    // }
+    // });
+    // >>>>>>> develop
 
     var result = new AvailableTicketNumberAssociationDTO();
     result.ticketPoolDefinitions = new ArrayList<>();
@@ -137,22 +157,11 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         .filter(tpd -> checkDates(localDate, tpd) && !tpd.isDeleted()).forEach(tpd -> {
           List<TicketPool> ticketPools = tpd.getTicketPools();
           tpd.getTicketPools().size();
-          if (!tpd.getIsCyclic() && ticketPools != null && !ticketPools.isEmpty()) {
-            var tps = getFilteredTpsByDates(localDate, ticketPools);
-            if (!tps.isEmpty()) {
-              fillFromTPs(associationsTP, tps);
-            }
-          }
-          if (ticketPools == null || ticketPools.isEmpty()) {
+          List<TicketPool> tps = getFilteredTpsByDates(localDate, ticketPools);
+          if (tps != null && !tps.isEmpty()) {
+            fillFromTPs(associationsTP, tps);
+          } else {
             fillFromTPD(associationsTPD, tpd);
-          }
-          if (tpd.getIsCyclic() && ticketPools != null && !ticketPools.isEmpty()) {
-            var tps = getFilteredTpsByDates(localDate, ticketPools);
-            if (!tps.isEmpty()) {
-              fillFromTPs(associationsTP, tps);
-            } else {
-              fillFromTPD(associationsTPD, tpd);
-            }
           }
         });
   }
