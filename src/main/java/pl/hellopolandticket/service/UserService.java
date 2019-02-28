@@ -39,9 +39,13 @@ public class UserService extends ServiceSuperclass {
     return ofUser(findUserById(id));
   }
 
+  public UserDTO getUserByRoleForCurrentPartner(long userId, String userRole) {
+    return ofUser(
+        userDao.getUserByRoleForCurrentPartner(userId, getLoggedUser().getPartner(), userRole));
+  }
+
   public UserDTO getUserForCurrnetPartner(long userId) {
-    return ofUser(userDao.getUserByCurrentPartnerAndRoleAndId(userId, getLoggedUser().getPartner(),
-        Role.ROLE_USHER));
+    return ofUser(userDao.getUserForCurrnetPartner(userId, getLoggedUser().getPartner()));
   }
 
   public User findUserByEmail(String email) {
@@ -70,6 +74,12 @@ public class UserService extends ServiceSuperclass {
     User loggedUser = findUserByEmail(currentUser.getPrincipal());
     return userDao.getUsersByCurrentUserAndRole(loggedUser, Role.ROLE_USHER).stream()
         .map(ModelObjectsToDTOConverter::ofUser).collect(Collectors.toList());
+  }
+
+  public UserDTO updateUserForCurrnetPartner(UserDTO userDTO) {
+    User user = userDao.getUserForCurrnetPartner(userDTO.id, getLoggedUser().getPartner());
+    user.setName(userDTO.name);
+    return ofUser(userDao.updateUser(user);
   }
 
 }
