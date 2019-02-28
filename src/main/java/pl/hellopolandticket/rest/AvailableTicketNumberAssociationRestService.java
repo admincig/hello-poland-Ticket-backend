@@ -24,8 +24,9 @@ public class AvailableTicketNumberAssociationRestService {
 
   @GET
   public Response checkAvailabilityOfTickets(@QueryParam("sightEventId") Long id,
-      @QueryParam("date") @DateFormat Date date) {
-    return Response.ok(service.checkAvailabilityOfTickets(id, date)).build();
+      @QueryParam("fromDate") @DateFormat Date fromDate,
+      @QueryParam("toDate") @DateFormat Date toDate) {
+    return Response.ok(service.checkAvailabilityOfTickets(id, fromDate, toDate)).build();
   }
 
 }
