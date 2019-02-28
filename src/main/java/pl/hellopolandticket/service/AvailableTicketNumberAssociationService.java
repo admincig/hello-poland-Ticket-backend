@@ -1,8 +1,11 @@
 package pl.hellopolandticket.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,10 +16,12 @@ import javax.inject.Inject;
 import pl.hellopoland.dto.AvailableTicketNumberAssociationDTO;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopolandticket.dao.AvailableTicketNumberAssociationDao;
+import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
+import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
@@ -66,24 +71,48 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   }
 
   public AvailableTicketNumberAssociationDTO checkAvailabilityOfTickets(Long sightEventId,
-      Date date) {
+      Date fromDate, Date toDate) {
     var se = seService.findSightEventById(sightEventId);
     se.getTicketPoolDefinitions().size();
+    // <<<<<<< HEAD
+    var associationsTPD = new HashSet<AvailableTicketNumberAssociation>();
+    var associationsTP = new HashSet<AvailableTicketNumberAssociation>();
 
-    var associationsTPD = new ArrayList<AvailableTicketNumberAssociation>();
-    var associationsTP = new ArrayList<AvailableTicketNumberAssociation>();
+    LocalDate fromDateLD =
+        fromDate != null ? fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            : LocalDate.now();
 
-    se.getTicketPoolDefinitions().stream().filter(tpd -> checkDates(date, tpd) && !tpd.isDeleted())
-        .forEach(tpd -> {
-          List<TicketPool> ticketPools = tpd.getTicketPools();
-          tpd.getTicketPools().size();
-          List<TicketPool> tps = getFilteredTpsByDates(date, ticketPools);
-          if (tps != null && !tps.isEmpty()) {
-            fillFromTPs(associationsTP, tps);
-          } else {
-            fillFromTPD(associationsTPD, tpd);
-          }
-        });
+    if (toDate == null) {
+      fillTicketAssociations(se, associationsTPD, associationsTP, fromDateLD);
+    } else {
+      LocalDate toDateLD =
+          toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().plusDays(1);
+      if (toDateLD.isBefore(fromDateLD)) {
+        throw new ConflictingException(
+            "toDate[" + toDate + "] is before fromDate[" + fromDate + "]");
+      }
+      fromDateLD.datesUntil(toDateLD).forEach(ld -> {
+        fillTicketAssociations(se, associationsTPD, associationsTP, ld);
+      });
+    }
+    // =======
+    //
+    // var associationsTPD = new ArrayList<AvailableTicketNumberAssociation>();
+    // var associationsTP = new ArrayList<AvailableTicketNumberAssociation>();
+    //
+    // se.getTicketPoolDefinitions().stream().filter(tpd -> checkDates(date, tpd) &&
+    // !tpd.isDeleted())
+    // .forEach(tpd -> {
+    // List<TicketPool> ticketPools = tpd.getTicketPools();
+    // tpd.getTicketPools().size();
+    // List<TicketPool> tps = getFilteredTpsByDates(date, ticketPools);
+    // if (tps != null && !tps.isEmpty()) {
+    // fillFromTPs(associationsTP, tps);
+    // } else {
+    // fillFromTPD(associationsTPD, tpd);
+    // }
+    // });
+    // >>>>>>> develop
 
     var result = new AvailableTicketNumberAssociationDTO();
     result.ticketPoolDefinitions = new ArrayList<>();
@@ -121,42 +150,59 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     return result;
   }
 
-  private List<TicketPool> getFilteredTpsByDates(Date date, List<TicketPool> ticketPools) {
-    return ticketPools.stream().filter(p -> areDatesEquals(p.getStartDate(), date))
+  private void fillTicketAssociations(SightEvent se,
+      HashSet<AvailableTicketNumberAssociation> associationsTPD,
+      HashSet<AvailableTicketNumberAssociation> associationsTP, LocalDate localDate) {
+    se.getTicketPoolDefinitions().stream()
+        .filter(tpd -> checkDates(localDate, tpd) && !tpd.isDeleted()).forEach(tpd -> {
+          List<TicketPool> ticketPools = tpd.getTicketPools();
+          tpd.getTicketPools().size();
+          List<TicketPool> tps = getFilteredTpsByDates(localDate, ticketPools);
+          if (tps != null && !tps.isEmpty()) {
+            fillFromTPs(associationsTP, tps);
+          } else {
+            fillFromTPD(associationsTPD, tpd);
+          }
+        });
+  }
+
+  private List<TicketPool> getFilteredTpsByDates(LocalDate localDate,
+      List<TicketPool> ticketPools) {
+    return ticketPools.stream()
+        .filter(p -> areDatesEquals(
+            p.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), localDate))
         .collect(Collectors.toList());
   }
 
-  private void fillFromTPs(ArrayList<AvailableTicketNumberAssociation> associationsTP,
+  private void fillFromTPs(HashSet<AvailableTicketNumberAssociation> associationsTP,
       List<TicketPool> tps) {
     var availableTicketNumbers = new ArrayList<AvailableTicketNumberAssociation>();
     tps.forEach(tp -> availableTicketNumbers.addAll(getForTicketPool(tp)));
     associationsTP.addAll(availableTicketNumbers);
   }
 
-  private void fillFromTPD(ArrayList<AvailableTicketNumberAssociation> associationsTPD,
+  private void fillFromTPD(HashSet<AvailableTicketNumberAssociation> associationsTPD,
       TicketPoolDefinition tpd) {
     associationsTPD.addAll(getForTicketPoolDefinition(tpd));
   }
 
-  private boolean checkDates(Date date, TicketPoolDefinition tpd) {
+  private boolean checkDates(LocalDate localDate, TicketPoolDefinition tpd) {
     if (tpd.getIsCyclic()) {
       try {
-        var dateLd = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        var dateLdt = dateLd
+        LocalDateTime dateLdt = localDate
             .atTime(tpd.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
-        date = Date.from(dateLdt.atZone(ZoneId.systemDefault()).toInstant());
-        var d = tpService.getStartDateForNewInstanceOfCyclicPool(tpd, date);
-        return date.equals(d);
+        Date date = Date.from(dateLdt.atZone(ZoneId.systemDefault()).toInstant());
+        return date.equals(tpService.getStartDateForNewInstanceOfCyclicPool(tpd, date));
       } catch (CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException e) {
         return false;
       }
     }
-    return areDatesEquals(date, tpd.getStartDate());
+    return areDatesEquals(localDate,
+        tpd.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
   }
 
-  private boolean areDatesEquals(Date date1, Date date2) {
-    return date1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-        .isEqual(date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+  private boolean areDatesEquals(LocalDate date1, LocalDate date2) {
+    return date1.isEqual(date2);
   }
 
   public List<AvailableTicketNumberAssociation> getForTicketPool(TicketPool tp) {
