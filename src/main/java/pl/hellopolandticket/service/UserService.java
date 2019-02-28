@@ -79,7 +79,7 @@ public class UserService extends ServiceSuperclass {
   public UserDTO updateUserForCurrnetPartner(UserDTO userDTO) {
     User user = userDao.getUserForCurrnetPartner(userDTO.id, getLoggedUser().getPartner());
     user.setName(userDTO.name);
-    return ofUser(userDao.updateUser(user);
+    return ofUser(userDao.updateUser(user));
   }
 
 }
