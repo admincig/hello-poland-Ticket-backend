@@ -2,6 +2,8 @@ package pl.hellopolandticket.service;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEvent;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEventBasic;
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -50,10 +53,12 @@ public class SightEventService extends ServiceSuperclass {
   @Inject
   private AvailableTicketNumberAssociationService atnaService;
 
+  @RolesAllowed({ROLE_USER})
   public SightEventDTO findById(Long sightEventId) {
     return ofSightEventBasic(sightEventDao.findById(sightEventId));
   }
 
+  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public List<SightEventDTO> findByIdsIn(List<Long> sightEventId) {
     return sightEventDao.findBySightEventIdsIn(sightEventId).stream().map(sightEvent -> {
       sightEvent.getTicketPoolDefinitions().size();
@@ -65,6 +70,7 @@ public class SightEventService extends ServiceSuperclass {
     return sightEventDao.findById(sightEventId);
   }
 
+  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public List<SightEventDTO> findForPartner(String principal) {
     Partner partner = ofNullable(partnerDao.findByName(principal))
         .orElseGet(() -> partnerDao.findByUserEmail(principal));
@@ -95,6 +101,7 @@ public class SightEventService extends ServiceSuperclass {
     return sightEventsPushDTO;
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public SightEventDTO addSightEvent(SightEventDTO sightEventDTO, CurrentUser currentUser) {
     SightEventLocation sightEventLocation =
         ofNullable(sightEventDTO.location).map(this::ofLocation).orElse(null);
@@ -140,6 +147,7 @@ public class SightEventService extends ServiceSuperclass {
         .build();
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public void delete(Long sightEventId) {
     SightEvent sightEvent = findSightEventById(sightEventId);
     sightEvent.setActive(false);
@@ -151,6 +159,7 @@ public class SightEventService extends ServiceSuperclass {
         .country(location.country).directions(location.directions).build();
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public SightEventDTO updateSightEvent(Long sightId, SightEventDTO sightEventDTO) {
     SightEvent sightEvent = sightEventDao.findById(sightId);
     sightEvent.setName(sightEventDTO.name);
@@ -183,6 +192,7 @@ public class SightEventService extends ServiceSuperclass {
     return sightEventDTO;
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public void stopSale(Long sightId, Long ticketPoolDefId, Date date) {
     var sightEvent = sightEventDao.findById(sightId);
     TicketPoolDefinition tpd = sightEvent.getTicketPoolDefinitions().stream()

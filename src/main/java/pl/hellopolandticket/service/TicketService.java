@@ -1,8 +1,11 @@
 package pl.hellopolandticket.service;
 
+import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicket;
 import java.util.Date;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -26,6 +29,7 @@ public class TicketService extends ServiceSuperclass {
   @Inject
   private UserService userService;
 
+  @RolesAllowed({ROLE_USER, ROLE_USHER})
   public TicketDTO punchTicket(CurrentUser currentUser, Long sightEventId, String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
 
@@ -48,6 +52,7 @@ public class TicketService extends ServiceSuperclass {
     return ofTicket(ticket);
   }
 
+  @RolesAllowed({ROLE_USER})
   public TicketDTO findBySerialNumber(CurrentUser currentUser, Long sightEventId,
       String serialNumber) {
     Ticket ticket = ticketDao.findBySerialNumber(serialNumber);

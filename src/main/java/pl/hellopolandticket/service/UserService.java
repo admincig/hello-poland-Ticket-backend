@@ -1,8 +1,11 @@
 package pl.hellopolandticket.service;
 
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofUser;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -40,6 +43,7 @@ public class UserService extends ServiceSuperclass {
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
+  @RolesAllowed({ROLE_USER})
   public UserDTO findByEmail(String email) {
     return ofUser(
         userDao.findByEmail(email).orElseThrow(() -> exceptionFactory.resourceNotFoundException()));
@@ -49,6 +53,7 @@ public class UserService extends ServiceSuperclass {
     return userDao.persist(user);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public void changePassword(UserAuthDTO userAuthDTO, Long userId) {
     User user = userId == null ? getLoggedUser() : findUserById(userId);
     if (!passwordEncoder.matches(userAuthDTO.oldPassword, user.getPassword())) {
@@ -57,6 +62,7 @@ public class UserService extends ServiceSuperclass {
     user.setPassword(passwordEncoder.encode(userAuthDTO.password));
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<UserDTO> getUshers(CurrentUser currentUser) {
     User loggedUser = findUserByEmail(currentUser.getPrincipal());
     return userDao.getUsersByCurrentUserAndRole(loggedUser, Role.ROLE_USHER).stream()

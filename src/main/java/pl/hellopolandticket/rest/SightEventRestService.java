@@ -1,12 +1,8 @@
 package pl.hellopolandticket.rest;
 
-import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
-import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
-import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofCollection;
 import java.util.Date;
 import java.util.List;
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -45,65 +41,52 @@ public class SightEventRestService extends RestServiceSuperclass {
   private CurrentUser currentUser;
 
   @GET
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response getSightEvents(@QueryParam("sightEventIds") List<Long> sightEventIds) {
     CollectionWrapperDTO collectionWrapper;
-
-    if (!sightEventIds.isEmpty()) {
-      collectionWrapper = ofCollection(sightEventService.findByIdsIn(sightEventIds));
-    } else {
+    if (sightEventIds.isEmpty()) {
       collectionWrapper =
           ofCollection(sightEventService.findForPartner(currentUser.getPrincipal()));
+    } else {
+      collectionWrapper = ofCollection(sightEventService.findByIdsIn(sightEventIds));
     }
-
     return Response.ok(collectionWrapper).build();
   }
 
   @POST
-  @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response addSightEvent(SightEventDTO sightEvent) {
-    var s = sightEventService.addSightEvent(sightEvent, currentUser);
-    return Response.ok(s).build();
+    return Response.ok(sightEventService.addSightEvent(sightEvent, currentUser)).build();
   }
 
   @PUT
   @Path("/{id}")
-  @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response updateSightEvent(@PathParam("id") Long id, SightEventDTO sightEvent) {
     return Response.ok(sightEventService.updateSightEvent(id, sightEvent)).build();
   }
 
   @GET
   @Path("/{sightEventId}")
-  @RolesAllowed({ROLE_USER})
   public Response getById(@PathParam("sightEventId") Long sightEventId) {
     return Response.ok(sightEventService.findById(sightEventId)).build();
   }
 
   @DELETE
   @Path("/{sightEventId}")
-  @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response delete(@PathParam("sightEventId") Long sightEventId) {
     sightEventService.delete(sightEventId);
-
     return Response.noContent().build();
   }
 
   @PATCH
   @Path("/{sightEventId}/tickets/{serialNumber}")
-  @RolesAllowed({ROLE_USER, ROLE_USHER})
   public Response punchTicket(@PathParam("sightEventId") Long sightEventId,
       @PathParam("serialNumber") String serialNumber) {
-
     return Response.ok(ticketService.punchTicket(currentUser, sightEventId, serialNumber)).build();
   }
 
   @GET
   @Path("/{sightEventId}/tickets/{serialNumber}")
-  @RolesAllowed({ROLE_USER})
   public Response getTicket(@PathParam("sightEventId") Long sightEventId,
       @PathParam("serialNumber") String serialNumber) {
-
     return Response.ok(ticketService.findBySerialNumber(currentUser, sightEventId, serialNumber))
         .build();
   }
