@@ -59,6 +59,16 @@ public class UserDao {
         .setParameter("token", token).getResultStream().findFirst();
   }
 
+  public Optional<User> findByTokenWithAuthorities(String token) {
+    Optional<User> optional =
+        entityManager.createQuery("from User user where user.token=:token", User.class)
+            .setParameter("token", token).getResultStream().findFirst();
+    if (optional.isPresent()) {
+      optional.get().getAuthorities().size();
+    }
+    return optional;
+  }
+
   public User persist(User user) {
     entityManager.persist(user);
 

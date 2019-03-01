@@ -3,7 +3,6 @@ package pl.hellopolandticket.service;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
-import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEvent;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEventBasic;
 import java.util.ArrayList;
@@ -53,12 +52,12 @@ public class SightEventService extends ServiceSuperclass {
   @Inject
   private AvailableTicketNumberAssociationService atnaService;
 
-  @RolesAllowed({ROLE_USER})
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public SightEventDTO findById(Long sightEventId) {
     return ofSightEventBasic(sightEventDao.findById(sightEventId));
   }
 
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<SightEventDTO> findByIdsIn(List<Long> sightEventId) {
     return sightEventDao.findBySightEventIdsIn(sightEventId).stream().map(sightEvent -> {
       sightEvent.getTicketPoolDefinitions().size();
@@ -70,7 +69,7 @@ public class SightEventService extends ServiceSuperclass {
     return sightEventDao.findById(sightEventId);
   }
 
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<SightEventDTO> findForPartner(String principal) {
     Partner partner = ofNullable(partnerDao.findByName(principal))
         .orElseGet(() -> partnerDao.findByUserEmail(principal));

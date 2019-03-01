@@ -2,7 +2,6 @@ package pl.hellopolandticket.service;
 
 import static java.lang.Integer.valueOf;
 import static java.util.stream.Collectors.toList;
-import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
 import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
@@ -108,7 +107,7 @@ public class BookingService extends ServiceSuperclass {
     return ofBooking(booking);
   }
 
-  @RolesAllowed({ROLE_ADMIN})
+  // @RolesAllowed({ROLE_ADMIN})
   public void makeInvalid(Booking expiredBooking) {
     expiredBooking.setStatus(INVALID);
     for (Ticket t : expiredBooking.getTickets()) {

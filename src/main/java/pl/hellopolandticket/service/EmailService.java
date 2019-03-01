@@ -3,6 +3,7 @@ package pl.hellopolandticket.service;
 import static java.util.stream.Collectors.toList;
 import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.TO;
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -23,6 +24,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.IntStream;
 import javax.activation.DataHandler;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.mail.Authenticator;
@@ -68,6 +70,27 @@ public class EmailService extends ServiceSuperclass {
   @Inject
   private TicketService ticketService;
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public void sendSimpleEmail(String recipientEmail, String subject, String msg)
+      throws MessagingException, UnsupportedEncodingException {
+    var message = new MimeMessage(createSessionForEmail());
+    try {
+      message
+          .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
+      message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
+      message.setSubject(subject, "UTF-8");
+      var mimeBodyPart = new MimeBodyPart();
+      mimeBodyPart.setText(msg, "UTF-8");
+      var multipart = new MimeMultipart();
+      multipart.addBodyPart(mimeBodyPart);
+      message.setContent(multipart);
+      Transport.send(message);
+    } catch (MessagingException | UnsupportedEncodingException e) {
+      throw e;
+    }
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
     logger.log(Level.INFO, "........... Start sending email with qrCodes ..............");
@@ -245,25 +268,6 @@ public class EmailService extends ServiceSuperclass {
     String hourAndMinute = hour + ":" + minute;
 
     return dayOfWeek + ", " + dayMonthYear + " godzina " + hourAndMinute;
-  }
-
-  public void sendSimpleEmail(String recipientEmail, String subject, String msg)
-      throws MessagingException, UnsupportedEncodingException {
-    var message = new MimeMessage(createSessionForEmail());
-    try {
-      message
-          .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
-      message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
-      message.setSubject(subject, "UTF-8");
-      var mimeBodyPart = new MimeBodyPart();
-      mimeBodyPart.setText(msg, "UTF-8");
-      var multipart = new MimeMultipart();
-      multipart.addBodyPart(mimeBodyPart);
-      message.setContent(multipart);
-      Transport.send(message);
-    } catch (MessagingException | UnsupportedEncodingException e) {
-      throw e;
-    }
   }
 
 }

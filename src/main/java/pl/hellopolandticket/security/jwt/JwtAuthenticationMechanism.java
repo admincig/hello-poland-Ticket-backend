@@ -4,12 +4,10 @@ import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.Status.VALID;
-import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.security.jwt.TokenType.ACCESS_TOKEN;
 import static pl.hellopolandticket.security.jwt.TokenType.REFRESH_TOKEN;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
@@ -123,10 +121,10 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
     AuthenticationStatus authenticationStatus;
 
     try {
-      Optional<User> partnerUser = userDao.findByToken(token);
+      Optional<User> user = userDao.findByTokenWithAuthorities(token);
 
-      if (partnerUser.isPresent()) {
-        authenticationStatus = signInPartnerUser(partnerUser.get(), context);
+      if (user.isPresent()) {
+        authenticationStatus = signInExistingUser(user.get(), context);
       } else {
         authenticationStatus = signInUser(token, context);
       }
@@ -270,8 +268,8 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
         jwtCredential.getAuthorities());
   }
 
-  private AuthenticationStatus signInPartnerUser(User partnerUser, HttpMessageContext context) {
-    Set<String> roles = Collections.singleton(ROLE_EXTERNAL_USER);
+  private AuthenticationStatus signInExistingUser(User partnerUser, HttpMessageContext context) {
+    Set<String> roles = partnerUser.getAuthorities();
 
     authenticatedEvent
         .fire(CurrentUser.builder().principal(partnerUser.getEmail()).roles(roles).build());

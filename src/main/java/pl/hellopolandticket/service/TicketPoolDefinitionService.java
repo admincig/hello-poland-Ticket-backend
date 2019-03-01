@@ -2,7 +2,6 @@ package pl.hellopolandticket.service;
 
 import static java.util.Optional.ofNullable;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
-import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,23 +32,18 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
   @Inject
   private TicketPoolDefinitionDao ticketPoolDefinitionDao;
-
   @Inject
   private SightEventDao sightEventDao;
-
-  @Inject
-  private TicketDefinitionService ticketDefinitionService;
-
-  @Inject
-  private TicketPoolService ticketPoolService;
-
   @Inject
   private PartnerDao partnerDao;
-
+  @Inject
+  private TicketDefinitionService ticketDefinitionService;
+  @Inject
+  private TicketPoolService ticketPoolService;
   @Inject
   private AvailableTicketNumberAssociationService atnaService;
 
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPoolDefinitionDTO add(TicketPoolDefinitionDTO tpdDTO, CurrentUser currentUser) {
     List<TicketDefinitionDTO> tdDTOs = tpdDTO.ticketDefinitions;
     if (tdDTOs == null || tdDTOs.isEmpty()) {
@@ -119,7 +113,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     return null;
   }
 
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<TicketPoolDefinitionDTO> getAllForPartner(CurrentUser currentUser) {
     List<TicketPoolDefinition> tpd =
         ticketPoolDefinitionDao.findAllByPartner(ofNullable(currentUser.getPrincipal())
@@ -143,17 +137,18 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     return dtos;
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPoolDefinition get(Long id) {
     return ticketPoolDefinitionDao.findById(id);
   }
 
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPoolDefinitionDTO getForPartner(Long id, CurrentUser currentUser) {
     return ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinitionDao
         .findByIdForPartner(id, partnerDao.findByUserEmail(currentUser.getPrincipal()).getId()));
   }
 
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public void deleteTicketPoolDefinition(Long id, CurrentUser currentUser) {
     ticketPoolDefinitionDao.deleteTicketPoolDefinition(id,
         partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());

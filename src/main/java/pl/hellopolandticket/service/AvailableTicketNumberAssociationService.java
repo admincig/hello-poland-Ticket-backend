@@ -1,7 +1,6 @@
 package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
-import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -44,6 +43,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   @Inject
   private TicketPoolService tpService;
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public void add(TicketPoolDefinition ticketPoolDefinition,
       List<TicketDefinitionDTO> ticketDefinitionDtos) {
     if (ticketDefinitionDtos != null && !ticketDefinitionDtos.isEmpty()) {
@@ -60,6 +60,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     }
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public void add(TicketPool pool, TicketPoolDefinition ticketPoolDefinition) {
     var tds = ticketPoolDefinition.getTicketDefinitions();
     if (tds != null && !tds.isEmpty()) {
@@ -73,7 +74,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     }
   }
 
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public AvailableTicketNumberAssociationDTO checkAvailabilityOfTickets(Long sightEventId,
       Date fromDate, Date toDate) {
     var se = seService.findSightEventById(sightEventId);
@@ -191,15 +192,18 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     return date1.isEqual(date2);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<AvailableTicketNumberAssociation> getForTicketPool(TicketPool tp) {
     return dao.getForTicketPool(tp);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<AvailableTicketNumberAssociation> getForTicketPoolDefinition(
       TicketPoolDefinition tpd) {
     return dao.getForTicketPoolDefinition(tpd);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public AvailableTicketNumberAssociation update(AvailableTicketNumberAssociation bo) {
     return dao.update(bo);
   }
