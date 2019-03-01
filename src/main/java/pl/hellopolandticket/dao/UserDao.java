@@ -24,20 +24,20 @@ public class UserDao {
   }
 
   public Optional<User> findByEmail(String email) {
-    return entityManager.createQuery("from User user where user.email=:email", User.class)
-        .setParameter("email", email).getResultStream().findFirst();
+    return entityManager.createQuery("from User user where lower(user.email) = :email", User.class)
+        .setParameter("email", email.toLowerCase()).getResultStream().findFirst();
   }
 
   public User findByEmailOrThrowException(String email) {
-    return entityManager.createQuery("from User user where user.email=:email", User.class)
-        .setParameter("email", email).getResultStream().findFirst()
+    return entityManager.createQuery("from User user where lower(user.email) = :email", User.class)
+        .setParameter("email", email.toLowerCase()).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
   public Optional<User> findByEmailWithAuthorities(String email) {
     Optional<User> optional =
-        entityManager.createQuery("from User user where user.email=:email", User.class)
-            .setParameter("email", email).getResultStream().findFirst();
+        entityManager.createQuery("from User user where lower(user.email) = :email", User.class)
+            .setParameter("email", email.toLowerCase()).getResultStream().findFirst();
     if (optional.isPresent()) {
       optional.get().getAuthorities().size();
     }
@@ -45,9 +45,11 @@ public class UserDao {
   }
 
   public Optional<User> findByEmailAndNotHidden(String email) {
-    Optional<User> optional = entityManager
-        .createQuery("from User user where user.email=:email and user.hidden=false", User.class)
-        .setParameter("email", email).getResultStream().findFirst();
+    Optional<User> optional =
+        entityManager
+            .createQuery("from User user where lower(user.email) = :email and user.hidden=false",
+                User.class)
+            .setParameter("email", email.toLowerCase()).getResultStream().findFirst();
     if (optional.isPresent()) {
       optional.get().getAuthorities().size();
     }
