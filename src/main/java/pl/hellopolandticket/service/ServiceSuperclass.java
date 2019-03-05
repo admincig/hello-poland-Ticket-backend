@@ -44,8 +44,8 @@ public class ServiceSuperclass {
   public User getLoggedUser() {
     try {
       String login = ctx.getCallerPrincipal().getName();
-      return em.createQuery("from User where email=:email", User.class).setParameter("email", login)
-          .getSingleResult();
+      return em.createQuery("from User where lower(email) = :email", User.class)
+          .setParameter("email", login.toLowerCase()).getSingleResult();
     } catch (Exception e) {
       return null;
     }

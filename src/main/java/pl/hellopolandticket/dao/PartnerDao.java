@@ -20,8 +20,9 @@ public class PartnerDao {
 
   public Partner findByUserEmail(String email) {
     return entityManager
-        .createQuery("select user.partner from User user where user.email=:email", Partner.class)
-        .setParameter("email", email).getResultStream().findFirst()
+        .createQuery("select user.partner from User user where lower(user.email) = :email",
+            Partner.class)
+        .setParameter("email", email.toLowerCase()).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
