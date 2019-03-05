@@ -65,6 +65,7 @@ public class SightEventService extends ServiceSuperclass {
     }).collect(toList());
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public SightEvent findSightEventById(Long sightEventId) {
     return sightEventDao.findById(sightEventId);
   }
