@@ -45,6 +45,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPoolDefinitionDTO add(TicketPoolDefinitionDTO tpdDTO, CurrentUser currentUser) {
+    validateDates(tpdDTO);
+
     List<TicketDefinitionDTO> tdDTOs = tpdDTO.ticketDefinitions;
     if (tdDTOs == null || tdDTOs.isEmpty()) {
       throw new BadRequestException("TicketPoolDefinition must have ticket definitions.");
@@ -97,6 +99,30 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     }
 
     return tpdDTO;
+  }
+
+  private void validateDates(TicketPoolDefinitionDTO tpdDTO) {
+    if (tpdDTO.endDate != null && tpdDTO.startDate.after(tpdDTO.endDate)) {
+      throw new ConflictingException("Ticket pool definition's startDate after endDate.");
+    }
+    if (tpdDTO.entryEndDate != null && tpdDTO.entryStartDate != null
+        && tpdDTO.entryStartDate.after(tpdDTO.entryEndDate)) {
+      throw new ConflictingException("Ticket pool definition's entryStartDate after entryEndDate.");
+    }
+    if (tpdDTO.entryStartDate != null && tpdDTO.startDate != null
+        && tpdDTO.entryStartDate.after(tpdDTO.startDate)) {
+      throw new ConflictingException("Ticket pool definition's entryStartDate after startDate.");
+    }
+    var frequencyData = tpdDTO.frequencyData;
+    if (frequencyData != null && frequencyData.endDate != null
+        && tpdDTO.startDate.after(frequencyData.endDate)) {
+      throw new ConflictingException("Ticket pool definition's startDate after frequency endDate.");
+    }
+    if (frequencyData != null && frequencyData.endDate != null && frequencyData.startDate != null
+        && frequencyData.startDate.after(frequencyData.endDate)) {
+      throw new ConflictingException(
+          "Ticket pool definition's frequency startDate after frequency endDate.");
+    }
   }
 
   private List<TicketDefinition> getTicketDefinitions(List<TicketDefinitionDTO> ticketDefinitions,
