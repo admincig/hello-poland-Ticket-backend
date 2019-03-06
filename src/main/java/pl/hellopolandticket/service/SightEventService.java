@@ -3,6 +3,7 @@ package pl.hellopolandticket.service;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEvent;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEventBasic;
 import java.util.ArrayList;
@@ -70,7 +71,7 @@ public class SightEventService extends ServiceSuperclass {
     return sightEventDao.findById(sightEventId);
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_USHER})
   public List<SightEventDTO> findForPartner(String principal) {
     Partner partner = ofNullable(partnerDao.findByName(principal))
         .orElseGet(() -> partnerDao.findByUserEmail(principal));
