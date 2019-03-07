@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofUser;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class UserService extends ServiceSuperclass {
     return userDao.findUserById(id).orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_USHER})
   public User findUserByEmail(String email) {
     return userDao.findByEmail(email)
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
