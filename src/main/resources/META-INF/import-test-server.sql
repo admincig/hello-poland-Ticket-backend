@@ -26,9 +26,13 @@ INSERT INTO users("user_id", "name", "email", "partner_id", "password", "hidden"
 
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (1, 'ROLE_ADMIN')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (2, 'ROLE_EXTERNAL_USER')
+INSERT INTO user_authorities("user_user_id", "authorities") VALUES (2, 'ROLE_USHER')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (3, 'ROLE_EXTERNAL_USER')
+INSERT INTO user_authorities("user_user_id", "authorities") VALUES (3, 'ROLE_USHER')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (4, 'ROLE_EXTERNAL_USER')
+INSERT INTO user_authorities("user_user_id", "authorities") VALUES (4, 'ROLE_USHER')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (5, 'ROLE_EXTERNAL_USER')
+INSERT INTO user_authorities("user_user_id", "authorities") VALUES (5, 'ROLE_USHER')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (6, 'ROLE_USHER')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (7, 'ROLE_USHER')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (8, 'ROLE_USHER')
