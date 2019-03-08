@@ -29,7 +29,7 @@
 			<dependency>
 				<groupId>pl.hellopoland</groupId>
 				<artifactId>hellopoland-dto</artifactId>
-				<version>1.0.14</version>
+				<version>1.0.15</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
