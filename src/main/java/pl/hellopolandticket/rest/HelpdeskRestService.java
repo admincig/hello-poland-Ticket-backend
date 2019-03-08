@@ -1,19 +1,25 @@
 package pl.hellopolandticket.rest;
 
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import pl.hellopoland.dto.PartnerDTO;
+import pl.hellopolandticket.service.PartnerService;
 
 @Path("/helpdesk")
 @RequestScoped
-public class HPHelpdeskRestService extends RestServiceSuperclass {
+public class HelpdeskRestService extends RestServiceSuperclass {
   private static final String serverLogDir;
   static {
     String serverLogDirProp = System.getProperty("jboss.server.log.dir");
@@ -23,6 +29,16 @@ public class HPHelpdeskRestService extends RestServiceSuperclass {
       serverLogDir + "helpdesk/orders/helpdesk-orders.log";
   private static final String TICKETS_LOG_PATH =
       serverLogDir + "helpdesk/tickets/helpdesk-tickets.log";
+
+  @Inject
+  private PartnerService partnerService;
+
+  @POST
+  @Path("/partners")
+  @RolesAllowed({ROLE_ADMIN})
+  public Response add(PartnerDTO partner) {
+    return Response.ok(partnerService.save(partner)).build();
+  }
 
   @GET
   @Path("/orders/{date}")
