@@ -20,7 +20,6 @@ import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.security.password.PasswordEncoder;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
-import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
@@ -36,8 +35,25 @@ public class UserService extends ServiceSuperclass {
   @Authenticated
   private CurrentUser currentUser;
 
+  @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_USHER})
   public User findUserById(Long id) {
     return userDao.findUserById(id).orElseThrow(() -> exceptionFactory.resourceNotFoundException());
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_USHER})
+  public UserDTO findById(Long id) {
+    return ofUser(findUserById(id));
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public UserDTO getUserByRoleForCurrentPartner(long userId, String userRole) {
+    return ofUser(
+        userDao.getUserByRoleForCurrentPartner(userId, getLoggedUser().getPartner(), userRole));
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public UserDTO getUserForCurrnetPartner(long userId) {
+    return ofUser(userDao.getUserForCurrnetPartner(userId, getLoggedUser().getPartner()));
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_USHER})
@@ -60,17 +76,24 @@ public class UserService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public void changePassword(UserAuthDTO userAuthDTO, Long userId) {
     User user = userId == null ? getLoggedUser() : findUserById(userId);
-    if (!passwordEncoder.matches(userAuthDTO.oldPassword, user.getPassword())) {
-      throw new ConflictingException("Incorrect old password.");
-    }
+    // if (!passwordEncoder.matches(userAuthDTO.oldPassword, user.getPassword())) {
+    // throw new ConflictingException("Incorrect old password.");
+    // }
     user.setPassword(passwordEncoder.encode(userAuthDTO.password));
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public List<UserDTO> getUshers(CurrentUser currentUser) {
+  public List<UserDTO> getUshersForCurrnetPartner(CurrentUser currentUser) {
     User loggedUser = findUserByEmail(currentUser.getPrincipal());
     return userDao.getUsersByCurrentUserAndRole(loggedUser, Role.ROLE_USHER).stream()
         .map(ModelObjectsToDTOConverter::ofUser).collect(Collectors.toList());
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public UserDTO updateUserForCurrnetPartner(UserDTO userDTO) {
+    User user = userDao.getUserForCurrnetPartner(userDTO.id, getLoggedUser().getPartner());
+    user.setName(userDTO.name);
+    return ofUser(userDao.updateUser(user));
   }
 
 }

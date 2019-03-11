@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import pl.hellopolandticket.model.auth.User;
+import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Stateless
@@ -73,7 +74,6 @@ public class UserDao {
 
   public User persist(User user) {
     entityManager.persist(user);
-
     return user;
   }
 
@@ -82,6 +82,25 @@ public class UserDao {
         "from User u where u.partner = :partner and u != :loggedUser and :role in elements(u.authorities)",
         User.class).setParameter("partner", loggedUser.getPartner())
         .setParameter("loggedUser", loggedUser).setParameter("role", role).getResultList();
+  }
+
+  public User getUserByRoleForCurrentPartner(long userId, Partner partner, String role) {
+    return entityManager.createQuery(
+        "from User u where u.id = :id and u.partner = :partner and :role in elements(u.authorities)",
+        User.class).setParameter("id", userId).setParameter("partner", partner)
+        .setParameter("role", role).getResultStream().findFirst()
+        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
+  }
+
+  public User getUserForCurrnetPartner(long userId, Partner partner) {
+    return entityManager
+        .createQuery("from User u where u.id = :id and u.partner = :partner", User.class)
+        .setParameter("id", userId).setParameter("partner", partner).getResultStream().findFirst()
+        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
+  }
+
+  public User updateUser(User user) {
+    return entityManager.merge(user);
   }
 
 }
