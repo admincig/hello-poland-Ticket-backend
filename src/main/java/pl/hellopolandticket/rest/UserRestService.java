@@ -49,11 +49,4 @@ public class UserRestService extends RestServiceSuperclass {
     return Response.ok(new UserAuthDTO()).build();
   }
 
-  @GET
-  @Path("/ushers")
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response getUshers() {
-    return Response.ok(userService.getUshers(currentUser)).build();
-  }
-
 }
