@@ -1,11 +1,9 @@
 package pl.hellopolandticket.rest;
 
 import static java.util.Arrays.asList;
-import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -26,14 +24,12 @@ public class BookingRestService extends RestServiceSuperclass {
   private BookingService bookingService;
 
   @POST
-  @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response makeBooking(BookingDTO booking) {
     return Response.ok(bookingService.createBooking(booking)).build();
   }
 
   @PUT
   @Path("/buy/{serialNumber}/{p24OrderId}/{p24Currency}")
-  @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response markBookingAsBought(@PathParam("serialNumber") String serialNumber,
       @PathParam("p24OrderId") String p24OrderId, @PathParam("p24Currency") String p24Currency) {
     return Response.ok(bookingService.markBookingAsBought(serialNumber, p24OrderId, p24Currency))

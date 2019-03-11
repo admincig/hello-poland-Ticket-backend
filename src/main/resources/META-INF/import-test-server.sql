@@ -15,7 +15,7 @@ INSERT INTO partners("partner_id", "name", "email") VALUES (2, 'Zoo', 'Zoo@Hello
 INSERT INTO partners("partner_id", "name", "email") VALUES (3, 'Kolejkowo', 'Kolejkowo@HelloPoland.com')
 INSERT INTO partners("partner_id", "name", "email") VALUES (4, 'Stadion Gdański', 'StadionGdański@HelloPoland.com')
 
-INSERT INTO users("user_id", "name", "email", "password", "hidden") VALUES (1, 'hp-admin', 'hp-admin@fream.pl', '$2a$10$GxfKZgXMj8xsvFrnqQqfAePh0eTozeIVZit.1HnSmNK6RCr7nqPem', FALSE)
+INSERT INTO users("user_id", "name", "email", "password", "token", "hidden") VALUES (1, 'hp-admin', 'hp-admin@fream.pl', '$2a$10$GxfKZgXMj8xsvFrnqQqfAePh0eTozeIVZit.1HnSmNK6RCr7nqPem', 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJocC1hZG1pbkBmcmVhbS5wbCIsImF1dGgiOiJST0xFX0FETUlOIn0.ffo2GsvkbE72S4BMWEoXs2ZV9PIBkTaiFKX7DQr_Xm0pxXMrWSzI8TICovtwvi4RdEzsX4Xty8DNKXvkP12ciw', FALSE)
 INSERT INTO users("user_id", "name", "email", "partner_id", "password", "token", "hidden") VALUES (2, 'hp-partner', 'hp-partner@fream.pl', 1, '$2a$10$6WCGp2osNlwTv.bKYcZoOeU3XTwkR1Ron54d9j3fV7h1h0HBuiZBi', 'eyJhbGciOiJub25lIn0.eyJzdWIiOiI1RDU1NTEwOURBM0Y5RUQwMEVFRkQyNTY2MDMwRUQ3MjJBNEQ3NzAwREU2MDA2NjQ5NzhBNjIwOTRCNUVFN0Y0In0.', TRUE)
 INSERT INTO users("user_id", "name", "email", "partner_id", "password", "token", "hidden") VALUES (3, 'Zoo', 'zoo@zoo.plQQ', 2, '$2a$10$cJTmPp0glypoxqq.WkUzCeLGClwGGL2bFszZ/moMoSVK6EYqiXlgK', 'eyJhbGciOiJub25lIn0.eyJzdWIiOiJDOTU1NTI0MDk2REU0MjlEQjBGODM1NTA1RUI5MzAxNzkzQzE4NEJBQzM2NTFBNzI2MDFCRDNGMUFEQTkyQzAzIn0.', TRUE)
 INSERT INTO users("user_id", "name", "email", "partner_id", "password", "token", "hidden") VALUES (4, 'Kolejkowo', 'kolejkowo@kolejkowo.plQQ', 3, '$2a$10$TGAWxJyrfdD7o/fR1ga33.0I/OjJAHuxZFXStsRkNNZO3IFwr4GGG', 'eyJhbGciOiJub25lIn0.eyJzdWIiOiI0MDc5MTkyRkI2NTQyQTYyRjc3QTcwNDZDRDU1QkJGNUM5NDAzNkE0MjRFRDI4RTM0MEYwODNCRDE1MDRFODZBIn0.', TRUE)
@@ -26,9 +26,13 @@ INSERT INTO users("user_id", "name", "email", "partner_id", "password", "hidden"
 
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (1, 'ROLE_ADMIN')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (2, 'ROLE_EXTERNAL_USER')
+INSERT INTO user_authorities("user_user_id", "authorities") VALUES (2, 'ROLE_USHER')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (3, 'ROLE_EXTERNAL_USER')
+INSERT INTO user_authorities("user_user_id", "authorities") VALUES (3, 'ROLE_USHER')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (4, 'ROLE_EXTERNAL_USER')
+INSERT INTO user_authorities("user_user_id", "authorities") VALUES (4, 'ROLE_USHER')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (5, 'ROLE_EXTERNAL_USER')
+INSERT INTO user_authorities("user_user_id", "authorities") VALUES (5, 'ROLE_USHER')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (6, 'ROLE_USHER')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (7, 'ROLE_USHER')
 INSERT INTO user_authorities("user_user_id", "authorities") VALUES (8, 'ROLE_USHER')
