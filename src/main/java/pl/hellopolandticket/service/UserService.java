@@ -15,7 +15,6 @@ import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.security.password.PasswordEncoder;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
-import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
@@ -64,9 +63,9 @@ public class UserService extends ServiceSuperclass {
 
   public void changePassword(UserAuthDTO userAuthDTO, Long userId) {
     User user = userId == null ? getLoggedUser() : findUserById(userId);
-    if (!passwordEncoder.matches(userAuthDTO.oldPassword, user.getPassword())) {
-      throw new ConflictingException("Incorrect old password.");
-    }
+    // if (!passwordEncoder.matches(userAuthDTO.oldPassword, user.getPassword())) {
+    // throw new ConflictingException("Incorrect old password.");
+    // }
     user.setPassword(passwordEncoder.encode(userAuthDTO.password));
   }
 
