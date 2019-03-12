@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service;
 
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -41,6 +43,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   @Inject
   private TicketPoolService tpService;
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public void add(TicketPoolDefinition ticketPoolDefinition,
       List<TicketDefinitionDTO> ticketDefinitionDtos) {
     if (ticketDefinitionDtos != null && !ticketDefinitionDtos.isEmpty()) {
@@ -57,6 +60,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     }
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public void add(TicketPool pool, TicketPoolDefinition ticketPoolDefinition) {
     var tds = ticketPoolDefinition.getTicketDefinitions();
     if (tds != null && !tds.isEmpty()) {
@@ -70,11 +74,12 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     }
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public AvailableTicketNumberAssociationDTO checkAvailabilityOfTickets(Long sightEventId,
       Date fromDate, Date toDate) {
     var se = seService.findSightEventById(sightEventId);
     se.getTicketPoolDefinitions().size();
-    // <<<<<<< HEAD
+
     var associationsTPD = new HashSet<AvailableTicketNumberAssociation>();
     var associationsTP = new HashSet<AvailableTicketNumberAssociation>();
 
@@ -95,24 +100,6 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         fillTicketAssociations(se, associationsTPD, associationsTP, ld);
       });
     }
-    // =======
-    //
-    // var associationsTPD = new ArrayList<AvailableTicketNumberAssociation>();
-    // var associationsTP = new ArrayList<AvailableTicketNumberAssociation>();
-    //
-    // se.getTicketPoolDefinitions().stream().filter(tpd -> checkDates(date, tpd) &&
-    // !tpd.isDeleted())
-    // .forEach(tpd -> {
-    // List<TicketPool> ticketPools = tpd.getTicketPools();
-    // tpd.getTicketPools().size();
-    // List<TicketPool> tps = getFilteredTpsByDates(date, ticketPools);
-    // if (tps != null && !tps.isEmpty()) {
-    // fillFromTPs(associationsTP, tps);
-    // } else {
-    // fillFromTPD(associationsTPD, tpd);
-    // }
-    // });
-    // >>>>>>> develop
 
     var result = new AvailableTicketNumberAssociationDTO();
     result.ticketPoolDefinitions = new ArrayList<>();
@@ -205,15 +192,18 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     return date1.isEqual(date2);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<AvailableTicketNumberAssociation> getForTicketPool(TicketPool tp) {
     return dao.getForTicketPool(tp);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<AvailableTicketNumberAssociation> getForTicketPoolDefinition(
       TicketPoolDefinition tpd) {
     return dao.getForTicketPoolDefinition(tpd);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public AvailableTicketNumberAssociation update(AvailableTicketNumberAssociation bo) {
     return dao.update(bo);
   }
