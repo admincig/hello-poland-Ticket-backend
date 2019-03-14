@@ -3,6 +3,7 @@ package pl.hellopolandticket.service;
 import static java.util.stream.Collectors.toList;
 import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.TO;
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -21,9 +22,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.activation.DataHandler;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.mail.Authenticator;
@@ -50,7 +51,6 @@ import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
-  private static final Logger HELPDESK_lOG = System.getLogger("helpdesk-orders");
   private final Logger logger = System.getLogger(this.getClass().getName());
 
   private static final String MAIL_TICKET_COPY = "ticket.copy@hello-poland.pl";
@@ -70,6 +70,27 @@ public class EmailService extends ServiceSuperclass {
   @Inject
   private TicketService ticketService;
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public void sendSimpleEmail(String recipientEmail, String subject, String msg)
+      throws MessagingException, UnsupportedEncodingException {
+    var message = new MimeMessage(createSessionForEmail());
+    try {
+      message
+          .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
+      message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
+      message.setSubject(subject, "UTF-8");
+      var mimeBodyPart = new MimeBodyPart();
+      mimeBodyPart.setText(msg, "UTF-8");
+      var multipart = new MimeMultipart();
+      multipart.addBodyPart(mimeBodyPart);
+      message.setContent(multipart);
+      Transport.send(message);
+    } catch (MessagingException | UnsupportedEncodingException e) {
+      throw e;
+    }
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
     logger.log(Level.INFO, "........... Start sending email with qrCodes ..............");
@@ -92,15 +113,7 @@ public class EmailService extends ServiceSuperclass {
               bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId(),
               bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
       Transport.send(message);
-      if (replyToEmail == null) {
-        // that means the email is sending to the customer, not to the partner
-        HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, true));
-      }
     } catch (MessagingException | IOException | TemplateException e) {
-      if (replyToEmail == null) {
-        // that means the email is sending to the customer, not to the partner
-        HELPDESK_lOG.log(Level.INFO, getHelpdeskLogMessage(bookingMarkedAsBoughtEvent, false));
-      }
       logger.log(Level.ERROR, e.toString());
       throw e;
     } catch (Exception e) {
@@ -108,22 +121,6 @@ public class EmailService extends ServiceSuperclass {
       throw e;
     }
     logger.log(Level.INFO, "........... End sending email with qrCodes ..............");
-  }
-
-  private String getHelpdeskLogMessage(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent,
-      boolean mailWasSend) throws MessagingException {
-    StringBuilder sb = new StringBuilder();
-    sb.append("PŁATNOŚĆ: ").append(getValueOfOrder(bookingMarkedAsBoughtEvent.getTickets()))
-        .append(" " + bookingMarkedAsBoughtEvent.getP24Currency()).append(" | NR TRANSAKCJI P24: ")
-        .append(bookingMarkedAsBoughtEvent.getP24OrderId()).append(" | CZY MAIL ZOSTAŁ WYSŁANY: ")
-        .append(mailWasSend ? "tak" : "nie").append(" | NAZWA UŻUTKOWNIKA: ")
-        .append(bookingMarkedAsBoughtEvent.getCustomerName()).append(" | ADRES EMAIL: ")
-        .append(bookingMarkedAsBoughtEvent.getRecipientEmail());
-    return sb.toString();
-  }
-
-  private double getValueOfOrder(List<TicketDTO> tickets) {
-    return tickets.stream().collect(Collectors.summingDouble(t -> Double.valueOf(t.price) / 100));
   }
 
   private Session createSessionForEmail() {
@@ -271,25 +268,6 @@ public class EmailService extends ServiceSuperclass {
     String hourAndMinute = hour + ":" + minute;
 
     return dayOfWeek + ", " + dayMonthYear + " godzina " + hourAndMinute;
-  }
-
-  public void sendSimpleEmail(String recipientEmail, String subject, String msg)
-      throws MessagingException, UnsupportedEncodingException {
-    var message = new MimeMessage(createSessionForEmail());
-    try {
-      message
-          .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
-      message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
-      message.setSubject(subject, "UTF-8");
-      var mimeBodyPart = new MimeBodyPart();
-      mimeBodyPart.setText(msg, "UTF-8");
-      var multipart = new MimeMultipart();
-      multipart.addBodyPart(mimeBodyPart);
-      message.setContent(multipart);
-      Transport.send(message);
-    } catch (MessagingException | UnsupportedEncodingException e) {
-      throw e;
-    }
   }
 
 }

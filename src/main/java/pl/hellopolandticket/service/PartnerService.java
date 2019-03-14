@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service;
 
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.model.auth.User.createHiddenUser;
@@ -9,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -37,6 +39,7 @@ public class PartnerService extends ServiceSuperclass {
   @Inject
   private ExceptionFactory exceptionFactory;
 
+  @RolesAllowed({ROLE_ADMIN})
   public PartnerDTO save(PartnerDTO partner) {
     Partner partnerToPersist = Partner.builder().name(partner.name).email(partner.email).build();
     partnerDao.persist(partnerToPersist);
@@ -78,4 +81,5 @@ public class PartnerService extends ServiceSuperclass {
       }
     });
   }
+
 }

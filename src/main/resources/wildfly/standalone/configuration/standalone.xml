@@ -113,36 +113,6 @@
                 <suffix value=".yyyy-MM-dd"/>
                 <append value="true"/>
             </periodic-rotating-file-handler>
-            <periodic-rotating-file-handler name="HELPDESK-TICKETSERVICE-LOGGER" autoflush="true">
-                <formatter>
-                    <named-formatter name="HELPDESK-PATTERN"/>
-                </formatter>
-				<file relative-to="jboss.server.log.dir" path="helpdesk/tickets/helpdesk-tickets.log" />
-                <suffix value=".yyyy-MM-dd"/>
-                <append value="true"/>
-				<encoding value="UTF-8"/>
-            </periodic-rotating-file-handler>
-			<periodic-rotating-file-handler name="HELPDESK-ORDERS-LOGGER" autoflush="true">
-				<formatter>
-					<named-formatter name="HELPDESK-PATTERN" />
-				</formatter>
-				<file relative-to="jboss.server.log.dir" path="helpdesk/orders/helpdesk-orders.log" />
-				<suffix value=".yyyy-MM-dd" />
-				<append value="true" />
-				<encoding value="UTF-8"/>
-			</periodic-rotating-file-handler>
-            <logger category="helpdesk-TicketService" use-parent-handlers="false">
-                <level name="INFO"/>
-				<handlers>
-					<handler name="HELPDESK-TICKETSERVICE-LOGGER" />
-				</handlers>
-            </logger>
-			<logger category="helpdesk-orders" use-parent-handlers="false">
-				<level name="INFO" />
-				<handlers>
-					<handler name="HELPDESK-ORDERS-LOGGER" />
-				</handlers>
-			</logger>
             <logger category="com.arjuna">
                 <level name="WARN"/>
             </logger>
@@ -165,10 +135,6 @@
             <formatter name="COLOR-PATTERN">
                 <pattern-formatter pattern="%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"/>
             </formatter>
-            <formatter name="HELPDESK-PATTERN">
-				<pattern-formatter
-					pattern="DATA: %d{yyyy-MM-dd HH:mm} | %s%e%n" />
-			</formatter>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:batch-jberet:2.0">
             <default-job-repository name="in-memory"/>

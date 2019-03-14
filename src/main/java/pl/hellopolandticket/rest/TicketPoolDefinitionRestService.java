@@ -1,8 +1,5 @@
 package pl.hellopolandticket.rest;
 
-import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
-import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -33,28 +30,24 @@ public class TicketPoolDefinitionRestService {
   private CurrentUser currentUser;
 
   @POST
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response add(TicketPoolDefinitionDTO ticketPoolDefinitionDTO) {
     return Response.ok(ticketPoolDefinitionService.add(ticketPoolDefinitionDTO, currentUser))
         .build();
   }
 
   @GET
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response getTicketPoolDefs() {
     return Response.ok(ticketPoolDefinitionService.getAllForPartner(currentUser)).build();
   }
 
   @GET
   @Path("/{id}")
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response getTicketPoolDef(@PathParam("id") Long id) {
     return Response.ok(ticketPoolDefinitionService.getForPartner(id, currentUser)).build();
   }
 
   @DELETE
   @Path("/{id}")
-  @RolesAllowed({ROLE_USER, ROLE_EXTERNAL_USER})
   public Response deleteTicketPoolDef(@PathParam("id") Long id) {
     ticketPoolDefinitionService.deleteTicketPoolDefinition(id, currentUser);
     return Response.noContent().build();

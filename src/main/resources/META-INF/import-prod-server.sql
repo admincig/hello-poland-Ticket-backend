@@ -13,7 +13,7 @@ INSERT INTO email_templates("email_template_id", "name", "subject", "template") 
 INSERT INTO partners("partner_id", "name", "email") VALUES (1, 'Hello Poland Partner', 'HelloPoland@HelloPoland.com')
 
 INSERT INTO users("user_id", "name", "email", "partner_id", "token", "hidden") VALUES (1, 'Hello Poland', 'biuro@hello-poland.pl', 1, 'eyJhbGciOiJub25lIn0.eyJzdWIiOiI1RDU1NTEwOURBM0Y5RUQwMEVFRkQyNTY2MDMwRUQ3MjJBNEQ3NzAwREU2MDA2NjQ5NzhBNjIwOTRCNUVFN0Y0In0.', TRUE)
-INSERT INTO users("user_id", "name", "email", "partner_id", "password", "hidden") VALUES (2, 'Hello Poland Bileter', 'bileter@hello-poland.pl', 1, '$2a$10$w1VgpFftBDD0qFrbsRzjjODhksD5HE70buaMuOuNKJeAQ8xktsCi.', FALSE)
+INSERT INTO users("user_id", "name", "email", "partner_id", "password", "token", "hidden") VALUES (2, 'Hello Poland Bileter', 'bileter@hello-poland.pl', 1, '$2a$10$w1VgpFftBDD0qFrbsRzjjODhksD5HE70buaMuOuNKJeAQ8xktsCi.', 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJocC1hZG1pbkBmcmVhbS5wbCIsImF1dGgiOiJST0xFX0FETUlOIn0.ffo2GsvkbE72S4BMWEoXs2ZV9PIBkTaiFKX7DQr_Xm0pxXMrWSzI8TICovtwvi4RdEzsX4Xty8DNKXvkP12ciw', FALSE)
 
 SELECT setval('application_properties_application_property_id_seq', (SELECT max(application_property_id) FROM application_properties))
 SELECT setval('bookings_booking_id_seq', (SELECT max(booking_id) FROM bookings))

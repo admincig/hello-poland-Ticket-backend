@@ -1,8 +1,5 @@
 package pl.hellopolandticket.rest;
 
-import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
-import static pl.hellopolandticket.model.auth.Role.ROLE_USER;
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -28,14 +25,12 @@ public class UserRestService extends RestServiceSuperclass {
 
   @GET
   @Path("/me")
-  @RolesAllowed({ROLE_USER})
   public Response userInfo() {
     return Response.ok(userService.findByEmail(currentUser.getPrincipal())).build();
   }
 
   @PUT
   @Path("/me/password")
-  @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response changeMePassword(UserAuthDTO userDTO) {
     userService.changePassword(userDTO, null);
     return Response.ok(new UserAuthDTO()).build();
@@ -43,17 +38,9 @@ public class UserRestService extends RestServiceSuperclass {
 
   @PUT
   @Path("/{id}/password")
-  @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response changeUserPassword(@PathParam("id") long usherId, UserAuthDTO userAuthDTO) {
     userService.changePassword(userAuthDTO, usherId);
     return Response.ok(new UserAuthDTO()).build();
-  }
-
-  @GET
-  @Path("/ushers")
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Response getUshers() {
-    return Response.ok(userService.getUshers(currentUser)).build();
   }
 
 }

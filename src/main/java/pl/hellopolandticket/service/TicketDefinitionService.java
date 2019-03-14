@@ -1,7 +1,9 @@
 package pl.hellopolandticket.service;
 
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -24,6 +26,7 @@ public class TicketDefinitionService extends ServiceSuperclass {
   @Inject
   private PartnerDao partnerDao;
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketDefinitionDTO add(TicketDefinitionDTO ticketDefinitionDTO, CurrentUser currentUser) {
     if (ticketDefinitionDTO.price < 0) {
       throw new BadRequestException("The ticket price must be greater than 0");
@@ -38,6 +41,7 @@ public class TicketDefinitionService extends ServiceSuperclass {
     return ticketDefinitionDTO;
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<TicketDefinitionDTO> getList(CurrentUser currentUser) {
     List<TicketDefinition> bos =
         ticketDefinitionDao.getList(partnerDao.findByUserEmail(currentUser.getPrincipal()));
@@ -45,6 +49,7 @@ public class TicketDefinitionService extends ServiceSuperclass {
         .collect(Collectors.toList());
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketDefinition get(Long id) {
     return ticketDefinitionDao.findById(id);
   }

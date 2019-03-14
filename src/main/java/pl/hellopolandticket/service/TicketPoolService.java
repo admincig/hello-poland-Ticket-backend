@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service;
 
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -28,10 +30,12 @@ public class TicketPoolService extends ServiceSuperclass {
   @Inject
   private AvailableTicketNumberAssociationService atnaService;
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPool find(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
     return ticketPoolDao.find(ticketPoolDefinition, requestedDate);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPool findOrCreateNew(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
     TicketPool pool = ticketPoolDao.find(ticketPoolDefinition, requestedDate);
     if (pool == null) {
@@ -63,7 +67,8 @@ public class TicketPoolService extends ServiceSuperclass {
     return cal.getTime();
   }
 
-  Date getStartDateForNewInstance(TicketPoolDefinition ticketPoolDefinition, Date requestedDate)
+  private Date getStartDateForNewInstance(TicketPoolDefinition ticketPoolDefinition,
+      Date requestedDate)
       throws CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException {
     if (ticketPoolDefinition.getIsCyclic()) {
       return getStartDateForNewInstanceOfCyclicPool(ticketPoolDefinition, requestedDate);
@@ -76,6 +81,7 @@ public class TicketPoolService extends ServiceSuperclass {
     // }
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public Date getStartDateForNewInstanceOfCyclicPool(TicketPoolDefinition ticketPoolDefinition,
       Date requestedDate)
       throws CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException {

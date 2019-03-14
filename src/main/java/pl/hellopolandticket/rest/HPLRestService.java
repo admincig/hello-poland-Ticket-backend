@@ -1,7 +1,5 @@
 package pl.hellopolandticket.rest;
 
-import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -24,7 +22,6 @@ public class HPLRestService extends RestServiceSuperclass {
 
   @GET
   @Path("/push")
-  @RolesAllowed({ROLE_EXTERNAL_USER})
   public Response pushDataToHPL() {
     hplService.pushDataToHPL(currentUser);
 
