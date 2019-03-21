@@ -19,7 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopoland.dto.CollectionWrapperDTO;
 import pl.hellopoland.dto.SightEventDTO;
-import pl.hellopolandticket.annotation.DateTimeFormat;
+import pl.hellopolandticket.annotation.DateFormat;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.SightEventService;
@@ -94,7 +94,7 @@ public class SightEventRestService extends RestServiceSuperclass {
   @DELETE
   @Path("/{id}/sale")
   public Response stopSale(@PathParam("id") Long id, @QueryParam("tpdId") Long tpdId,
-      @QueryParam("date") @DateTimeFormat Date date) {
+      @QueryParam("date") @DateFormat Date date) {
     try {
       sightEventService.stopSale(id, tpdId, date);
       return Response.noContent().build();
