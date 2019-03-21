@@ -1,8 +1,10 @@
 package pl.hellopolandticket.service;
 
 import static java.lang.Integer.valueOf;
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import java.util.Calendar;
 import java.util.List;
+import javax.annotation.security.RunAs;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
@@ -12,6 +14,7 @@ import pl.hellopolandticket.model.ticket.market.Booking;
 
 @Slf4j
 @Singleton
+@RunAs(value = ROLE_ADMIN)
 public class BookingCancelScheduler extends ServiceSuperclass {
 
   private final static String TICKET_BOOKED_TIME_TO_BUY_PROPERTY = "ticket.booked.timeToBuy";
