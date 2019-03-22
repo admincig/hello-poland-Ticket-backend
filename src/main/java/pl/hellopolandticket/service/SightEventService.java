@@ -6,6 +6,10 @@ import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEvent;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofSightEventBasic;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -199,17 +203,25 @@ public class SightEventService extends ServiceSuperclass {
     TicketPoolDefinition tpd = sightEvent.getTicketPoolDefinitions().stream()
         .filter(t -> !t.isDeleted() && t.getId().equals(ticketPoolDefId)).findFirst().orElseThrow();
     TicketPool tp = null;
-
+    date = setStartDateTimeToRequestedDate(date, tpd);
     if (tpd.getIsCyclic()) {
       tp = ticketPoolService.findOrCreateNew(tpd, date);
     } else {
       tp = ticketPoolService.find(tpd, date);
     }
-
     tp.setAvailableTicketsNumber(0);
     for (var atna : atnaService.getForTicketPool(tp)) {
       atna.setAvailableTicketsNumber(0);
       atnaService.update(atna);
     }
   }
+
+  private Date setStartDateTimeToRequestedDate(Date date, TicketPoolDefinition tpd) {
+    LocalTime startDateLocalTime =
+        LocalTime.ofInstant(tpd.getStartDate().toInstant(), ZoneId.systemDefault());
+    LocalDate dateLocalDate = LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    LocalDateTime dateLocalDateTime = dateLocalDate.atTime(startDateLocalTime);
+    return Date.from(dateLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
+  }
+
 }

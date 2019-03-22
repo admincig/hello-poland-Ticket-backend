@@ -40,9 +40,11 @@ public class TicketPoolDao {
   }
 
   public TicketPool find(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
-    List<TicketPool> resultList = entityManager.createQuery(
-        "from TicketPool e where e.ticketPoolDefinition=:poolDefinition and ((:requestedDate between e.startDate and e.endDate) or (e.endDate = null and e.startDate >= :requestedDate)) order by e.id desc",
-        TicketPool.class).setParameter("requestedDate", requestedDate)
+    List<TicketPool> resultList = entityManager
+        .createQuery("from TicketPool e where e.ticketPoolDefinition=:poolDefinition"
+            + " and ((:requestedDate between e.startDate and e.endDate) or (e.endDate = null and e.startDate >= :requestedDate))"
+            + " order by e.id desc", TicketPool.class)
+        .setParameter("requestedDate", requestedDate)
         .setParameter("poolDefinition", ticketPoolDefinition).getResultList();
     if (resultList.isEmpty()) {
       return null;
