@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_SALESMAN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofUser;
 import java.util.List;
@@ -68,7 +69,7 @@ public class UserService extends ServiceSuperclass {
         userDao.findByEmail(email).orElseThrow(() -> exceptionFactory.resourceNotFoundException()));
   }
 
-  @RolesAllowed({ROLE_ADMIN})
+  @RolesAllowed({ROLE_ADMIN, ROLE_SALESMAN})
   public User save(User user) {
     return userDao.persist(user);
   }

@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_SALESMAN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.model.auth.User.createHiddenUser;
 import static pl.hellopolandticket.model.auth.User.createUsher;
@@ -39,7 +40,7 @@ public class PartnerService extends ServiceSuperclass {
   @Inject
   private ExceptionFactory exceptionFactory;
 
-  @RolesAllowed({ROLE_ADMIN})
+  @RolesAllowed({ROLE_ADMIN, ROLE_SALESMAN})
   public PartnerDTO save(PartnerDTO partner) {
     Partner partnerToPersist = Partner.builder().name(partner.name).email(partner.email).build();
     partnerDao.persist(partnerToPersist);
