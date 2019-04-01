@@ -53,7 +53,6 @@ import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 public class EmailService extends ServiceSuperclass {
   private final Logger logger = System.getLogger(this.getClass().getName());
 
-  private static final String MAIL_TICKET_COPY = "ticket.copy@hello-poland.pl";
   private static final String MAIL_PERSONAL = "Bilety Hello Poland";
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
@@ -66,9 +65,10 @@ public class EmailService extends ServiceSuperclass {
 
   @Inject
   private EmailTemplateDao emailTemplateDao;
-
   @Inject
   private TicketService ticketService;
+  @Inject
+  private ApplicationPropertyService applicationPropertyService;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public void sendSimpleEmail(String recipientEmail, String subject, String msg)
@@ -102,8 +102,11 @@ public class EmailService extends ServiceSuperclass {
       MimeMessage message = new MimeMessage(session);
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
-      message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(MAIL_TICKET_COPY)});
       message.setRecipients(TO, new InternetAddress[] {new InternetAddress(recipientEmail)});
+      if (replyToEmail == null) {
+        message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(
+            applicationPropertyService.findByName("mail.ticket.copy").propertyValue)});
+      }
       if (replyToEmail != null) {
         message.setReplyTo(new InternetAddress[] {new InternetAddress(replyToEmail)});
       }
