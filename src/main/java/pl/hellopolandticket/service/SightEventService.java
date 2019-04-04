@@ -167,10 +167,12 @@ public class SightEventService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public SightEventDTO updateSightEvent(Long sightId, SightEventDTO sightEventDTO) {
     SightEvent sightEvent = sightEventDao.findById(sightId);
-    sightEvent.setName(sightEventDTO.name);
     sightEvent.setDescription(sightEventDTO.description);
     sightEvent.setEmail(sightEventDTO.email);
     sightEvent.setPhone(sightEventDTO.phone);
+    if (sightEventDTO.name != null) {
+      sightEvent.setName(sightEventDTO.name);
+    }
     if (sightEventDTO.blocked != null) {
       sightEvent.setBlocked(sightEventDTO.blocked);
     }
