@@ -1,7 +1,6 @@
 package pl.hellopolandticket.service;
 
 import static java.util.stream.Collectors.toList;
-import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.TO;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.io.ByteArrayOutputStream;
@@ -67,8 +66,8 @@ public class EmailService extends ServiceSuperclass {
   private EmailTemplateDao emailTemplateDao;
   @Inject
   private TicketService ticketService;
-  @Inject
-  private ApplicationPropertyService applicationPropertyService;
+  // @Inject
+  // private ApplicationPropertyService applicationPropertyService;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public void sendSimpleEmail(String recipientEmail, String subject, String msg)
@@ -103,10 +102,10 @@ public class EmailService extends ServiceSuperclass {
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
       message.setRecipients(TO, new InternetAddress[] {new InternetAddress(recipientEmail)});
-      if (replyToEmail == null) {
-        message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(
-            applicationPropertyService.findByName("mail.ticket.copy").propertyValue)});
-      }
+      // if (replyToEmail == null) {
+      // message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(
+      // applicationPropertyService.findByName("mail.ticket.copy").propertyValue)});
+      // }
       if (replyToEmail != null) {
         message.setReplyTo(new InternetAddress[] {new InternetAddress(replyToEmail)});
       }
