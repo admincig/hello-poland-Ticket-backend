@@ -26,6 +26,7 @@ import javax.activation.DataHandler;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.mail.Address;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -37,6 +38,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
+import com.sun.mail.smtp.SMTPSendFailedException;
 import com.sun.mail.smtp.SMTPTransport;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -66,20 +68,12 @@ public class EmailService extends ServiceSuperclass {
   private EmailTemplateDao emailTemplateDao;
   @Inject
   private TicketService ticketService;
-  // @Inject
-  // private ApplicationPropertyService applicationPropertyService;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public void sendSimpleEmail(String recipientEmail, String subject, String msg)
       throws MessagingException, UnsupportedEncodingException {
-
-
     var session = createSessionForEmail();
-
-
-
     var message = new MimeMessage(session);
-    // var message = new MimeMessage(createSessionForEmail());
     try {
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
@@ -90,40 +84,24 @@ public class EmailService extends ServiceSuperclass {
       var multipart = new MimeMultipart();
       multipart.addBodyPart(mimeBodyPart);
       message.setContent(multipart);
-      // Transport.send(message);
-
-
       SMTPTransport transport = (SMTPTransport) session.getTransport("smtp");
       transport.connect();
-
-
       transport.setReportSuccess(true);
-
-
       transport.sendMessage(message, message.getAllRecipients());
-      String response = transport.getLastServerResponse();
-
-
-
-      boolean success = transport.getReportSuccess();
-
-
-
-      int code = transport.getLastReturnCode();
-
-      System.out.println(code);
-
-      // Transport.send(message);
-    }
-
-    catch (com.sun.mail.smtp.SMTPAddressSucceededException e) {
-      /**
-       *** Message has been sent. Do what you need.
-       **/
-      System.out.println(e.getLocalizedMessage());
-    } catch (MessagingException |
-
-        UnsupportedEncodingException e) {
+    } catch (SMTPSendFailedException e) {
+      // Message has been sent.
+      logger.log(Level.INFO, e.getReturnCode());
+      logger.log(Level.INFO, e.getLocalizedMessage());
+      for (Address addr : e.getValidSentAddresses()) {
+        logger.log(Level.INFO, "Email has been sent to " + addr);
+      }
+      for (Address addr : e.getValidUnsentAddresses()) {
+        logger.log(Level.INFO, "Email has not been sent to" + addr);
+      }
+      for (Address addr : e.getInvalidAddresses()) {
+        logger.log(Level.INFO, "Email has not been sent to  " + addr);
+      }
+    } catch (MessagingException | UnsupportedEncodingException e) {
       throw e;
     }
   }
@@ -141,10 +119,6 @@ public class EmailService extends ServiceSuperclass {
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
       message.setRecipients(TO, new InternetAddress[] {new InternetAddress(recipientEmail)});
-      // if (replyToEmail == null) {
-      // message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(
-      // applicationPropertyService.findByName("mail.ticket.copy").propertyValue)});
-      // }
       if (replyToEmail != null) {
         message.setReplyTo(new InternetAddress[] {new InternetAddress(replyToEmail)});
       }
@@ -153,39 +127,24 @@ public class EmailService extends ServiceSuperclass {
           createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
               bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId(),
               bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
-
-
-
       SMTPTransport transport = (SMTPTransport) session.getTransport("smtp");
       transport.connect();
-
-
       transport.setReportSuccess(true);
-
-
       transport.sendMessage(message, message.getAllRecipients());
-      String response = transport.getLastServerResponse();
-
-
-
-      boolean success = transport.getReportSuccess();
-
-
-
-      int code = transport.getLastReturnCode();
-
-
-
-      // Transport.send(message);
-    }
-
-    catch (com.sun.mail.smtp.SMTPAddressSucceededException e) {
-      /**
-       *** Message has been sent. Do what you need.
-       **/
-    }
-
-    catch (MessagingException | IOException | TemplateException e) {
+    } catch (SMTPSendFailedException e) {
+      // Message has been sent.
+      logger.log(Level.INFO, e.getReturnCode());
+      logger.log(Level.INFO, e.getLocalizedMessage());
+      for (Address addr : e.getValidSentAddresses()) {
+        logger.log(Level.INFO, "Email has been sent to " + addr);
+      }
+      for (Address addr : e.getValidUnsentAddresses()) {
+        logger.log(Level.INFO, "Email has not been sent to" + addr);
+      }
+      for (Address addr : e.getInvalidAddresses()) {
+        logger.log(Level.INFO, "Email has not been sent to  " + addr);
+      }
+    } catch (MessagingException | IOException | TemplateException e) {
       logger.log(Level.ERROR, e.toString());
       throw e;
     } catch (Exception e) {
