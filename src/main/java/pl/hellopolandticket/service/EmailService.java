@@ -32,12 +32,12 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
+import com.sun.mail.smtp.SMTPTransport;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -72,7 +72,14 @@ public class EmailService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public void sendSimpleEmail(String recipientEmail, String subject, String msg)
       throws MessagingException, UnsupportedEncodingException {
-    var message = new MimeMessage(createSessionForEmail());
+
+
+    var session = createSessionForEmail();
+
+
+
+    var message = new MimeMessage(session);
+    // var message = new MimeMessage(createSessionForEmail());
     try {
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
@@ -83,8 +90,40 @@ public class EmailService extends ServiceSuperclass {
       var multipart = new MimeMultipart();
       multipart.addBodyPart(mimeBodyPart);
       message.setContent(multipart);
-      Transport.send(message);
-    } catch (MessagingException | UnsupportedEncodingException e) {
+      // Transport.send(message);
+
+
+      SMTPTransport transport = (SMTPTransport) session.getTransport("smtp");
+      transport.connect();
+
+
+      transport.setReportSuccess(true);
+
+
+      transport.sendMessage(message, message.getAllRecipients());
+      String response = transport.getLastServerResponse();
+
+
+
+      boolean success = transport.getReportSuccess();
+
+
+
+      int code = transport.getLastReturnCode();
+
+      System.out.println(code);
+
+      // Transport.send(message);
+    }
+
+    catch (com.sun.mail.smtp.SMTPAddressSucceededException e) {
+      /**
+       *** Message has been sent. Do what you need.
+       **/
+      System.out.println(e.getLocalizedMessage());
+    } catch (MessagingException |
+
+        UnsupportedEncodingException e) {
       throw e;
     }
   }
@@ -114,8 +153,39 @@ public class EmailService extends ServiceSuperclass {
           createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
               bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId(),
               bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
-      Transport.send(message);
-    } catch (MessagingException | IOException | TemplateException e) {
+
+
+
+      SMTPTransport transport = (SMTPTransport) session.getTransport("smtp");
+      transport.connect();
+
+
+      transport.setReportSuccess(true);
+
+
+      transport.sendMessage(message, message.getAllRecipients());
+      String response = transport.getLastServerResponse();
+
+
+
+      boolean success = transport.getReportSuccess();
+
+
+
+      int code = transport.getLastReturnCode();
+
+
+
+      // Transport.send(message);
+    }
+
+    catch (com.sun.mail.smtp.SMTPAddressSucceededException e) {
+      /**
+       *** Message has been sent. Do what you need.
+       **/
+    }
+
+    catch (MessagingException | IOException | TemplateException e) {
       logger.log(Level.ERROR, e.toString());
       throw e;
     } catch (Exception e) {
