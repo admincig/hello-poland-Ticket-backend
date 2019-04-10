@@ -191,6 +191,7 @@ public class BookingService extends ServiceSuperclass {
     if (booking.getSightEventPdfAttachmentsPaths() != null) {
       booking.getSightEventPdfAttachmentsPaths().size();
     }
+    // sending email to buyer
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
         .p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())
         .customerName(booking.getCustomerName()).recipientEmail(booking.getCustomerEmail())
@@ -200,9 +201,20 @@ public class BookingService extends ServiceSuperclass {
             .collect(toList()))
         .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
 
+    // sending email to helpdesk
+    bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
+        .p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())
+        .customerName(booking.getCustomerName())
+        .recipientEmail(applicationPropertyService.findByName("mail.ticket.copy").propertyValue)
+        .tickets(booking.getTickets().stream()
+            .map(ticket -> ofTicketWithQrCode(ticket,
+                ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
+            .collect(toList()))
+        .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
+
     var ticketsByPartner = booking.getTickets().stream().collect(Collectors
         .groupingBy(t -> t.getTicketPool().getTicketPoolDefinition().getSightEvent().getPartner()));
-
+    // sending email to partners
     for (Entry<Partner, List<Ticket>> entry : ticketsByPartner.entrySet()) {
       bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
           .p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())

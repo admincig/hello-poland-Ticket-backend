@@ -1,7 +1,6 @@
 package pl.hellopolandticket.service;
 
 import static java.util.stream.Collectors.toList;
-import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.TO;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.io.ByteArrayOutputStream;
@@ -27,18 +26,20 @@ import javax.activation.DataHandler;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.mail.Address;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
+import com.sun.mail.smtp.SMTPSendFailedException;
+import com.sun.mail.smtp.SMTPTransport;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -67,13 +68,12 @@ public class EmailService extends ServiceSuperclass {
   private EmailTemplateDao emailTemplateDao;
   @Inject
   private TicketService ticketService;
-  @Inject
-  private ApplicationPropertyService applicationPropertyService;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public void sendSimpleEmail(String recipientEmail, String subject, String msg)
       throws MessagingException, UnsupportedEncodingException {
-    var message = new MimeMessage(createSessionForEmail());
+    var session = createSessionForEmail();
+    var message = new MimeMessage(session);
     try {
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
@@ -84,7 +84,23 @@ public class EmailService extends ServiceSuperclass {
       var multipart = new MimeMultipart();
       multipart.addBodyPart(mimeBodyPart);
       message.setContent(multipart);
-      Transport.send(message);
+      SMTPTransport transport = (SMTPTransport) session.getTransport("smtp");
+      transport.connect();
+      transport.setReportSuccess(true);
+      transport.sendMessage(message, message.getAllRecipients());
+    } catch (SMTPSendFailedException e) {
+      // Message has been sent.
+      logger.log(Level.INFO, e.getReturnCode());
+      logger.log(Level.INFO, e.getLocalizedMessage());
+      for (Address addr : e.getValidSentAddresses()) {
+        logger.log(Level.INFO, "Email has been sent to " + addr);
+      }
+      for (Address addr : e.getValidUnsentAddresses()) {
+        logger.log(Level.INFO, "Email has not been sent to" + addr);
+      }
+      for (Address addr : e.getInvalidAddresses()) {
+        logger.log(Level.INFO, "Email has not been sent to  " + addr);
+      }
     } catch (MessagingException | UnsupportedEncodingException e) {
       throw e;
     }
@@ -103,10 +119,6 @@ public class EmailService extends ServiceSuperclass {
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
       message.setRecipients(TO, new InternetAddress[] {new InternetAddress(recipientEmail)});
-      if (replyToEmail == null) {
-        message.setRecipients(BCC, new InternetAddress[] {new InternetAddress(
-            applicationPropertyService.findByName("mail.ticket.copy").propertyValue)});
-      }
       if (replyToEmail != null) {
         message.setReplyTo(new InternetAddress[] {new InternetAddress(replyToEmail)});
       }
@@ -115,7 +127,23 @@ public class EmailService extends ServiceSuperclass {
           createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
               bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getP24OrderId(),
               bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
-      Transport.send(message);
+      SMTPTransport transport = (SMTPTransport) session.getTransport("smtp");
+      transport.connect();
+      transport.setReportSuccess(true);
+      transport.sendMessage(message, message.getAllRecipients());
+    } catch (SMTPSendFailedException e) {
+      // Message has been sent.
+      logger.log(Level.INFO, e.getReturnCode());
+      logger.log(Level.INFO, e.getLocalizedMessage());
+      for (Address addr : e.getValidSentAddresses()) {
+        logger.log(Level.INFO, "Email has been sent to " + addr);
+      }
+      for (Address addr : e.getValidUnsentAddresses()) {
+        logger.log(Level.INFO, "Email has not been sent to" + addr);
+      }
+      for (Address addr : e.getInvalidAddresses()) {
+        logger.log(Level.INFO, "Email has not been sent to  " + addr);
+      }
     } catch (MessagingException | IOException | TemplateException e) {
       logger.log(Level.ERROR, e.toString());
       throw e;
