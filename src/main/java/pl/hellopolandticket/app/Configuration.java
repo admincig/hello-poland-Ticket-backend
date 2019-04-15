@@ -1,5 +1,6 @@
 package pl.hellopolandticket.app;
 
+import javax.annotation.sql.DataSourceDefinition;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.enterprise.inject.Produces;
@@ -12,6 +13,14 @@ import pl.hellopolandticket.security.password.PasswordEncoder;
 @Startup
 @Singleton
 @Interceptors(value = LoggingHandler.class)
+@DataSourceDefinition(
+    name = "java:global/jdbc/hellopolandticketDS",
+    className = "org.postgresql.xa.PGXADataSource",
+    serverName = "database",
+    portNumber = 5432,
+    databaseName = "hellopolandticket",
+    user = "hellopolandticket",
+    password = "hellopolandticket")
 public class Configuration {
 
   @Produces
