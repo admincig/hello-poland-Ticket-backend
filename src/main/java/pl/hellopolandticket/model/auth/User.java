@@ -82,7 +82,6 @@ public class User implements Serializable {
     this.hidden = false;
   }
 
-  @Builder
   public static User createHiddenUser(String name, String email, Set<String> authorities,
       Partner partner) {
     User user = User.builder().name(name).email(email.toLowerCase()).authorities(authorities)
@@ -92,7 +91,6 @@ public class User implements Serializable {
     return user;
   }
 
-  @Builder
   public static User createUsher(String name, String email, String password, Partner partner) {
     User user = User.builder().name(name).email(email.toLowerCase())
         .authorities(Set.of(Role.ROLE_USHER)).partner(partner).build();
