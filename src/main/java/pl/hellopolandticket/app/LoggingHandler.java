@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Interceptor
-@Logger
+// @Logger
 public class LoggingHandler {
 
   private static final SimpleDateFormat DATE_FORMATTER =
