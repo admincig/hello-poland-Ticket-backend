@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import static java.util.Optional.ofNullable;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,20 +47,22 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPoolDefinitionDTO add(TicketPoolDefinitionDTO tpdDTO, CurrentUser currentUser) {
     validateDates(tpdDTO);
-
     List<TicketDefinitionDTO> tdDTOs = tpdDTO.ticketDefinitions;
     if (tdDTOs == null || tdDTOs.isEmpty()) {
+      logger.log(Level.ERROR,
+          "TicketPoolDefinition [id=" + tpdDTO.id + "] must have ticket definitions");
       throw new BadRequestException("TicketPoolDefinition must have ticket definitions.");
     }
     for (TicketDefinitionDTO td : tdDTOs) {
       if (td.availableTicketsNumber != -1 && tpdDTO.availableTicketsNumber != -1) {
+        logger.log(Level.ERROR,
+            "Bad availableTicketsNumber limit combination. TicketPoolDefinition [id=" + tpdDTO.id
+                + "]; TicketDefinition [id=" + td.id + "]");
         throw new ConflictingException("Bad availableTicketsNumber limit combination.");
       }
     }
-
     SightEvent sightEvent = sightEventDao.findByIdAndPartner(tpdDTO.sightEventId,
         partnerDao.findByUserEmail(currentUser.getPrincipal()));
-
     var tpdSd = tpdDTO.startDate;
     FrequencyData frequencyData =
         tpdDTO.isCyclic
@@ -73,31 +76,23 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
                     .build())
                 .orElse(new FrequencyData())
             : null;
-
     TicketPoolDefinition ticketPoolDefinition = TicketPoolDefinition.builder().name(tpdDTO.name)
         .availableTicketsNumber(tpdDTO.availableTicketsNumber).isCyclic(tpdDTO.isCyclic)
         .frequencyData(frequencyData).startDate(tpdDTO.startDate).endDate(tpdDTO.endDate)
         .entryStartDate(tpdDTO.entryStartDate).entryEndDate(tpdDTO.entryEndDate)
         .sightEvent(sightEvent).deleted(false).wholeDay(tpdDTO.wholeDay).build();
-
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
     atnaService.add(ticketPoolDefinition, tdDTOs);
-
     ticketPoolDefinition.setTicketDefinitions(getTicketDefinitions(tdDTOs, ticketPoolDefinition));
-
     tpdDTO = ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
-
     var tds = tpdDTO.ticketDefinitions;
     if (tds != null && !tds.isEmpty()) {
       tds.forEach(td -> td.poolId = ticketPoolDefinition.getId());
     }
-
     tpdDTO.id = ticketPoolDefinition.getId();
-
     if (!ticketPoolDefinition.getIsCyclic()) {
       ticketPoolService.findOrCreateNew(ticketPoolDefinition, null);
     }
-
     return tpdDTO;
   }
 
