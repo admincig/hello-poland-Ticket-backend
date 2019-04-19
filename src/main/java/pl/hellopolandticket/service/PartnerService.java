@@ -43,18 +43,15 @@ public class PartnerService extends ServiceSuperclass {
   public PartnerDTO save(PartnerDTO partner) {
     Partner partnerToPersist = Partner.builder().name(partner.name).email(partner.email).build();
     partnerDao.persist(partnerToPersist);
-
     User user = createHiddenUser(partner.name, partner.email,
         Set.of(ROLE_EXTERNAL_USER, ROLE_USHER), partnerToPersist);
     user.setPassword(passwordEncoder.encode(partner.password));
     user = userService.save(user);
-
     // creating partner's ushers:
     List<UserDTO> users = partner.users;
     if (users != null && !users.isEmpty() && isAtLeastOneUsher(users)) {
       saveUshers(users, partnerToPersist);
     }
-
     return ofPartnerWithToken(partnerToPersist, user.getToken());
   }
 
@@ -70,8 +67,7 @@ public class PartnerService extends ServiceSuperclass {
       userService.save(usher);
       emailPassword.put(u.email, pass);
     });
-
-    // 4. sending emails to users (with theirs login and password):
+    // sending emails to ushers (with theirs login and password):
     emailPassword.forEach((key, value) -> {
       try {
         emailService.sendSimpleEmail(key, "Nowe konto w Hello Poland. Bileter",

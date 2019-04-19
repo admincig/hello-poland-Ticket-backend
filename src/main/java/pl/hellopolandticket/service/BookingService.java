@@ -44,8 +44,6 @@ public class BookingService extends ServiceSuperclass {
   private final static String TICKET_QR_CODE_HEIGHT_PROPERTY = "ticket.qrCode.height";
   private final static String TICKET_QR_CODE_WIDTH_PROPERTY = "ticket.qrCode.width";
 
-  private final Logger logger = System.getLogger(this.getClass().getName());
-
   @Inject
   private BookingDao bookingDao;
 
