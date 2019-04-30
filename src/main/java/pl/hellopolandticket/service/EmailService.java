@@ -1,6 +1,7 @@
 package pl.hellopolandticket.service;
 
 import static java.util.stream.Collectors.toList;
+import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.TO;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.io.ByteArrayOutputStream;
@@ -112,6 +113,7 @@ public class EmailService extends ServiceSuperclass {
     logger.log(Level.INFO, "........... Start sending email with qrCodes ..............");
     var recipientEmail = bookingMarkedAsBoughtEvent.getRecipientEmail();
     var replyToEmail = bookingMarkedAsBoughtEvent.getReplyToEmail();
+    var bccEmails = bookingMarkedAsBoughtEvent.getBccEmails();
     try {
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
       Session session = createSessionForEmail();
@@ -121,6 +123,9 @@ public class EmailService extends ServiceSuperclass {
       message.setRecipients(TO, new InternetAddress[] {new InternetAddress(recipientEmail)});
       if (replyToEmail != null) {
         message.setReplyTo(new InternetAddress[] {new InternetAddress(replyToEmail)});
+      }
+      if (bccEmails != null) {
+        message.setRecipients(BCC, bccEmails.toArray(new InternetAddress[bccEmails.size()]));
       }
       message.setSubject(emailTemplate.getSubject(), "UTF-8");
       message.setContent(

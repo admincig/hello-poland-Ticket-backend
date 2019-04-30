@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
@@ -72,6 +73,9 @@ public class BookingService extends ServiceSuperclass {
 
   @Inject
   private ExceptionFactory exceptionFactory;
+
+  @Inject
+  private EmailService emailService;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public BookingDTO createBooking(BookingDTO booking) {
@@ -225,6 +229,43 @@ public class BookingService extends ServiceSuperclass {
               .collect(toList()))
           .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths())
           .replyToEmail(booking.getCustomerEmail()).build());
+    }
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public void sendTicketCopy(String serialNumber) {
+    var booking = bookingDao.findBySerialNumber(serialNumber);
+    var loggedPartner = getLoggedUser().getPartner();
+    List<Ticket> loggedPartnerTickets =
+        booking.getTickets().stream().filter(t -> t.getTicketPool().getTicketPoolDefinition()
+            .getSightEvent().getPartner().equals(loggedPartner)).collect(toList());
+    int qrCodeWidth =
+        valueOf(applicationPropertyService.findByName(TICKET_QR_CODE_WIDTH_PROPERTY).propertyValue);
+    int qrCodeHeight = valueOf(
+        applicationPropertyService.findByName(TICKET_QR_CODE_HEIGHT_PROPERTY).propertyValue);
+
+
+    // !!! filter correct pdfs!!!!!
+    if (booking.getSightEventPdfAttachmentsPaths() != null) {
+      booking.getSightEventPdfAttachmentsPaths().size();
+    }
+
+    // sending email to buyer and in bcc to helpdesk and partner
+    try {
+      emailService.sendEmailWithQrCodes(BookingMarkedAsBoughtEvent.builder()
+          .p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())
+          .customerName(booking.getCustomerName()).recipientEmail(booking.getCustomerEmail())
+          .bccEmails(Set.of(loggedPartner.getEmail(),
+              applicationPropertyService.findByName("mail.ticket.copy").propertyValue))
+          .tickets(loggedPartnerTickets.stream()
+              .map(ticket -> ofTicketWithQrCode(ticket,
+                  ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
+              .collect(toList()))
+          // !!! filter correct pdfs!!!!!
+          .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
 

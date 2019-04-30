@@ -11,6 +11,7 @@ import pl.hellopoland.dto.UserDTO;
 import pl.hellopolandticket.model.auth.Role;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
+import pl.hellopolandticket.service.BookingService;
 import pl.hellopolandticket.service.UserService;
 
 @Path("/partners")
@@ -19,6 +20,8 @@ public class PartnerRestService extends RestServiceSuperclass {
 
   @Inject
   private UserService userService;
+  @Inject
+  private BookingService bookingService;
   @Inject
   @Authenticated
   private CurrentUser currentUser;
@@ -40,6 +43,13 @@ public class PartnerRestService extends RestServiceSuperclass {
   public Response updateUsher(@PathParam("id") long userId, UserDTO usher) {
     usher.id = userId;
     return Response.ok(userService.updateUserForCurrnetPartner(usher)).build();
+  }
+
+  @GET
+  @Path("/bookings/{serialNumber}/sendTicketCopy")
+  public Response sendTicketCopy(@PathParam("serialNumber") String serialNumber) {
+    bookingService.sendTicketCopy(serialNumber);
+    return Response.ok().build();
   }
 
 }
