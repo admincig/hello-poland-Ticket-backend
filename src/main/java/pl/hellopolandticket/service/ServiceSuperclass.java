@@ -18,6 +18,7 @@ import pl.hellopolandticket.model.auth.User;
 public class ServiceSuperclass {
   protected static Properties properties;
   private static Logger staticLogger = System.getLogger(ServiceSuperclass.class.getName());
+  protected Logger logger = System.getLogger(this.getClass().getName());
 
   static {
     try {

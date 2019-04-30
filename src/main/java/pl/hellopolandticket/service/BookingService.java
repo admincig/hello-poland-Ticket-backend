@@ -9,6 +9,7 @@ import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofBooking;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicketWithQrCode;
 import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -21,6 +22,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import pl.hellopoland.dto.EmailSendingReportDTO;
 import pl.hellopoland.dto.booking.BookingDTO;
 import pl.hellopoland.dto.booking.TicketOrderDTO;
 import pl.hellopolandticket.dao.AvailableTicketNumberAssociationDao;
@@ -35,17 +37,17 @@ import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
+import pl.hellopolandticket.service.exception.badrequest.EmailSendingException;
 import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
+import pl.hellopolandticket.service.util.EmailSendingReport;
+import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
 @LocalBean
 public class BookingService extends ServiceSuperclass {
-
   private final static String TICKET_QR_CODE_HEIGHT_PROPERTY = "ticket.qrCode.height";
   private final static String TICKET_QR_CODE_WIDTH_PROPERTY = "ticket.qrCode.width";
-
-  private final Logger logger = System.getLogger(this.getClass().getName());
 
   @Inject
   private BookingDao bookingDao;
@@ -233,7 +235,7 @@ public class BookingService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public void sendTicketCopy(String serialNumber) {
+  public EmailSendingReportDTO sendTicketCopy(String serialNumber) {
     var booking = bookingDao.findBySerialNumber(serialNumber);
     var loggedPartner = getLoggedUser().getPartner();
     List<Ticket> loggedPartnerTickets =
@@ -252,8 +254,8 @@ public class BookingService extends ServiceSuperclass {
 
     // sending email to buyer and in bcc to helpdesk and partner
     try {
-      emailService.sendEmailWithQrCodes(BookingMarkedAsBoughtEvent.builder()
-          .p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())
+      EmailSendingReport report = emailService.sendEmailWithQrCodes(BookingMarkedAsBoughtEvent
+          .builder().p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())
           .customerName(booking.getCustomerName()).recipientEmail(booking.getCustomerEmail())
           .bccEmails(Set.of(loggedPartner.getEmail(),
               applicationPropertyService.findByName("mail.ticket.copy").propertyValue))
@@ -263,9 +265,10 @@ public class BookingService extends ServiceSuperclass {
               .collect(toList()))
           // !!! filter correct pdfs!!!!!
           .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
+      return ModelObjectsToDTOConverter.ofEmailSendingReport(report);
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.log(Level.ERROR, e.getLocalizedMessage());
+      throw new EmailSendingException("Wystąpił błąd podczas wysyłania maila z kopią biletów.");
     }
   }
 

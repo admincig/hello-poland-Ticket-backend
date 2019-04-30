@@ -3,6 +3,7 @@ package pl.hellopolandticket.service.util;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import lombok.Builder;
 import pl.hellopoland.dto.AbstractErrorDTO;
 import pl.hellopoland.dto.ApplicationPropertyDTO;
 import pl.hellopoland.dto.CollectionWrapperDTO;
+import pl.hellopoland.dto.EmailSendingReportDTO;
 import pl.hellopoland.dto.FrequencyDataDTO;
 import pl.hellopoland.dto.FrequencyTypeDTO;
 import pl.hellopoland.dto.ImageDTO;
@@ -270,6 +272,17 @@ public class ModelObjectsToDTOConverter {
       return frequencyDataDTO;
     }
     return null;
+  }
+
+  public static EmailSendingReportDTO ofEmailSendingReport(EmailSendingReport report) {
+    var dto = new EmailSendingReportDTO();
+    dto.validSentAddresses = Arrays.stream(report.validSentAddresses)
+        .map(address -> address.toString()).toArray(String[]::new);
+    dto.validUnsentAddresses = Arrays.stream(report.validUnsentAddresses)
+        .map(address -> address.toString()).toArray(String[]::new);
+    dto.invalidAddresses = Arrays.stream(report.invalidAddresses).map(address -> address.toString())
+        .toArray(String[]::new);
+    return dto;
   }
 
 }

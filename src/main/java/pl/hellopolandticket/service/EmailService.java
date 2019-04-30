@@ -50,6 +50,7 @@ import pl.hellopolandticket.dao.EmailTemplateDao;
 import pl.hellopolandticket.model.config.EmailTemplate;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
+import pl.hellopolandticket.service.util.EmailSendingReport;
 
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
@@ -71,10 +72,11 @@ public class EmailService extends ServiceSuperclass {
   private TicketService ticketService;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public void sendSimpleEmail(String recipientEmail, String subject, String msg)
+  public EmailSendingReport sendSimpleEmail(String recipientEmail, String subject, String msg)
       throws MessagingException, UnsupportedEncodingException {
     var session = createSessionForEmail();
     var message = new MimeMessage(session);
+    var report = new EmailSendingReport();
     try {
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
@@ -95,25 +97,31 @@ public class EmailService extends ServiceSuperclass {
       logger.log(Level.INFO, e.getLocalizedMessage());
       for (Address addr : e.getValidSentAddresses()) {
         logger.log(Level.INFO, "Email has been sent to " + addr);
+        report.validSentAddresses = e.getValidSentAddresses();
       }
       for (Address addr : e.getValidUnsentAddresses()) {
         logger.log(Level.INFO, "Email has not been sent to" + addr);
+        report.validUnsentAddresses = e.getValidUnsentAddresses();
       }
       for (Address addr : e.getInvalidAddresses()) {
         logger.log(Level.INFO, "Email has not been sent to  " + addr);
+        report.invalidAddresses = e.getInvalidAddresses();
       }
     } catch (MessagingException | UnsupportedEncodingException e) {
       throw e;
     }
+    return report;
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
+  public EmailSendingReport sendEmailWithQrCodes(
+      BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
     logger.log(Level.INFO, "........... Start sending email with qrCodes ..............");
     var recipientEmail = bookingMarkedAsBoughtEvent.getRecipientEmail();
     var replyToEmail = bookingMarkedAsBoughtEvent.getReplyToEmail();
     var bccEmails = bookingMarkedAsBoughtEvent.getBccEmails();
+    var report = new EmailSendingReport();
     try {
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
       Session session = createSessionForEmail();
@@ -142,12 +150,15 @@ public class EmailService extends ServiceSuperclass {
       logger.log(Level.INFO, e.getLocalizedMessage());
       for (Address addr : e.getValidSentAddresses()) {
         logger.log(Level.INFO, "Email has been sent to " + addr);
+        report.validSentAddresses = e.getValidSentAddresses();
       }
       for (Address addr : e.getValidUnsentAddresses()) {
         logger.log(Level.INFO, "Email has not been sent to" + addr);
+        report.validUnsentAddresses = e.getValidUnsentAddresses();
       }
       for (Address addr : e.getInvalidAddresses()) {
         logger.log(Level.INFO, "Email has not been sent to  " + addr);
+        report.invalidAddresses = e.getInvalidAddresses();
       }
     } catch (MessagingException | IOException | TemplateException e) {
       logger.log(Level.ERROR, e.toString());
@@ -157,6 +168,7 @@ public class EmailService extends ServiceSuperclass {
       throw e;
     }
     logger.log(Level.INFO, "........... End sending email with qrCodes ..............");
+    return report;
   }
 
   private Session createSessionForEmail() {
