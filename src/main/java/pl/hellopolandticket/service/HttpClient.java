@@ -4,15 +4,14 @@ import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.System.Logger.Level;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.ObservesAsync;
 import javax.json.bind.JsonbBuilder;
-import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.service.event.HPLPushEvent;
 
-@Slf4j
 @ApplicationScoped
 public class HttpClient extends ServiceSuperclass implements Serializable {
 
@@ -22,30 +21,25 @@ public class HttpClient extends ServiceSuperclass implements Serializable {
     try {
       HttpURLConnection httpURLConnection =
           createHttpConnectionWithPostRequestMethod(hplPushEvent.getURLPath());
-
       String postJsonData = JsonbBuilder.create().toJson(hplPushEvent.getPush());
-
       sendPostRequestWithBody(httpURLConnection, postJsonData);
-
       if (!isResponseCodeEqualNoContent(httpURLConnection.getResponseCode())) {
-        log.error("Response code doesn't equal expected one. Status: {}",
+        logger.log(Level.ERROR, "Response code doesn't equal expected one. Status: {}",
             httpURLConnection.getResponseCode());
       }
     } catch (IOException e) {
-      log.debug("Sending a post request with attractions exception. {}", e.getMessage());
+      logger.log(Level.ERROR, "Sending a post request with attractions exception. {}",
+          e.getMessage());
     }
   }
 
   private HttpURLConnection createHttpConnectionWithPostRequestMethod(String URLPath)
       throws IOException {
     URL url = new URL(URLPath);
-
     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
     httpURLConnection.setRequestMethod("POST");
     httpURLConnection.setRequestProperty("Content-Type", "application/json");
-
     httpURLConnection.setDoOutput(true);
-
     return httpURLConnection;
   }
 
