@@ -107,8 +107,7 @@ public class SightEventRestService extends RestServiceSuperclass {
   @PUT
   @Path("/{id}/pdf")
   public Response uploadPdf(@PathParam("id") Long id, FileDescriptorDTO pdf) {
-    sightEventService.uploadPdf(id, pdf);
-    return Response.ok().build();
+    return Response.ok(sightEventService.uploadPdf(id, pdf)).build();
   }
 
   @DELETE

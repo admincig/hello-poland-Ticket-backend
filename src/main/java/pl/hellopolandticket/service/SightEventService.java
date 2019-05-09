@@ -228,9 +228,10 @@ public class SightEventService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public void uploadPdf(Long sightEventId, FileDescriptorDTO pdf) {
+  public SightEventDTO uploadPdf(Long sightEventId, FileDescriptorDTO pdf) {
     var se = sightEventDao.findById(sightEventId);
     se.getPdfAttachmentsPaths().add(pdf.path);
+    return ofSightEventBasic(se);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
