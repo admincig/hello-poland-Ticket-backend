@@ -18,6 +18,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopoland.dto.CollectionWrapperDTO;
+import pl.hellopoland.dto.FileDescriptorDTO;
 import pl.hellopoland.dto.SightEventDTO;
 import pl.hellopolandticket.annotation.DateFormat;
 import pl.hellopolandticket.security.Authenticated;
@@ -101,6 +102,20 @@ public class SightEventRestService extends RestServiceSuperclass {
     } catch (Exception e) {
       return Response.notModified().build();
     }
+  }
+
+  @PUT
+  @Path("/{id}/pdf")
+  public Response uploadPdf(@PathParam("id") Long id, FileDescriptorDTO pdf) {
+    sightEventService.uploadPdf(id, pdf);
+    return Response.ok().build();
+  }
+
+  @DELETE
+  @Path("/{id}/pdf/{path}")
+  public Response stopSale(@PathParam("id") Long id, @PathParam("tpdId") String path) {
+    sightEventService.removePdf(id, path);
+    return Response.ok().build();
   }
 
 }

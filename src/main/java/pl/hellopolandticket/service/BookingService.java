@@ -29,6 +29,7 @@ import pl.hellopolandticket.dao.AvailableTicketNumberAssociationDao;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.partner.Partner;
+import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.market.Booking;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
@@ -84,10 +85,16 @@ public class BookingService extends ServiceSuperclass {
     Booking bookingToPersist = Booking.builder().date(new Date()).customerName(booking.customerName)
         .customerEmail(booking.customerEmail).build();
 
-    if (booking.sightEventPdfAttachments != null && !booking.sightEventPdfAttachments.isEmpty()) {
-      bookingToPersist.setSightEventPdfAttachmentsPaths(booking.sightEventPdfAttachments.stream()
-          .map(pdf -> pdf.path).collect(Collectors.toSet()));
-    }
+    // if (booking.sightEventPdfAttachments != null && !booking.sightEventPdfAttachments.isEmpty())
+    // {
+    // bookingToPersist.setSightEventPdfAttachments(booking.sightEventPdfAttachments.stream()
+    // .map(ModelObjectsToDTOConverter::ofSightEventPdfAttachment).collect(Collectors.toSet()));
+    //
+    //
+    // //
+    // bookingToPersist.setSightEventPdfAttachmentsPaths(booking.sightEventPdfAttachments.stream()
+    // // .map(pdf -> pdf.path).collect(Collectors.toSet()));
+    // }
     logger.log(Logger.Level.INFO, "...........Start booking tickets..............");
     List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
     bookingToPersist.setTickets(tickets);
@@ -194,10 +201,12 @@ public class BookingService extends ServiceSuperclass {
         valueOf(applicationPropertyService.findByName(TICKET_QR_CODE_WIDTH_PROPERTY).propertyValue);
     int qrCodeHeight = valueOf(
         applicationPropertyService.findByName(TICKET_QR_CODE_HEIGHT_PROPERTY).propertyValue);
-    if (booking.getSightEventPdfAttachmentsPaths() != null) {
-      booking.getSightEventPdfAttachmentsPaths().size();
-    }
-    // sending email to buyer
+    var allPdfs = getDistinctPdfsForTickets(booking.getTickets());
+    // if (booking.getSightEventPdfAttachmentsPaths() != null) {
+    // booking.getSightEventPdfAttachmentsPaths().size();
+    // }
+
+    // sending email to buyer:
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
         .p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())
         .customerName(booking.getCustomerName()).recipientEmail(booking.getCustomerEmail())
@@ -205,9 +214,10 @@ public class BookingService extends ServiceSuperclass {
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
             .collect(toList()))
-        .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
+        .sightEventPdfAttachmentsPaths(allPdfs).build());
+    // .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
 
-    // sending email to helpdesk
+    // sending email to helpdesk:
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
         .p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())
         .customerName(booking.getCustomerName())
@@ -216,11 +226,12 @@ public class BookingService extends ServiceSuperclass {
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
             .collect(toList()))
-        .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
+        .sightEventPdfAttachmentsPaths(allPdfs).build());
+    // .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
 
+    // sending email to partners:
     var ticketsByPartner = booking.getTickets().stream().collect(Collectors
         .groupingBy(t -> t.getTicketPool().getTicketPoolDefinition().getSightEvent().getPartner()));
-    // sending email to partners
     for (Entry<Partner, List<Ticket>> entry : ticketsByPartner.entrySet()) {
       bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
           .p24Currency(booking.getP24Currency()).p24OrderId(booking.getP24OrderId())
@@ -229,9 +240,18 @@ public class BookingService extends ServiceSuperclass {
               .map(ticket -> ofTicketWithQrCode(ticket,
                   ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
               .collect(toList()))
-          .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths())
+          .sightEventPdfAttachmentsPaths(getDistinctPdfsForTickets(entry.getValue()))
+          // .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths())
           .replyToEmail(booking.getCustomerEmail()).build());
     }
+  }
+
+  private Set<String> getDistinctPdfsForTickets(List<Ticket> tickets) {
+    return tickets.stream().map(Ticket::getTicketPool).map(TicketPool::getTicketPoolDefinition)
+        .map(TicketPoolDefinition::getSightEvent)
+        .filter(se -> se.getPdfAttachmentsPaths() != null && !se.getPdfAttachmentsPaths().isEmpty())
+        .map(SightEvent::getPdfAttachmentsPaths).flatMap(Collection::stream).distinct()
+        .collect(Collectors.toSet());
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
@@ -246,12 +266,6 @@ public class BookingService extends ServiceSuperclass {
     int qrCodeHeight = valueOf(
         applicationPropertyService.findByName(TICKET_QR_CODE_HEIGHT_PROPERTY).propertyValue);
 
-
-    // !!! filter correct pdfs!!!!!
-    if (booking.getSightEventPdfAttachmentsPaths() != null) {
-      booking.getSightEventPdfAttachmentsPaths().size();
-    }
-
     // sending email to buyer and in bcc to helpdesk and partner
     try {
       EmailSendingReport report = emailService.sendEmailWithQrCodes(BookingMarkedAsBoughtEvent
@@ -263,8 +277,7 @@ public class BookingService extends ServiceSuperclass {
               .map(ticket -> ofTicketWithQrCode(ticket,
                   ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
               .collect(toList()))
-          // !!! filter correct pdfs!!!!!
-          .sightEventPdfAttachmentsPaths(booking.getSightEventPdfAttachmentsPaths()).build());
+          .sightEventPdfAttachmentsPaths(getDistinctPdfsForTickets(loggedPartnerTickets)).build());
       return ModelObjectsToDTOConverter.ofEmailSendingReport(report);
     } catch (Exception e) {
       logger.log(Level.ERROR, e.getLocalizedMessage());
