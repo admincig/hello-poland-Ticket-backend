@@ -48,8 +48,7 @@ public class PartnerRestService extends RestServiceSuperclass {
   @GET
   @Path("/bookings/{serialNumber}/sendTicketCopy")
   public Response sendTicketCopy(@PathParam("serialNumber") String serialNumber) {
-    bookingService.sendTicketCopy(serialNumber);
-    return Response.ok().build();
+    return Response.ok(bookingService.sendTicketCopy(serialNumber)).build();
   }
 
 }
