@@ -10,7 +10,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -54,8 +53,6 @@ import pl.hellopolandticket.service.util.EmailSendingReport;
 
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
-  private final Logger logger = System.getLogger(this.getClass().getName());
-
   private static final String MAIL_PERSONAL = "Bilety Hello Poland";
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
@@ -74,6 +71,8 @@ public class EmailService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public EmailSendingReport sendSimpleEmail(String recipientEmail, String subject, String msg)
       throws MessagingException, UnsupportedEncodingException {
+    logger.log(Level.INFO, "........... Start sending email: subject: " + subject + " to: "
+        + recipientEmail + " ..............");
     var session = createSessionForEmail();
     var message = new MimeMessage(session);
     var report = new EmailSendingReport();
@@ -91,6 +90,8 @@ public class EmailService extends ServiceSuperclass {
       transport.connect();
       transport.setReportSuccess(true);
       transport.sendMessage(message, message.getAllRecipients());
+      logger.log(Level.INFO, "........... End sending email: subject: " + subject + " to: "
+          + recipientEmail + " ..............");
     } catch (SMTPSendFailedException e) {
       // Message has been sent.
       logger.log(Level.INFO, e.getReturnCode());
@@ -108,6 +109,7 @@ public class EmailService extends ServiceSuperclass {
         report.invalidAddresses = e.getInvalidAddresses();
       }
     } catch (MessagingException | UnsupportedEncodingException e) {
+      logger.log(Level.ERROR, e.getLocalizedMessage());
       throw e;
     }
     return report;
@@ -160,11 +162,8 @@ public class EmailService extends ServiceSuperclass {
         logger.log(Level.INFO, "Email has not been sent to  " + addr);
         report.invalidAddresses = e.getInvalidAddresses();
       }
-    } catch (MessagingException | IOException | TemplateException e) {
-      logger.log(Level.ERROR, e.toString());
-      throw e;
     } catch (Exception e) {
-      logger.log(Level.ERROR, e.toString());
+      logger.log(Level.ERROR, e.getLocalizedMessage());
       throw e;
     }
     logger.log(Level.INFO, "........... End sending email with qrCodes ..............");

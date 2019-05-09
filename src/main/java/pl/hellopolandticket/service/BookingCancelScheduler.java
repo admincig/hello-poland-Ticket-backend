@@ -2,17 +2,16 @@ package pl.hellopolandticket.service;
 
 import static java.lang.Integer.valueOf;
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
+import java.lang.System.Logger.Level;
 import java.util.Calendar;
 import java.util.List;
 import javax.annotation.security.RunAs;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.model.ticket.market.Booking;
 
-@Slf4j
 @Singleton
 @RunAs(value = ROLE_ADMIN)
 public class BookingCancelScheduler extends ServiceSuperclass {
@@ -39,7 +38,8 @@ public class BookingCancelScheduler extends ServiceSuperclass {
         bookingDao.findBookingsExceededMaxBookingTime(calendar.getTime());
 
     for (Booking booking : expiredBookings) {
-      log.debug("For the booking {} changed status to invalid. The ticket wasn't bought.", booking);
+      logger.log(Level.DEBUG,
+          "For the booking {} changed status to invalid. The ticket wasn't bought.", booking);
       service.makeInvalid(booking);
     }
   }
