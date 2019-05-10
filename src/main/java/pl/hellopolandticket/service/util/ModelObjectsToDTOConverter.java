@@ -272,12 +272,18 @@ public class ModelObjectsToDTOConverter {
 
   public static EmailSendingReportDTO ofEmailSendingReport(EmailSendingReport report) {
     var dto = new EmailSendingReportDTO();
-    dto.validSentAddresses = Arrays.stream(report.validSentAddresses)
-        .map(address -> address.toString()).toArray(String[]::new);
-    dto.validUnsentAddresses = Arrays.stream(report.validUnsentAddresses)
-        .map(address -> address.toString()).toArray(String[]::new);
-    dto.invalidAddresses = Arrays.stream(report.invalidAddresses).map(address -> address.toString())
-        .toArray(String[]::new);
+    if (report.validSentAddresses != null && report.validSentAddresses.length > 0) {
+      dto.validSentAddresses = Arrays.stream(report.validSentAddresses)
+          .map(address -> address.toString()).toArray(String[]::new);
+    }
+    if (report.validUnsentAddresses != null && report.validUnsentAddresses.length > 0) {
+      dto.validUnsentAddresses = Arrays.stream(report.validUnsentAddresses)
+          .map(address -> address.toString()).toArray(String[]::new);
+    }
+    if (report.invalidAddresses != null && report.invalidAddresses.length > 0) {
+      dto.invalidAddresses = Arrays.stream(report.invalidAddresses)
+          .map(address -> address.toString()).toArray(String[]::new);
+    }
     return dto;
   }
 
