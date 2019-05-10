@@ -1,7 +1,7 @@
 package pl.hellopolandticket.service;
 
-import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;;
-import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;;
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicket;
