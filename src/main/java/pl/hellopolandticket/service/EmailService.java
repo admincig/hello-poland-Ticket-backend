@@ -17,6 +17,7 @@ import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -121,9 +122,9 @@ public class EmailService extends ServiceSuperclass {
       BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
     logger.log(Level.INFO, "........... Start sending email with qrCodes ..............");
-    var recipientEmail = bookingMarkedAsBoughtEvent.getRecipientEmail();
-    var replyToEmail = bookingMarkedAsBoughtEvent.getReplyToEmail();
-    var bccEmails = bookingMarkedAsBoughtEvent.getBccEmails();
+    String recipientEmail = bookingMarkedAsBoughtEvent.getRecipientEmail();
+    String replyToEmail = bookingMarkedAsBoughtEvent.getReplyToEmail();
+    Set<String> bccEmails = bookingMarkedAsBoughtEvent.getBccEmails();
     var report = new EmailSendingReport();
     try {
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
@@ -136,7 +137,11 @@ public class EmailService extends ServiceSuperclass {
         message.setReplyTo(new InternetAddress[] {new InternetAddress(replyToEmail)});
       }
       if (bccEmails != null) {
-        message.setRecipients(BCC, bccEmails.toArray(new InternetAddress[bccEmails.size()]));
+        Set<InternetAddress> addresses = new HashSet<>();
+        for (String email : bccEmails) {
+          addresses.add(new InternetAddress(email));
+        }
+        message.setRecipients(BCC, addresses.toArray(new InternetAddress[bccEmails.size()]));
       }
       message.setSubject(emailTemplate.getSubject(), "UTF-8");
       message.setContent(
