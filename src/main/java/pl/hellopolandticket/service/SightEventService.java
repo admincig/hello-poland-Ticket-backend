@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.security.RolesAllowed;
@@ -230,14 +231,18 @@ public class SightEventService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public SightEventDTO uploadPdf(Long sightEventId, FileDescriptorDTO pdf) {
     var se = sightEventDao.findById(sightEventId);
-    se.getPdfAttachmentsPaths().add(pdf.path);
+    // temporary only one pdf for SightEvent:
+    // se.getPdfAttachmentsPaths().add(pdf.path);
+    se.setPdfAttachmentsPaths(Set.of(pdf.path));
     return ofSightEventBasic(se);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public void removePdf(Long sightEventId, String path) {
     var se = sightEventDao.findById(sightEventId);
-    se.getPdfAttachmentsPaths().remove(path);
+    // temporary only one pdf for SightEvent:
+    // se.getPdfAttachmentsPaths().remove(path);
+    se.setPdfAttachmentsPaths(Set.of());
   }
 
 }
