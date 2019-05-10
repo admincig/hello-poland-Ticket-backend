@@ -3,6 +3,7 @@ package pl.hellopolandticket.service;
 import static java.util.stream.Collectors.toList;
 import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.TO;
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -115,7 +116,7 @@ public class EmailService extends ServiceSuperclass {
     return report;
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_ADMIN})
   public EmailSendingReport sendEmailWithQrCodes(
       BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
