@@ -13,12 +13,14 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import pl.hellopoland.dto.FileDescriptorDTO;
 import pl.hellopoland.dto.LocationDTO;
 import pl.hellopoland.dto.OpeningHoursDTO;
 import pl.hellopoland.dto.PushDTO;
@@ -200,8 +202,8 @@ public class SightEventService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public void stopSale(Long sightId, Long ticketPoolDefId, Date date) {
-    var sightEvent = sightEventDao.findById(sightId);
+  public void stopSale(Long sightEventId, Long ticketPoolDefId, Date date) {
+    var sightEvent = sightEventDao.findById(sightEventId);
     TicketPoolDefinition tpd = sightEvent.getTicketPoolDefinitions().stream()
         .filter(t -> !t.isDeleted() && t.getId().equals(ticketPoolDefId)).findFirst().orElseThrow();
     TicketPool tp = null;
@@ -224,6 +226,23 @@ public class SightEventService extends ServiceSuperclass {
     LocalDate dateLocalDate = LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault());
     LocalDateTime dateLocalDateTime = dateLocalDate.atTime(startDateLocalTime);
     return Date.from(dateLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public SightEventDTO uploadPdf(Long sightEventId, FileDescriptorDTO pdf) {
+    var se = sightEventDao.findById(sightEventId);
+    // temporary only one pdf for SightEvent:
+    // se.getPdfAttachmentsPaths().add(pdf.path);
+    se.setPdfAttachmentsPaths(Set.of(pdf.path));
+    return ofSightEventBasic(se);
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public void removePdf(Long sightEventId, String path) {
+    var se = sightEventDao.findById(sightEventId);
+    // temporary only one pdf for SightEvent:
+    // se.getPdfAttachmentsPaths().remove(path);
+    se.setPdfAttachmentsPaths(Set.of());
   }
 
 }

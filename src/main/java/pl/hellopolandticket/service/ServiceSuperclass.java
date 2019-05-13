@@ -15,8 +15,8 @@ import pl.hellopolandticket.model.auth.User;
 // @Interceptors(value = LoggingHandler.class)
 public class ServiceSuperclass {
   protected static Properties properties;
-  protected Logger logger = System.getLogger(this.getClass().getName());
   private static Logger staticLogger = System.getLogger(ServiceSuperclass.class.getName());
+  protected Logger logger = System.getLogger(this.getClass().getName());
 
   static {
     try {
