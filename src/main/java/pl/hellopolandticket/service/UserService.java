@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
+import javax.ejb.EJBTransactionRolledbackException;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -94,6 +95,22 @@ public class UserService extends ServiceSuperclass {
     User user = userDao.getUserForCurrnetPartner(userDTO.id, getLoggedUser().getPartner());
     user.setName(userDTO.name);
     return ofUser(userDao.updateUser(user));
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public UserDTO createUsher(UserDTO usher) {
+    User user =
+        User.createUsher(usher.name, usher.email, usher.password, getLoggedUser().getPartner());
+    try {
+      user = userDao.persist(user);
+    } catch (EJBTransactionRolledbackException e) {
+      if (e.getCause().getCause().getClass().getName()
+          .equals("org.hibernate.exception.ConstraintViolationException")) {
+        System.out.println();
+      }
+    }
+
+    return ofUser(userDao.persist(user));
   }
 
 }
