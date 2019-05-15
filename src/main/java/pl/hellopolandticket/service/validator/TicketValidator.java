@@ -9,15 +9,13 @@ import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @RequestScoped
-@Interceptors(value = LoggingHandler.class)
+// @Interceptors(value = LoggingHandler.class)
 public class TicketValidator {
 
   @Inject

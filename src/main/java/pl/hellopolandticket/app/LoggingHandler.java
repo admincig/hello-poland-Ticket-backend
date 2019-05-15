@@ -8,6 +8,7 @@ import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import lombok.extern.slf4j.Slf4j;
+import pl.hellopolandticket.annotation.Logger;
 
 @Slf4j
 @Interceptor

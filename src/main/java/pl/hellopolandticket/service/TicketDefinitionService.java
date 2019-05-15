@@ -1,6 +1,7 @@
 package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import java.lang.System.Logger.Level;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
@@ -29,6 +30,8 @@ public class TicketDefinitionService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketDefinitionDTO add(TicketDefinitionDTO ticketDefinitionDTO, CurrentUser currentUser) {
     if (ticketDefinitionDTO.price < 0) {
+      logger.log(Level.ERROR, "Ticket definition [id=" + ticketDefinitionDTO.id
+          + "]. The ticket price must be greater than 0");
       throw new BadRequestException("The ticket price must be greater than 0");
     }
     Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());

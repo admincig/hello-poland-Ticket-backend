@@ -3,6 +3,7 @@ package pl.hellopolandticket.service.util;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import lombok.Builder;
 import pl.hellopoland.dto.AbstractErrorDTO;
 import pl.hellopoland.dto.ApplicationPropertyDTO;
 import pl.hellopoland.dto.CollectionWrapperDTO;
+import pl.hellopoland.dto.EmailSendingReportDTO;
 import pl.hellopoland.dto.FrequencyDataDTO;
 import pl.hellopoland.dto.FrequencyTypeDTO;
 import pl.hellopoland.dto.ImageDTO;
@@ -42,9 +44,7 @@ import pl.hellopolandticket.security.CurrentUser;
 public class ModelObjectsToDTOConverter {
 
   public static SightEventDTO ofSightEvent(SightEvent sightEvent, Long sightId) {
-    SightEventDTO sightEventDTO = new SightEventDTO();
-    sightEventDTO.id = sightEvent.getId();
-    sightEventDTO.name = sightEvent.getName();
+    SightEventDTO sightEventDTO = ofSightEventBasic(sightEvent);
     sightEventDTO.description = sightEvent.getDescription();
     sightEventDTO.duration = sightEvent.getDuration();
     sightEventDTO.lead = sightEvent.getLead();
@@ -54,8 +54,6 @@ public class ModelObjectsToDTOConverter {
     sightEventDTO.phone = sightEvent.getPhone();
     sightEventDTO.generalAdmission = sightEvent.getGeneralAdmission();
     sightEventDTO.sightId = sightId;
-    sightEventDTO.blocked = sightEvent.getBlocked();
-    sightEventDTO.published = sightEvent.getPublished();
     sightEventDTO.location = ofNullable(sightEvent.getSightEventLocation())
         .map(ModelObjectsToDTOConverter::ofSightLocation).orElse(null);
     sightEventDTO.ticketPoolDefinitions = sightEvent.getTicketPoolDefinitions().stream()
@@ -63,6 +61,15 @@ public class ModelObjectsToDTOConverter {
     sightEventDTO.openingHours = ofNullable(sightEvent.getOpeningHours())
         .map(v -> v.stream().map(ModelObjectsToDTOConverter::ofOpeningHours).collect(toList()))
         .orElse(null);
+    return sightEventDTO;
+  }
+
+  public static SightEventDTO ofSightEventBasic(SightEvent sightEvent) {
+    SightEventDTO sightEventDTO = new SightEventDTO();
+    sightEventDTO.id = sightEvent.getId();
+    sightEventDTO.name = sightEvent.getName();
+    sightEventDTO.blocked = sightEvent.getBlocked();
+    sightEventDTO.published = sightEvent.getPublished();
     return sightEventDTO;
   }
 
@@ -94,15 +101,6 @@ public class ModelObjectsToDTOConverter {
     ticketDefinitionDTO.price = ticketDefinition.getPrice();
 
     return ticketDefinitionDTO;
-  }
-
-  public static SightEventDTO ofSightEventBasic(SightEvent sightEvent) {
-    SightEventDTO sightEventDTO = new SightEventDTO();
-    sightEventDTO.id = sightEvent.getId();
-    sightEventDTO.name = sightEvent.getName();
-    sightEventDTO.blocked = sightEvent.getBlocked();
-    sightEventDTO.published = sightEvent.getPublished();
-    return sightEventDTO;
   }
 
   public static TicketDTO ofTicket(Ticket ticket) {
@@ -270,6 +268,23 @@ public class ModelObjectsToDTOConverter {
       return frequencyDataDTO;
     }
     return null;
+  }
+
+  public static EmailSendingReportDTO ofEmailSendingReport(EmailSendingReport report) {
+    var dto = new EmailSendingReportDTO();
+    if (report.validSentAddresses != null && report.validSentAddresses.length > 0) {
+      dto.validSentAddresses = Arrays.stream(report.validSentAddresses)
+          .map(address -> address.toString()).toArray(String[]::new);
+    }
+    if (report.validUnsentAddresses != null && report.validUnsentAddresses.length > 0) {
+      dto.validUnsentAddresses = Arrays.stream(report.validUnsentAddresses)
+          .map(address -> address.toString()).toArray(String[]::new);
+    }
+    if (report.invalidAddresses != null && report.invalidAddresses.length > 0) {
+      dto.invalidAddresses = Arrays.stream(report.invalidAddresses)
+          .map(address -> address.toString()).toArray(String[]::new);
+    }
+    return dto;
   }
 
 }

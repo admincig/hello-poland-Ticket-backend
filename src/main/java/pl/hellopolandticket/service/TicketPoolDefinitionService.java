@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import static java.util.Optional.ofNullable;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,20 +47,22 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPoolDefinitionDTO add(TicketPoolDefinitionDTO tpdDTO, CurrentUser currentUser) {
     validateDates(tpdDTO);
-
     List<TicketDefinitionDTO> tdDTOs = tpdDTO.ticketDefinitions;
     if (tdDTOs == null || tdDTOs.isEmpty()) {
+      logger.log(Level.ERROR,
+          "TicketPoolDefinition [id=" + tpdDTO.id + "] must have ticket definitions");
       throw new BadRequestException("TicketPoolDefinition must have ticket definitions.");
     }
     for (TicketDefinitionDTO td : tdDTOs) {
       if (td.availableTicketsNumber != -1 && tpdDTO.availableTicketsNumber != -1) {
+        logger.log(Level.ERROR,
+            "Bad availableTicketsNumber limit combination. TicketPoolDefinition [id=" + tpdDTO.id
+                + "]; TicketDefinition [id=" + td.id + "]");
         throw new ConflictingException("Bad availableTicketsNumber limit combination.");
       }
     }
-
     SightEvent sightEvent = sightEventDao.findByIdAndPartner(tpdDTO.sightEventId,
         partnerDao.findByUserEmail(currentUser.getPrincipal()));
-
     var tpdSd = tpdDTO.startDate;
     FrequencyData frequencyData =
         tpdDTO.isCyclic
@@ -73,53 +76,55 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
                     .build())
                 .orElse(new FrequencyData())
             : null;
-
     TicketPoolDefinition ticketPoolDefinition = TicketPoolDefinition.builder().name(tpdDTO.name)
         .availableTicketsNumber(tpdDTO.availableTicketsNumber).isCyclic(tpdDTO.isCyclic)
         .frequencyData(frequencyData).startDate(tpdDTO.startDate).endDate(tpdDTO.endDate)
         .entryStartDate(tpdDTO.entryStartDate).entryEndDate(tpdDTO.entryEndDate)
         .sightEvent(sightEvent).deleted(false).wholeDay(tpdDTO.wholeDay).build();
-
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
     atnaService.add(ticketPoolDefinition, tdDTOs);
-
     ticketPoolDefinition.setTicketDefinitions(getTicketDefinitions(tdDTOs, ticketPoolDefinition));
-
     tpdDTO = ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
-
     var tds = tpdDTO.ticketDefinitions;
     if (tds != null && !tds.isEmpty()) {
       tds.forEach(td -> td.poolId = ticketPoolDefinition.getId());
     }
-
     tpdDTO.id = ticketPoolDefinition.getId();
-
     if (!ticketPoolDefinition.getIsCyclic()) {
       ticketPoolService.findOrCreateNew(ticketPoolDefinition, null);
     }
-
     return tpdDTO;
   }
 
   private void validateDates(TicketPoolDefinitionDTO tpdDTO) {
     if (tpdDTO.endDate != null && tpdDTO.startDate.after(tpdDTO.endDate)) {
+      logger.log(Level.ERROR,
+          "Ticket pool definition's  [id=" + tpdDTO.id + "] startDate after endDate.");
       throw new ConflictingException("Ticket pool definition's startDate after endDate.");
     }
     if (tpdDTO.entryEndDate != null && tpdDTO.entryStartDate != null
         && tpdDTO.entryStartDate.after(tpdDTO.entryEndDate)) {
+      logger.log(Level.ERROR,
+          "Ticket pool definition's  [id=" + tpdDTO.id + "] entryStartDate after entryEndDate.");
       throw new ConflictingException("Ticket pool definition's entryStartDate after entryEndDate.");
     }
     if (tpdDTO.entryStartDate != null && tpdDTO.startDate != null
         && tpdDTO.entryStartDate.after(tpdDTO.startDate)) {
+      logger.log(Level.ERROR,
+          "Ticket pool definition's  [id=" + tpdDTO.id + "] entryStartDate after startDate.");
       throw new ConflictingException("Ticket pool definition's entryStartDate after startDate.");
     }
     var frequencyData = tpdDTO.frequencyData;
     if (frequencyData != null && frequencyData.endDate != null
         && tpdDTO.startDate.after(frequencyData.endDate)) {
+      logger.log(Level.ERROR,
+          "Ticket pool definition's  [id=" + tpdDTO.id + "] startDate after frequency endDate.");
       throw new ConflictingException("Ticket pool definition's startDate after frequency endDate.");
     }
     if (frequencyData != null && frequencyData.endDate != null && frequencyData.startDate != null
         && frequencyData.startDate.after(frequencyData.endDate)) {
+      logger.log(Level.ERROR, "Ticket pool definition's  [id=" + tpdDTO.id
+          + "] frequency startDate after frequency endDate.");
       throw new ConflictingException(
           "Ticket pool definition's frequency startDate after frequency endDate.");
     }
