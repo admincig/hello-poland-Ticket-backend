@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJBTransactionRolledbackException;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -21,7 +20,6 @@ import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.security.password.PasswordEncoder;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
-import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
@@ -102,15 +100,7 @@ public class UserService extends ServiceSuperclass {
   public UserDTO createUsher(UserDTO usher) {
     User user =
         User.createUsher(usher.name, usher.email, usher.password, getLoggedUser().getPartner());
-    try {
-      user = userDao.persist(user);
-    } catch (EJBTransactionRolledbackException e) {
-      if (e.getCause().getCause().getClass().getName()
-          .equals("org.hibernate.exception.ConstraintViolationException")) {
-        throw new ConflictingException("Użytkownik już istnieje w systemie");
-      }
-    }
-    return ofUser(user);
+    return ofUser(userDao.persist(user));
   }
 
 }
