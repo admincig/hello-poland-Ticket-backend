@@ -21,6 +21,7 @@ import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.security.password.PasswordEncoder;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
+import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
@@ -106,11 +107,10 @@ public class UserService extends ServiceSuperclass {
     } catch (EJBTransactionRolledbackException e) {
       if (e.getCause().getCause().getClass().getName()
           .equals("org.hibernate.exception.ConstraintViolationException")) {
-        System.out.println();
+        throw new ConflictingException("Użytkownik już istnieje w systemie");
       }
     }
-
-    return ofUser(userDao.persist(user));
+    return ofUser(user);
   }
 
 }
