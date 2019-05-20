@@ -3,6 +3,7 @@ package pl.hellopolandticket.rest;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofCollection;
 import java.util.Date;
 import java.util.List;
+import javax.ejb.EJBAccessException;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -100,7 +101,10 @@ public class SightEventRestService extends RestServiceSuperclass {
       sightEventService.stopSale(id, tpdId, date);
       return Response.noContent().build();
     } catch (Exception e) {
-      return Response.notModified().build();
+      if (!(e instanceof EJBAccessException)) {
+        return Response.notModified().build();
+      }
+      throw e;
     }
   }
 
