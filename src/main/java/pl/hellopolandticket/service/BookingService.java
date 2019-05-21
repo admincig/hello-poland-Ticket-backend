@@ -168,9 +168,8 @@ public class BookingService extends ServiceSuperclass {
       }
       for (int i = 0; i < dto.numberOfTickets; i++) {
         Ticket ticket = Ticket.builder().name(ticketDefinition.getName())
-            .price(ticketDefinition.getPrice()).date(dto.date).status(BOOKED).booking(booking)
-            .ticketDefinition(ticketDefinition).ticketPool(pool).build();
-
+            .price(ticketDefinition.getPrice()).date(pool.getStartDate()).status(BOOKED)
+            .booking(booking).ticketDefinition(ticketDefinition).ticketPool(pool).build();
         bookedTickets.add(ticket);
       }
       checkAndDecreaseAvailability(pool, ticketDefinition, dto.numberOfTickets.intValue());
