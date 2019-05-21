@@ -86,22 +86,13 @@ public class BookingService extends ServiceSuperclass {
   public BookingDTO createBooking(BookingDTO booking) {
     Booking bookingToPersist = Booking.builder().date(new Date()).customerName(booking.customerName)
         .customerEmail(booking.customerEmail).build();
-
-    // if (booking.sightEventPdfAttachments != null && !booking.sightEventPdfAttachments.isEmpty())
-    // {
-    // bookingToPersist.setSightEventPdfAttachments(booking.sightEventPdfAttachments.stream()
-    // .map(ModelObjectsToDTOConverter::ofSightEventPdfAttachment).collect(Collectors.toSet()));
-    //
-    //
-    // //
-    // bookingToPersist.setSightEventPdfAttachmentsPaths(booking.sightEventPdfAttachments.stream()
-    // // .map(pdf -> pdf.path).collect(Collectors.toSet()));
-    // }
     logger.log(Logger.Level.INFO, "...........Start booking tickets..............");
     List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
     bookingToPersist.setTickets(tickets);
+    var bo = bookingDao.persist(bookingToPersist);
+    logger.log(Logger.Level.INFO, "Created booking id=" + bo.getId());
     logger.log(Logger.Level.INFO, "...........End booking tickets..............");
-    return ofBooking(bookingDao.persist(bookingToPersist));
+    return ofBooking(bo);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
@@ -171,7 +162,10 @@ public class BookingService extends ServiceSuperclass {
       }
       TicketPoolDefinition poolDefinition =
           ticketPoolDefinitionService.get(dto.ticketPoolDefinitionId);
-      TicketPool pool = ticketPoolService.findOrCreateNew(poolDefinition, dto.date);
+      TicketPool pool = ticketPoolService.find(poolDefinition, dto.date);
+      if (pool == null) {
+        pool = ticketPoolService.createNew(poolDefinition, dto.date);
+      }
       for (int i = 0; i < dto.numberOfTickets; i++) {
         Ticket ticket = Ticket.builder().name(ticketDefinition.getName())
             .price(ticketDefinition.getPrice()).date(dto.date).status(BOOKED).booking(booking)
