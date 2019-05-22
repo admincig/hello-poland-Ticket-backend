@@ -105,7 +105,6 @@ public class BookingService extends ServiceSuperclass {
       sendEmailWithTicketQrCodes(booking);
     } else if (booking.getStatus() == INVALID) {
       bookTickets(null, booking);
-
       return markBookingAsBought(booking.getSerialNumber(), p24OrderId, p24Currency);
     } else {
       throw exceptionFactory.notBookedException();
