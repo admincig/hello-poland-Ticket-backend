@@ -47,22 +47,23 @@ public class BookingRestService extends RestServiceSuperclass {
     ticket1.numberOfTickets = 2L;
     ticket1.date = date;
 
-    TicketOrderDTO ticket2 = new TicketOrderDTO();
-    ticket2.ticketDefinitionId = 2L;
-    ticket2.ticketPoolDefinitionId = 2L;
-    ticket2.numberOfTickets = 3L;
-    ticket2.date = date;
+    // TicketOrderDTO ticket2 = new TicketOrderDTO();
+    // ticket2.ticketDefinitionId = 2L;
+    // ticket2.ticketPoolDefinitionId = 2L;
+    // ticket2.numberOfTickets = 3L;
+    // ticket2.date = date;
 
-    TicketOrderDTO ticket3 = new TicketOrderDTO();
-    ticket3.ticketDefinitionId = 3L;
-    ticket3.ticketPoolDefinitionId = 3L;
-    ticket3.numberOfTickets = 2L;
-    ticket3.date = date;
+    // TicketOrderDTO ticket3 = new TicketOrderDTO();
+    // ticket3.ticketDefinitionId = 3L;
+    // ticket3.ticketPoolDefinitionId = 3L;
+    // ticket3.numberOfTickets = 2L;
+    // ticket3.date = date;
 
     BookingDTO booking = new BookingDTO();
     booking.customerName = "Jan Kowalski";
     booking.customerEmail = email;
-    booking.ticketBookings = asList(ticket1, ticket2, ticket3);
+    booking.ticketBookings = asList(ticket1);
+    // booking.ticketBookings = asList(ticket1, ticket2, ticket3);
 
     BookingDTO persistedBooking = bookingService.createBooking(booking);
 

@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -105,6 +107,10 @@ public class SightEvent implements Serializable {
   @NotNull
   @Column(nullable = false)
   private Boolean blocked = false;
+
+  @Setter
+  @ElementCollection
+  private Set<String> pdfAttachmentsPaths;
 
   @Builder
   public SightEvent(String name, Date date, String description, String lead, Integer duration,

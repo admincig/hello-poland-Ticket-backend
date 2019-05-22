@@ -3,6 +3,7 @@ package pl.hellopolandticket.rest;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofCollection;
 import java.util.Date;
 import java.util.List;
+import javax.ejb.EJBAccessException;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -18,6 +19,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopoland.dto.CollectionWrapperDTO;
+import pl.hellopoland.dto.FileDescriptorDTO;
 import pl.hellopoland.dto.SightEventDTO;
 import pl.hellopolandticket.annotation.DateFormat;
 import pl.hellopolandticket.security.Authenticated;
@@ -99,8 +101,24 @@ public class SightEventRestService extends RestServiceSuperclass {
       sightEventService.stopSale(id, tpdId, date);
       return Response.noContent().build();
     } catch (Exception e) {
-      return Response.notModified().build();
+      if (!(e instanceof EJBAccessException)) {
+        return Response.notModified().build();
+      }
+      throw e;
     }
+  }
+
+  @PUT
+  @Path("/{id}/pdf")
+  public Response uploadPdf(@PathParam("id") Long id, FileDescriptorDTO pdf) {
+    return Response.ok(sightEventService.uploadPdf(id, pdf)).build();
+  }
+
+  @DELETE
+  @Path("/{id}/pdf/{path}")
+  public Response deletePdf(@PathParam("id") Long id, @PathParam("tpdId") String path) {
+    sightEventService.removePdf(id, path);
+    return Response.ok().build();
   }
 
 }

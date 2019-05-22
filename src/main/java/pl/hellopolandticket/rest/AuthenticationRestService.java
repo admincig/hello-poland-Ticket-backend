@@ -28,7 +28,6 @@ public class AuthenticationRestService extends RestServiceSuperclass {
     if (securityContext.getCallerPrincipal() != null) {
       return Response.ok(ofCurrentUser(currentUser)).build();
     }
-
     return Response.status(UNAUTHORIZED).build();
   }
 
@@ -38,7 +37,6 @@ public class AuthenticationRestService extends RestServiceSuperclass {
     if (securityContext.getCallerPrincipal() != null) {
       return Response.ok(ofCurrentUser(currentUser)).build();
     }
-
     return Response.status(UNAUTHORIZED).build();
   }
 

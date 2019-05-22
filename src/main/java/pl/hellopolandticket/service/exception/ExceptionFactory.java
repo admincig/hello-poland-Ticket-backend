@@ -2,9 +2,7 @@ package pl.hellopolandticket.service.exception;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.interceptor.Interceptors;
 import pl.hellopoland.dto.booking.TicketDTO;
-import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.service.exception.badrequest.EmailSendingException;
 import pl.hellopolandticket.service.exception.badrequest.EmailSendingRollbackException;
 import pl.hellopolandticket.service.exception.conflict.EventDoesNotTakePlaceOnChosenDateException;
@@ -18,7 +16,7 @@ import pl.hellopolandticket.service.exception.notfound.TicketNotFoundException;
 import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException;
 
 @ApplicationScoped
-@Interceptors(value = LoggingHandler.class)
+// @Interceptors(value = LoggingHandler.class)
 public class ExceptionFactory {
 
   @Inject

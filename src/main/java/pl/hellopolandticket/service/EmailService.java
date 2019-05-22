@@ -1,7 +1,9 @@
 package pl.hellopolandticket.service;
 
 import static java.util.stream.Collectors.toList;
+import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.TO;
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,13 +11,13 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -49,11 +51,10 @@ import pl.hellopolandticket.dao.EmailTemplateDao;
 import pl.hellopolandticket.model.config.EmailTemplate;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
+import pl.hellopolandticket.service.util.EmailSendingReport;
 
 @RequestScoped
 public class EmailService extends ServiceSuperclass {
-  private final Logger logger = System.getLogger(this.getClass().getName());
-
   private static final String MAIL_PERSONAL = "Bilety Hello Poland";
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
@@ -70,10 +71,13 @@ public class EmailService extends ServiceSuperclass {
   private TicketService ticketService;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public void sendSimpleEmail(String recipientEmail, String subject, String msg)
+  public EmailSendingReport sendSimpleEmail(String recipientEmail, String subject, String msg)
       throws MessagingException, UnsupportedEncodingException {
+    logger.log(Level.INFO, "........... Start sending email: subject: " + subject + " to: "
+        + recipientEmail + " ..............");
     var session = createSessionForEmail();
     var message = new MimeMessage(session);
+    var report = new EmailSendingReport();
     try {
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
@@ -88,30 +92,40 @@ public class EmailService extends ServiceSuperclass {
       transport.connect();
       transport.setReportSuccess(true);
       transport.sendMessage(message, message.getAllRecipients());
+      logger.log(Level.INFO, "........... End sending email: subject: " + subject + " to: "
+          + recipientEmail + " ..............");
     } catch (SMTPSendFailedException e) {
       // Message has been sent.
       logger.log(Level.INFO, e.getReturnCode());
       logger.log(Level.INFO, e.getLocalizedMessage());
       for (Address addr : e.getValidSentAddresses()) {
         logger.log(Level.INFO, "Email has been sent to " + addr);
+        report.validSentAddresses = e.getValidSentAddresses();
       }
       for (Address addr : e.getValidUnsentAddresses()) {
         logger.log(Level.INFO, "Email has not been sent to" + addr);
+        report.validUnsentAddresses = e.getValidUnsentAddresses();
       }
       for (Address addr : e.getInvalidAddresses()) {
         logger.log(Level.INFO, "Email has not been sent to  " + addr);
+        report.invalidAddresses = e.getInvalidAddresses();
       }
     } catch (MessagingException | UnsupportedEncodingException e) {
+      logger.log(Level.ERROR, e.getLocalizedMessage());
       throw e;
     }
+    return report;
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public void sendEmailWithQrCodes(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
+  @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_ADMIN})
+  public EmailSendingReport sendEmailWithQrCodes(
+      BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
       throws MessagingException, IOException, TemplateException {
     logger.log(Level.INFO, "........... Start sending email with qrCodes ..............");
-    var recipientEmail = bookingMarkedAsBoughtEvent.getRecipientEmail();
-    var replyToEmail = bookingMarkedAsBoughtEvent.getReplyToEmail();
+    String recipientEmail = bookingMarkedAsBoughtEvent.getRecipientEmail();
+    String replyToEmail = bookingMarkedAsBoughtEvent.getReplyToEmail();
+    Set<String> bccEmails = bookingMarkedAsBoughtEvent.getBccEmails();
+    var report = new EmailSendingReport();
     try {
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
       Session session = createSessionForEmail();
@@ -121,6 +135,13 @@ public class EmailService extends ServiceSuperclass {
       message.setRecipients(TO, new InternetAddress[] {new InternetAddress(recipientEmail)});
       if (replyToEmail != null) {
         message.setReplyTo(new InternetAddress[] {new InternetAddress(replyToEmail)});
+      }
+      if (bccEmails != null) {
+        Set<InternetAddress> addresses = new HashSet<>();
+        for (String email : bccEmails) {
+          addresses.add(new InternetAddress(email));
+        }
+        message.setRecipients(BCC, addresses.toArray(new InternetAddress[bccEmails.size()]));
       }
       message.setSubject(emailTemplate.getSubject(), "UTF-8");
       message.setContent(
@@ -137,21 +158,22 @@ public class EmailService extends ServiceSuperclass {
       logger.log(Level.INFO, e.getLocalizedMessage());
       for (Address addr : e.getValidSentAddresses()) {
         logger.log(Level.INFO, "Email has been sent to " + addr);
+        report.validSentAddresses = e.getValidSentAddresses();
       }
       for (Address addr : e.getValidUnsentAddresses()) {
         logger.log(Level.INFO, "Email has not been sent to" + addr);
+        report.validUnsentAddresses = e.getValidUnsentAddresses();
       }
       for (Address addr : e.getInvalidAddresses()) {
         logger.log(Level.INFO, "Email has not been sent to  " + addr);
+        report.invalidAddresses = e.getInvalidAddresses();
       }
-    } catch (MessagingException | IOException | TemplateException e) {
-      logger.log(Level.ERROR, e.toString());
-      throw e;
     } catch (Exception e) {
-      logger.log(Level.ERROR, e.toString());
+      logger.log(Level.ERROR, e.getLocalizedMessage());
       throw e;
     }
     logger.log(Level.INFO, "........... End sending email with qrCodes ..............");
+    return report;
   }
 
   private Session createSessionForEmail() {

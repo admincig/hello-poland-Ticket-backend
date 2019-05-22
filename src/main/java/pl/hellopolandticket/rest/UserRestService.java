@@ -1,5 +1,6 @@
 package pl.hellopolandticket.rest;
 
+import javax.ejb.EJBAccessException;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -26,6 +27,9 @@ public class UserRestService extends RestServiceSuperclass {
   @GET
   @Path("/me")
   public Response userInfo() {
+    if (currentUser == null) {
+      throw new EJBAccessException();
+    }
     return Response.ok(userService.findByEmail(currentUser.getPrincipal())).build();
   }
 

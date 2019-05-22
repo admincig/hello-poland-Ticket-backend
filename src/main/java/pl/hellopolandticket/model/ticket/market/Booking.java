@@ -79,6 +79,7 @@ public class Booking implements Serializable {
   @Column(name = "P24_CURRENCY")
   private String p24Currency;
 
+  @Deprecated
   @Setter
   @ElementCollection
   private Set<String> sightEventPdfAttachmentsPaths;

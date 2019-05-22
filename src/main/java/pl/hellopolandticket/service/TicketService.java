@@ -1,5 +1,7 @@
 package pl.hellopolandticket.service;
 
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicket;
@@ -68,7 +70,7 @@ public class TicketService extends ServiceSuperclass {
     return ofTicket(ticket);
   }
 
-  @RolesAllowed({ROLE_USHER})
+  @RolesAllowed({ROLE_USHER, ROLE_EXTERNAL_USER, ROLE_ADMIN})
   public SightEvent findSightEventForTicket(Long id) {
     return ticketDao.findSightEventForTicket(id);
   }
