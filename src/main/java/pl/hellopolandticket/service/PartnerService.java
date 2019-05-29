@@ -56,6 +56,13 @@ public class PartnerService extends ServiceSuperclass {
     return ofPartnerWithToken(partnerToPersist, user.getToken());
   }
 
+  @RolesAllowed({ROLE_ADMIN, ROLE_SALESMAN})
+  public void removeNewCreatedPartner(String partnerEmail) {
+    Partner partner = partnerDao.findByUserEmail(partnerEmail);
+    userService.removeAllUsersForPartner(partner);
+    partnerDao.removeNewCreatedPartner(partner);
+  }
+
   private boolean isAtLeastOneUsher(List<UserDTO> usersDTOs) {
     return usersDTOs.stream().anyMatch(user -> user.roles.contains(RoleDTO.USHER));
   }
