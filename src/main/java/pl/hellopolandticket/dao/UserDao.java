@@ -7,9 +7,11 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
+import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 
 @Stateless
 @LocalBean
@@ -73,7 +75,14 @@ public class UserDao {
   }
 
   public User persist(User user) {
-    entityManager.persist(user);
+    try {
+      entityManager.persist(user);
+    } catch (PersistenceException e) {
+      if (e.getCause().getClass().getName()
+          .equals("org.hibernate.exception.ConstraintViolationException")) {
+        throw new ConflictingException("Użytkownik już istnieje w systemie");
+      }
+    }
     return user;
   }
 

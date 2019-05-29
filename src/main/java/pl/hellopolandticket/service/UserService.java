@@ -103,4 +103,11 @@ public class UserService extends ServiceSuperclass {
     userDao.removeAllUsersForPartner(partner);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public UserDTO createUsher(UserDTO usher) {
+    User user =
+        User.createUsher(usher.name, usher.email, usher.password, getLoggedUser().getPartner());
+    return ofUser(userDao.persist(user));
+  }
+
 }
