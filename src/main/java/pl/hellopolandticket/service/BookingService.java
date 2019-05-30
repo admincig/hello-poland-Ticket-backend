@@ -86,17 +86,6 @@ public class BookingService extends ServiceSuperclass {
   public BookingDTO createBooking(BookingDTO booking) {
     Booking bookingToPersist = Booking.builder().date(new Date()).customerName(booking.customerName)
         .customerEmail(booking.customerEmail).build();
-
-    // if (booking.sightEventPdfAttachments != null && !booking.sightEventPdfAttachments.isEmpty())
-    // {
-    // bookingToPersist.setSightEventPdfAttachments(booking.sightEventPdfAttachments.stream()
-    // .map(ModelObjectsToDTOConverter::ofSightEventPdfAttachment).collect(Collectors.toSet()));
-    //
-    //
-    // //
-    // bookingToPersist.setSightEventPdfAttachmentsPaths(booking.sightEventPdfAttachments.stream()
-    // // .map(pdf -> pdf.path).collect(Collectors.toSet()));
-    // }
     logger.log(Logger.Level.INFO, "...........Start booking tickets..............");
     List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
     bookingToPersist.setTickets(tickets);
