@@ -1,7 +1,7 @@
 package pl.hellopolandticket.service.event;
 
 import java.time.temporal.ChronoUnit;
-import javax.enterprise.context.ApplicationScoped;
+import javax.ejb.Stateless;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import org.eclipse.microprofile.faulttolerance.Fallback;
@@ -11,7 +11,7 @@ import pl.hellopolandticket.service.EmailService;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Slf4j
-@ApplicationScoped
+@Stateless
 // @Interceptors(value = LoggingHandler.class)
 public class BookingMarkedAsBoughtEventListener {
 
@@ -21,22 +21,22 @@ public class BookingMarkedAsBoughtEventListener {
   @Inject
   private ExceptionFactory exceptionFactory;
 
-  @Retry(maxRetries = 5, delay = 5, delayUnit = ChronoUnit.MINUTES, jitter = 30000)
+  @Retry(maxRetries = 5, delay = 20, delayUnit = ChronoUnit.SECONDS, jitter = 5,
+      jitterDelayUnit = ChronoUnit.SECONDS)
   @Fallback(fallbackMethod = "fallbackLogError")
   public void bookingMarkedAsBoughtEventHandler(
       @ObservesAsync BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent) throws Exception {
-    // try {
-    emailService.sendEmailWithQrCodes(bookingMarkedAsBoughtEvent);
-    // } catch (MessagingException | IOException | TemplateException e) {
-    // log.error(e.getMessage());
-    // throw exceptionFactory.emailSendingException();
-    // }
+    try {
+      emailService.sendEmailWithQrCodes(bookingMarkedAsBoughtEvent);
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      throw e;
+    }
   }
 
   private void fallbackLogError(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent) {
-    log.error(
-        "An error occurred while sending email to: " + bookingMarkedAsBoughtEvent.getCustomerName()
-            + "[" + bookingMarkedAsBoughtEvent.getRecipientEmail() + "]");
+    log.error("An error occurred while sending email to: " + "["
+        + bookingMarkedAsBoughtEvent.getRecipientEmail() + "]");
     throw exceptionFactory.emailSendingException();
   }
 
