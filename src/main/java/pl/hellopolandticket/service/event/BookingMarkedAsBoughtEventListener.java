@@ -21,8 +21,8 @@ public class BookingMarkedAsBoughtEventListener {
   @Inject
   private ExceptionFactory exceptionFactory;
 
-  @Retry(maxRetries = 5, delay = 20, delayUnit = ChronoUnit.SECONDS, jitter = 5,
-      jitterDelayUnit = ChronoUnit.SECONDS)
+  @Retry(maxRetries = 5, delay = 10, delayUnit = ChronoUnit.MINUTES, jitter = 1,
+      jitterDelayUnit = ChronoUnit.MINUTES)
   @Fallback(fallbackMethod = "fallbackLogError")
   public void bookingMarkedAsBoughtEventHandler(
       @ObservesAsync BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent) throws Exception {
