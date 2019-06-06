@@ -2,6 +2,7 @@ package pl.hellopolandticket.rest;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -22,8 +23,15 @@ public class HelpdeskRestService extends RestServiceSuperclass {
 
   @POST
   @Path("/partners")
-  public Response add(PartnerDTO partner) {
+  public Response addPartner(PartnerDTO partner) {
     return Response.ok(partnerService.save(partner)).build();
+  }
+
+  @DELETE
+  @Path("/partners/{email}")
+  public Response removePartner(@PathParam("email") String partnerEmail) {
+    partnerService.removeNewCreatedPartner(partnerEmail);
+    return Response.noContent().build();
   }
 
   @GET

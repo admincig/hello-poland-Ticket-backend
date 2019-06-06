@@ -36,4 +36,8 @@ public class PartnerDao {
     return entityManager.createQuery("from Partner partner where partner.name=:name", Partner.class)
         .setParameter("name", name).getResultStream().findFirst().orElse(null);
   }
+
+  public void removeNewCreatedPartner(Partner partner) {
+    entityManager.remove(partner);
+  }
 }
