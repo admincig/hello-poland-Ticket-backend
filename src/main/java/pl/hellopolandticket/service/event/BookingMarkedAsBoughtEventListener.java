@@ -2,6 +2,8 @@ package pl.hellopolandticket.service.event;
 
 import java.time.temporal.ChronoUnit;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import org.eclipse.microprofile.faulttolerance.Fallback;
@@ -21,15 +23,14 @@ public class BookingMarkedAsBoughtEventListener {
   @Inject
   private ExceptionFactory exceptionFactory;
 
-  // @Timeout(value = 10, unit = ChronoUnit.SECONDS)
+  @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
   @Retry(maxRetries = 5, delay = 10, delayUnit = ChronoUnit.MINUTES, jitter = 1,
-      jitterDelayUnit = ChronoUnit.MINUTES)
+      jitterDelayUnit = ChronoUnit.MINUTES, maxDuration = 60, durationUnit = ChronoUnit.MINUTES)
   @Fallback(fallbackMethod = "fallbackLogError")
   public void bookingMarkedAsBoughtEventHandler(
       @ObservesAsync BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent) throws Exception {
     try {
-      emailService.facke(bookingMarkedAsBoughtEvent);
-      // emailService.sendEmailWithQrCodes(bookingMarkedAsBoughtEvent);
+      emailService.sendEmailWithQrCodes(bookingMarkedAsBoughtEvent);
     } catch (Exception e) {
       log.error(e.getMessage());
       throw e;
