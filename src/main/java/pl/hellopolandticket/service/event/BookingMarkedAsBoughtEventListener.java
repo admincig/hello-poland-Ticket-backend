@@ -21,13 +21,15 @@ public class BookingMarkedAsBoughtEventListener {
   @Inject
   private ExceptionFactory exceptionFactory;
 
+  // @Timeout(value = 10, unit = ChronoUnit.SECONDS)
   @Retry(maxRetries = 5, delay = 10, delayUnit = ChronoUnit.MINUTES, jitter = 1,
       jitterDelayUnit = ChronoUnit.MINUTES)
   @Fallback(fallbackMethod = "fallbackLogError")
   public void bookingMarkedAsBoughtEventHandler(
       @ObservesAsync BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent) throws Exception {
     try {
-      emailService.sendEmailWithQrCodes(bookingMarkedAsBoughtEvent);
+      emailService.facke(bookingMarkedAsBoughtEvent);
+      // emailService.sendEmailWithQrCodes(bookingMarkedAsBoughtEvent);
     } catch (Exception e) {
       log.error(e.getMessage());
       throw e;

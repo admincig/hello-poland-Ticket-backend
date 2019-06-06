@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import javax.activation.DataHandler;
 import javax.annotation.security.RolesAllowed;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.mail.Address;
@@ -51,6 +53,7 @@ import pl.hellopolandticket.dao.EmailTemplateDao;
 import pl.hellopolandticket.model.config.EmailTemplate;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
+import pl.hellopolandticket.service.exception.badrequest.EmailSendingException;
 import pl.hellopolandticket.service.util.EmailSendingReport;
 
 @RequestScoped
@@ -115,6 +118,17 @@ public class EmailService extends ServiceSuperclass {
       throw e;
     }
     return report;
+  }
+
+
+
+  @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_ADMIN})
+  @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+  public EmailSendingReport facke(BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
+      throws MessagingException, IOException, TemplateException {
+
+    throw new EmailSendingException("dadddadada");
+
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_ADMIN})
