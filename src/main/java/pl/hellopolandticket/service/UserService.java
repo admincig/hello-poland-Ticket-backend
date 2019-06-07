@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import static pl.hellopolandticket.model.auth.Role.ROLE_SALESMAN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofUser;
 import java.util.List;
@@ -16,6 +17,7 @@ import pl.hellopoland.dto.UserDTO;
 import pl.hellopolandticket.dao.UserDao;
 import pl.hellopolandticket.model.auth.Role;
 import pl.hellopolandticket.model.auth.User;
+import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.security.password.PasswordEncoder;
@@ -68,7 +70,7 @@ public class UserService extends ServiceSuperclass {
         userDao.findByEmail(email).orElseThrow(() -> exceptionFactory.resourceNotFoundException()));
   }
 
-  @RolesAllowed({ROLE_ADMIN})
+  @RolesAllowed({ROLE_ADMIN, ROLE_SALESMAN})
   public User save(User user) {
     return userDao.persist(user);
   }
@@ -94,6 +96,18 @@ public class UserService extends ServiceSuperclass {
     User user = userDao.getUserForCurrnetPartner(userDTO.id, getLoggedUser().getPartner());
     user.setName(userDTO.name);
     return ofUser(userDao.updateUser(user));
+  }
+
+  @RolesAllowed({ROLE_ADMIN, ROLE_SALESMAN})
+  public void removeAllUsersForPartner(Partner partner) {
+    userDao.removeAllUsersForPartner(partner);
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public UserDTO createUsher(UserDTO usher) {
+    User user =
+        User.createUsher(usher.name, usher.email, usher.password, getLoggedUser().getPartner());
+    return ofUser(userDao.persist(user));
   }
 
 }
