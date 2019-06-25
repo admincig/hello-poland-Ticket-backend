@@ -4,7 +4,9 @@ import static java.util.Optional.ofNullable;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
@@ -183,6 +185,25 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   public void deleteTicketPoolDefinition(Long id, CurrentUser currentUser) {
     ticketPoolDefinitionDao.deleteTicketPoolDefinition(id,
         partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public List<TicketPoolDefinition> getAvailable(Set<Long> sightEventIds) {
+    //@formatter:off
+    return em.createQuery(
+        "from TicketPoolDefinition"
+        + " where deleted is false"
+        + " and sightEvent.id in (:sightEventIds)"
+        + " and ("
+        + " startDate > :now"
+        + " or (isCyclic is true and frequencyData.endDate is not null and frequencyData.endDate > :now)"
+        + " or (isCyclic is false and wholeDay is true and date_trunc('day', startDate) = :now)"
+        + ")",
+        TicketPoolDefinition.class)
+        .setParameter("sightEventIds", sightEventIds)
+        .setParameter("now", new Date())
+        .getResultList();
+    //@formatter:on
   }
 
 }

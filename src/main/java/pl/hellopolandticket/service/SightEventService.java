@@ -12,6 +12,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.sightevent.SightEventLocation;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
+import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
@@ -55,6 +57,9 @@ public class SightEventService extends ServiceSuperclass {
 
   @Inject
   private TicketPoolService ticketPoolService;
+
+  @Inject
+  private TicketPoolDefinitionService ticketPoolDefService;
 
   @Inject
   private AvailableTicketNumberAssociationService atnaService;
@@ -243,6 +248,31 @@ public class SightEventService extends ServiceSuperclass {
     // temporary only one pdf for SightEvent:
     // se.getPdfAttachmentsPaths().remove(path);
     se.setPdfAttachmentsPaths(Set.of());
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public HashSet<Long> getAvailableSightEventsIds(Set<Long> sightEventIds) {
+    var result = new HashSet<Long>();
+    var notCyclicTPDs = new ArrayList<TicketPoolDefinition>();
+    ticketPoolDefService.getAvailable(sightEventIds).forEach(tpd -> {
+      if (tpd.getIsCyclic()) {
+        result.add(tpd.getSightEvent().getId());
+      } else {
+        notCyclicTPDs.add(tpd);
+      }
+    });
+    var associations = new ArrayList<AvailableTicketNumberAssociation>();
+    notCyclicTPDs.forEach(
+        tpd -> associations.addAll(atnaService.getAvailabilityOfTicketsForNonCyclicTPDef(tpd)));
+    associations.forEach(a -> {
+      TicketPool tPool = a.getTicketPool();
+      if (tPool != null) {
+        result.add(tPool.getTicketPoolDefinition().getSightEvent().getId());
+      } else {
+        result.add(a.getTicketPoolDefinition().getSightEvent().getId());
+      }
+    });
+    return result;
   }
 
 }

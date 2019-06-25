@@ -3,6 +3,7 @@ package pl.hellopolandticket.rest;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofCollection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.EJBAccessException;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -52,6 +53,12 @@ public class SightEventRestService extends RestServiceSuperclass {
       collectionWrapper = ofCollection(sightEventService.findByIdsIn(sightEventIds));
     }
     return Response.ok(collectionWrapper).build();
+  }
+
+  @POST
+  @Path("/available")
+  public Response getAvailableSightEvents(Set<Long> sightEventIds) {
+    return Response.ok(sightEventService.getAvailableSightEventsIds(sightEventIds)).build();
   }
 
   @POST

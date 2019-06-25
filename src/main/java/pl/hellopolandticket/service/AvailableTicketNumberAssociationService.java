@@ -75,6 +75,18 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
+  public List<AvailableTicketNumberAssociation> getAvailabilityOfTicketsForNonCyclicTPDef(
+      TicketPoolDefinition tpd) {
+    var tps = tpd.getTicketPools();
+    tpd.getTicketPools().size();
+    if (tps != null && !tps.isEmpty()) {
+      return dao.getNotZeroForTicketPool(tps.get(0));
+    } else {
+      return dao.getNotZeroForTicketPoolDefinition(tpd);
+    }
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public AvailableTicketNumberAssociationDTO checkAvailabilityOfTickets(Long sightEventId,
       Date fromDate, Date toDate) {
     var se = seService.findSightEventById(sightEventId);
@@ -156,8 +168,8 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   private List<TicketPool> getFilteredTpsByDates(LocalDate localDate,
       List<TicketPool> ticketPools) {
     return ticketPools.stream()
-        .filter(p -> areDatesEquals(
-            p.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), localDate))
+        .filter(p -> localDate
+            .isEqual(p.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()))
         .collect(Collectors.toList());
   }
 
@@ -184,12 +196,8 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         return false;
       }
     }
-    return areDatesEquals(localDate,
-        tpd.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-  }
-
-  private boolean areDatesEquals(LocalDate date1, LocalDate date2) {
-    return date1.isEqual(date2);
+    return localDate
+        .isEqual(tpd.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
