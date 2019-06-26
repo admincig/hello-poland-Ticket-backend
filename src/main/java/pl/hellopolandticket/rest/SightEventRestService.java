@@ -62,6 +62,16 @@ public class SightEventRestService extends RestServiceSuperclass {
   }
 
   @POST
+  @Path("/in-date-range")
+  public Response getSightEventsInDateRange(Set<Long> sightEventIds,
+      @QueryParam("fromDate") @DateFormat Date fromDate,
+      @QueryParam("toDate") @DateFormat Date toDate) {
+    return Response
+        .ok(sightEventService.getSightEventsIdsInDateRange(sightEventIds, fromDate, toDate))
+        .build();
+  }
+
+  @POST
   public Response addSightEvent(SightEventDTO sightEvent) {
     return Response.ok(sightEventService.addSightEvent(sightEvent, currentUser)).build();
   }
@@ -123,7 +133,7 @@ public class SightEventRestService extends RestServiceSuperclass {
 
   @DELETE
   @Path("/{id}/pdf/{path}")
-  public Response deletePdf(@PathParam("id") Long id, @PathParam("tpdId") String path) {
+  public Response deletePdf(@PathParam("id") Long id, @PathParam("path") String path) {
     sightEventService.removePdf(id, path);
     return Response.ok().build();
   }

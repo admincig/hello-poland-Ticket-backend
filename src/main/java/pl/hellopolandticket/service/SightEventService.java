@@ -251,10 +251,10 @@ public class SightEventService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public HashSet<Long> getAvailableSightEventsIds(Set<Long> sightEventIds) {
+  public Set<Long> getAvailableSightEventsIds(Set<Long> sightEventIds) {
     var result = new HashSet<Long>();
     var notCyclicTPDs = new ArrayList<TicketPoolDefinition>();
-    ticketPoolDefService.getAvailable(sightEventIds).forEach(tpd -> {
+    ticketPoolDefService.getAvailable(sightEventIds, null, null).forEach(tpd -> {
       if (tpd.getIsCyclic()) {
         result.add(tpd.getSightEvent().getId());
       } else {
@@ -272,6 +272,15 @@ public class SightEventService extends ServiceSuperclass {
         result.add(a.getTicketPoolDefinition().getSightEvent().getId());
       }
     });
+    return result;
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public Set<Long> getSightEventsIdsInDateRange(Set<Long> sightEventIds, Date fromDate,
+      Date toDate) {
+    Set<Long> result = new HashSet<>();
+    ticketPoolDefService.getAvailable(sightEventIds, fromDate, toDate)
+        .forEach(tpd -> result.add(tpd.getSightEvent().getId()));
     return result;
   }
 
