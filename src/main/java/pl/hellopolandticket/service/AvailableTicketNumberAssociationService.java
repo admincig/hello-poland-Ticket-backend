@@ -75,15 +75,9 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public List<AvailableTicketNumberAssociation> getAvailabilityOfTicketsForNonCyclicTPDef(
-      TicketPoolDefinition tpd) {
-    var tps = tpd.getTicketPools();
-    tpd.getTicketPools().size();
-    if (tps != null && !tps.isEmpty()) {
-      return dao.getNotZeroForTicketPool(tps.get(0));
-    } else {
-      return dao.getNotZeroForTicketPoolDefinition(tpd);
-    }
+  public List<AvailableTicketNumberAssociation> getAvailabilityOfTicketsForNonCyclicTicketPool(
+      TicketPool tp) {
+    return dao.getNotZeroForTicketPool(tp);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})

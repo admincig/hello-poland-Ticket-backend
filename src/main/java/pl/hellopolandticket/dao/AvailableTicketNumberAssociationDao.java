@@ -36,13 +36,6 @@ public class AvailableTicketNumberAssociationDao {
         .setParameter("tpd", tpd).getResultList();
   }
 
-  public List<AvailableTicketNumberAssociation> getNotZeroForTicketPoolDefinition(
-      TicketPoolDefinition tpd) {
-    return entityManager.createQuery(
-        "from AvailableTicketNumberAssociation a where a.ticketPoolDefinition = :tpd and a.availableTicketsNumber != 0",
-        AvailableTicketNumberAssociation.class).setParameter("tpd", tpd).getResultList();
-  }
-
   public List<AvailableTicketNumberAssociation> getForTicketPool(TicketPool tp) {
     return entityManager
         .createQuery("from AvailableTicketNumberAssociation a where a.ticketPool = :tp",

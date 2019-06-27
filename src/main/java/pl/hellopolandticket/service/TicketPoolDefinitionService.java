@@ -194,7 +194,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
       Date toDate) {
     //@formatter:off
     var queryStr = new StringBuilder("from TicketPoolDefinition where deleted is false and sightEvent.id in (:sightEventIds) and ("
-        + " (isCyclic is true and (startDate > :fromDate or (frequencyData.endDate is not null and frequencyData.endDate > :fromDate))");
+        + " (isCyclic is true and (startDate > :fromDate or (frequencyData.endDate is not null and frequencyData.endDate > :fromDate) or frequencyData.endDate is null)");
     if (toDate != null) {
       queryStr.append(" and :toDate > startDate");
     }
