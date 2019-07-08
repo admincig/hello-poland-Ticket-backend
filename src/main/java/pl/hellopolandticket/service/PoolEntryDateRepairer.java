@@ -22,7 +22,7 @@ public class PoolEntryDateRepairer extends ServiceSuperclass {
 
   private Long lastId = 0l;
 
-  private final int batch = 20;
+  private final int batch = 100;
 
   @PostConstruct
   public void init() {
