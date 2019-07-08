@@ -233,7 +233,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
       boolean wrongRange = !(range == 0 || range == (15 * 60 * 1000) || range == (30 * 60 * 1000)
           || range == (60 * 60 * 1000));
 
-      if (!(sTime == esTime) || wrongRange) {
+      if (wrongRange) {
         tpd.setEntryStartDate(startDate);
         tpd.getTicketPools().forEach(tp -> tp.setEntryStartDate(startDate));
       }
