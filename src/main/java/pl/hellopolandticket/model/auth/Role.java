@@ -9,4 +9,6 @@ public class Role {
   public final static String ROLE_EXTERNAL_USER = "ROLE_EXTERNAL_USER";
 
   public final static String ROLE_USHER = "ROLE_USHER";
+
+  public final static String ROLE_SALESMAN = "ROLE_SALESMAN";
 }

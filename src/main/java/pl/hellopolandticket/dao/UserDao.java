@@ -108,8 +108,18 @@ public class UserDao {
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
+  public List<User> getUsersForPartner(Partner partner) {
+    return entityManager.createQuery("from User u where u.partner = :partner", User.class)
+        .setParameter("partner", partner).getResultList();
+  }
+
   public User updateUser(User user) {
     return entityManager.merge(user);
+  }
+
+  public void removeAllUsersForPartner(Partner partner) {
+    var users = getUsersForPartner(partner);
+    users.forEach(u -> entityManager.remove(u));
   }
 
 }

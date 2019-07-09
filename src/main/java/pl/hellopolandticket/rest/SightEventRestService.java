@@ -115,9 +115,9 @@ public class SightEventRestService extends RestServiceSuperclass {
   }
 
   @DELETE
-  @Path("/{id}/pdf/{path}")
-  public Response deletePdf(@PathParam("id") Long id, @PathParam("tpdId") String path) {
-    sightEventService.removePdf(id, path);
+  @Path("/{id}/pdf/{name}")
+  public Response deletePdf(@PathParam("id") Long id, @PathParam("name") String name) {
+    sightEventService.removePdf(id, name);
     return Response.ok().build();
   }
 
