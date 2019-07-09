@@ -118,7 +118,6 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         } else {
           tdDTO.availableTicketsNumber = -1;
         }
-        // tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
         tdDTOs.add(tdDTO);
       }
       tpdDTO.ticketDefinitions = tdDTOs;
