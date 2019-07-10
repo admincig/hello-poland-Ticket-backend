@@ -161,7 +161,11 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
       tpdDto.ticketDefinitions.forEach(td -> {
         for (var i : a) {
           if (i.getTicketDefinition().getId() == td.id) {
-            td.availableTicketsNumber = i.getAvailableTicketsNumber();
+            if (i.getTicketPoolDefinition().getAvailableTicketsNumber() < 0) {
+              td.availableTicketsNumber = i.getAvailableTicketsNumber();
+            } else {
+              td.availableTicketsNumber = -1;
+            }
             break;
           }
         }
