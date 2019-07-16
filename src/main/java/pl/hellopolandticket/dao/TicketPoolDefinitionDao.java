@@ -77,4 +77,11 @@ public class TicketPoolDefinitionDao {
     }
   }
 
+  public List<TicketPoolDefinition> getWholeDay(List<Long> tpdIds) {
+    return entityManager
+        .createQuery("from TicketPoolDefinition t where t.id in :ids and t.wholeDay is true",
+            TicketPoolDefinition.class)
+        .setParameter("ids", tpdIds).getResultList();
+  }
+
 }

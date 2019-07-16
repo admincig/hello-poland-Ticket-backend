@@ -1,5 +1,6 @@
 package pl.hellopolandticket.rest;
 
+import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -51,6 +52,12 @@ public class TicketPoolDefinitionRestService {
   public Response deleteTicketPoolDef(@PathParam("id") Long id) {
     ticketPoolDefinitionService.deleteTicketPoolDefinition(id, currentUser);
     return Response.noContent().build();
+  }
+
+  @GET
+  @Path("/get-whole-day")
+  public Response getWholeDay(List<Long> tpdIds) {
+    return Response.ok(ticketPoolDefinitionService.getWholeDay(tpdIds)).build();
   }
 
 }

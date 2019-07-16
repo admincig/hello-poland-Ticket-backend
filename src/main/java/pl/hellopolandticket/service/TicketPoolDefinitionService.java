@@ -244,4 +244,10 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     }
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public List<TicketPoolDefinitionDTO> getWholeDay(List<Long> tpdIds) {
+    return ticketPoolDefinitionDao.getWholeDay(tpdIds).stream()
+        .map(ModelObjectsToDTOConverter::ofTicketPoolDefinition).collect(Collectors.toList());
+  }
+
 }
