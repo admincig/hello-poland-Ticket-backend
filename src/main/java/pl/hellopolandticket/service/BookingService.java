@@ -89,8 +89,10 @@ public class BookingService extends ServiceSuperclass {
     logger.log(Logger.Level.INFO, "...........Start booking tickets..............");
     List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
     bookingToPersist.setTickets(tickets);
+    var bo = bookingDao.persist(bookingToPersist);
+    logger.log(Logger.Level.INFO, "Created booking id=" + bo.getId());
     logger.log(Logger.Level.INFO, "...........End booking tickets..............");
-    return ofBooking(bookingDao.persist(bookingToPersist));
+    return ofBooking(bo);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
@@ -103,7 +105,6 @@ public class BookingService extends ServiceSuperclass {
       sendEmailWithTicketQrCodes(booking);
     } else if (booking.getStatus() == INVALID) {
       bookTickets(null, booking);
-
       return markBookingAsBought(booking.getSerialNumber(), p24OrderId, p24Currency);
     } else {
       throw exceptionFactory.notBookedException();
@@ -160,12 +161,14 @@ public class BookingService extends ServiceSuperclass {
       }
       TicketPoolDefinition poolDefinition =
           ticketPoolDefinitionService.get(dto.ticketPoolDefinitionId);
-      TicketPool pool = ticketPoolService.findOrCreateNew(poolDefinition, dto.date);
+      TicketPool pool = ticketPoolService.find(poolDefinition, dto.date);
+      if (pool == null) {
+        pool = ticketPoolService.createNew(poolDefinition, dto.date);
+      }
       for (int i = 0; i < dto.numberOfTickets; i++) {
         Ticket ticket = Ticket.builder().name(ticketDefinition.getName())
-            .price(ticketDefinition.getPrice()).date(dto.date).status(BOOKED).booking(booking)
-            .ticketDefinition(ticketDefinition).ticketPool(pool).build();
-
+            .price(ticketDefinition.getPrice()).date(pool.getStartDate()).status(BOOKED)
+            .booking(booking).ticketDefinition(ticketDefinition).ticketPool(pool).build();
         bookedTickets.add(ticket);
       }
       checkAndDecreaseAvailability(pool, ticketDefinition, dto.numberOfTickets.intValue());
