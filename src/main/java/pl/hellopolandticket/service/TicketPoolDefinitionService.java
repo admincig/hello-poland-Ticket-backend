@@ -94,7 +94,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     }
     tpdDTO.id = ticketPoolDefinition.getId();
     if (!ticketPoolDefinition.getIsCyclic()) {
-      ticketPoolService.findOrCreateNew(ticketPoolDefinition, null);
+      ticketPoolService.createNew(ticketPoolDefinition, ticketPoolDefinition.getStartDate());
     }
     return tpdDTO;
   }
