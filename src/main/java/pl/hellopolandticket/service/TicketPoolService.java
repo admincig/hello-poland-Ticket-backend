@@ -37,26 +37,23 @@ public class TicketPoolService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public TicketPool findOrCreateNew(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
-    TicketPool pool = ticketPoolDao.find(ticketPoolDefinition, requestedDate);
-    if (pool == null) {
-      Date startDate = null;
-      try {
-        startDate = getStartDateForNewInstance(ticketPoolDefinition, requestedDate);
-      } catch (CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException e) {
-        logger.log(Level.ERROR, "Ządana data poza zakresem definicji puli [" + requestedDate
-            + ", id=" + ticketPoolDefinition.getId() + "]");
-        throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionRollbackException(
-            "Ządana data poza zakresem definicji puli");
-      }
-      Date endDate = getEndDateForNewInstance(ticketPoolDefinition, startDate);
-      pool = new TicketPool(ticketPoolDefinition);
-      pool.setStartDate(startDate);
-      pool.setEndDate(endDate);
-      ticketPoolDao.persist(pool);
-      pool.recountEntryDates();
-      atnaService.add(pool, ticketPoolDefinition);
+  public TicketPool createNew(TicketPoolDefinition ticketPoolDefinition, Date requestedDate) {
+    Date startDate = null;
+    try {
+      startDate = getStartDateForNewInstance(ticketPoolDefinition, requestedDate);
+    } catch (CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException e) {
+      logger.log(Level.ERROR, "Ządana data poza zakresem definicji puli [" + requestedDate + ", id="
+          + ticketPoolDefinition.getId() + "]");
+      throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionRollbackException(
+          "Ządana data poza zakresem definicji puli");
     }
+    Date endDate = getEndDateForNewInstance(ticketPoolDefinition, startDate);
+    var pool = new TicketPool(ticketPoolDefinition);
+    pool.setStartDate(startDate);
+    pool.setEndDate(endDate);
+    ticketPoolDao.persist(pool);
+    pool.recountEntryDates();
+    atnaService.add(pool, ticketPoolDefinition);
     return pool;
   }
 
@@ -75,13 +72,12 @@ public class TicketPoolService extends ServiceSuperclass {
       throws CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException {
     if (ticketPoolDefinition.getIsCyclic()) {
       return getStartDateForNewInstanceOfCyclicPool(ticketPoolDefinition, requestedDate);
-    } else {
+    } else if (ticketPoolDefinition.getStartDate().equals(requestedDate)) {
       return ticketPoolDefinition.getStartDate();
     }
-    // } else {
-    // throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
-    // "Ządana data poza zakresem definicji puli");
-    // }
+    throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
+        "Ządana data poza zakresem definicji puli");
+
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})

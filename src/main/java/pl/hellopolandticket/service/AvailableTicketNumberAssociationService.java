@@ -119,7 +119,11 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       var tdDTOs = new ArrayList<TicketDefinitionDTO>();
       for (AvailableTicketNumberAssociation a : entry.getValue()) {
         var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
-        tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
+        if (tpdDTO.availableTicketsNumber < 0) {
+          tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
+        } else {
+          tdDTO.availableTicketsNumber = -1;
+        }
         tdDTOs.add(tdDTO);
       }
       tpdDTO.ticketDefinitions = tdDTOs;
@@ -133,7 +137,11 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       var tdDTOs = new ArrayList<TicketDefinitionDTO>();
       for (AvailableTicketNumberAssociation a : entry.getValue()) {
         var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
-        tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
+        if (tpDTO.availableTicketsNumber < 0) {
+          tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
+        } else {
+          tdDTO.availableTicketsNumber = -1;
+        }
         tdDTOs.add(tdDTO);
       }
       tpDTO.ticketDefinitions = tdDTOs;
