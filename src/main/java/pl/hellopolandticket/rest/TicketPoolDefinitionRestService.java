@@ -54,7 +54,7 @@ public class TicketPoolDefinitionRestService {
     return Response.noContent().build();
   }
 
-  @GET
+  @POST
   @Path("/get-whole-day")
   public Response getWholeDay(List<Long> tpdIds) {
     return Response.ok(ticketPoolDefinitionService.getWholeDay(tpdIds)).build();
