@@ -4,13 +4,9 @@ import static java.util.Optional.ofNullable;
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.lang.System.Logger.Level;
-<<<<<<< HEAD
 import java.time.LocalDate;
 import java.time.ZoneId;
-=======
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
->>>>>>> 73ecf2f9e89d3b8682f5c4d9956a4eee10600d3e
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -199,7 +195,6 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
   }
 
-<<<<<<< HEAD
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<TicketPoolDefinition> getAvailable(Set<Long> sightEventIds, Date fromDate,
       Date toDate) {
@@ -224,7 +219,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
       query.setParameter("toDate", toDate);
     }
     return query.getResultList();
-=======
+  }
+
   @RolesAllowed({ROLE_ADMIN})
   public void repairEntryDates(List<TicketPoolDefinition> tpds) {
     tpds.forEach(tpd -> repairEntryDates(tpd));
@@ -275,7 +271,6 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         tpd.getTicketPools().forEach(tp -> tp.setEntryStartDate(startDate));
       }
     }
->>>>>>> 73ecf2f9e89d3b8682f5c4d9956a4eee10600d3e
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
