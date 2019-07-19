@@ -4,10 +4,17 @@ import static java.util.Optional.ofNullable;
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.lang.System.Logger.Level;
+<<<<<<< HEAD
+import java.time.LocalDate;
+import java.time.ZoneId;
+=======
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+>>>>>>> 73ecf2f9e89d3b8682f5c4d9956a4eee10600d3e
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
@@ -192,6 +199,32 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
   }
 
+<<<<<<< HEAD
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public List<TicketPoolDefinition> getAvailable(Set<Long> sightEventIds, Date fromDate,
+      Date toDate) {
+    //@formatter:off
+    var queryStr = new StringBuilder("from TicketPoolDefinition where deleted is false and sightEvent.id in (:sightEventIds) and ("
+        + " (isCyclic is true and (startDate > :fromDate or (frequencyData.endDate is not null and frequencyData.endDate > :fromDate) or frequencyData.endDate is null)");
+    if (toDate != null) {
+      queryStr.append(" and :toDate > startDate");
+    }
+    queryStr.append(") or");
+    queryStr.append(" (isCyclic is false and (startDate > :fromDate or (wholeDay is true and date_trunc('day', startDate) = to_date(:fromDateToDay, 'YYYY-MM-DD')))");
+    if (toDate != null) {
+      queryStr.append(" and :toDate > startDate");
+    }
+    queryStr.append("))");
+    var query = em.createQuery(queryStr.toString(), TicketPoolDefinition.class)
+        .setParameter("sightEventIds", sightEventIds)
+        .setParameter("fromDate", fromDate != null ? fromDate : new Date())
+        .setParameter("fromDateToDay", fromDate != null ? fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString() : LocalDate.now().toString());        
+    //@formatter:on
+    if (toDate != null) {
+      query.setParameter("toDate", toDate);
+    }
+    return query.getResultList();
+=======
   @RolesAllowed({ROLE_ADMIN})
   public void repairEntryDates(List<TicketPoolDefinition> tpds) {
     tpds.forEach(tpd -> repairEntryDates(tpd));
@@ -242,6 +275,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         tpd.getTicketPools().forEach(tp -> tp.setEntryStartDate(startDate));
       }
     }
+>>>>>>> 73ecf2f9e89d3b8682f5c4d9956a4eee10600d3e
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})

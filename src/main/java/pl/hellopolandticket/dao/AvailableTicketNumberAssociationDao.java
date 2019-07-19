@@ -43,6 +43,12 @@ public class AvailableTicketNumberAssociationDao {
         .setParameter("tp", tp).getResultList();
   }
 
+  public List<AvailableTicketNumberAssociation> getNotZeroForTicketPool(TicketPool tp) {
+    return entityManager.createQuery(
+        "from AvailableTicketNumberAssociation a where a.ticketPool = :tp and a.availableTicketsNumber != 0",
+        AvailableTicketNumberAssociation.class).setParameter("tp", tp).getResultList();
+  }
+
   public AvailableTicketNumberAssociation findForTicketPoolDefinitionAndTicketDefinition(
       TicketPoolDefinition tpd, TicketDefinition td) {
     return entityManager.createQuery(
