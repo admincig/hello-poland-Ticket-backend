@@ -209,7 +209,10 @@ public class SightEventService extends ServiceSuperclass {
     TicketPool tp = null;
     date = setStartDateTimeToRequestedDate(date, tpd);
     if (tpd.getIsCyclic()) {
-      tp = ticketPoolService.findOrCreateNew(tpd, date);
+      tp = ticketPoolService.find(tpd, date);
+      if (tp == null) {
+        tp = ticketPoolService.createNew(tpd, date);
+      }
     } else {
       tp = ticketPoolService.find(tpd, date);
     }

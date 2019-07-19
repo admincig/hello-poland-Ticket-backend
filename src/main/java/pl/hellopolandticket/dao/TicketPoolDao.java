@@ -25,7 +25,6 @@ public class TicketPoolDao {
   public TicketPool persist(TicketPool ticketPool) {
     entityManager.persist(ticketPool);
     entityManager.flush();
-
     return ticketPool;
   }
 

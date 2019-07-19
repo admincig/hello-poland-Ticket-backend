@@ -1,8 +1,11 @@
 package pl.hellopolandticket.service;
 
 import static java.util.Optional.ofNullable;
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.lang.System.Logger.Level;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -91,7 +94,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     }
     tpdDTO.id = ticketPoolDefinition.getId();
     if (!ticketPoolDefinition.getIsCyclic()) {
-      ticketPoolService.findOrCreateNew(ticketPoolDefinition, null);
+      ticketPoolService.createNew(ticketPoolDefinition, ticketPoolDefinition.getStartDate());
     }
     return tpdDTO;
   }
@@ -158,7 +161,11 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
       tpdDto.ticketDefinitions.forEach(td -> {
         for (var i : a) {
           if (i.getTicketDefinition().getId() == td.id) {
-            td.availableTicketsNumber = i.getAvailableTicketsNumber();
+            if (i.getTicketPoolDefinition().getAvailableTicketsNumber() < 0) {
+              td.availableTicketsNumber = i.getAvailableTicketsNumber();
+            } else {
+              td.availableTicketsNumber = -1;
+            }
             break;
           }
         }
@@ -183,6 +190,64 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   public void deleteTicketPoolDefinition(Long id, CurrentUser currentUser) {
     ticketPoolDefinitionDao.deleteTicketPoolDefinition(id,
         partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
+  }
+
+  @RolesAllowed({ROLE_ADMIN})
+  public void repairEntryDates(List<TicketPoolDefinition> tpds) {
+    tpds.forEach(tpd -> repairEntryDates(tpd));
+  }
+
+  // @formatter:off
+  /**
+   * kryteria na nowe pule wygladaja tak:
+   *  1. start_date i end_date beda roznily sie czasem
+   *  2. entry_end_date musi byc takie samo jak end_date
+   *  3. entry_start_date moze miec rozny czas w stosunku do start_date o 0, 15, 30 i 60 minut wczesniej
+   * ----- 
+   * cala reszte modyfikujemy w taki sposob, ze entry_start_date = start_date i entry_end_date = end_date
+   **/
+  // @formatter:on
+  public void repairEntryDates(TicketPoolDefinition tpd) {
+    var startDate = tpd.getStartDate();
+    var endDate = tpd.getEndDate();
+    // 1.
+    if (endDate != null && !startDate.toInstant().atZone(ZoneId.systemDefault())
+        .truncatedTo(ChronoUnit.DAYS)
+        .equals(endDate.toInstant().atZone(ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS))) {
+      endDate.setYear(startDate.getYear());
+      endDate.setMonth(startDate.getMonth());
+      endDate.setDate(startDate.getDate());
+      tpd.setEndDate(endDate);
+      tpd.getTicketPools().forEach(tp -> tp.setEndDate(endDate));
+    }
+
+    // 2.
+    var eeDate = tpd.getEntryEndDate();
+    if (eeDate != null && !eeDate.equals(endDate)) {
+      tpd.setEntryEndDate(endDate);
+      tpd.getTicketPools().forEach(tp -> tp.setEntryEndDate(endDate));
+    }
+
+    // 3.
+    var esDate = tpd.getEntryStartDate();
+    if (esDate != null) {
+      long sTime = startDate.getTime();
+      long esTime = esDate.getTime();
+      long range = sTime - esTime;
+      boolean wrongRange = !(range == 0 || range == (15 * 60 * 1000) || range == (30 * 60 * 1000)
+          || range == (60 * 60 * 1000));
+
+      if (wrongRange) {
+        tpd.setEntryStartDate(startDate);
+        tpd.getTicketPools().forEach(tp -> tp.setEntryStartDate(startDate));
+      }
+    }
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public List<TicketPoolDefinitionDTO> getWholeDay(List<Long> tpdIds) {
+    return ticketPoolDefinitionDao.getWholeDay(tpdIds).stream()
+        .map(ModelObjectsToDTOConverter::ofTicketPoolDefinition).collect(Collectors.toList());
   }
 
 }
