@@ -100,7 +100,7 @@ public class User implements Serializable {
   }
 
   public boolean hasRole(String role) {
-    return authorities.stream().anyMatch(a -> a.equals(role));
+    return this.authorities.contains(role);
   }
 
 }
