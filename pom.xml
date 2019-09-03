@@ -22,12 +22,22 @@
 			<dependency>
 				<groupId>pl.hellopoland</groupId>
 				<artifactId>hellopoland-dto</artifactId>
-				<version>1.0.25</version>
+				<version>1.0.29</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
 	<dependencies>
+		<dependency>
+			<groupId>io.smallrye</groupId>
+			<artifactId>smallrye-fault-tolerance</artifactId>
+			<version>2.0.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.smallrye</groupId>
+			<artifactId>smallrye-metrics</artifactId>
+			<version>1.1.1</version>
+		</dependency>
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
@@ -93,7 +103,16 @@
 		<dependency>
 			<groupId>io.swagger.core.v3</groupId>
 			<artifactId>swagger-jaxrs2-servlet-initializer</artifactId>
+<<<<<<< HEAD
 			<version>2.0.7</version>
+=======
+			<version>2.0.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+			<version>3.6.2</version>
+>>>>>>> f8dd4a8474dcc721d1ce48212e2fe8a69bf53e75
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>

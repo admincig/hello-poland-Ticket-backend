@@ -165,7 +165,7 @@ public class EmailService extends ServiceSuperclass {
         report.validUnsentAddresses = e.getValidUnsentAddresses();
       }
       for (Address addr : e.getInvalidAddresses()) {
-        logger.log(Level.INFO, "Email has not been sent to  " + addr);
+        logger.log(Level.INFO, "Email has not been sent to " + addr);
         report.invalidAddresses = e.getInvalidAddresses();
       }
     } catch (Exception e) {

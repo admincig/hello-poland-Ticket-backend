@@ -12,6 +12,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.sightevent.SightEventLocation;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
+import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
@@ -55,6 +57,9 @@ public class SightEventService extends ServiceSuperclass {
 
   @Inject
   private TicketPoolService ticketPoolService;
+
+  @Inject
+  private TicketPoolDefinitionService ticketPoolDefService;
 
   @Inject
   private AvailableTicketNumberAssociationService atnaService;
@@ -209,7 +214,10 @@ public class SightEventService extends ServiceSuperclass {
     TicketPool tp = null;
     date = setStartDateTimeToRequestedDate(date, tpd);
     if (tpd.getIsCyclic()) {
-      tp = ticketPoolService.findOrCreateNew(tpd, date);
+      tp = ticketPoolService.find(tpd, date);
+      if (tp == null) {
+        tp = ticketPoolService.createNew(tpd, date);
+      }
     } else {
       tp = ticketPoolService.find(tpd, date);
     }
@@ -243,6 +251,34 @@ public class SightEventService extends ServiceSuperclass {
     // temporary only one pdf for SightEvent:
     // se.getPdfAttachmentsPaths().remove(path);
     se.setPdfAttachmentsPaths(Set.of());
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public Set<Long> getAvailableSightEventsIds(Set<Long> sightEventIds) {
+    var result = new HashSet<Long>();
+    var notCyclicTPDs = new HashSet<TicketPoolDefinition>();
+    ticketPoolDefService.getAvailable(sightEventIds, null, null).forEach(tpd -> {
+      if (tpd.getIsCyclic()) {
+        result.add(tpd.getSightEvent().getId());
+      } else {
+        notCyclicTPDs.add(tpd);
+      }
+    });
+    var associations = new ArrayList<AvailableTicketNumberAssociation>();
+    notCyclicTPDs.forEach(tpd -> associations.addAll(
+        atnaService.getAvailabilityOfTicketsForNonCyclicTicketPool(tpd.getTicketPools().get(0))));
+    associations.forEach(
+        a -> result.add(a.getTicketPool().getTicketPoolDefinition().getSightEvent().getId()));
+    return result;
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public Set<Long> getSightEventsIdsInDateRange(Set<Long> sightEventIds, Date fromDate,
+      Date toDate) {
+    Set<Long> result = new HashSet<>();
+    ticketPoolDefService.getAvailable(sightEventIds, fromDate, toDate)
+        .forEach(tpd -> result.add(tpd.getSightEvent().getId()));
+    return result;
   }
 
 }
