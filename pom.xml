@@ -103,16 +103,7 @@
 		<dependency>
 			<groupId>io.swagger.core.v3</groupId>
 			<artifactId>swagger-jaxrs2-servlet-initializer</artifactId>
-<<<<<<< HEAD
 			<version>2.0.7</version>
-=======
-			<version>2.0.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.liquibase</groupId>
-			<artifactId>liquibase-core</artifactId>
-			<version>3.6.2</version>
->>>>>>> f8dd4a8474dcc721d1ce48212e2fe8a69bf53e75
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
