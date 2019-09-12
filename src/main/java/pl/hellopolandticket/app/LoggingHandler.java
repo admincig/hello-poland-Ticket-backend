@@ -30,13 +30,14 @@ public class LoggingHandler {
       Object result = invocationCtx.proceed();
       long elapsedTime = System.currentTimeMillis() - start;
 
-      log.info(prepareServiceLogInfo(className, methodName, arguments, start, elapsedTime, result));
+      log.debug(
+          prepareServiceLogInfo(className, methodName, arguments, start, elapsedTime, result));
 
       return result;
     } catch (Exception e) {
       long elapsedTime = System.currentTimeMillis() - start;
 
-      log.info(prepareServiceLogInfo(invocationCtx.getMethod().getClass().getSimpleName(),
+      log.debug(prepareServiceLogInfo(invocationCtx.getMethod().getClass().getSimpleName(),
           invocationCtx.getMethod().getName(), invocationCtx.getParameters(), start, elapsedTime,
           e));
 
