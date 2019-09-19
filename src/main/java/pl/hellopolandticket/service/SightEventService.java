@@ -26,6 +26,7 @@ import pl.hellopoland.dto.LocationDTO;
 import pl.hellopoland.dto.OpeningHoursDTO;
 import pl.hellopoland.dto.PushDTO;
 import pl.hellopoland.dto.SightEventDTO;
+import pl.hellopoland.dto.SightEventPriceDTO;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightEventDao;
 import pl.hellopolandticket.model.auth.User;
@@ -33,6 +34,7 @@ import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.OpeningHours;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.sightevent.SightEventLocation;
+import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
@@ -273,11 +275,21 @@ public class SightEventService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Set<Long> getSightEventsIdsInDateRange(Set<Long> sightEventIds, Date fromDate,
+  public Set<SightEventPriceDTO> getSightEventsIdsInDateRange(Set<Long> sightEventIds,
+      Date fromDate,
       Date toDate) {
-    Set<Long> result = new HashSet<>();
+    Set<SightEventPriceDTO> result = new HashSet<>();
     ticketPoolDefService.getAvailable(sightEventIds, fromDate, toDate)
-        .forEach(tpd -> result.add(tpd.getSightEvent().getId()));
+        .stream()
+        .collect(Collectors.groupingBy(TicketPoolDefinition::getSightEvent))
+        .entrySet()
+        .forEach(entry -> {
+          SightEventPriceDTO dto = new SightEventPriceDTO();
+          dto.id = entry.getKey().getId();
+          dto.price = entry.getValue().stream().flatMap(tpd -> tpd.getTicketDefinitions().stream())
+              .mapToInt(TicketDefinition::getPrice).min().getAsInt();
+          result.add(dto);
+        });
     return result;
   }
 
