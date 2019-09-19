@@ -22,7 +22,7 @@
 			<dependency>
 				<groupId>pl.hellopoland</groupId>
 				<artifactId>hellopoland-dto</artifactId>
-				<version>1.0.35</version>
+				<version>1.0.38</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -108,7 +108,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.2.7</version>
+			<version>42.2.8</version>
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
