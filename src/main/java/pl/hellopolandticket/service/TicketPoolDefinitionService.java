@@ -198,23 +198,32 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<TicketPoolDefinition> getAvailable(Set<Long> sightEventIds, Date fromDate,
       Date toDate) {
-    //@formatter:off
-    var queryStr = new StringBuilder("from TicketPoolDefinition where deleted is false and sightEvent.id in (:sightEventIds) and ("
-        + " (isCyclic is true and (startDate > :fromDate or (frequencyData.endDate is not null and frequencyData.endDate > :fromDate) or frequencyData.endDate is null)");
+    boolean anyId = sightEventIds != null && !sightEventIds.isEmpty();
+    var queryStr = new StringBuilder("from TicketPoolDefinition where deleted is false ");
+    if (anyId) {
+      queryStr.append("and sightEvent.id in (:sightEventIds)");
+    }
+
+    queryStr.append(
+        " and ((isCyclic is true and (startDate > :fromDate or (frequencyData.endDate is not null and frequencyData.endDate > :fromDate) or frequencyData.endDate is null)");
     if (toDate != null) {
       queryStr.append(" and :toDate > startDate");
     }
-    queryStr.append(") or");
-    queryStr.append(" (isCyclic is false and (startDate > :fromDate or (wholeDay is true and date_trunc('day', startDate) = to_date(:fromDateToDay, 'YYYY-MM-DD')))");
+    queryStr.append(
+        ") or (isCyclic is false and (startDate > :fromDate or (wholeDay is true and date_trunc('day', startDate) = to_date(:fromDateToDay, 'YYYY-MM-DD')))");
     if (toDate != null) {
       queryStr.append(" and :toDate > startDate");
     }
     queryStr.append("))");
     var query = em.createQuery(queryStr.toString(), TicketPoolDefinition.class)
-        .setParameter("sightEventIds", sightEventIds)
         .setParameter("fromDate", fromDate != null ? fromDate : new Date())
-        .setParameter("fromDateToDay", fromDate != null ? fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString() : LocalDate.now().toString());        
-    //@formatter:on
+        .setParameter("fromDateToDay",
+            fromDate != null
+                ? fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString()
+                : LocalDate.now().toString());
+    if (anyId) {
+      query.setParameter("sightEventIds", sightEventIds);
+    }
     if (toDate != null) {
       query.setParameter("toDate", toDate);
     }
