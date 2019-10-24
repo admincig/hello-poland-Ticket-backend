@@ -6,6 +6,8 @@ import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicket;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -15,6 +17,8 @@ import pl.hellopolandticket.dao.TicketDao;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.market.Ticket;
+import pl.hellopolandticket.model.ticket.partner.TicketPool;
+import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.validator.TicketValidator;
 
@@ -29,6 +33,10 @@ public class TicketService extends ServiceSuperclass {
 
   @Inject
   private UserService userService;
+  @Inject
+  AvailableTicketNumberAssociationService atnaService;
+  @Inject
+  SightEventService seService;
 
   @RolesAllowed({ROLE_USHER})
   public TicketDTO punchTicket(CurrentUser currentUser, Long sightEventId, String serialNumber) {
@@ -49,6 +57,22 @@ public class TicketService extends ServiceSuperclass {
     ticket.setTicketTaker(ticketTaker);
     ticket.setStatus(PUNCHED);
     ticket.setPunchingDate(new Date());
+
+    // TODO 1
+    TicketPool pool = ticket.getTicketPool();
+    List<AvailableTicketNumberAssociation> atnaList =
+        atnaService.getForTicketPool(pool);
+
+    // availableTicketsNumber suma tego = ile zostało dostępnych do kupienia
+    Integer sumOfAvailableTickets = atnaList.stream()
+        .mapToInt(AvailableTicketNumberAssociation::getAvailableTicketsNumber).sum();
+
+    // ALBO 2 | to nie
+    Long howMuchLeft = (long) seService.getAvailableSightEventsIds(Set.of(sightEventId)).size();
+    // cholera wie
+    // 3 | to dobrze
+    Integer howMuchWas =
+        ticket.getTicketPool().getTicketPoolDefinition().getAvailableTicketsNumber();
 
     return ofTicket(ticket);
   }
