@@ -125,6 +125,14 @@ public class ModelObjectsToDTOConverter {
     return ticketDTO;
   }
 
+  public static TicketDTO ofTicketAfterPunch(Ticket ticket, Integer availableTicketsCount) {
+    TicketDTO ticketDTO = ofTicket(ticket);
+    ticketDTO.initialPoolQuantity =
+        ticket.getTicketPool().getTicketPoolDefinition().getAvailableTicketsNumber();
+    ticketDTO.availableQuantity = availableTicketsCount;
+    return ticketDTO;
+  }
+
   public static BookingDTO ofBooking(Booking booking) {
     BookingDTO bookingDTO = ofBookingBasic(booking);
     bookingDTO.status = StatusDTO.valueOf(booking.getStatus().name());
