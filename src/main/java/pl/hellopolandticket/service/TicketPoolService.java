@@ -7,13 +7,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import org.apache.commons.lang3.time.DateUtils;
 import pl.hellopolandticket.dao.TicketPoolDao;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
@@ -81,18 +84,37 @@ public class TicketPoolService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
+  public List<Date> getAllStartDatesForInstancesOfCyclicPool(Long tpdId,
+      Date dateFrom, Date dateTo) {
+    TicketPoolDefinition tpd = em.find(TicketPoolDefinition.class, tpdId);
+    dateFrom.setHours(tpd.getStartDate().getHours());
+    dateFrom.setMinutes(tpd.getStartDate().getMinutes());
+    List<Date> dates = new ArrayList<>();
+    for (Date dateIter = dateFrom; !dateIter.after(dateTo); dateIter =
+        DateUtils.addDays(dateIter, 1)) {
+      try {
+        Date date = getStartDateForNewInstance(tpd, dateIter);
+        dates.add(date);
+      } catch (Exception e) {
+        logger.log(Level.WARNING, "nope: " + e.getMessage());
+      }
+    }
+    return dates;
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public Date getStartDateForNewInstanceOfCyclicPool(TicketPoolDefinition ticketPoolDefinition,
       Date requestedDate)
       throws CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException {
     if (requestedDate.before(ticketPoolDefinition.getStartDate())) {
-      logger.log(Level.ERROR, "Ządana data poza zakresem definicji puli [" + requestedDate + ", id="
+      logger.log(Level.DEBUG, "Ządana data poza zakresem definicji puli [" + requestedDate + ", id="
           + ticketPoolDefinition.getId() + "]");
       throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
           "Ządana data jest poza zakresem definicji puli");
     }
     if (ticketPoolDefinition.getFrequencyData().getEndDate() != null
         && requestedDate.after(ticketPoolDefinition.getFrequencyData().getEndDate())) {
-      logger.log(Level.ERROR, "Ządana data poza zakresem definicji puli [" + requestedDate + ", id="
+      logger.log(Level.DEBUG, "Ządana data poza zakresem definicji puli [" + requestedDate + ", id="
           + ticketPoolDefinition.getId() + "]");
       throw new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
           "Ządana data jest poza zakresem definicji puli");
