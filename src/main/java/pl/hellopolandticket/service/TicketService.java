@@ -56,6 +56,10 @@ public class TicketService extends ServiceSuperclass {
     ticket.setStatus(PUNCHED);
     ticket.setPunchingDate(new Date());
 
+    // TODO wydzielić oba pola quantity do osobnego pliku TicketPoolInfoDTO i tam te pola wrzucić
+    // wyciągnać listę |
+    // ticket.getTicketPool().getTickets(); ile ma status BOUGHT
+    // TODO wyciągać ilość biletów do zeskanowania jako count(listy biletów ze statusem BOUGHT)
     Integer sumOfAvailableTickets = atnaService.getForTicketPool(ticket.getTicketPool()).stream()
         .mapToInt(AvailableTicketNumberAssociation::getAvailableTicketsNumber).sum();
     return ofTicketAfterPunch(ticket, sumOfAvailableTickets);
