@@ -16,7 +16,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import org.apache.commons.lang3.time.DateUtils;
 import pl.hellopolandticket.dao.TicketPoolDao;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
@@ -84,21 +83,20 @@ public class TicketPoolService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public List<Date> getAllStartDatesForInstancesOfCyclicPool(Long tpdId,
-      Date dateFrom, Date dateTo) {
+  public List<LocalDate> getAllStartDatesForInstancesOfCyclicPool(Long tpdId,
+      LocalDate dateFrom, LocalDate dateTo) {
     TicketPoolDefinition tpd = em.find(TicketPoolDefinition.class, tpdId);
-    dateFrom.setHours(tpd.getStartDate().getHours());
-    dateFrom.setMinutes(tpd.getStartDate().getMinutes());
-    List<Date> dates = new ArrayList<>();
-    for (Date dateIter = dateFrom; !dateIter.after(dateTo); dateIter =
-        DateUtils.addDays(dateIter, 1)) {
+    List<LocalDate> dates = new ArrayList<>();
+    dateFrom.datesUntil(dateTo).forEach(dateIter -> {
       try {
-        Date date = getStartDateForNewInstance(tpd, dateIter);
-        dates.add(date);
+        Date date = getStartDateForNewInstance(tpd, Date.from(dateIter.atStartOfDay()
+            .atZone(ZoneId.systemDefault())
+            .toInstant()));
+        dates.add(LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault()));
       } catch (Exception e) {
         logger.log(Level.WARNING, "nope: " + e.getMessage());
       }
-    }
+    });
     return dates;
   }
 
