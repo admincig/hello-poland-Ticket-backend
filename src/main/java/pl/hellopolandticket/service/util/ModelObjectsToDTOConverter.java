@@ -23,6 +23,7 @@ import pl.hellopoland.dto.StatusDTO;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopoland.dto.TicketPoolDTO;
 import pl.hellopoland.dto.TicketPoolDefinitionDTO;
+import pl.hellopoland.dto.TicketPoolInfoDTO;
 import pl.hellopoland.dto.UserAuthDTO;
 import pl.hellopoland.dto.UserDTO;
 import pl.hellopoland.dto.booking.BookingDTO;
@@ -34,6 +35,7 @@ import pl.hellopolandticket.model.sightevent.OpeningHours;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.sightevent.SightEventLocation;
 import pl.hellopolandticket.model.ticket.market.Booking;
+import pl.hellopolandticket.model.ticket.market.Status;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
@@ -125,11 +127,15 @@ public class ModelObjectsToDTOConverter {
     return ticketDTO;
   }
 
-  public static TicketDTO ofTicketAfterPunch(Ticket ticket, Integer availableTicketsCount) {
+  public static TicketDTO ofTicketAfterPunch(Ticket ticket) {
     TicketDTO ticketDTO = ofTicket(ticket);
-    ticketDTO.initialPoolQuantity =
-        ticket.getTicketPool().getTicketPoolDefinition().getAvailableTicketsNumber();
-    ticketDTO.availableQuantity = availableTicketsCount;
+    TicketPoolInfoDTO tpiDTO = new TicketPoolInfoDTO();
+    tpiDTO.punchedTicketCount = Long.valueOf(ticket.getTicketPool().getTickets().stream()
+        .filter(t -> Status.PUNCHED.equals(t.getStatus())).count());
+    tpiDTO.toBePunchedTicketCount = Long.valueOf(ticket.getTicketPool().getTickets().stream()
+        .filter(t -> Status.BOUGHT.equals(t.getStatus())).count());
+    tpiDTO.boughtTicketCount = tpiDTO.punchedTicketCount + tpiDTO.toBePunchedTicketCount;
+    ticketDTO.ticketPoolInfo = tpiDTO;
     return ticketDTO;
   }
 
