@@ -7,11 +7,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -86,18 +86,19 @@ public class TicketPoolService extends ServiceSuperclass {
   public List<LocalDate> getAllStartDatesForInstancesOfCyclicPool(Long tpdId,
       LocalDate dateFrom, LocalDate dateTo) {
     TicketPoolDefinition tpd = em.find(TicketPoolDefinition.class, tpdId);
-    List<LocalDate> dates = new ArrayList<>();
-    dateFrom.datesUntil(dateTo).forEach(dateIter -> {
+    @SuppressWarnings("deprecation")
+    LocalTime hour = LocalTime.of(tpd.getStartDate().getHours(), tpd.getStartDate().getMinutes());
+    return dateFrom.datesUntil(dateTo).map(dateIter -> {
       try {
-        Date date = getStartDateForNewInstance(tpd, Date.from(dateIter.atStartOfDay()
+        Date date = getStartDateForNewInstance(tpd, Date.from(dateIter.atTime(hour)
             .atZone(ZoneId.systemDefault())
             .toInstant()));
-        dates.add(LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault()));
+        return LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault());
       } catch (Exception e) {
         logger.log(Level.WARNING, "nope: " + e.getMessage());
+        return LocalDate.EPOCH;
       }
-    });
-    return dates;
+    }).collect(Collectors.toList());
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
