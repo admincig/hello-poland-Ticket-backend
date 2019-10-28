@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
@@ -96,9 +97,9 @@ public class TicketPoolService extends ServiceSuperclass {
         return LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault());
       } catch (Exception e) {
         logger.log(Level.WARNING, "nope: " + e.getMessage());
-        return LocalDate.EPOCH;
+        return null;
       }
-    }).collect(Collectors.toList());
+    }).filter(Objects::nonNull).collect(Collectors.toList());
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
