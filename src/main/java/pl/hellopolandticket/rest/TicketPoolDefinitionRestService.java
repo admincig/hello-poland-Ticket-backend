@@ -1,5 +1,6 @@
 package pl.hellopolandticket.rest;
 
+import java.time.LocalDate;
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -10,12 +11,14 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import pl.hellopoland.dto.TicketPoolDefinitionDTO;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.TicketPoolDefinitionService;
+import pl.hellopolandticket.service.TicketPoolService;
 
 @Path("/ticket-pool-definitions")
 @RequestScoped
@@ -25,6 +28,8 @@ public class TicketPoolDefinitionRestService {
 
   @Inject
   private TicketPoolDefinitionService ticketPoolDefinitionService;
+  @Inject
+  private TicketPoolService tpService;
 
   @Inject
   @Authenticated
@@ -52,6 +57,16 @@ public class TicketPoolDefinitionRestService {
   public Response deleteTicketPoolDef(@PathParam("id") Long id) {
     ticketPoolDefinitionService.deleteTicketPoolDefinition(id, currentUser);
     return Response.noContent().build();
+  }
+
+  @GET
+  @Path("/{id}/available-dates")
+  public List<LocalDate> availableDates(@PathParam("id") Long id,
+      @QueryParam("fromDate") String dateFromStr,
+      @QueryParam("toDate") String dateToSt) {
+    LocalDate dateFrom = LocalDate.parse(dateFromStr);
+    LocalDate dateTo = LocalDate.parse(dateToSt);
+    return tpService.getAllStartDatesForInstancesOfCyclicPool(id, dateFrom, dateTo);
   }
 
   @POST

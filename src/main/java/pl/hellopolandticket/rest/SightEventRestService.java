@@ -26,6 +26,7 @@ import pl.hellopolandticket.annotation.DateFormat;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.SightEventService;
+import pl.hellopolandticket.service.TicketPoolService;
 import pl.hellopolandticket.service.TicketService;
 
 @Path("/sight-events")
@@ -38,6 +39,8 @@ public class SightEventRestService extends RestServiceSuperclass {
   private SightEventService sightEventService;
   @Inject
   private TicketService ticketService;
+  @Inject
+  private TicketPoolService tpService;
 
   @Inject
   @Authenticated
