@@ -2,7 +2,6 @@ package pl.hellopolandticket.model.ticket.market;
 
 import static javax.persistence.CascadeType.PERSIST;
 import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
-import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -32,6 +31,7 @@ import lombok.ToString;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
+import pl.hellopolandticket.service.TicketService;
 import pl.hellopolandticket.service.exception.badrequest.CannotGenerateQrCodeException;
 
 @Getter
@@ -114,8 +114,10 @@ public class Ticket implements Serializable {
     this.ticketDefinition = ticketDefinition;
   }
 
+  // TODO
   public void generateSerialNumber() {
-    serialNumber = generateUUID();
+    // serialNumber = generateUUID();
+    serialNumber = TicketService.generateSerialNumber();
   }
 
   public ByteArrayOutputStream encodeSerialNumberAsQrCode(int qrCodeWidth, int qrCodeHeight) {

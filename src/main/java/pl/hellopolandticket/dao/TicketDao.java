@@ -17,7 +17,7 @@ import pl.hellopolandticket.service.exception.ExceptionFactory;
 public class TicketDao {
 
   @PersistenceContext
-  private EntityManager entityManager;
+  private static EntityManager entityManager;
 
   @Inject
   private ExceptionFactory exceptionFactory;
@@ -36,11 +36,25 @@ public class TicketDao {
         .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
   }
 
+  // TODO
   public Ticket findBySerialNumber(String serialNumber) {
     return entityManager
         .createQuery("from Ticket ticket where ticket.serialNumber=:serialNumber", Ticket.class)
         .setParameter("serialNumber", serialNumber).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
+  }
+
+  public static boolean isUniqueSerialNumber(String uuid) {
+    return !entityManager
+        .createQuery(
+            "select exists (select t from Ticket t where t.serialNumber like':shortUUID%')",
+            Boolean.class)
+        .setParameter("shortUUID", getShortUUID(uuid))
+        .getSingleResult();
+  }
+
+  private static String getShortUUID(String uuid) {
+    return uuid.substring(0, 6);
   }
 
   public Long countTicketsByTicketPoolIdAndTicketStatusInTicketStatuses(Long ticketPoolId,
