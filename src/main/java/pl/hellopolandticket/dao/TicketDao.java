@@ -11,13 +11,14 @@ import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.market.Status;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
+import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 
 @Stateless
 @LocalBean
 public class TicketDao {
 
   @PersistenceContext
-  private static EntityManager entityManager;
+  private EntityManager entityManager;
 
   @Inject
   private ExceptionFactory exceptionFactory;
@@ -26,7 +27,6 @@ public class TicketDao {
     for (Ticket ticket : tickets) {
       entityManager.persist(ticket);
     }
-
     return tickets;
   }
 
@@ -36,24 +36,39 @@ public class TicketDao {
         .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
   }
 
-  // TODO
+  /**
+   * 
+   * @param serialNumber - whole serial number or part of it. At least first 7 characters.
+   * @return Returns ticket by its serialNumber or part of it.
+   * 
+   */
   public Ticket findBySerialNumber(String serialNumber) {
+    if (serialNumber.length() < 7) {
+      throw new ConflictingException(
+          "Serial number for lookup needs to have at least first 7 characters");
+    }
     return entityManager
-        .createQuery("from Ticket ticket where ticket.serialNumber=:serialNumber", Ticket.class)
+        .createQuery("from Ticket ticket where ticket.serialNumber like ':serialNumber%'",
+            Ticket.class)
         .setParameter("serialNumber", serialNumber).getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
   }
 
-  public static boolean isUniqueSerialNumber(String uuid) {
+  /**
+   * @param uuid - whole uuid
+   * @return Returns true if first 7 characters of uuid are not used somewhere in database for
+   *         tickets serial number.
+   */
+  public boolean isUniqueSerialNumber(String uuid) {
     return !entityManager
         .createQuery(
-            "select exists (select t from Ticket t where t.serialNumber like':shortUUID%')",
+            "from Ticket t where t.serialNumber like':shortUUID%'",
             Boolean.class)
         .setParameter("shortUUID", getShortUUID(uuid))
         .getSingleResult();
   }
 
-  private static String getShortUUID(String uuid) {
+  private String getShortUUID(String uuid) {
     return uuid.substring(0, 6);
   }
 

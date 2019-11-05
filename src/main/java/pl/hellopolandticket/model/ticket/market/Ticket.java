@@ -31,7 +31,6 @@ import lombok.ToString;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
-import pl.hellopolandticket.service.TicketService;
 import pl.hellopolandticket.service.exception.badrequest.CannotGenerateQrCodeException;
 
 @Getter
@@ -112,12 +111,6 @@ public class Ticket implements Serializable {
     this.booking = booking;
     this.ticketPool = ticketPool;
     this.ticketDefinition = ticketDefinition;
-  }
-
-  // TODO
-  public void generateSerialNumber() {
-    // serialNumber = generateUUID();
-    serialNumber = TicketService.generateSerialNumber();
   }
 
   public ByteArrayOutputStream encodeSerialNumberAsQrCode(int qrCodeWidth, int qrCodeHeight) {

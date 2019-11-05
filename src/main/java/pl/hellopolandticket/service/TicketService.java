@@ -3,6 +3,7 @@ package pl.hellopolandticket.service;
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
+import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
 import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
 import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicket;
@@ -77,19 +78,24 @@ public class TicketService extends ServiceSuperclass {
     return ticketDao.findSightEventForTicket(id);
   }
 
-  public static String generateSerialNumber() {
+  public void setStatusAsBought(Ticket ticket) {
+    ticket.setStatus(BOUGHT);
+    generateSerialNumber(ticket);
+  }
+
+  public Ticket generateSerialNumber(Ticket ticket) {
     String uuid = generateUUID();
     int i = 0;
-    while (!TicketDao.isUniqueSerialNumber(uuid) && i < 1000) {
+    while (!ticketDao.isUniqueSerialNumber(uuid)) {
       i++;
       uuid = generateUUID();
-      if (i == 999) {
+      if (i == 1000) {
         throw new CannotGenerateTicketSerialNumberException();
       }
     }
 
-    return null;
+    ticket.setSerialNumber(uuid);
+    return ticket;
   }
-
 
 }
