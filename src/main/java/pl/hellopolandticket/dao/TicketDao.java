@@ -38,8 +38,9 @@ public class TicketDao {
 
   /**
    * 
-   * @param serialNumber - whole serial number or part of it. At least first 7 characters.
-   * @return Returns ticket by its serialNumber or part of it.
+   * @param serialNumber - whole serial number or part of it. At least first 7 characters are
+   *        needed.
+   * @return Returns ticket by its whole serialNumber or at least first 7 characters.
    * 
    */
   public Ticket findBySerialNumber(String serialNumber) {
@@ -56,8 +57,9 @@ public class TicketDao {
 
   /**
    * 
-   * @param serialNumber - whole serial number or part of it. At least first 7 characters.
-   * @return Returns bought ticket by its serialNumber or part of it.
+   * @param serialNumber - whole serial number or part of it. At least first 7 characters are
+   *        needed.
+   * @return Returns bought ticket by its whole serialNumber or at least first 7 characters.
    * 
    */
   public Ticket findBoughtBySerialNumber(String serialNumber) {
