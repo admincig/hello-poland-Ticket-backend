@@ -55,6 +55,28 @@ public class TicketDao {
   }
 
   /**
+   * 
+   * @param serialNumber - whole serial number or part of it. At least first 7 characters.
+   * @return Returns bought ticket by its serialNumber or part of it.
+   * 
+   */
+  public Ticket findBoughtBySerialNumber(String serialNumber) {
+    if (serialNumber.length() < 7) {
+      throw new ConflictingException(
+          "Serial number for lookup needs to have at least first 7 characters");
+    }
+    return entityManager
+        .createQuery(
+            "from Ticket ticket where ticket.serialNumber like ':serialNumber%' and ticket.status=:status",
+            Ticket.class)
+        .setParameter("serialNumber", serialNumber)
+        .setParameter("status", Status.BOUGHT)
+        .getResultStream()
+        .findFirst()
+        .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
+  }
+
+  /**
    * @param uuid - whole uuid
    * @return Returns true if first 7 characters of uuid are not used somewhere in database for
    *         tickets serial number.
