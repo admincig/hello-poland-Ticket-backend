@@ -78,6 +78,7 @@ public class TicketService extends ServiceSuperclass {
     return ticketDao.findSightEventForTicket(id);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public void setStatusAsBought(Ticket ticket) {
     ticket.setStatus(BOUGHT);
     generateSerialNumber(ticket);

@@ -49,9 +49,11 @@ public class TicketDao {
           "Serial number for lookup needs to have at least first 7 characters");
     }
     return entityManager
-        .createQuery("from Ticket ticket where ticket.serialNumber like ':serialNumber%'",
+        .createQuery("from Ticket where serialNumber like :serialNumber",
             Ticket.class)
-        .setParameter("serialNumber", serialNumber).getResultStream().findFirst()
+        .setParameter("serialNumber", serialNumber + "%")
+        .getResultStream()
+        .findFirst()
         .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
   }
 
@@ -69,9 +71,9 @@ public class TicketDao {
     }
     return entityManager
         .createQuery(
-            "from Ticket ticket where ticket.serialNumber like ':serialNumber%' and ticket.status=:status",
+            "from Ticket where serialNumber like :serialNumber and status=:status",
             Ticket.class)
-        .setParameter("serialNumber", serialNumber)
+        .setParameter("serialNumber", serialNumber + "%")
         .setParameter("status", Status.BOUGHT)
         .getResultStream()
         .findFirst()
@@ -84,12 +86,11 @@ public class TicketDao {
    *         tickets serial number.
    */
   public boolean isUniqueSerialNumber(String uuid) {
-    return !entityManager
+    return entityManager
         .createQuery(
-            "from Ticket t where t.serialNumber like':shortUUID%'",
-            Boolean.class)
-        .setParameter("shortUUID", getShortUUID(uuid))
-        .getSingleResult();
+            "from Ticket t where t.serialNumber like :shortUUID",
+            Ticket.class)
+        .setParameter("shortUUID", getShortUUID(uuid) + "%").getResultStream().findAny().isEmpty();
   }
 
   private String getShortUUID(String uuid) {
