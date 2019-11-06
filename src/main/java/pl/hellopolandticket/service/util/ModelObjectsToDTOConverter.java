@@ -215,6 +215,7 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDTO.ticketPoolDefinitionId =
         ofNullable(ticketPool.getTicketPoolDefinition()).map(tpd -> tpd.getId()).orElse(null);
     ticketPoolDTO.wholeDay = ticketPool.isWholeDay();
+    ticketPoolDTO.isCyclic = ticketPool.getTicketPoolDefinition().getIsCyclic();
     return ticketPoolDTO;
   }
 
