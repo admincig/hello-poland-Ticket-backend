@@ -5,6 +5,7 @@ import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicket;
+import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicketAfterPunch;
 import java.util.Date;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
@@ -29,6 +30,10 @@ public class TicketService extends ServiceSuperclass {
 
   @Inject
   private UserService userService;
+  @Inject
+  AvailableTicketNumberAssociationService atnaService;
+  @Inject
+  SightEventService seService;
 
   @RolesAllowed({ROLE_USHER})
   public TicketDTO punchTicket(CurrentUser currentUser, Long sightEventId, String serialNumber) {
@@ -50,7 +55,7 @@ public class TicketService extends ServiceSuperclass {
     ticket.setStatus(PUNCHED);
     ticket.setPunchingDate(new Date());
 
-    return ofTicket(ticket);
+    return ofTicketAfterPunch(ticket);
   }
 
   @RolesAllowed({ROLE_USHER})
