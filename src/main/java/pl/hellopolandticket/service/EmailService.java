@@ -267,7 +267,7 @@ public class EmailService extends ServiceSuperclass {
     Map<String, String> variablesMap = new HashMap<>();
     variablesMap.put("P24_transactionNumber", p24OrderId);
     variablesMap.put("sightEventName", getSigthEventName(ticket));
-    variablesMap.put("sightEventDate", makeDateHuman(ticket.date));
+    variablesMap.put("sightEventDate", makeDateHuman(ticket.date, ticket.wholeDay));
     variablesMap.put("qrCode", "<img src=\"cid:" + ticketCID + "\">");
     variablesMap.put("ticketName", ticket.name);
     variablesMap.put("ticketNumber", ticket.serialNumber);
@@ -305,7 +305,7 @@ public class EmailService extends ServiceSuperclass {
     return attachmentPart;
   }
 
-  private String makeDateHuman(Date date) {
+  private String makeDateHuman(Date date, boolean wholeDay) {
     LocalDateTime ldt = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
     String dayOfWeek = ldt.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("pl", "PL"));
@@ -320,7 +320,7 @@ public class EmailService extends ServiceSuperclass {
     String dayMonthYear = dayOfMonth + "." + month + "." + year;
     String hourAndMinute = hour + ":" + minute;
 
-    return dayOfWeek + ", " + dayMonthYear + " godzina " + hourAndMinute;
+    return dayOfWeek + ", " + dayMonthYear + (wholeDay ? "" : " godzina " + hourAndMinute);
   }
 
 }
