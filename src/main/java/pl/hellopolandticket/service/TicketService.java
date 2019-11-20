@@ -35,7 +35,7 @@ public class TicketService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_USHER})
   public TicketDTO punchTicket(CurrentUser currentUser, Long sightEventId, String serialNumber) {
-    Ticket ticket = ticketDao.findBoughtBySerialNumber(serialNumber);
+    Ticket ticket = ticketDao.findBySerialNumber(serialNumber);
 
     ticketValidator.validateAccessingProperTicket(sightEventId,
         ticket.getTicketPool().getTicketPoolDefinition().getSightEvent().getId());
