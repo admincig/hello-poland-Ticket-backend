@@ -3,7 +3,9 @@ package pl.hellopolandticket.service;
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
+import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
 import static pl.hellopolandticket.model.ticket.market.Status.PUNCHED;
+import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicket;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicketAfterPunch;
 import java.util.Date;
@@ -17,6 +19,7 @@ import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.security.CurrentUser;
+import pl.hellopolandticket.service.exception.badrequest.CannotGenerateTicketSerialNumberException;
 import pl.hellopolandticket.service.validator.TicketValidator;
 
 @Stateless
@@ -80,5 +83,25 @@ public class TicketService extends ServiceSuperclass {
     return ticketDao.findSightEventForTicket(id);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public void setStatusAsBought(Ticket ticket) {
+    ticket.setStatus(BOUGHT);
+    generateSerialNumber(ticket);
+  }
+
+  public Ticket generateSerialNumber(Ticket ticket) {
+    String uuid = generateUUID();
+    int i = 0;
+    while (!ticketDao.isUniqueSerialNumber(uuid)) {
+      i++;
+      uuid = generateUUID();
+      if (i == 1000) {
+        throw new CannotGenerateTicketSerialNumberException();
+      }
+    }
+
+    ticket.setSerialNumber(uuid);
+    return ticket;
+  }
 
 }

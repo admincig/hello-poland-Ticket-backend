@@ -2,7 +2,6 @@ package pl.hellopolandticket.model.ticket.market;
 
 import static javax.persistence.CascadeType.ALL;
 import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
-import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
 import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
 import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
 import java.io.Serializable;
@@ -99,20 +98,9 @@ public class Booking implements Serializable {
     tickets.forEach(this::setTicketStatusesAsInvalidAndIncreaseAvailableTicketsNumber);
   }
 
-  public void makeBought(String p24OrderId, String p24Currency) {
-    setStatus(BOUGHT);
-    setP24OrderId(p24OrderId);
-    setP24Currency(p24Currency);
-    tickets.forEach(this::setTicketStatusesAsBought);
-  }
-
   private void setTicketStatusesAsInvalidAndIncreaseAvailableTicketsNumber(Ticket ticket) {
     ticket.setStatus(INVALID);
     ticket.getTicketPool().increaseAvailableTicketsNumber();
   }
 
-  private void setTicketStatusesAsBought(Ticket ticket) {
-    ticket.setStatus(BOUGHT);
-    ticket.generateSerialNumber();
-  }
 }

@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
+import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
 import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofBooking;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicketWithQrCode;
@@ -81,6 +82,8 @@ public class BookingService extends ServiceSuperclass {
 
   @Inject
   private EmailService emailService;
+  @Inject
+  private TicketService ticketService;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public BookingDTO createBooking(BookingDTO booking) {
@@ -101,7 +104,7 @@ public class BookingService extends ServiceSuperclass {
     logger.log(Logger.Level.INFO, "...........Start buying tickets..............");
     Booking booking = bookingDao.findBySerialNumber(serialNumber);
     if (booking.getStatus() == BOOKED) {
-      booking.makeBought(p24OrderId, p24Currency);
+      makeBought(booking, p24OrderId, p24Currency);
       sendEmailWithTicketQrCodes(booking);
     } else if (booking.getStatus() == INVALID) {
       bookTickets(null, booking);
@@ -111,6 +114,14 @@ public class BookingService extends ServiceSuperclass {
     }
     logger.log(Logger.Level.INFO, "...........End buying tickets..............");
     return ofBooking(booking);
+  }
+
+  public void makeBought(Booking booking, String p24OrderId, String p24Currency) {
+    booking.setStatus(BOUGHT);
+    booking.setP24OrderId(p24OrderId);
+    booking.setP24Currency(p24Currency);
+
+    booking.getTickets().forEach(t -> ticketService.setStatusAsBought(t));
   }
 
   @RolesAllowed({ROLE_ADMIN})

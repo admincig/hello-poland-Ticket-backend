@@ -2,7 +2,6 @@ package pl.hellopolandticket.model.ticket.market;
 
 import static javax.persistence.CascadeType.PERSIST;
 import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
-import static pl.hellopolandticket.model.util.UUIDGeneratorUtil.generateUUID;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -112,10 +111,6 @@ public class Ticket implements Serializable {
     this.booking = booking;
     this.ticketPool = ticketPool;
     this.ticketDefinition = ticketDefinition;
-  }
-
-  public void generateSerialNumber() {
-    serialNumber = generateUUID();
   }
 
   public ByteArrayOutputStream encodeSerialNumberAsQrCode(int qrCodeWidth, int qrCodeHeight) {

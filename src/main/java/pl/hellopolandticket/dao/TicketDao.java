@@ -11,6 +11,7 @@ import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.market.Status;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
+import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 
 @Stateless
 @LocalBean
@@ -26,7 +27,6 @@ public class TicketDao {
     for (Ticket ticket : tickets) {
       entityManager.persist(ticket);
     }
-
     return tickets;
   }
 
@@ -36,11 +36,42 @@ public class TicketDao {
         .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
   }
 
+  /**
+   * 
+   * @param serialNumber - whole serial number or part of it. At least first 7 characters are
+   *        needed.
+   * @return Returns ticket by its whole serialNumber or at least first 7 characters.
+   * 
+   */
   public Ticket findBySerialNumber(String serialNumber) {
+    if (serialNumber.length() < 7) {
+      throw new ConflictingException(
+          "Serial number for lookup needs to have at least first 7 characters");
+    }
     return entityManager
-        .createQuery("from Ticket ticket where ticket.serialNumber=:serialNumber", Ticket.class)
-        .setParameter("serialNumber", serialNumber).getResultStream().findFirst()
+        .createQuery("from Ticket where serialNumber like :serialNumber",
+            Ticket.class)
+        .setParameter("serialNumber", serialNumber + "%")
+        .getResultStream()
+        .findFirst()
         .orElseThrow(() -> exceptionFactory.ticketNotFoundException());
+  }
+
+  /**
+   * @param uuid - whole uuid
+   * @return Returns true if first 7 characters of uuid are not used somewhere in database for
+   *         tickets serial number.
+   */
+  public boolean isUniqueSerialNumber(String uuid) {
+    return entityManager
+        .createQuery(
+            "from Ticket t where t.serialNumber like :shortUUID",
+            Ticket.class)
+        .setParameter("shortUUID", getShortUUID(uuid) + "%").getResultStream().findAny().isEmpty();
+  }
+
+  private String getShortUUID(String uuid) {
+    return uuid.substring(0, 6);
   }
 
   public Long countTicketsByTicketPoolIdAndTicketStatusInTicketStatuses(Long ticketPoolId,
