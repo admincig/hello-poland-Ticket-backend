@@ -22,7 +22,7 @@ public class BookingMarkedAsBoughtEvent implements Serializable {
   private String customerName;
   private String recipientEmail;
   private List<TicketDTO> tickets;
-  private String p24OrderId;
+  private String hash;
   private String p24Currency;
   private Set<String> sightEventPdfAttachmentsPaths;
   private String replyToEmail;
