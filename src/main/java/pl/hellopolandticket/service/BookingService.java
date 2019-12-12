@@ -9,12 +9,14 @@ import static pl.hellopolandticket.model.ticket.market.Status.BOUGHT;
 import static pl.hellopolandticket.model.ticket.market.Status.INVALID;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofBooking;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicketWithQrCode;
+import java.io.UnsupportedEncodingException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -24,6 +26,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import pl.hellopoland.dto.EmailSendingReportDTO;
 import pl.hellopoland.dto.booking.BookingDTO;
 import pl.hellopoland.dto.booking.TicketOrderDTO;
@@ -122,6 +125,12 @@ public class BookingService extends ServiceSuperclass {
     booking.setP24Currency(p24Currency);
 
     booking.getTickets().forEach(t -> ticketService.setStatusAsBought(t));
+    // TODO
+    // sprawdzenie ile zostało biletów
+    // TUTAJ WYSYLKA
+    // checkTicketNumberLeftToBuy(booking.ticket);
+    booking.getTickets().forEach(t -> checkTicketNumberLeftToBuy(t));
+
   }
 
   @RolesAllowed({ROLE_ADMIN})
@@ -323,6 +332,14 @@ public class BookingService extends ServiceSuperclass {
     }
   }
 
+  // TODO
+  /**
+   * Available to BOOK
+   * 
+   * @param pool
+   * @param ticketDefinition
+   * @param numberOfTickets
+   */
   private void checkAndDecreaseAvailability(TicketPool pool, TicketDefinition ticketDefinition,
       int numberOfTickets) {
     Integer poolAvailableTicketNumber = pool.getAvailableTicketsNumber();
@@ -349,6 +366,14 @@ public class BookingService extends ServiceSuperclass {
       var number = poolAvailableTicketNumber - numberOfTickets;
       if (number >= 0) {
         pool.decreaseAvailableTicketsNumber(numberOfTickets);
+        // TODO
+        // jest nazwa puli ->ticketpool.name
+        // nazwa oferty->ticketpool.ticketpooldefinition.sightevent.name
+        // termin-> ticketpool.startDate i endDate
+        // nazwy biletów- > ticketpool.ticketpooldefinition.TicketDefinition. wyszsktie name
+
+
+
       } else {
         logger.log(Logger.Level.ERROR,
             "NoAvailableTicketsException: TicketPool id=[" + pool.getId()
@@ -377,6 +402,67 @@ public class BookingService extends ServiceSuperclass {
         "NoAvailableTicketsException: TicketPool id=[" + pool.getId() + "], TicketDefinition id=["
             + ticketDefinition.getId() + "], numberOfTickets=" + numberOfTickets);
     throw new NoAvailableTicketsException();
+  }
+
+  /**
+   * All other methods are operating on 'availableTicketNumber' which tells us how many tickets are
+   * left to BOOK. We want to check how many there are tickets to BUY.
+   */
+  private void checkTicketNumberLeftToBuy(Ticket ticket) {
+    Long numberOfAllTicketsYouCanBuyFromPool =
+        Long.valueOf(ticket.getTicketPool().getTicketPoolDefinition().getAvailableTicketsNumber());
+
+    if (numberOfAllTicketsYouCanBuyFromPool != -1 && numberOfAllTicketsYouCanBuyFromPool > 0) {
+      Long numberOfTicketsLeftToBuy = numberOfTicketsLeftToBuy(ticket);
+
+      Long ticketsNumberLeftToBuy = numberOfAllTicketsYouCanBuyFromPool - numberOfTicketsLeftToBuy;
+      if (shouldInformByEmail(ticketsNumberLeftToBuy)) {
+        informPartnerAboutTicketsNumberLeftToBuyRunningOut(ticket, ticketsNumberLeftToBuy);
+      }
+    }
+  }
+
+  private Long numberOfTicketsLeftToBuy(Ticket ticket) {
+    return Long.valueOf(ticket.getTicketPool().getTickets().stream().count());
+  }
+
+  private boolean shouldInformByEmail(Long number) {
+    Long three = 3L;
+    Long zero = 0L;
+    return three.equals(number) || zero.equals(number);
+  }
+
+  private void informPartnerAboutTicketsNumberLeftToBuyRunningOut(Ticket ticket,
+      Long ticketsNumberLeftToBuy) {
+    TicketPool pool = ticket.getTicketPool();
+    String nazwaPuli = pool.getName();
+    String startDate = pool.getStartDate().toString();
+    String endDate = pool.getEndDate().toString();
+
+    TicketPoolDefinition def = pool.getTicketPoolDefinition();
+    String nazwaOferty = def.getSightEvent().getName();
+    Set<String> nazwyBiletów =
+        def.getTicketDefinitions().stream().map(td -> td.getName()).collect(Collectors.toSet());
+
+    String dataWyczerpaniaSie = new Date().toString();
+
+
+    // TODO wysłanie maila
+    emailsToInformAboutTicketsRunningOut(ticket).forEach(email -> {
+      try {
+        emailService.sendSimpleEmail(email, "Nowe konto w Hello Poland. Bileter",
+            "Twój login to  , hasło to ");
+      } catch (MessagingException | UnsupportedEncodingException e) {
+        throw exceptionFactory.emailSendingRollbackException();
+      }
+    });
+  }
+
+  private Set<String> emailsToInformAboutTicketsRunningOut(Ticket ticket) {
+    Set<String> all = new HashSet<>();
+    all.add("biuro@hello-poland.pl");
+    all.add(ticket.getTicketDefinition().getPartner().getEmail());
+    return all;
   }
 
 }

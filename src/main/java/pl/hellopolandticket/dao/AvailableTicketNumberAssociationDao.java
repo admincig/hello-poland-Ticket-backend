@@ -58,6 +58,7 @@ public class AvailableTicketNumberAssociationDao {
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
+  // TODO
   public AvailableTicketNumberAssociation findForTicketPoolAndTicketDefinition(TicketPool tp,
       TicketDefinition td) {
     return entityManager.createQuery(
