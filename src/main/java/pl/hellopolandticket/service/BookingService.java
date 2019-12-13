@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -36,7 +34,6 @@ import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.market.Booking;
-import pl.hellopolandticket.model.ticket.market.Status;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
@@ -87,6 +84,8 @@ public class BookingService extends ServiceSuperclass {
   private EmailService emailService;
   @Inject
   private TicketService ticketService;
+  @Inject
+  private TicketPoolQuantityMonitoringService poolSizeMonitoringService;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public BookingDTO createBooking(BookingDTO booking) {
@@ -106,7 +105,7 @@ public class BookingService extends ServiceSuperclass {
   public void elo(Long ticketId) {
     Ticket ticket = ticketDao.findById(ticketId);
 
-    checkTicketNumberLeftToBuy(ticket);
+    poolSizeMonitoringService.checkTicketNumberLeftToBuy(ticket);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
@@ -137,7 +136,7 @@ public class BookingService extends ServiceSuperclass {
     // sprawdzenie ile zostało biletów
     // TUTAJ WYSYLKA
     // checkTicketNumberLeftToBuy(booking.ticket);
-    booking.getTickets().forEach(t -> checkTicketNumberLeftToBuy(t));
+    booking.getTickets().forEach(t -> poolSizeMonitoringService.checkTicketNumberLeftToBuy(t));
 
   }
 
@@ -399,117 +398,6 @@ public class BookingService extends ServiceSuperclass {
         "NoAvailableTicketsException: TicketPool id=[" + pool.getId() + "], TicketDefinition id=["
             + ticketDefinition.getId() + "], numberOfTickets=" + numberOfTickets);
     throw new NoAvailableTicketsException();
-  }
-
-  /**
-   * All other methods are operating on 'availableTicketNumber' which tells us how many tickets are
-   * left to BOOK. We want to check how many there are tickets to BUY.
-   */
-  private void checkTicketNumberLeftToBuy(Ticket ticket) {
-    Long numberOfAllTicketsYouCanBuyFromPool =
-        Long.valueOf(ticket.getTicketPool().getTicketPoolDefinition().getAvailableTicketsNumber());
-
-    if (numberOfAllTicketsYouCanBuyFromPool != -1 && numberOfAllTicketsYouCanBuyFromPool > 0) {
-      Long ticketsNumberLeftToBuy = numberOfTicketsLeftToBuy(ticket);
-      // if (shouldInformByEmail(ticketsNumberLeftToBuy)) {
-      informPartnerAboutTicketsNumberLeftToBuyRunningOut(ticket, ticketsNumberLeftToBuy);
-      // }
-    }
-  }
-
-  private Long numberOfTicketsLeftToBuy(Ticket ticket) {
-    // getAvailableTicketNumbers
-    Long allTicketsYouCanBuyFromPool =
-        Long.valueOf(ticket.getTicketPool().getTicketPoolDefinition().getAvailableTicketsNumber());
-
-    Long countOfAllTickets = Long.valueOf(ticket.getTicketPool().getTickets().stream().count());
-    Long countOfBookedTickets = ticket.getTicketPool().getTickets().stream()
-        .filter(t -> Status.BOOKED.equals(t.getStatus()))
-        .count();
-
-    Long countOfTicketsYouCannotBuy = countOfAllTickets - countOfBookedTickets;
-
-    logger.log(Logger.Level.INFO, "Ticket id:" + ticket.getId());
-    logger.log(Logger.Level.INFO, "all:" + allTicketsYouCanBuyFromPool);
-    logger.log(Logger.Level.INFO,
-        "left to buy:" + (allTicketsYouCanBuyFromPool - countOfTicketsYouCannotBuy));
-
-
-    return allTicketsYouCanBuyFromPool - countOfTicketsYouCannotBuy;
-  }
-
-  private boolean shouldInformByEmail(Long number) {
-    Long three = 3L;
-    Long zero = 0L;
-    return three.equals(number) || zero.equals(number);
-  }
-
-  private void informPartnerAboutTicketsNumberLeftToBuyRunningOut(Ticket ticket,
-      Long ticketsNumberLeftToBuy) {
-    TicketPool pool = ticket.getTicketPool();
-    String poolName = pool.getName();
-    String startDate = pool.getStartDate().toString();
-    String endDate = pool.getEndDate().toString();
-
-    TicketPoolDefinition definition = pool.getTicketPoolDefinition();
-    String nazwaOferty = definition.getSightEvent().getName();
-    // group biletów z nazwą
-    Set<String> ticketNames =
-        definition.getTicketDefinitions().stream().map(td -> td.getName())
-            .collect(Collectors.toSet());
-
-    String runoutDate = new Date().toString();
-
-
-
-    logger.log(Logger.Level.INFO, ticketNames.toString());
-
-    // TODO wysłanie maila
-
-    // emailsToInformAboutTicketsRunningOut(ticket).forEach(email -> {
-    // try {
-    // emailService.sendSimpleEmail(email, "Nowe konto w Hello Poland. Bileter",
-    // "Twój login to , hasło to ");
-    // } catch (MessagingException | UnsupportedEncodingException e) {
-    // throw exceptionFactory.emailSendingRollbackException();
-    // }
-    // });
-
-  }
-
-  private String mailTitle() {
-    return null;
-  }
-
-  private String mailContent() {
-    return null;
-  }
-
-  private HashMap<String, Long> ticketNamesWithQuantityBoughtFromPool(Ticket ticket) {
-    Set<String> ticketNames =
-        ticket.getTicketPool().getTicketPoolDefinition().getTicketDefinitions().stream()
-            .map(td -> td.getName()).collect(Collectors.toSet());
-
-    List<Ticket> list = ticket.getTicketPool().getTickets();
-    HashMap<String, Long> map = new HashMap<>();
-    for (String ticketName : ticketNames) {
-      map.put(ticketName, countBoughtTicketsWithName(list, ticketName));
-    }
-    return map;
-  }
-
-  private Long countBoughtTicketsWithName(List<Ticket> list, String name) {
-    return list.stream()
-        .filter(ticket -> ticket.getName().equals(name))
-        .filter(ticket -> Status.BOUGHT.equals(ticket.getStatus()))
-        .count();
-  }
-
-  private Set<String> emailsToInformAboutTicketsRunningOut(Ticket ticket) {
-    Set<String> all = new HashSet<>();
-    all.add(properties.getProperty("mail.hellopoland.biuro"));
-    all.add(ticket.getTicketDefinition().getPartner().getEmail());
-    return all;
   }
 
 }
