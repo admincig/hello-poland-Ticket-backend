@@ -29,8 +29,8 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
   private EmailService emailService;
 
   /**
-   * All other methods are operating on 'availableTicketNumber' which tells us how many tickets are
-   * left to BOOK. We want to check how many there are tickets to BUY.
+   * All methods in BookingService are operating on 'availableTicketNumber' which tells us how many
+   * tickets are left to BOOK. We want to check how many there are tickets to BUY.
    */
   public void checkTicketNumberLeftToBuy(Ticket ticket) {
     Long numberOfAllTicketsYouCanBuyFromPool =
@@ -59,7 +59,6 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
     logger.log(Logger.Level.INFO, "all:" + allTicketsYouCanBuyFromPool);
     logger.log(Logger.Level.INFO,
         "left to buy:" + (allTicketsYouCanBuyFromPool - countOfTicketsYouCannotBuy));
-
 
     return allTicketsYouCanBuyFromPool - countOfTicketsYouCannotBuy;
   }
@@ -100,14 +99,10 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
 
     TicketPoolDefinition definition = pool.getTicketPoolDefinition();
     String sightEventName = definition.getSightEvent().getName();
-    Set<String> ticketNames =
-        definition.getTicketDefinitions().stream().map(td -> td.getName())
-            .collect(Collectors.toSet());
-
     String runoutDate = new Date().toString();
     ///////////////////////////
     StringBuffer buff = new StringBuffer("");
-    buff.append("Dzień dobry, \r\n");
+    buff.append("Dzień dobry, \r\n\r\n");
     buff.append("Liczba pozostałych biletów: " + ticketsNumberLeftToBuy + " \r\n");
     buff.append("Na ofertę: " + sightEventName + " \r\n");
     buff.append("Z puli biletów: " + poolName + " \r\n");
