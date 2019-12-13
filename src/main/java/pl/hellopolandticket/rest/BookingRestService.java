@@ -70,4 +70,11 @@ public class BookingRestService extends RestServiceSuperclass {
     return Response.ok(bookingService.markBookingAsBought(persistedBooking.serialNumber,
         "P24-from_/book-buy/", "PLN")).build();
   }
+
+  @GET
+  @Path("/ticket/{ticketId}")
+  public Response dsasd(@PathParam("ticketId") Long ticketId) {
+    bookingService.elo(ticketId);
+    return Response.ok().build();
+  }
 }
