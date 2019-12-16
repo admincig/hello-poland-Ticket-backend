@@ -49,6 +49,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   private TicketPoolService ticketPoolService;
   @Inject
   private AvailableTicketNumberAssociationService atnaService;
+  @Inject
+  private TicketPoolQuantityMonitoringService quantityService;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPoolDefinitionDTO add(TicketPoolDefinitionDTO tpdDTO, CurrentUser currentUser) {
@@ -190,6 +192,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     int oldAvailableTicketsNumber = tpd.getAvailableTicketsNumber();
     tpd.setAvailableTicketsNumber(dto.availableTicketsNumber);
     ticketPoolService.updatePools(tpd, oldAvailableTicketsNumber);
+    quantityService.informPartnerAboutTicketsNumberLeftToBuyRunningOut(ticketPool);
     return tpd;
   }
 
