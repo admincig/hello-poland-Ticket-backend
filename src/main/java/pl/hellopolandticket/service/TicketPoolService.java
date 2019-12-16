@@ -18,6 +18,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import pl.hellopolandticket.dao.TicketPoolDao;
+import pl.hellopolandticket.dao.TicketPoolDefinitionDao;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
@@ -30,6 +31,9 @@ public class TicketPoolService extends ServiceSuperclass {
 
   @Inject
   private TicketPoolDao ticketPoolDao;
+
+  @Inject
+  private TicketPoolDefinitionDao tpdDao;
 
   @Inject
   private AvailableTicketNumberAssociationService atnaService;
@@ -298,6 +302,19 @@ public class TicketPoolService extends ServiceSuperclass {
       return rlt.isAfter(elt);
     }
     return rlt.isBefore(slt) || rlt.isAfter(elt);
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public void updatePools(TicketPoolDefinition tpd) {
+    List<TicketPool> pools = tpd.getTicketPools();
+    pools.stream().filter(TicketPool::isInFuture).forEach(pool -> {
+      pool.setName(tpd.getName());
+      if (tpd.getAvailableTicketsNumber() == -1) {
+        pool.setAvailableTicketsNumber(-1);
+      } else {
+        ;
+      }
+    });
   }
 
 }

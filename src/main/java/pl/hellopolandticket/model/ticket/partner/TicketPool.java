@@ -164,4 +164,8 @@ public class TicketPool implements Serializable {
     cal.add(Calendar.MILLISECOND, (int) duration);
     entryEndDate = cal.getTime();
   }
+
+  public boolean isInFuture() {
+    return this.startDate.after(new Date());
+  }
 }

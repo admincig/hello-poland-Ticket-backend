@@ -184,6 +184,15 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
+  public TicketPoolDefinition update(Long id, TicketPoolDefinitionDTO dto) {
+    TicketPoolDefinition tpd = ticketPoolDefinitionDao.findById(id);
+    tpd.setName(dto.name);
+    tpd.setAvailableTicketsNumber(dto.availableTicketsNumber);
+    ticketPoolService.updatePools(id, dto);
+    return tpd;
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPoolDefinitionDTO getForPartner(Long id, CurrentUser currentUser) {
     return ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinitionDao
         .findByIdForPartner(id, partnerDao.findByUserEmail(currentUser.getPrincipal()).getId()));
