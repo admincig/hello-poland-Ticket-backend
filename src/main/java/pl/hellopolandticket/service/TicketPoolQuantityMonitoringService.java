@@ -5,6 +5,7 @@ import java.lang.System.Logger;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -25,15 +26,27 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
 
   public void informPartnerAboutTicketsNumberLeftToBuyRunningOut(List<Ticket> tickets) {
     // pools
-    tickets.stream()
+    Stream<TicketPool> poolsStream = tickets.stream()
         .map(Ticket::getTicketPool)
-        .distinct()
+        .distinct();
+    informPartnerAboutPoolsRunningOut(poolsStream);
+    // def
+    Stream<AvailableTicketNumberAssociation> atnaStream = tickets
+        .stream()
+        .map(t -> t.getTicketDefinition().getAtna(t.getTicketPool()))
+        .distinct();
+    informPartnerAboutAtnaRunningOut(atnaStream);
+  }
+
+  public void informPartnerAboutPoolsRunningOut(Stream<TicketPool> poolsStream) {
+    poolsStream
         .filter(this::shouldInform)
         .forEach(this::constructAndSendEmail);
-    // def
-    tickets.stream()
-        .map(t -> t.getTicketDefinition().getAtna(t.getTicketPool()))
-        .distinct()
+  }
+
+  public void informPartnerAboutAtnaRunningOut(
+      Stream<AvailableTicketNumberAssociation> atnaStream) {
+    atnaStream
         .filter(this::shouldInform)
         .forEach(this::constructAndSendEmail);
   }
