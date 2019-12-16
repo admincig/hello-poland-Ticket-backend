@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import pl.hellopolandticket.model.ticket.market.Status;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
@@ -57,14 +58,37 @@ public class AvailableTicketNumberAssociation implements Serializable {
   @JoinColumn(name = "TICKET_POOL_ID")
   private TicketPool ticketPool;
 
+  @Setter
+  @ManyToOne
+  @JoinColumn(name = "PARENT_ID")
+  private AvailableTicketNumberAssociation parent;
+
   @Builder
   public AvailableTicketNumberAssociation(@NotNull Integer availableTicketsNumber,
       @NotNull TicketDefinition ticketDefinition, TicketPoolDefinition ticketPoolDefinition,
-      TicketPool ticketPool) {
+      TicketPool ticketPool, AvailableTicketNumberAssociation parent) {
+    this.parent = parent;
     this.availableTicketsNumber = availableTicketsNumber;
     this.ticketDefinition = ticketDefinition;
     this.ticketPoolDefinition = ticketPoolDefinition;
     this.ticketPool = ticketPool;
+  }
+
+
+  public int getBoughtTicketsCount() {
+    return (int) ticketDefinition.getTickets().stream()
+        .filter(t -> Status.BOUGHT.equals(t.getStatus()))
+        .count();
+  }
+
+  public int getTicketsLeftToBuyCount() {
+    if (parent == null) {
+      return availableTicketsNumber;
+    }
+    if (parent.getAvailableTicketsNumber() == -1) {
+      return -1;
+    }
+    return parent.getAvailableTicketsNumber() - getBoughtTicketsCount();
   }
 
 }

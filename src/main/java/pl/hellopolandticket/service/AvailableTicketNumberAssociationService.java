@@ -67,8 +67,12 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       for (TicketDefinition td : tds) {
         AvailableTicketNumberAssociation association =
             dao.findForTicketPoolDefinitionAndTicketDefinition(ticketPoolDefinition, td);
-        var bo = AvailableTicketNumberAssociation.builder().ticketDefinition(td).ticketPool(pool)
-            .availableTicketsNumber(association.getAvailableTicketsNumber()).build();
+        var bo = AvailableTicketNumberAssociation.builder()
+            .ticketDefinition(td)
+            .ticketPool(pool)
+            .availableTicketsNumber(association.getAvailableTicketsNumber())
+            .parent(association)
+            .build();
         dao.persist(bo);
       }
     }

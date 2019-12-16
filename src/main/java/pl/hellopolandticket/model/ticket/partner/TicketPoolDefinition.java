@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -11,7 +12,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import pl.hellopolandticket.model.sightevent.SightEvent;
+import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 
 @Getter
 @Entity
@@ -87,8 +88,8 @@ public class TicketPoolDefinition implements Serializable {
   private SightEvent sightEvent;
 
   @Setter
-  @ManyToMany(mappedBy = "ticketPoolDefinitions")
-  private List<TicketDefinition> ticketDefinitions = new ArrayList<>();
+  @OneToMany(mappedBy = "ticketPoolDefinition")
+  private List<AvailableTicketNumberAssociation> atnas = new ArrayList<>();
 
   @Setter
   @OneToMany(mappedBy = "ticketPoolDefinition")
@@ -104,6 +105,12 @@ public class TicketPoolDefinition implements Serializable {
   @NotNull
   @Column(name = "WHOLEDAY", nullable = false)
   private boolean wholeDay;
+
+  public List<TicketDefinition> getTicketDefinitions() {
+    return atnas.stream()
+        .map(AvailableTicketNumberAssociation::getTicketDefinition)
+        .collect(Collectors.toList());
+  }
 
   @Builder
   public TicketPoolDefinition(String name, Integer availableTicketsNumber, Boolean isCyclic,

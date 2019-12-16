@@ -25,7 +25,6 @@ import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.FrequencyType;
-import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
@@ -89,7 +88,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         .sightEvent(sightEvent).deleted(false).wholeDay(tpdDTO.wholeDay).build();
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
     atnaService.add(ticketPoolDefinition, tdDTOs);
-    ticketPoolDefinition.setTicketDefinitions(getTicketDefinitions(tdDTOs, ticketPoolDefinition));
+    em.refresh(ticketPoolDefinition);
     tpdDTO = ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
     var tds = tpdDTO.ticketDefinitions;
     if (tds != null && !tds.isEmpty()) {
@@ -134,20 +133,6 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
       throw new ConflictingException(
           "Ticket pool definition's frequency startDate after frequency endDate.");
     }
-  }
-
-  private List<TicketDefinition> getTicketDefinitions(List<TicketDefinitionDTO> ticketDefinitions,
-      TicketPoolDefinition ticketPoolDefinition) {
-    if (ticketDefinitions != null) {
-      List<TicketDefinition> tickets = new ArrayList<>();
-      for (TicketDefinitionDTO ticketDefinitionDTO : ticketDefinitions) {
-        TicketDefinition td = ticketDefinitionService.get(ticketDefinitionDTO.id);
-        td.getTicketPoolDefinitions().add(ticketPoolDefinition);
-        tickets.add(td);
-      }
-      return tickets;
-    }
-    return null;
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
