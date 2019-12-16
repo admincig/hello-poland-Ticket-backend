@@ -24,6 +24,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import pl.hellopolandticket.model.ticket.market.Status;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.service.exception.conflict.NoAvailableTicketsException;
 import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTicketsNotPositiveException;
@@ -164,4 +165,15 @@ public class TicketPool implements Serializable {
     cal.add(Calendar.MILLISECOND, (int) duration);
     entryEndDate = cal.getTime();
   }
+
+  public int getBoughtTicketsCount() {
+    return (int) getTickets().stream()
+        .filter(t -> Status.BOUGHT.equals(t.getStatus()))
+        .count();
+  }
+
+  public int getTicketsLeftToBuyCount() {
+    return ticketPoolDefinition.getAvailableTicketsNumber() - getBoughtTicketsCount();
+  }
+
 }

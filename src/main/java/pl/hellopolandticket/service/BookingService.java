@@ -81,7 +81,7 @@ public class BookingService extends ServiceSuperclass {
   private ExceptionFactory exceptionFactory;
 
   @Inject
-  private EmailService emailService;
+  private EmailSenderService emailService;
   @Inject
   private TicketService ticketService;
   @Inject
@@ -122,10 +122,12 @@ public class BookingService extends ServiceSuperclass {
     booking.setStatus(BOUGHT);
     booking.setP24OrderId(p24OrderId);
     booking.setP24Currency(p24Currency);
-
     booking.getTickets().forEach(t -> ticketService.setStatusAsBought(t));
 
-    booking.getTickets().forEach(t -> poolSizeMonitoringService.checkTicketNumberLeftToBuy(t));
+    booking.getTickets().stream()
+        .map(Ticket::getTicketPool)
+        .distinct()
+        .forEach(poolSizeMonitoringService::informPartnerAboutTicketsNumberLeftToBuyRunningOut);
   }
 
   @RolesAllowed({ROLE_ADMIN})

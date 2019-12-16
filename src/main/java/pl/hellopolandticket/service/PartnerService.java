@@ -36,7 +36,7 @@ public class PartnerService extends ServiceSuperclass {
   @Inject
   private PasswordEncoder passwordEncoder;
   @Inject
-  private EmailService emailService;
+  private EmailSenderService emailService;
   @Inject
   private ExceptionFactory exceptionFactory;
 

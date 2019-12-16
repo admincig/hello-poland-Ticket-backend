@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import lombok.extern.slf4j.Slf4j;
-import pl.hellopolandticket.service.EmailService;
+import pl.hellopolandticket.service.EmailSenderService;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @Slf4j
@@ -18,7 +18,7 @@ import pl.hellopolandticket.service.exception.ExceptionFactory;
 public class BookingMarkedAsBoughtEventListener {
 
   @Inject
-  private EmailService emailService;
+  private EmailSenderService emailService;
 
   @Inject
   private ExceptionFactory exceptionFactory;
