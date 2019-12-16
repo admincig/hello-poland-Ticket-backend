@@ -100,14 +100,6 @@ public class BookingService extends ServiceSuperclass {
     return ofBooking(bo);
   }
 
-  // TODO
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public void elo(Long ticketId) {
-    Ticket ticket = ticketDao.findById(ticketId);
-
-    poolSizeMonitoringService.checkTicketNumberLeftToBuy(ticket);
-  }
-
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public BookingDTO markBookingAsBought(String serialNumber, String p24OrderId,
       String p24Currency) {
@@ -132,12 +124,8 @@ public class BookingService extends ServiceSuperclass {
     booking.setP24Currency(p24Currency);
 
     booking.getTickets().forEach(t -> ticketService.setStatusAsBought(t));
-    // TODO
-    // sprawdzenie ile zostało biletów
-    // TUTAJ WYSYLKA
-    // checkTicketNumberLeftToBuy(booking.ticket);
-    booking.getTickets().forEach(t -> poolSizeMonitoringService.checkTicketNumberLeftToBuy(t));
 
+    booking.getTickets().forEach(t -> poolSizeMonitoringService.checkTicketNumberLeftToBuy(t));
   }
 
   @RolesAllowed({ROLE_ADMIN})
@@ -339,10 +327,8 @@ public class BookingService extends ServiceSuperclass {
     }
   }
 
-  // TODO
   /**
    * Available to BOOK
-   * 
    */
   private void checkAndDecreaseAvailability(TicketPool pool, TicketDefinition ticketDefinition,
       int numberOfTickets) {

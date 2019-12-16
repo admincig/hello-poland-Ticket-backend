@@ -132,7 +132,6 @@ public class TicketPool implements Serializable {
     if (hasLimitedNumberOfTickets()) {
       if (hasEnoughTickets(numberOfTickets)) {
         availableTicketsNumber = availableTicketsNumber - numberOfTickets;
-        // TODO sprawdzenie
       } else {
         throw new NoAvailableTicketsException();
       }

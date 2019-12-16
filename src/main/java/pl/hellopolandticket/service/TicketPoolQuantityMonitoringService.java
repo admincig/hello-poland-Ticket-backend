@@ -54,12 +54,6 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
         .count();
 
     Long countOfTicketsYouCannotBuy = countOfAllTickets - countOfBookedTickets;
-
-    logger.log(Logger.Level.INFO, "Ticket id:" + ticket.getId());
-    logger.log(Logger.Level.INFO, "all:" + allTicketsYouCanBuyFromPool);
-    logger.log(Logger.Level.INFO,
-        "left to buy:" + (allTicketsYouCanBuyFromPool - countOfTicketsYouCannotBuy));
-
     return allTicketsYouCanBuyFromPool - countOfTicketsYouCannotBuy;
   }
 
