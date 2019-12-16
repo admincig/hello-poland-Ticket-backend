@@ -8,6 +8,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.ws.rs.ForbiddenException;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.TicketDefinitionDao;
@@ -59,12 +60,16 @@ public class TicketDefinitionService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketDefinition update(TicketDefinitionDTO dto, CurrentUser currentUser) {
+    Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
     if (dto.price < 0) {
       logger.log(Level.ERROR, "Ticket definition [id=" + dto.id
           + "]. The ticket price must be greater than 0");
       throw new BadRequestException("The ticket price must be greater than 0");
     }
     TicketDefinition td = ticketDefinitionDao.findById(dto.id);
+    if (!td.getPartner().getId().equals(partner.getId())) {
+      throw new ForbiddenException();
+    }
     td.setName(dto.name);
     td.setPrice(dto.price);
     return td;
