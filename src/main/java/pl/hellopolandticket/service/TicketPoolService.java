@@ -305,14 +305,15 @@ public class TicketPoolService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public void updatePools(TicketPoolDefinition tpd) {
+  public void updatePools(TicketPoolDefinition tpd, Integer oldAvailableTicketsNumber) {
     List<TicketPool> pools = tpd.getTicketPools();
     pools.stream().filter(TicketPool::isInFuture).forEach(pool -> {
       pool.setName(tpd.getName());
       if (tpd.getAvailableTicketsNumber() == -1) {
         pool.setAvailableTicketsNumber(-1);
       } else {
-        ;
+        int booked = oldAvailableTicketsNumber - pool.getAvailableTicketsNumber();
+        pool.setAvailableTicketsNumber(Math.max(0, tpd.getAvailableTicketsNumber() - booked));
       }
     });
   }

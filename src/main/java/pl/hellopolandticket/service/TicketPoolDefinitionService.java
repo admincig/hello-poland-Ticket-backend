@@ -187,8 +187,9 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   public TicketPoolDefinition update(Long id, TicketPoolDefinitionDTO dto) {
     TicketPoolDefinition tpd = ticketPoolDefinitionDao.findById(id);
     tpd.setName(dto.name);
+    int oldAvailableTicketsNumber = tpd.getAvailableTicketsNumber();
     tpd.setAvailableTicketsNumber(dto.availableTicketsNumber);
-    ticketPoolService.updatePools(id, dto);
+    ticketPoolService.updatePools(tpd, oldAvailableTicketsNumber);
     return tpd;
   }
 

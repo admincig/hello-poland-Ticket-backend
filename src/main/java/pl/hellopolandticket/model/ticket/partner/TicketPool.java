@@ -177,6 +177,9 @@ public class TicketPool implements Serializable {
   }
 
   public int getTicketsLeftToBuyCount() {
+    if (ticketPoolDefinition.getAvailableTicketsNumber() == -1) {
+      return -1;
+    }
     return ticketPoolDefinition.getAvailableTicketsNumber() - getBoughtTicketsCount();
   }
 
