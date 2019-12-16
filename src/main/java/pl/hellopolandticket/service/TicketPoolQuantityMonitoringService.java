@@ -71,13 +71,15 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
 
   private void informPartnerAboutTicketsNumberLeftToBuyRunningOut(Ticket ticket,
       Long ticketsNumberLeftToBuy) {
-    // TODO wysłanie maila
+
     emailsToInformAboutTicketsRunningOut(ticket).forEach(email -> {
       try {
         emailService.sendSimpleEmail(email,
             mailTitle(ticketsNumberLeftToBuy,
                 ticket.getTicketPool().getTicketPoolDefinition().getSightEvent().getName()),
             mailContent(ticket, ticketsNumberLeftToBuy));
+        logger.log(Logger.Level.INFO, "Informing " + email + " about tickets from ticket pool[id="
+            + ticket.getTicketPool().getId() + "] running out.");
       } catch (MessagingException | UnsupportedEncodingException e) {
         throw exceptionFactory.emailSendingRollbackException();
       }
@@ -86,7 +88,7 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
 
   private String mailTitle(Long ticketsNumberLeftToBuy, String sightEventName) {
     if (ticketsNumberLeftToBuy > 0) {
-      return "Wyczerpują się bilety na ofertę " + sightEventName;
+      return "Wyczerpują się bilety na ofertę \"" + sightEventName + "\"";
     }
     return "Bilety na ofertę " + sightEventName + " zostały wyprzedane.";
   }
@@ -100,7 +102,7 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
     TicketPoolDefinition definition = pool.getTicketPoolDefinition();
     String sightEventName = definition.getSightEvent().getName();
     String runoutDate = new Date().toString();
-    ///////////////////////////
+
     StringBuffer buff = new StringBuffer("");
     buff.append("Dzień dobry, \r\n\r\n");
     buff.append("Liczba pozostałych biletów: " + ticketsNumberLeftToBuy + " \r\n");
