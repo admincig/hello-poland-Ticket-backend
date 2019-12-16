@@ -86,6 +86,8 @@ public class BookingService extends ServiceSuperclass {
   private TicketService ticketService;
   @Inject
   private TicketPoolQuantityMonitoringService poolSizeMonitoringService;
+  @Inject
+  private AvailableTicketNumberAssociationDao associationDao;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public BookingDTO createBooking(BookingDTO booking) {
@@ -124,10 +126,8 @@ public class BookingService extends ServiceSuperclass {
     booking.setP24Currency(p24Currency);
     booking.getTickets().forEach(t -> ticketService.setStatusAsBought(t));
 
-    booking.getTickets().stream()
-        .map(Ticket::getTicketPool)
-        .distinct()
-        .forEach(poolSizeMonitoringService::informPartnerAboutTicketsNumberLeftToBuyRunningOut);
+    poolSizeMonitoringService
+        .informPartnerAboutTicketsNumberLeftToBuyRunningOut(booking.getTickets());
   }
 
   @RolesAllowed({ROLE_ADMIN})

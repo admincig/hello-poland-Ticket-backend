@@ -9,7 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -22,6 +21,7 @@ import lombok.Setter;
 import lombok.ToString;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.ticket.market.Ticket;
+import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 
 @Getter
 @Entity
@@ -55,8 +55,8 @@ public class TicketDefinition implements Serializable {
   private Partner partner;
 
   @Setter
-  @ManyToMany(cascade = ALL)
-  private List<TicketPoolDefinition> ticketPoolDefinitions;
+  @OneToMany(mappedBy = "ticketDefinition")
+  private List<AvailableTicketNumberAssociation> atnas;
 
   @Setter
   @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "ticketDefinition")
@@ -68,12 +68,20 @@ public class TicketDefinition implements Serializable {
     this.name = name;
     this.price = price;
     this.partner = partner;
-    this.ticketPoolDefinitions = ticketPoolDefinitions;
   }
 
   public boolean isConnectedWithPoolDefiniton(Long poolDefinitionId) {
-    return getTicketPoolDefinitions().stream()
-        .anyMatch(tpd -> tpd.getId().equals(poolDefinitionId));
+    return atnas.stream()
+        .anyMatch(atna -> atna.getTicketPoolDefinition().getId().equals(poolDefinitionId));
   }
+
+  public AvailableTicketNumberAssociation getAtna(TicketPool ticketPool) {
+    return this.atnas.stream()
+        .filter(atna -> atna.getTicketPool().getId().equals(ticketPool.getId()))
+        .findFirst()
+        .get();
+  }
+
+
 
 }
