@@ -25,6 +25,7 @@ import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.FrequencyType;
+import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
@@ -42,8 +43,6 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   private SightEventDao sightEventDao;
   @Inject
   private PartnerDao partnerDao;
-  @Inject
-  private TicketDefinitionService ticketDefinitionService;
   @Inject
   private TicketPoolService ticketPoolService;
   @Inject
@@ -176,8 +175,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     tpd.setName(dto.name);
     int oldAvailableTicketsNumber = tpd.getAvailableTicketsNumber();
     tpd.setAvailableTicketsNumber(dto.availableTicketsNumber);
-    ticketPoolService.updatePools(tpd, oldAvailableTicketsNumber);
-    quantityService.informPartnerAboutTicketsNumberLeftToBuyRunningOut(ticketPool);
+    List<TicketPool> pools = ticketPoolService.updatePools(tpd, oldAvailableTicketsNumber);
+    quantityService.informPartnerAboutPoolsRunningOut(pools.stream());
     return tpd;
   }
 
@@ -243,6 +242,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
    * cala reszte modyfikujemy w taki sposob, ze entry_start_date = start_date i entry_end_date = end_date
    **/
   // @formatter:on
+  @SuppressWarnings("deprecation")
   public void repairEntryDates(TicketPoolDefinition tpd) {
     var startDate = tpd.getStartDate();
     var endDate = tpd.getEndDate();
