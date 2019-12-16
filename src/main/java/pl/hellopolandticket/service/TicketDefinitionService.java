@@ -57,4 +57,17 @@ public class TicketDefinitionService extends ServiceSuperclass {
     return ticketDefinitionDao.findById(id);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public TicketDefinition update(TicketDefinitionDTO dto, CurrentUser currentUser) {
+    if (dto.price < 0) {
+      logger.log(Level.ERROR, "Ticket definition [id=" + dto.id
+          + "]. The ticket price must be greater than 0");
+      throw new BadRequestException("The ticket price must be greater than 0");
+    }
+    TicketDefinition td = ticketDefinitionDao.findById(dto.id);
+    td.setName(dto.name);
+    td.setPrice(dto.price);
+    return td;
+  }
+
 }
