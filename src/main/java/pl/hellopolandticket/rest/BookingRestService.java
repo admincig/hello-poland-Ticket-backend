@@ -70,4 +70,5 @@ public class BookingRestService extends RestServiceSuperclass {
     return Response.ok(bookingService.markBookingAsBought(persistedBooking.serialNumber,
         "P24-from_/book-buy/", "PLN")).build();
   }
+
 }

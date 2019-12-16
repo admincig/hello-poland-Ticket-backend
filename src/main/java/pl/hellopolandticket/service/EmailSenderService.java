@@ -54,7 +54,7 @@ import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 import pl.hellopolandticket.service.util.EmailSendingReport;
 
 @RequestScoped
-public class EmailService extends ServiceSuperclass {
+public class EmailSenderService extends ServiceSuperclass {
   private static final String MAIL_PERSONAL = "Bilety Hello Poland";
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
