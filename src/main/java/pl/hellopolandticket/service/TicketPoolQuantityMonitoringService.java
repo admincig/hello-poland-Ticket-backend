@@ -107,7 +107,7 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
 
     HashMap<String, Long> ticketNamesMap = ticketNamesWithQuantityBoughtFromPool(ticket);
     for (Map.Entry<String, Long> entry : ticketNamesMap.entrySet()) {
-      buff.append("     " + entry.getKey() + " - wykupiono: " + entry.getKey() + " biletów \r\n");
+      buff.append("     " + entry.getKey() + " - wykupiono: " + entry.getValue() + " biletów \r\n");
     }
 
     buff.append("Data (prawie) wyczerpania puli: " + runoutDate + " \r\n");
