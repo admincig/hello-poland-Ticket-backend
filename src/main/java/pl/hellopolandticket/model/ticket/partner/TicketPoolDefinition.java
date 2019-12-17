@@ -29,9 +29,9 @@ import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 @Getter
 @Entity
 @Table(name = "TICKET_POOL_DEFINITIONS")
-@EqualsAndHashCode(exclude = {"ticketDefinitions", "ticketPools"})
+@EqualsAndHashCode(exclude = {"atnas", "ticketPools"})
 @NoArgsConstructor
-@ToString(exclude = {"ticketDefinitions", "ticketPools"})
+@ToString(exclude = {"atnas", "ticketPools"})
 public class TicketPoolDefinition implements Serializable {
 
   private static final long serialVersionUID = 8904209837208814831L;

@@ -300,7 +300,7 @@ public class TicketPoolService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public List<TicketPool> updatePools(TicketPoolDefinition tpd, Integer oldAvailableTicketsNumber) {
+  public List<TicketPool> updatePoolsAvailableTicketsNumber(TicketPoolDefinition tpd, Integer oldAvailableTicketsNumber) {
     List<TicketPool> pools = tpd.getTicketPools();
     return pools.stream()
         .filter(TicketPool::isInFuture)

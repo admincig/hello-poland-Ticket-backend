@@ -35,7 +35,7 @@ import pl.hellopolandticket.service.exception.preconditionfailed.NumberOfTickets
 @EqualsAndHashCode(exclude = "tickets")
 @NoArgsConstructor
 @ToString(exclude = {"tickets"})
-public class TicketPool implements Serializable {
+public class TicketPool implements Serializable, Limited {
 
   private static final long serialVersionUID = -3301750425362262797L;
 
@@ -176,6 +176,7 @@ public class TicketPool implements Serializable {
         .count();
   }
 
+  @Override
   public int getTicketsLeftToBuyCount() {
     if (ticketPoolDefinition.getAvailableTicketsNumber() == -1) {
       return -1;

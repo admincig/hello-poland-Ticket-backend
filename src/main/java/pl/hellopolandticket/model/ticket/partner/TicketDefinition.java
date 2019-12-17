@@ -24,11 +24,12 @@ import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "TICKET_DEFINITIONS")
-@EqualsAndHashCode(exclude = {"ticketPoolDefinitions", "tickets"})
+@EqualsAndHashCode(exclude = {"atnas", "tickets"})
 @NoArgsConstructor
-@ToString(exclude = {"ticketPoolDefinitions", "tickets"})
+@ToString(exclude = {"atnas", "tickets"})
 public class TicketDefinition implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
@@ -38,27 +39,22 @@ public class TicketDefinition implements Serializable {
   @Column(name = "TICKET_DEFINITION_ID")
   private Long id;
 
-  @Setter
   @NotNull
   @Column(name = "NAME", nullable = false)
   private String name;
 
-  @Setter
   @NotNull
   @Column(name = "PRICE", nullable = false)
   private Integer price;
 
-  @Setter
   @NotNull
   @ManyToOne
   @JoinColumn(name = "PARTNER_ID", nullable = false)
   private Partner partner;
 
-  @Setter
   @OneToMany(mappedBy = "ticketDefinition")
   private List<AvailableTicketNumberAssociation> atnas;
 
-  @Setter
   @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "ticketDefinition")
   private List<Ticket> tickets;
 

@@ -188,7 +188,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
 
   private void fillFromTPD(HashSet<AvailableTicketNumberAssociation> associationsTPD,
       TicketPoolDefinition tpd) {
-    associationsTPD.addAll(getForTicketPoolDefinition(tpd));
+    associationsTPD.addAll(getUndeletedForTicketPoolDefinition(tpd));
   }
 
   private boolean checkDates(LocalDate localDate, TicketPoolDefinition tpd) {
@@ -212,14 +212,19 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public List<AvailableTicketNumberAssociation> getForTicketPoolDefinition(
+  public List<AvailableTicketNumberAssociation> getUndeletedForTicketPoolDefinition(
       TicketPoolDefinition tpd) {
-    return dao.getForTicketPoolDefinition(tpd);
+    return dao.getUndeletedForTicketPoolDefinition(tpd);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public AvailableTicketNumberAssociation update(AvailableTicketNumberAssociation bo) {
     return dao.update(bo);
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public AvailableTicketNumberAssociation add(AvailableTicketNumberAssociation newAtna) {
+    return dao.persist(newAtna);
   }
 
 }

@@ -11,6 +11,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import pl.hellopolandticket.model.ticket.market.Ticket;
+import pl.hellopolandticket.model.ticket.partner.Limited;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
@@ -25,17 +26,16 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
   private EmailSenderService emailService;
 
   public void informPartnerAboutTicketsNumberLeftToBuyRunningOut(List<Ticket> tickets) {
-    // pools
     Stream<TicketPool> poolsStream = tickets.stream()
         .map(Ticket::getTicketPool)
         .distinct();
     informPartnerAboutPoolsRunningOut(poolsStream);
-    // def
+
     Stream<AvailableTicketNumberAssociation> atnaStream = tickets
         .stream()
         .map(t -> t.getTicketDefinition().getAtna(t.getTicketPool()))
         .distinct();
-    informPartnerAboutAtnaRunningOut(atnaStream);
+    informPartnerAboutAtnasRunningOut(atnaStream);
   }
 
   public void informPartnerAboutPoolsRunningOut(Stream<TicketPool> poolsStream) {
@@ -44,20 +44,15 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
         .forEach(this::constructAndSendEmail);
   }
 
-  public void informPartnerAboutAtnaRunningOut(
+  public void informPartnerAboutAtnasRunningOut(
       Stream<AvailableTicketNumberAssociation> atnaStream) {
     atnaStream
         .filter(this::shouldInform)
         .forEach(this::constructAndSendEmail);
   }
 
-  private boolean shouldInform(TicketPool ticketPool) {
-    int left = ticketPool.getTicketsLeftToBuyCount();
-    return left == 0 || left == 3;
-  }
-
-  private boolean shouldInform(AvailableTicketNumberAssociation atna) {
-    int left = atna.getTicketsLeftToBuyCount();
+  private boolean shouldInform(Limited limited) {
+    int left = limited.getTicketsLeftToBuyCount();
     return left == 0 || left == 3;
   }
 

@@ -1,6 +1,7 @@
 package pl.hellopolandticket.model.util;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
@@ -18,6 +20,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import pl.hellopolandticket.model.ticket.market.Status;
+import pl.hellopolandticket.model.ticket.partner.Limited;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
@@ -29,7 +32,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString()
-public class AvailableTicketNumberAssociation implements Serializable {
+public class AvailableTicketNumberAssociation implements Serializable, Limited {
   private static final long serialVersionUID = -399400359685830420L;
 
   @Id
@@ -63,6 +66,13 @@ public class AvailableTicketNumberAssociation implements Serializable {
   @JoinColumn(name = "PARENT_ID")
   private AvailableTicketNumberAssociation parent;
 
+  @Setter
+  private boolean deleted;
+
+  @Setter
+  @OneToMany(mappedBy = "parent")
+  private List<AvailableTicketNumberAssociation> children;
+
   @Builder
   public AvailableTicketNumberAssociation(@NotNull Integer availableTicketsNumber,
       @NotNull TicketDefinition ticketDefinition, TicketPoolDefinition ticketPoolDefinition,
@@ -88,7 +98,7 @@ public class AvailableTicketNumberAssociation implements Serializable {
     if (parent.getAvailableTicketsNumber() == -1) {
       return -1;
     }
-    return parent.getAvailableTicketsNumber() - getBoughtTicketsCount();
+    return Math.max(0, parent.getAvailableTicketsNumber() - getBoughtTicketsCount());
   }
 
 }

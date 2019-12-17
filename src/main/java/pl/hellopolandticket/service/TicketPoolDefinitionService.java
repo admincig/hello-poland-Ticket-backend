@@ -10,8 +10,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -32,6 +34,7 @@ import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.exception.badrequest.BadRequestException;
 import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
+import pl.hellopolandticket.service.util.TicketPoolDefinitionAtnasComparer;
 
 @Stateless
 @LocalBean
@@ -144,8 +147,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
             .orElse(null));
     List<TicketPoolDefinitionDTO> dtos = new ArrayList<>();
     for (var d : tpd) {
-      List<AvailableTicketNumberAssociation> a = atnaService.getForTicketPoolDefinition(d).stream()
-          .filter(p -> p.getTicketDefinition() != null).collect(Collectors.toList());
+      List<AvailableTicketNumberAssociation> a = atnaService.getUndeletedForTicketPoolDefinition(d);
       var tpdDto = ModelObjectsToDTOConverter.ofTicketPoolDefinition(d);
       tpdDto.ticketDefinitions.forEach(td -> {
         for (var i : a) {
@@ -175,9 +177,47 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     tpd.setName(dto.name);
     int oldAvailableTicketsNumber = tpd.getAvailableTicketsNumber();
     tpd.setAvailableTicketsNumber(dto.availableTicketsNumber);
-    List<TicketPool> pools = ticketPoolService.updatePools(tpd, oldAvailableTicketsNumber);
+    updateAtnas(tpd, dto);
+    List<TicketPool> pools =
+        ticketPoolService.updatePoolsAvailableTicketsNumber(tpd, oldAvailableTicketsNumber);
     quantityService.informPartnerAboutPoolsRunningOut(pools.stream());
     return tpd;
+  }
+
+  private void updateAtnas(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {
+    var diffs = new TicketPoolDefinitionAtnasComparer(tpd).getDifferences(dto);
+
+    for (AvailableTicketNumberAssociation newAtna : diffs.toAdd) {
+      atnaService.add(newAtna);
+    }
+
+    for (AvailableTicketNumberAssociation remove : diffs.toRemove) {
+      remove.getChildren().forEach(child -> {
+        child.setAvailableTicketsNumber(0);
+        child.setDeleted(true);
+      });
+      remove.setAvailableTicketsNumber(0);
+      remove.setDeleted(true);
+    }
+
+    for (Entry<AvailableTicketNumberAssociation, Integer> modify : diffs.toModify) {
+      int oldAvailableTicketsNumber = modify.getKey().getAvailableTicketsNumber();
+      for (AvailableTicketNumberAssociation child : modify.getKey().getChildren()) {
+        if (modify.getValue() == -1) {
+          child.setAvailableTicketsNumber(-1);
+        } else {
+          int booked = oldAvailableTicketsNumber - child.getAvailableTicketsNumber();
+          child.setAvailableTicketsNumber(Math.max(0, modify.getValue() - booked));
+        }
+      }
+      modify.getKey().setAvailableTicketsNumber(modify.getValue());
+    }
+
+    var toInform = Stream.concat(
+        diffs.toRemove.stream(),
+        diffs.toModify.stream().map(Entry::getKey));
+
+    quantityService.informPartnerAboutAtnasRunningOut(toInform);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
