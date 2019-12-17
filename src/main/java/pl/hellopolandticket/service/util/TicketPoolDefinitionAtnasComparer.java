@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service.util;
 
+import java.util.List;
 import java.util.Map;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopoland.dto.TicketPoolDefinitionDTO;
@@ -18,7 +19,8 @@ public class TicketPoolDefinitionAtnasComparer {
   public TicketPoolDefinitionAtnasComparerResult getDifferences(TicketPoolDefinitionDTO dto) {
     TicketPoolDefinitionAtnasComparerResult result = new TicketPoolDefinitionAtnasComparerResult();
 
-    outer: for (var atna : tpd.getAtnas()) {
+    List<AvailableTicketNumberAssociation> atnas = tpd.getUndeletedAtnas();
+    outer: for (var atna : atnas) {
       Long ticketDefinitionId = atna.getTicketDefinition().getId();
       for (TicketDefinitionDTO td : dto.ticketDefinitions) {
         if (td.id.equals(ticketDefinitionId)) {
@@ -31,7 +33,7 @@ public class TicketPoolDefinitionAtnasComparer {
       result.toRemove.add(atna);
     }
     outer: for (var td : dto.ticketDefinitions) {
-      for (var atna : tpd.getAtnas()) {
+      for (var atna : atnas) {
         Long ticketDefinitionId = atna.getTicketDefinition().getId();
         if (td.id.equals(ticketDefinitionId)) {
           continue outer;

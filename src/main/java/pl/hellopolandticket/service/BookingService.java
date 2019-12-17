@@ -30,6 +30,7 @@ import pl.hellopoland.dto.booking.TicketOrderDTO;
 import pl.hellopolandticket.dao.AvailableTicketNumberAssociationDao;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.dao.TicketDao;
+import pl.hellopolandticket.dao.TicketPoolDefinitionDao;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
@@ -55,39 +56,28 @@ public class BookingService extends ServiceSuperclass {
 
   @Inject
   private BookingDao bookingDao;
-
   @Inject
   private TicketDao ticketDao;
-
   @Inject
   private TicketDefinitionService ticketDefinitionService;
-
   @Inject
   private TicketPoolService ticketPoolService;
-
   @Inject
-  private TicketPoolDefinitionService ticketPoolDefinitionService;
-
+  private TicketPoolDefinitionDao ticketPoolDefinitionDao;
   @Inject
   private ApplicationPropertyService applicationPropertyService;
-
   @Inject
   private AvailableTicketNumberAssociationDao atnaDao;
-
   @Inject
   private Event<BookingMarkedAsBoughtEvent> bookingMarkedAsBoughtEvent;
-
   @Inject
   private ExceptionFactory exceptionFactory;
-
   @Inject
   private EmailSenderService emailService;
   @Inject
   private TicketService ticketService;
   @Inject
   private TicketPoolQuantityMonitoringService poolSizeMonitoringService;
-  @Inject
-  private AvailableTicketNumberAssociationDao associationDao;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public BookingDTO createBooking(BookingDTO booking) {
@@ -177,7 +167,7 @@ public class BookingService extends ServiceSuperclass {
             "Ticket definition does not belong to given pool definition");
       }
       TicketPoolDefinition poolDefinition =
-          ticketPoolDefinitionService.get(dto.ticketPoolDefinitionId);
+          ticketPoolDefinitionDao.findById(dto.ticketPoolDefinitionId);
       TicketPool pool = ticketPoolService.find(poolDefinition, dto.date);
       if (pool == null) {
         pool = ticketPoolService.createNew(poolDefinition, dto.date);

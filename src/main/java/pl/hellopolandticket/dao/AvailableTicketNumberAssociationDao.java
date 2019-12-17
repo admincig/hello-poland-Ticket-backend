@@ -28,11 +28,11 @@ public class AvailableTicketNumberAssociationDao {
     return bo;
   }
 
-  public List<AvailableTicketNumberAssociation> getUndeletedForTicketPoolDefinition(
+  public List<AvailableTicketNumberAssociation> getForTicketPoolDefinition(
       TicketPoolDefinition tpd) {
     return entityManager
         .createQuery(
-            "from AvailableTicketNumberAssociation a where a.ticketPoolDefinition = :tpd and a.deleted = false",
+            "from AvailableTicketNumberAssociation a where a.ticketPoolDefinition = :tpd",
             AvailableTicketNumberAssociation.class)
         .setParameter("tpd", tpd).getResultList();
   }

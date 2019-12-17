@@ -112,6 +112,10 @@ public class TicketPoolDefinition implements Serializable {
         .collect(Collectors.toList());
   }
 
+  public List<AvailableTicketNumberAssociation> getUndeletedAtnas() {
+    return this.getAtnas().stream().filter(atna -> !atna.isDeleted()).collect(Collectors.toList());
+  }
+
   @Builder
   public TicketPoolDefinition(String name, Integer availableTicketsNumber, Boolean isCyclic,
       FrequencyData frequencyData, Date startDate, Date endDate, Date entryStartDate,

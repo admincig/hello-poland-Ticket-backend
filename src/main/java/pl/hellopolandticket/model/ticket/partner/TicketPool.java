@@ -181,7 +181,7 @@ public class TicketPool implements Serializable, Limited {
     if (ticketPoolDefinition.getAvailableTicketsNumber() == -1) {
       return -1;
     }
-    return ticketPoolDefinition.getAvailableTicketsNumber() - getBoughtTicketsCount();
+    return Math.max(0, ticketPoolDefinition.getAvailableTicketsNumber() - getBoughtTicketsCount());
   }
 
 }

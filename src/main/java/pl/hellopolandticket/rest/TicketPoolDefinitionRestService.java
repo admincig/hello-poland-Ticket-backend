@@ -8,6 +8,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -44,6 +45,13 @@ public class TicketPoolDefinitionRestService {
   @GET
   public Response getTicketPoolDefs() {
     return Response.ok(ticketPoolDefinitionService.getAllForPartner(currentUser)).build();
+  }
+
+  @PUT
+  @Path("/{id}")
+  public Response updateTicketPoolDef(@PathParam("id") Long id, TicketPoolDefinitionDTO dto) {
+    dto.id = id;
+    return Response.ok(ticketPoolDefinitionService.update(dto, currentUser)).build();
   }
 
   @GET

@@ -147,33 +147,36 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
             .orElse(null));
     List<TicketPoolDefinitionDTO> dtos = new ArrayList<>();
     for (var d : tpd) {
-      List<AvailableTicketNumberAssociation> a = atnaService.getUndeletedForTicketPoolDefinition(d);
+      List<AvailableTicketNumberAssociation> atnas = atnaService.getForTicketPoolDefinition(d);
       var tpdDto = ModelObjectsToDTOConverter.ofTicketPoolDefinition(d);
-      tpdDto.ticketDefinitions.forEach(td -> {
-        for (var i : a) {
-          if (i.getTicketDefinition().getId() == td.id) {
-            if (i.getTicketPoolDefinition().getAvailableTicketsNumber() < 0) {
-              td.availableTicketsNumber = i.getAvailableTicketsNumber();
-            } else {
+      for (var iter = tpdDto.ticketDefinitions.iterator(); iter.hasNext();) {
+        TicketDefinitionDTO td = iter.next();
+        for (var atna : atnas) {
+          if (atna.getTicketDefinition().getId() == td.id) {
+            if (atna.isDeleted()) {
+              iter.remove();
+            } else if (atna.getTicketPoolDefinition().getAvailableTicketsNumber() == -1) {
               td.availableTicketsNumber = -1;
+            } else {
+              td.availableTicketsNumber = atna.getAvailableTicketsNumber();
             }
             break;
           }
         }
-      });
+      }
       dtos.add(tpdDto);
     }
     return dtos;
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public TicketPoolDefinition get(Long id) {
-    return ticketPoolDefinitionDao.findById(id);
-  }
+  public List<TicketPoolDefinitionDTO> update(TicketPoolDefinitionDTO dto,
+      CurrentUser currentUser) {
+    TicketPoolDefinition tpd = ticketPoolDefinitionDao.findByIdForPartner(dto.id,
+        ofNullable(currentUser.getPrincipal())
+            .map(principal -> partnerDao.findByUserEmail(principal)).map(Partner::getId)
+            .orElse(null));
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public TicketPoolDefinition update(Long id, TicketPoolDefinitionDTO dto) {
-    TicketPoolDefinition tpd = ticketPoolDefinitionDao.findById(id);
     tpd.setName(dto.name);
     int oldAvailableTicketsNumber = tpd.getAvailableTicketsNumber();
     tpd.setAvailableTicketsNumber(dto.availableTicketsNumber);
@@ -181,7 +184,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     List<TicketPool> pools =
         ticketPoolService.updatePoolsAvailableTicketsNumber(tpd, oldAvailableTicketsNumber);
     quantityService.informPartnerAboutPoolsRunningOut(pools.stream());
-    return tpd;
+    return getAllForPartner(currentUser);
   }
 
   private void updateAtnas(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {
@@ -215,7 +218,9 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
     var toInform = Stream.concat(
         diffs.toRemove.stream(),
-        diffs.toModify.stream().map(Entry::getKey));
+        diffs.toModify.stream().map(Entry::getKey))
+        .flatMap(atna -> atna.getChildren().stream())
+        .distinct();
 
     quantityService.informPartnerAboutAtnasRunningOut(toInform);
   }

@@ -31,7 +31,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
     columnNames = {"TICKET_DEFINITION_ID", "TICKET_POOL_DEFINITION_ID", "TICKET_POOL_ID"}))
 @NoArgsConstructor
 @EqualsAndHashCode
-@ToString()
+@ToString(exclude = {"parent", "children"})
 public class AvailableTicketNumberAssociation implements Serializable, Limited {
   private static final long serialVersionUID = -399400359685830420L;
 
@@ -91,6 +91,7 @@ public class AvailableTicketNumberAssociation implements Serializable, Limited {
         .count();
   }
 
+  @Override
   public int getTicketsLeftToBuyCount() {
     if (parent == null) {
       return availableTicketsNumber;

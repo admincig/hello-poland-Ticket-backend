@@ -47,11 +47,11 @@ public class TicketsRunningOutEmailConstructor {
   private void setAtnaTitle(AvailableTicketNumberAssociation atna) {
     String sightEventName =
         atna.getTicketPool().getTicketPoolDefinition().getSightEvent().getName();
-    if (atna.getTicketPool().getTicketsLeftToBuyCount() > 0) {
-      this.title = "Wyczerpują się bilety " + atna.getTicketDefinition().getName() + "\" "
+    if (atna.getTicketsLeftToBuyCount() > 0) {
+      this.title = "Wyczerpują się bilety \"" + atna.getTicketDefinition().getName() + "\" - \""
           + sightEventName + "\"";
     } else {
-      this.title = "Bilety na ofertę " + sightEventName + " zostały wyprzedane.";
+      this.title = "Bilety na ofertę \"" + sightEventName + "\" zostały wyprzedane.";
     }
   }
 
