@@ -147,7 +147,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
             .orElse(null));
     List<TicketPoolDefinitionDTO> dtos = new ArrayList<>();
     for (var d : tpd) {
-      List<AvailableTicketNumberAssociation> atnas = atnaService.getForTicketPoolDefinition(d);
+      List<AvailableTicketNumberAssociation> atnas =
+          atnaService.getForTicketPoolDefinition(d);
       var tpdDto = ModelObjectsToDTOConverter.ofTicketPoolDefinition(d);
       for (var iter = tpdDto.ticketDefinitions.iterator(); iter.hasNext();) {
         TicketDefinitionDTO td = iter.next();
@@ -189,32 +190,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
   private void updateAtnas(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {
     var diffs = new TicketPoolDefinitionAtnasComparer(tpd).getDifferences(dto);
-
-    for (AvailableTicketNumberAssociation newAtna : diffs.toAdd) {
-      atnaService.add(newAtna);
-    }
-
-    for (AvailableTicketNumberAssociation remove : diffs.toRemove) {
-      remove.getChildren().forEach(child -> {
-        child.setAvailableTicketsNumber(0);
-        child.setDeleted(true);
-      });
-      remove.setAvailableTicketsNumber(0);
-      remove.setDeleted(true);
-    }
-
-    for (Entry<AvailableTicketNumberAssociation, Integer> modify : diffs.toModify) {
-      int oldAvailableTicketsNumber = modify.getKey().getAvailableTicketsNumber();
-      for (AvailableTicketNumberAssociation child : modify.getKey().getChildren()) {
-        if (modify.getValue() == -1) {
-          child.setAvailableTicketsNumber(-1);
-        } else {
-          int booked = oldAvailableTicketsNumber - child.getAvailableTicketsNumber();
-          child.setAvailableTicketsNumber(Math.max(0, modify.getValue() - booked));
-        }
-      }
-      modify.getKey().setAvailableTicketsNumber(modify.getValue());
-    }
+    new TicketPoolDefinitionAtnasDiffApplier(atnaService).apply(diffs);
 
     var toInform = Stream.concat(
         diffs.toRemove.stream(),
