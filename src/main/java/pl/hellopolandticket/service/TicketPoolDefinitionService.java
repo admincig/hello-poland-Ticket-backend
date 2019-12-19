@@ -145,6 +145,11 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         ticketPoolDefinitionDao.findAllByPartner(ofNullable(currentUser.getPrincipal())
             .map(principal -> partnerDao.findByUserEmail(principal)).map(Partner::getId)
             .orElse(null));
+    List<TicketPoolDefinitionDTO> dtos = fillAtnasAndMapToDto(tpd);
+    return dtos;
+  }
+
+  private List<TicketPoolDefinitionDTO> fillAtnasAndMapToDto(List<TicketPoolDefinition> tpd) {
     List<TicketPoolDefinitionDTO> dtos = new ArrayList<>();
     for (var d : tpd) {
       List<AvailableTicketNumberAssociation> atnas =
@@ -203,8 +208,9 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPoolDefinitionDTO getForPartner(Long id, CurrentUser currentUser) {
-    return ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinitionDao
-        .findByIdForPartner(id, partnerDao.findByUserEmail(currentUser.getPrincipal()).getId()));
+    TicketPoolDefinition tpd = ticketPoolDefinitionDao
+        .findByIdForPartner(id, partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
+    return fillAtnasAndMapToDto(List.of(tpd)).get(0);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
