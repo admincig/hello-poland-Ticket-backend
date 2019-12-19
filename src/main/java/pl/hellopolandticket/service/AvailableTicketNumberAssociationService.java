@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import pl.hellopoland.dto.AvailableTicketNumberAssociationDTO;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopolandticket.dao.AvailableTicketNumberAssociationDao;
+import pl.hellopolandticket.dao.TicketDefinitionDao;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
@@ -38,7 +39,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   private SightEventService seService;
 
   @Inject
-  private TicketDefinitionService tdService;
+  private TicketDefinitionDao tdDao;
 
   @Inject
   private TicketPoolService tpService;
@@ -49,7 +50,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     if (ticketDefinitionDtos != null && !ticketDefinitionDtos.isEmpty()) {
       for (var tdDto : ticketDefinitionDtos) {
         var bo = AvailableTicketNumberAssociation.builder()
-            .ticketDefinition(tdService.get(tdDto.id)).ticketPoolDefinition(ticketPoolDefinition)
+            .ticketDefinition(tdDao.findById(tdDto.id)).ticketPoolDefinition(ticketPoolDefinition)
             .availableTicketsNumber(
                 (tdDto.availableTicketsNumber != null && tdDto.availableTicketsNumber > -1)
                     ? tdDto.availableTicketsNumber

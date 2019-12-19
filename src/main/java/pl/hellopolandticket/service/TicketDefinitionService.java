@@ -54,12 +54,7 @@ public class TicketDefinitionService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public TicketDefinition get(Long id) {
-    return ticketDefinitionDao.findById(id);
-  }
-
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public TicketDefinition update(TicketDefinitionDTO dto, CurrentUser currentUser) {
+  public List<TicketDefinitionDTO> update(TicketDefinitionDTO dto, CurrentUser currentUser) {
     Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
     if (dto.price < 0) {
       logger.log(Level.ERROR, "Ticket definition [id=" + dto.id
@@ -72,7 +67,7 @@ public class TicketDefinitionService extends ServiceSuperclass {
     }
     td.setName(dto.name);
     td.setPrice(dto.price);
-    return td;
+    return getList(currentUser);
   }
 
 }

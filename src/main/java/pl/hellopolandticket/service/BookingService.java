@@ -30,6 +30,7 @@ import pl.hellopoland.dto.booking.TicketOrderDTO;
 import pl.hellopolandticket.dao.AvailableTicketNumberAssociationDao;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.dao.TicketDao;
+import pl.hellopolandticket.dao.TicketDefinitionDao;
 import pl.hellopolandticket.dao.TicketPoolDefinitionDao;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
@@ -59,7 +60,7 @@ public class BookingService extends ServiceSuperclass {
   @Inject
   private TicketDao ticketDao;
   @Inject
-  private TicketDefinitionService ticketDefinitionService;
+  private TicketDefinitionDao ticketDefinitionDao;
   @Inject
   private TicketPoolService ticketPoolService;
   @Inject
@@ -157,7 +158,7 @@ public class BookingService extends ServiceSuperclass {
   private List<Ticket> book(Collection<TicketOrderDTO> dtos, Booking booking) {
     List<Ticket> bookedTickets = new ArrayList<>();
     for (TicketOrderDTO dto : dtos) {
-      TicketDefinition ticketDefinition = ticketDefinitionService.get(dto.ticketDefinitionId);
+      TicketDefinition ticketDefinition = ticketDefinitionDao.findById(dto.ticketDefinitionId);
       if (!ticketDefinition.isConnectedWithPoolDefiniton(dto.ticketPoolDefinitionId)) {
         logger.log(Logger.Level.ERROR,
             "ResourceNotFoundException: Ticket definition id=[" + ticketDefinition.getId()
