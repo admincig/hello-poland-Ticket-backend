@@ -9,6 +9,7 @@ import javax.ejb.LockType;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 
 @Singleton
@@ -26,8 +27,13 @@ public class PoolEntryDateRepairer extends ServiceSuperclass {
 
   @PostConstruct
   public void init() {
-    maxId = em.createQuery("select id from TicketPoolDefinition order by id desc", Long.class)
-        .setMaxResults(1).getSingleResult();
+    try {
+      maxId = em.createQuery("select id from TicketPoolDefinition order by id desc", Long.class)
+          .setMaxResults(1).getSingleResult();
+    } catch (NoResultException e) {
+      maxId = 0l;
+      logger.log(Level.WARNING, "No TPDs in database");
+    }
   }
 
   @Schedule(hour = "*", minute = "*/5", second = "0", year = "*", dayOfMonth = "*", dayOfWeek = "*",
