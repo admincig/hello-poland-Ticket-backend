@@ -3,6 +3,7 @@ package pl.hellopolandticket.model.ticket.partner;
 import static javax.persistence.CascadeType.ALL;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -68,7 +69,8 @@ public class TicketDefinition implements Serializable {
 
   public boolean isConnectedWithPoolDefiniton(Long poolDefinitionId) {
     return atnas.stream()
-        .anyMatch(atna -> atna.getTicketPoolDefinition().getId().equals(poolDefinitionId));
+        .anyMatch(atna -> atna.getTicketPoolDefinition() != null
+            && Objects.equals(poolDefinitionId, atna.getTicketPoolDefinition().getId()));
   }
 
   public AvailableTicketNumberAssociation getAtna(TicketPool ticketPool) {
