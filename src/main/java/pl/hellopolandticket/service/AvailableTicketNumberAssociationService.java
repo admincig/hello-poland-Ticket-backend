@@ -46,15 +46,16 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public void add(TicketPoolDefinition ticketPoolDefinition,
-      List<TicketDefinitionDTO> ticketDefinitionDtos) {
-    if (ticketDefinitionDtos != null && !ticketDefinitionDtos.isEmpty()) {
-      for (var tdDto : ticketDefinitionDtos) {
+      List<TicketDefinitionDTO> tds) {
+    if (tds != null && !tds.isEmpty()) {
+      for (var td : tds) {
         var bo = AvailableTicketNumberAssociation.builder()
-            .ticketDefinition(tdDao.findById(tdDto.id)).ticketPoolDefinition(ticketPoolDefinition)
+            .ticketDefinition(tdDao.findById(td.id))
+            .ticketPoolDefinition(ticketPoolDefinition)
             .availableTicketsNumber(
-                (tdDto.availableTicketsNumber != null && tdDto.availableTicketsNumber > -1)
-                    ? tdDto.availableTicketsNumber
-                    : ticketPoolDefinition.getAvailableTicketsNumber())
+                td.availableTicketsNumber == null
+                    ? ticketPoolDefinition.getAvailableTicketsNumber()
+                    : td.availableTicketsNumber)
             .build();
         dao.persist(bo);
       }
