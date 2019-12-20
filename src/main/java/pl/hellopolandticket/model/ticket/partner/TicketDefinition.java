@@ -4,6 +4,7 @@ import static javax.persistence.CascadeType.ALL;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -71,6 +72,12 @@ public class TicketDefinition implements Serializable {
     return atnas.stream()
         .anyMatch(atna -> atna.getTicketPoolDefinition() != null
             && Objects.equals(poolDefinitionId, atna.getTicketPoolDefinition().getId()));
+  }
+
+  public List<AvailableTicketNumberAssociation> getAtnasConnectedToPoolDefinitions() {
+    return this.atnas.stream()
+        .filter(atna -> atna.getTicketPoolDefinition() != null)
+        .collect(Collectors.toList());
   }
 
   public AvailableTicketNumberAssociation getAtna(TicketPool ticketPool) {

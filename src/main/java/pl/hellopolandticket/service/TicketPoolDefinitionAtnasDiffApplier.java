@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import java.util.Map.Entry;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
+import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.util.TicketPoolDefinitionAtnasComparerResult;
 
 public class TicketPoolDefinitionAtnasDiffApplier {
@@ -24,6 +25,9 @@ public class TicketPoolDefinitionAtnasDiffApplier {
       });
       remove.setAvailableTicketsNumber(0);
       remove.setDeleted(true);
+      if (remove.getTicketPoolDefinition().getAtnas().stream().allMatch(atna -> atna.isDeleted())) {
+        throw new ConflictingException("Pula musi mieć dowiązanie przynajmniej do jednego biletu");
+      }
     }
 
     for (Entry<AvailableTicketNumberAssociation, Integer> modify : diffs.toModify) {

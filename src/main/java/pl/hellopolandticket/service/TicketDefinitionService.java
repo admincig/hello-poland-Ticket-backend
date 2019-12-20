@@ -17,6 +17,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.exception.badrequest.BadRequestException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
+import pl.hellopolandticket.service.util.TicketPoolDefinitionAtnasComparerResult;
 
 @Stateless
 @LocalBean
@@ -27,6 +28,9 @@ public class TicketDefinitionService extends ServiceSuperclass {
 
   @Inject
   private PartnerDao partnerDao;
+
+  @Inject
+  private AvailableTicketNumberAssociationService atnaService;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketDefinitionDTO add(TicketDefinitionDTO ticketDefinitionDTO, CurrentUser currentUser) {
@@ -51,6 +55,18 @@ public class TicketDefinitionService extends ServiceSuperclass {
         ticketDefinitionDao.getList(partnerDao.findByUserEmail(currentUser.getPrincipal()));
     return bos.stream().map(ModelObjectsToDTOConverter::ofTicketDefinition)
         .collect(Collectors.toList());
+  }
+
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public void delete(Long id, CurrentUser currentUser) {
+    TicketDefinition td = ticketDefinitionDao.findById(id);
+    Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
+    if (!td.getPartner().getId().equals(partner.getId())) {
+      throw new ForbiddenException();
+    }
+    TicketPoolDefinitionAtnasComparerResult diffs = new TicketPoolDefinitionAtnasComparerResult();
+    diffs.toRemove.addAll(td.getAtnasConnectedToPoolDefinitions());
+    new TicketPoolDefinitionAtnasDiffApplier(atnaService).apply(diffs);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})

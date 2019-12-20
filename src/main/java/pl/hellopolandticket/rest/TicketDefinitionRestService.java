@@ -3,6 +3,7 @@ package pl.hellopolandticket.rest;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -39,6 +40,13 @@ public class TicketDefinitionRestService {
   public Response update(@PathParam("id") Long id, TicketDefinitionDTO ticketDefinitionDTO) {
     ticketDefinitionDTO.id = id;
     return Response.ok(ticketDefinitionService.update(ticketDefinitionDTO, currentUser)).build();
+  }
+
+  @DELETE
+  @Path("/{id}")
+  public Response delete(@PathParam("id") Long id) {
+    ticketDefinitionService.delete(id, currentUser);
+    return Response.ok().build();
   }
 
   @GET
