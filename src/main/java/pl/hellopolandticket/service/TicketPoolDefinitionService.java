@@ -93,15 +93,16 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
     atnaService.add(ticketPoolDefinition, tdDTOs);
     em.refresh(ticketPoolDefinition);
-    tpdDTO = ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
-    var tds = tpdDTO.ticketDefinitions;
-    if (tds != null && !tds.isEmpty()) {
-      tds.forEach(td -> td.poolId = ticketPoolDefinition.getId());
-    }
-    tpdDTO.id = ticketPoolDefinition.getId();
+    // tpdDTO = ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
+    // var tds = tpdDTO.ticketDefinitions;
+    // if (tds != null && !tds.isEmpty()) {
+    // tds.forEach(td -> td.poolId = ticketPoolDefinition.getId());
+    // }
+    // tpdDTO.id = ticketPoolDefinition.getId();
     if (!ticketPoolDefinition.getIsCyclic()) {
       ticketPoolService.createNew(ticketPoolDefinition, ticketPoolDefinition.getStartDate());
     }
+    tpdDTO = getForPartner(ticketPoolDefinition.getId(), currentUser);
     return tpdDTO;
   }
 
@@ -161,11 +162,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
           if (atna.getTicketDefinition().getId() == td.id) {
             if (atna.isDeleted()) {
               iter.remove();
-            } else if (atna.getTicketPoolDefinition().getAvailableTicketsNumber() == -1) {
-              td.availableTicketsNumber = -1;
-            } else {
-              td.availableTicketsNumber = atna.getAvailableTicketsNumber();
             }
+            td.availableTicketsNumber = atna.getAvailableTicketsNumber();
             break;
           }
         }
