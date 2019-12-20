@@ -93,16 +93,15 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     ticketPoolDefinitionDao.persist(ticketPoolDefinition);
     atnaService.add(ticketPoolDefinition, tdDTOs);
     em.refresh(ticketPoolDefinition);
-    // tpdDTO = ModelObjectsToDTOConverter.ofTicketPoolDefinition(ticketPoolDefinition);
-    // var tds = tpdDTO.ticketDefinitions;
-    // if (tds != null && !tds.isEmpty()) {
-    // tds.forEach(td -> td.poolId = ticketPoolDefinition.getId());
-    // }
-    // tpdDTO.id = ticketPoolDefinition.getId();
     if (!ticketPoolDefinition.getIsCyclic()) {
       ticketPoolService.createNew(ticketPoolDefinition, ticketPoolDefinition.getStartDate());
     }
     tpdDTO = getForPartner(ticketPoolDefinition.getId(), currentUser);
+    var tds = tpdDTO.ticketDefinitions;
+    if (tds != null && !tds.isEmpty()) {
+      tds.forEach(td -> td.poolId = ticketPoolDefinition.getId());
+    }
+    tpdDTO.id = ticketPoolDefinition.getId();
     return tpdDTO;
   }
 
