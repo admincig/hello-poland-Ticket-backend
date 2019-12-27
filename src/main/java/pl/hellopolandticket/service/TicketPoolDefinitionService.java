@@ -163,6 +163,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
               iter.remove();
             }
             td.availableTicketsNumber = atna.getAvailableTicketsNumber();
+            td.poolId = d.getId();
             break;
           }
         }
