@@ -86,4 +86,14 @@ public class TicketDefinitionService extends ServiceSuperclass {
     return getList(currentUser);
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public TicketDefinitionDTO get(Long id, CurrentUser currentUser) {
+    TicketDefinition td = ticketDefinitionDao.findById(id);
+    Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
+    if (!td.getPartner().getId().equals(partner.getId())) {
+      throw new ForbiddenException();
+    }
+    return ModelObjectsToDTOConverter.ofTicketDefinition(td);
+  }
+
 }

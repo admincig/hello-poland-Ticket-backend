@@ -54,4 +54,10 @@ public class TicketDefinitionRestService {
     return Response.ok(ticketDefinitionService.getList(currentUser)).build();
   }
 
+  @GET
+  @Path("/{id}")
+  public Response get(@PathParam("id") Long id) {
+    return Response.ok(ticketDefinitionService.get(id, currentUser)).build();
+  }
+
 }
