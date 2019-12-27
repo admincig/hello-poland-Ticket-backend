@@ -173,12 +173,13 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public List<TicketPoolDefinitionDTO> update(TicketPoolDefinitionDTO dto,
+  public void update(TicketPoolDefinitionDTO dto,
       CurrentUser currentUser) {
-    TicketPoolDefinition tpd = ticketPoolDefinitionDao.findByIdForPartner(dto.id,
-        ofNullable(currentUser.getPrincipal())
-            .map(principal -> partnerDao.findByUserEmail(principal)).map(Partner::getId)
-            .orElse(null));
+    Long partnerId = ofNullable(currentUser.getPrincipal())
+        .map(partnerDao::findByUserEmail)
+        .map(Partner::getId)
+        .orElse(null);
+    TicketPoolDefinition tpd = ticketPoolDefinitionDao.findByIdForPartner(dto.id, partnerId);
 
     tpd.setName(dto.name);
     int oldAvailableTicketsNumber = tpd.getAvailableTicketsNumber();
@@ -187,7 +188,6 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     List<TicketPool> pools =
         ticketPoolService.updatePoolsAvailableTicketsNumber(tpd, oldAvailableTicketsNumber);
     quantityService.informPartnerAboutPoolsRunningOut(pools.stream());
-    return getAllForPartner(currentUser);
   }
 
   private void updateAtnas(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {

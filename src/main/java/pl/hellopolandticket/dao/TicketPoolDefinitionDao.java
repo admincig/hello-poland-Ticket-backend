@@ -21,9 +21,6 @@ public class TicketPoolDefinitionDao {
   @Inject
   private ExceptionFactory exceptionFactory;
 
-  @Inject
-  private TicketPoolDao ticketPoolDao;
-
   public TicketPoolDefinition persist(TicketPoolDefinition ticketPoolDefinition) {
     entityManager.persist(ticketPoolDefinition);
     entityManager.flush();
