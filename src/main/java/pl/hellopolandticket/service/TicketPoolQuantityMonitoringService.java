@@ -53,7 +53,7 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
 
   private boolean shouldInform(Limited limited) {
     int left = limited.getTicketsLeftToBuyCount();
-    return left <= 3;
+    return left >= 0 && left <= 3;
   }
 
   private void constructAndSendEmail(TicketPool ticketPool) {
