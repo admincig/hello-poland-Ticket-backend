@@ -18,7 +18,7 @@ public class TicketPoolDefinitionAtnasComparer {
 
   public TicketPoolDefinitionAtnasComparerResult getDifferences(TicketPoolDefinitionDTO dto) {
     TicketPoolDefinitionAtnasComparerResult result = new TicketPoolDefinitionAtnasComparerResult();
-
+    // TODO
     List<AvailableTicketNumberAssociation> atnas = tpd.getUndeletedAtnas();
     outer: for (var atna : atnas) {
       Long ticketDefinitionId = atna.getTicketDefinition().getId();
