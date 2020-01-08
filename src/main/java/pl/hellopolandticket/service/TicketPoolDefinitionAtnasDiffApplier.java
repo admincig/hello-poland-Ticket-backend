@@ -50,31 +50,39 @@ public class TicketPoolDefinitionAtnasDiffApplier {
 
   public void applyDiscountUpdate(TicketPoolDefinitionAtnasDiscountComparerResult diffs) {
     for (Entry<AvailableTicketNumberAssociation, TicketDefinitionDTO> newDiscount : diffs.toAdd) {
-      // nowe wartosci discount
-      var dto = newDiscount.getValue();
-      Discount d = new Discount();
-      d.setValue(dto.value.intValue());
-      d.setHplOwner(dto.isHplOwner);
-      d.setHplPart(dto.hplPart.intValue());
-      d.setPartnerPart(dto.partnerPart.intValue());
-
-      // inaczej i ładniej
-      if (dto.type.name().equalsIgnoreCase(Discount.Type.FLAT.toString())) {
-        d.setType(Discount.Type.FLAT);
-      } else if (dto.type.name().equalsIgnoreCase(Discount.Type.PERCENT.toString())) {
-        d.setType(Discount.Type.PERCENT);
-      }
-
-      // ustawiam nowy discount na atnie
-      newDiscount.getKey().setDiscount(d);
+      updateDiscount(newDiscount.getKey(), newDiscount.getValue());
     }
 
     for (Entry<AvailableTicketNumberAssociation, TicketDefinitionDTO> remove : diffs.toRemove) {
-
+      remove.getKey().setDiscount(null); // zadziała?
     }
 
     for (Entry<AvailableTicketNumberAssociation, TicketDefinitionDTO> modify : diffs.toModify) {
 
     }
   }
+
+  private void updateDiscount(AvailableTicketNumberAssociation atna, TicketDefinitionDTO dto) {
+    Discount d = new Discount();
+
+    d.setHplOwner(dto.discountIsHplOwner.booleanValue());
+
+    if (atna.getDiscount().isHplOwner()) {
+
+      d.setHplPart(dto.discountHplPart.intValue());
+      d.setPartnerPart(dto.discountPartnerPart.intValue());
+
+      // wyliczenia dla
+      // value, discountType
+    } else {
+      d.setHplPart(0);
+      d.setPartnerPart(dto.discountPartnerPart.intValue());
+      // wyliczenia dla
+      // value, discountType
+
+    }
+
+    atna.setDiscount(d);
+  }
+
 }

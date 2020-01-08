@@ -191,7 +191,6 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     quantityService.informPartnerAboutPoolsRunningOut(pools.stream());
   }
 
-  // TODO
   private void updateAtnas(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {
     updateAtnasTicketNumber(tpd, dto);
     updateAtnasDiscount(tpd, dto);

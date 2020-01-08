@@ -59,25 +59,24 @@ public class TicketPoolDefinitionAtnasComparer {
         Long ticketDefinitionId = atna.getTicketDefinition().getId();
         Integer ticketNumber = atna.getAvailableTicketsNumber();
         if (td.id.equals(ticketDefinitionId)
-            && ticketNumber != null
-            && td.value != null) {
+            && validateDiscount(td)) {
           // dodanie-> bilety jeszcze nie wykupione i dto posiada zniżkę a atna nie ma zniżki
-          if (ticketNumber > 0
+          if (ticketNumber != null && ticketNumber > 0
               && (atna.getDiscount() == null
                   || (atna.getDiscount() != null && atna.getDiscount().getValue() == 0))) {
             result.toAdd.add(Map.entry(atna, td));
             continue outer;
           }
           // edycja-> bilety nie wykupione i dto posiada zniżkę inna niż atna
-          else if (ticketNumber > 0
-              && td.value.intValue() != atna.getDiscount().getValue()) {
+          else if (ticketNumber != null && ticketNumber > 0
+              && td.discountValue.intValue() != atna.getDiscount().getValue()) {
             result.toModify.add(Map.entry(atna, td));
             continue outer;
           }
           // usuwanie(zakładam) -> wjb czy są już wykupione, dto.discount != null i równe zero. i
           // inne niz aktualnie
-          else if (td.value.intValue() == 0
-              && td.value != atna.getDiscount().getValue()) {
+          else if (td.discountValue.intValue() == 0
+              && td.discountValue != atna.getDiscount().getValue()) {
             result.toRemove.add(Map.entry(atna, td));
             continue outer;
           }
@@ -87,5 +86,12 @@ public class TicketPoolDefinitionAtnasComparer {
     }
 
     return result;
+  }
+
+  private boolean validateDiscount(TicketDefinitionDTO td) {
+    return td.discountValue != null
+        && td.commission != null
+        // musimy mieć info kto edytuje
+        && td.discountIsHplOwner != null;
   }
 }
