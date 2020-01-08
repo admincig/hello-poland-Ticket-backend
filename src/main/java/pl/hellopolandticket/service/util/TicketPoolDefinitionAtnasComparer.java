@@ -63,7 +63,8 @@ public class TicketPoolDefinitionAtnasComparer {
             && td.value != null) {
           // dodanie-> bilety jeszcze nie wykupione i dto posiada zniżkę a atna nie ma zniżki
           if (ticketNumber > 0
-              && atna.getDiscount().getValue() == 0) {
+              && (atna.getDiscount() == null
+                  || (atna.getDiscount() != null && atna.getDiscount().getValue() == 0))) {
             result.toAdd.add(Map.entry(atna, td));
             continue outer;
           }

@@ -199,7 +199,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
   private void updateAtnasDiscount(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {
     var diffs = new TicketPoolDefinitionAtnasComparer(tpd).getDiscountDifferences(dto);
-
+    new TicketPoolDefinitionAtnasDiffApplier(atnaService).applyDiscountUpdate(diffs);
   }
 
   private void updateAtnasTicketNumber(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {
