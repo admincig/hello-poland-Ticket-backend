@@ -193,7 +193,17 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
   // TODO
   private void updateAtnas(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {
-    var diffs = new TicketPoolDefinitionAtnasComparer(tpd).getDifferences(dto);
+    updateAtnasTicketNumber(tpd, dto);
+    updateAtnasDiscount(tpd, dto);
+  }
+
+  private void updateAtnasDiscount(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {
+    var diffs = new TicketPoolDefinitionAtnasComparer(tpd).getDiscountDifferences(dto);
+
+  }
+
+  private void updateAtnasTicketNumber(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {
+    var diffs = new TicketPoolDefinitionAtnasComparer(tpd).getTicketNumberDifferences(dto);
     new TicketPoolDefinitionAtnasDiffApplier(atnaService).apply(diffs);
 
     var toInform = Stream.concat(
@@ -204,6 +214,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
     quantityService.informPartnerAboutAtnasRunningOut(toInform);
   }
+
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPoolDefinitionDTO getForPartner(Long id, CurrentUser currentUser) {

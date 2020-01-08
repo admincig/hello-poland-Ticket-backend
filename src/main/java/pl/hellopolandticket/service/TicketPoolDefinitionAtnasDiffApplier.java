@@ -30,7 +30,6 @@ public class TicketPoolDefinitionAtnasDiffApplier {
       }
     }
 
-    // TODO
     for (Entry<AvailableTicketNumberAssociation, Integer> modify : diffs.toModify) {
       int oldAvailableTicketsNumber = modify.getKey().getAvailableTicketsNumber();
       for (AvailableTicketNumberAssociation child : modify.getKey().getChildren()) {
