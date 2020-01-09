@@ -192,17 +192,20 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   }
 
   private void updateAtnas(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {
-    updateAtnasTicketNumber(tpd, dto);
-    updateAtnasDiscount(tpd, dto);
+    TicketPoolDefinitionAtnasComparer comparer = new TicketPoolDefinitionAtnasComparer(tpd);
+    updateAtnasTicketNumber(comparer, dto);
+    updateAtnasDiscount(comparer, dto);
   }
 
-  private void updateAtnasDiscount(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {
-    var diffs = new TicketPoolDefinitionAtnasComparer(tpd).getDiscountDifferences(dto);
+  private void updateAtnasDiscount(TicketPoolDefinitionAtnasComparer comparer,
+      TicketPoolDefinitionDTO dto) {
+    var diffs = comparer.getDiscountDifferences(dto);
     new TicketPoolDefinitionAtnasDiffApplier(atnaService).applyDiscountUpdate(diffs);
   }
 
-  private void updateAtnasTicketNumber(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {
-    var diffs = new TicketPoolDefinitionAtnasComparer(tpd).getTicketNumberDifferences(dto);
+  private void updateAtnasTicketNumber(TicketPoolDefinitionAtnasComparer comparer,
+      TicketPoolDefinitionDTO dto) {
+    var diffs = comparer.getTicketNumberDifferences(dto);
     new TicketPoolDefinitionAtnasDiffApplier(atnaService).apply(diffs);
 
     var toInform = Stream.concat(
