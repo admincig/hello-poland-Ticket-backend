@@ -7,6 +7,7 @@ import pl.hellopoland.dto.TicketPoolDefinitionDTO;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
+import pl.hellopolandticket.model.util.Discount;
 
 public class TicketPoolDefinitionAtnasComparer {
 
@@ -47,7 +48,6 @@ public class TicketPoolDefinitionAtnasComparer {
     return result;
   }
 
-  // TODO
   public TicketPoolDefinitionAtnasDiscountComparerResult getDiscountDifferences(
       TicketPoolDefinitionDTO dto) {
     TicketPoolDefinitionAtnasDiscountComparerResult result =
@@ -57,30 +57,21 @@ public class TicketPoolDefinitionAtnasComparer {
     outer: for (var atna : atnas) {
       for (TicketDefinitionDTO td : dto.ticketDefinitions) {
         Long ticketDefinitionId = atna.getTicketDefinition().getId();
-        Integer ticketNumber = atna.getAvailableTicketsNumber();
+        Integer ticketQuantity = atna.getAvailableTicketsNumber();
+
         if (td.id.equals(ticketDefinitionId)
-            && validateDiscount(td)) {
-          // dodanie-> bilety jeszcze nie wykupione i dto posiada zniżkę a atna nie ma zniżki
-          if (ticketNumber != null && ticketNumber > 0
-              && (atna.getDiscount() == null
-                  || (atna.getDiscount() != null && atna.getDiscount().getValue() == 0))) {
+            && validateDiscountCreation(td)) {
+
+          if (validateDiscountAddition(ticketQuantity, atna.getDiscount(), td)) {
             result.toAdd.add(Map.entry(atna, td));
             continue outer;
-          }
-          // edycja-> bilety nie wykupione i dto posiada zniżkę inna niż atna
-          else if (ticketNumber != null && ticketNumber > 0
-              && td.discountValue.intValue() != atna.getDiscount().getValue()) {
+          } else if (validateDiscountModification(ticketQuantity, atna.getDiscount(), td)) {
             result.toModify.add(Map.entry(atna, td));
             continue outer;
-          }
-          // usuwanie(zakładam) -> wjb czy są już wykupione, dto.discount != null i równe zero. i
-          // inne niz aktualnie
-          else if (td.discountValue.intValue() == 0
-              && td.discountValue != atna.getDiscount().getValue()) {
+          } else if (validateDiscountDeletion(atna.getDiscount(), td)) {
             result.toRemove.add(Map.entry(atna, td));
             continue outer;
           }
-
         }
       }
     }
@@ -88,10 +79,31 @@ public class TicketPoolDefinitionAtnasComparer {
     return result;
   }
 
-  private boolean validateDiscount(TicketDefinitionDTO td) {
+  private boolean validateDiscountDeletion(Discount current,
+      TicketDefinitionDTO newDiscount) {
+    return newDiscount.discountValue.intValue() == 0
+        && newDiscount.discountValue != current.getValue();
+  }
+
+  private boolean validateDiscountModification(Integer ticketQuantity, Discount current,
+      TicketDefinitionDTO newDiscount) {
+    return ticketQuantity != null
+        && ticketQuantity != 0
+        && newDiscount.discountValue.intValue() != current.getValue();
+  }
+
+  private boolean validateDiscountAddition(Integer ticketQuantity, Discount current,
+      TicketDefinitionDTO newDiscount) {
+    return ticketQuantity != null
+        && ticketQuantity != 0
+        && (current == null
+            ||
+            (current != null && current.getValue() == 0));
+  }
+
+  private boolean validateDiscountCreation(TicketDefinitionDTO td) {
     return td.discountValue != null
         && td.commission != null
-        // musimy mieć info kto edytuje
         && td.discountIsHplOwner != null;
   }
 }
