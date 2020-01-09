@@ -82,6 +82,7 @@ public class TicketDefinition implements Serializable {
 
   public AvailableTicketNumberAssociation getAtna(TicketPool ticketPool) {
     return this.atnas.stream()
+        .filter(atna -> atna.getTicketPool() != null)
         .filter(atna -> atna.getTicketPool().getId().equals(ticketPool.getId()))
         .findFirst()
         .get();
