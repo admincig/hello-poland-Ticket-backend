@@ -62,13 +62,13 @@ public class TicketPoolDefinitionAtnasComparer {
         if (td.id.equals(ticketDefinitionId)
             && validateDiscountCreation(td)) {
 
-          if (validateDiscountAddition(ticketQuantity, atna.getDiscount(), td)) {
+          if (shouldDiscountBeAdded(ticketQuantity, atna.getDiscount(), td)) {
             result.toAdd.add(Map.entry(atna, td));
             continue outer;
-          } else if (validateDiscountModification(ticketQuantity, atna.getDiscount(), td)) {
+          } else if (shouldDiscountBeModified(ticketQuantity, atna.getDiscount(), td)) {
             result.toModify.add(Map.entry(atna, td));
             continue outer;
-          } else if (validateDiscountDeletion(atna.getDiscount(), td)) {
+          } else if (shouldDiscountBeDeleted(atna.getDiscount(), td)) {
             result.toRemove.add(Map.entry(atna, td));
             continue outer;
           }
@@ -79,20 +79,20 @@ public class TicketPoolDefinitionAtnasComparer {
     return result;
   }
 
-  private boolean validateDiscountDeletion(Discount current,
+  private boolean shouldDiscountBeDeleted(Discount current,
       TicketDefinitionDTO newDiscount) {
     return newDiscount.discountValue.intValue() == 0
         && newDiscount.discountValue != current.getValue();
   }
 
-  private boolean validateDiscountModification(Integer ticketQuantity, Discount current,
+  private boolean shouldDiscountBeModified(Integer ticketQuantity, Discount current,
       TicketDefinitionDTO newDiscount) {
     return ticketQuantity != null
         && ticketQuantity != 0
         && newDiscount.discountValue.intValue() != current.getValue();
   }
 
-  private boolean validateDiscountAddition(Integer ticketQuantity, Discount current,
+  private boolean shouldDiscountBeAdded(Integer ticketQuantity, Discount current,
       TicketDefinitionDTO newDiscount) {
     return ticketQuantity != null
         && ticketQuantity != 0
@@ -103,7 +103,10 @@ public class TicketPoolDefinitionAtnasComparer {
 
   private boolean validateDiscountCreation(TicketDefinitionDTO td) {
     return td.discountValue != null
-        && td.commission != null
-        && td.discountIsHplOwner != null;
+        && td.discountIsHplOwner != null
+        && td.discountType != null
+        && td.discountHplPart != null
+        && td.discountPartnerPart != null
+        && td.price != null;
   }
 }
