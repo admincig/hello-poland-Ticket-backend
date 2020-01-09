@@ -18,6 +18,12 @@ public class Discount {
   @Column(name = "discount_value")
   int value;
 
+  @Column(name = "discount_percent")
+  Integer percent;
+
+  @Column(name = "discount_price")
+  int discountPrice;
+
   @Enumerated(EnumType.STRING)
   @Column(name = "discount_type")
   Type type;
