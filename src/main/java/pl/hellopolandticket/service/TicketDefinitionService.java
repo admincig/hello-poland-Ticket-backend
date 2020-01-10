@@ -52,7 +52,8 @@ public class TicketDefinitionService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<TicketDefinitionDTO> getList(CurrentUser currentUser) {
     List<TicketDefinition> bos =
-        ticketDefinitionDao.getList(partnerDao.findByUserEmail(currentUser.getPrincipal()));
+        ticketDefinitionDao
+            .getUndeletedList(partnerDao.findByUserEmail(currentUser.getPrincipal()));
     return bos.stream().map(ModelObjectsToDTOConverter::ofTicketDefinition)
         .collect(Collectors.toList());
   }
@@ -64,6 +65,7 @@ public class TicketDefinitionService extends ServiceSuperclass {
     if (!td.getPartner().getId().equals(partner.getId())) {
       throw new ForbiddenException();
     }
+    td.setDeleted(true);
     TicketPoolDefinitionAtnasComparerResult diffs = new TicketPoolDefinitionAtnasComparerResult();
     diffs.toRemove.addAll(td.getAtnasConnectedToPoolDefinitions());
     new TicketPoolDefinitionAtnasDiffApplier(atnaService).apply(diffs);

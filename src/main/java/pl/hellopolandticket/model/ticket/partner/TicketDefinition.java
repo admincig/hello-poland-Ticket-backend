@@ -60,6 +60,8 @@ public class TicketDefinition implements Serializable {
   @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "ticketDefinition")
   private List<Ticket> tickets;
 
+  private boolean deleted;
+
   @Builder
   public TicketDefinition(String name, Integer price, Partner partner,
       List<TicketPoolDefinition> ticketPoolDefinitions) {

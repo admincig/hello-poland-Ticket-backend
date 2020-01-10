@@ -39,9 +39,11 @@ public class TicketDefinitionDao {
     entityManager.merge(ticketDefinition);
   }
 
-  public List<TicketDefinition> getList(Partner partner) {
+  public List<TicketDefinition> getUndeletedList(Partner partner) {
     return entityManager.createQuery(
-        "from TicketDefinition ticketDefinition where ticketDefinition.partner=:partner order by ticketDefinition.id desc",
+        "from TicketDefinition ticketDefinition where "
+            + "ticketDefinition.deleted=false and "
+            + "ticketDefinition.partner=:partner order by ticketDefinition.id desc",
         TicketDefinition.class).setParameter("partner", partner).getResultList();
   }
 
