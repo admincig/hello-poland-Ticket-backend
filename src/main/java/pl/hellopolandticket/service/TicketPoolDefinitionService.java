@@ -27,9 +27,9 @@ import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.FrequencyType;
+import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
-import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.exception.badrequest.BadRequestException;
 import pl.hellopolandticket.service.exception.conflict.ConflictingException;
@@ -153,32 +153,20 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     List<TicketPoolDefinitionDTO> dtos = new ArrayList<>();
     for (var tpd : tpds) {
       var tpdDto = ModelObjectsToDTOConverter.ofTicketPoolDefinition(tpd);
-
+      tpdDto.ticketDefinitions = new ArrayList<>();
       var atnas = atnaService.getForTicketPoolDefinition(tpd);
-      for (var iter = tpdDto.ticketDefinitions.iterator(); iter.hasNext();) {
-        TicketDefinitionDTO td = iter.next();
-        if (allAtnasDeleted(atnas, td)) {
-          iter.remove();
-        } else {
-          for (var atna : atnas) {
-            if (!atna.isDeleted() && atna.getTicketDefinition().getId() == td.id) {
-              td.availableTicketsNumber = atna.getAvailableTicketsNumber();
-              td.poolId = tpd.getId();
-              break;
-            }
-          }
+      for (var atna : atnas) {
+        if (!atna.isDeleted()) {
+          TicketDefinition td = atna.getTicketDefinition();
+          TicketDefinitionDTO tdDto = ModelObjectsToDTOConverter.ofTicketDefinition(td);
+          tdDto.poolId = tpd.getId();
+          tdDto.availableTicketsNumber = atna.getAvailableTicketsNumber();
+          tpdDto.ticketDefinitions.add(tdDto);
         }
       }
       dtos.add(tpdDto);
     }
     return dtos;
-  }
-
-  private boolean allAtnasDeleted(List<AvailableTicketNumberAssociation> atnas,
-      TicketDefinitionDTO td) {
-    return atnas.stream()
-        .filter(atna -> atna.getTicketDefinition().getId().equals(td.id))
-        .allMatch(AvailableTicketNumberAssociation::isDeleted);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
