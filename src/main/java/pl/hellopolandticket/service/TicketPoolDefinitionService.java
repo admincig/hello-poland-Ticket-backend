@@ -149,28 +149,36 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     return dtos;
   }
 
-  private List<TicketPoolDefinitionDTO> fillAtnasAndMapToDto(List<TicketPoolDefinition> tpd) {
+  private List<TicketPoolDefinitionDTO> fillAtnasAndMapToDto(List<TicketPoolDefinition> tpds) {
     List<TicketPoolDefinitionDTO> dtos = new ArrayList<>();
-    for (var d : tpd) {
-      List<AvailableTicketNumberAssociation> atnas =
-          atnaService.getForTicketPoolDefinition(d);
-      var tpdDto = ModelObjectsToDTOConverter.ofTicketPoolDefinition(d);
+    for (var tpd : tpds) {
+      var tpdDto = ModelObjectsToDTOConverter.ofTicketPoolDefinition(tpd);
+
+      var atnas = atnaService.getForTicketPoolDefinition(tpd);
       for (var iter = tpdDto.ticketDefinitions.iterator(); iter.hasNext();) {
         TicketDefinitionDTO td = iter.next();
-        for (var atna : atnas) {
-          if (atna.getTicketDefinition().getId() == td.id) {
-            if (atna.isDeleted()) {
-              iter.remove();
+        if (allAtnasDeleted(atnas, td)) {
+          iter.remove();
+        } else {
+          for (var atna : atnas) {
+            if (!atna.isDeleted() && atna.getTicketDefinition().getId() == td.id) {
+              td.availableTicketsNumber = atna.getAvailableTicketsNumber();
+              td.poolId = tpd.getId();
+              break;
             }
-            td.availableTicketsNumber = atna.getAvailableTicketsNumber();
-            td.poolId = d.getId();
-            break;
           }
         }
       }
       dtos.add(tpdDto);
     }
     return dtos;
+  }
+
+  private boolean allAtnasDeleted(List<AvailableTicketNumberAssociation> atnas,
+      TicketDefinitionDTO td) {
+    return atnas.stream()
+        .filter(atna -> atna.getTicketDefinition().getId().equals(td.id))
+        .allMatch(AvailableTicketNumberAssociation::isDeleted);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
