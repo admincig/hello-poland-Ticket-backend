@@ -25,7 +25,7 @@ public class TicketPoolDefinitionAtnasDiffApplier {
       });
       remove.setAvailableTicketsNumber(0);
       remove.setDeleted(true);
-      if (remove.getTicketPoolDefinition().getAtnas().stream().allMatch(atna -> atna.isDeleted())) {
+      if (remove.getTicketPoolDefinition().isNotDeletedAndHasNoAtnas()) {
         throw new ConflictingException("Pula musi mieć dowiązanie przynajmniej do jednego biletu");
       }
     }

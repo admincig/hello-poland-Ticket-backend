@@ -135,4 +135,12 @@ public class TicketPoolDefinition implements Serializable {
             : availableTicketsNumber;
   }
 
+  private boolean hasAllAtnasDeleted() {
+    return getAtnas().stream().allMatch(atna -> atna.isDeleted());
+  }
+
+  public boolean isNotDeletedAndHasNoAtnas() {
+    return !isDeleted() && hasAllAtnasDeleted();
+  }
+
 }
