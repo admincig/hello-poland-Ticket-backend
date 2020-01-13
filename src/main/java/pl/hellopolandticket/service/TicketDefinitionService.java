@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service;
 
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.lang.System.Logger.Level;
 import java.util.List;
@@ -12,6 +13,7 @@ import javax.ws.rs.ForbiddenException;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.TicketDefinitionDao;
+import pl.hellopolandticket.model.auth.Role;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.security.CurrentUser;
@@ -49,11 +51,15 @@ public class TicketDefinitionService extends ServiceSuperclass {
     return ticketDefinitionDTO;
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public List<TicketDefinitionDTO> getList(CurrentUser currentUser) {
-    List<TicketDefinition> bos =
-        ticketDefinitionDao
-            .getUndeletedList(partnerDao.findByUserEmail(currentUser.getPrincipal()));
+    List<TicketDefinition> bos = null;
+    if (currentUser.hasRole(Role.ROLE_ADMIN)) {
+      bos = ticketDefinitionDao.getUndeletedList();
+    } else {
+      Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
+      bos = ticketDefinitionDao.getUndeletedList(partner);
+    }
     return bos.stream().map(ModelObjectsToDTOConverter::ofTicketDefinition)
         .collect(Collectors.toList());
   }

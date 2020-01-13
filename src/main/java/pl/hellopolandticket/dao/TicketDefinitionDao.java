@@ -47,4 +47,12 @@ public class TicketDefinitionDao {
         TicketDefinition.class).setParameter("partner", partner).getResultList();
   }
 
+  public List<TicketDefinition> getUndeletedList() {
+    return entityManager.createQuery(
+        "from TicketDefinition ticketDefinition where "
+            + "ticketDefinition.deleted=false and order by ticketDefinition.id desc",
+        TicketDefinition.class)
+        .getResultList();
+  }
+
 }
