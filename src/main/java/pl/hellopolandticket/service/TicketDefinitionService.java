@@ -64,12 +64,14 @@ public class TicketDefinitionService extends ServiceSuperclass {
         .collect(Collectors.toList());
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public void delete(Long id, CurrentUser currentUser) {
     TicketDefinition td = ticketDefinitionDao.findById(id);
-    Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
-    if (!td.getPartner().getId().equals(partner.getId())) {
-      throw new ForbiddenException();
+    if (!currentUser.hasRole(Role.ROLE_ADMIN)) {
+      Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
+      if (!td.getPartner().getId().equals(partner.getId())) {
+        throw new ForbiddenException();
+      }
     }
     td.setDeleted(true);
     TicketPoolDefinitionAtnasComparerResult diffs = new TicketPoolDefinitionAtnasComparerResult();
@@ -77,29 +79,33 @@ public class TicketDefinitionService extends ServiceSuperclass {
     new TicketPoolDefinitionAtnasDiffApplier(atnaService).apply(diffs);
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public List<TicketDefinitionDTO> update(TicketDefinitionDTO dto, CurrentUser currentUser) {
-    Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
     if (dto.price < 0) {
       logger.log(Level.ERROR, "Ticket definition [id=" + dto.id
           + "]. The ticket price must be greater than 0");
       throw new BadRequestException("The ticket price must be greater than 0");
     }
     TicketDefinition td = ticketDefinitionDao.findById(dto.id);
-    if (!td.getPartner().getId().equals(partner.getId())) {
-      throw new ForbiddenException();
+    if (!currentUser.hasRole(Role.ROLE_ADMIN)) {
+      Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
+      if (!td.getPartner().getId().equals(partner.getId())) {
+        throw new ForbiddenException();
+      }
     }
     td.setName(dto.name);
     td.setPrice(dto.price);
     return getList(currentUser);
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public TicketDefinitionDTO get(Long id, CurrentUser currentUser) {
     TicketDefinition td = ticketDefinitionDao.findById(id);
-    Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
-    if (!td.getPartner().getId().equals(partner.getId())) {
-      throw new ForbiddenException();
+    if (!currentUser.hasRole(Role.ROLE_ADMIN)) {
+      Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
+      if (!td.getPartner().getId().equals(partner.getId())) {
+        throw new ForbiddenException();
+      }
     }
     return ModelObjectsToDTOConverter.ofTicketDefinition(td);
   }
