@@ -50,7 +50,7 @@ public class TicketDefinitionDao {
   public List<TicketDefinition> getUndeletedList() {
     return entityManager.createQuery(
         "from TicketDefinition ticketDefinition where "
-            + "ticketDefinition.deleted=false and order by ticketDefinition.id desc",
+            + "ticketDefinition.deleted=false order by ticketDefinition.id desc",
         TicketDefinition.class)
         .getResultList();
   }
