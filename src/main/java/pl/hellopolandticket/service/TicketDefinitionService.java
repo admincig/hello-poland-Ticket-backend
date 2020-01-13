@@ -5,6 +5,7 @@ import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.lang.System.Logger.Level;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -51,11 +52,11 @@ public class TicketDefinitionService extends ServiceSuperclass {
     return ticketDefinitionDTO;
   }
 
-  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
-  public List<TicketDefinitionDTO> getList(CurrentUser currentUser) {
+  @PermitAll
+  public List<TicketDefinitionDTO> getList(List<Long> atnaIds, CurrentUser currentUser) {
     List<TicketDefinition> bos = null;
-    if (currentUser.hasRole(Role.ROLE_ADMIN)) {
-      bos = ticketDefinitionDao.getUndeletedList();
+    if (currentUser == null || currentUser.hasRole(Role.ROLE_ADMIN)) {
+      bos = ticketDefinitionDao.getUndeletedList(atnaIds);
     } else {
       Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
       bos = ticketDefinitionDao.getUndeletedList(partner);
@@ -95,7 +96,7 @@ public class TicketDefinitionService extends ServiceSuperclass {
     }
     td.setName(dto.name);
     td.setPrice(dto.price);
-    return getList(currentUser);
+    return getList(null, currentUser);
   }
 
   @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})

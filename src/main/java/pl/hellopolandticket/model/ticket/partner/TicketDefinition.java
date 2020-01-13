@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -61,6 +62,9 @@ public class TicketDefinition implements Serializable {
   private List<Ticket> tickets;
 
   private boolean deleted;
+
+  @Transient
+  private AvailableTicketNumberAssociation interestingAtna;
 
   @Builder
   public TicketDefinition(String name, Integer price, Partner partner,

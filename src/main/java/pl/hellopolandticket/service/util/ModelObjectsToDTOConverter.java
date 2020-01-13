@@ -41,6 +41,7 @@ import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
+import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
 
 public class ModelObjectsToDTOConverter {
@@ -101,6 +102,13 @@ public class ModelObjectsToDTOConverter {
     ticketDefinitionDTO.id = ticketDefinition.getId();
     ticketDefinitionDTO.name = ticketDefinition.getName();
     ticketDefinitionDTO.price = ticketDefinition.getPrice();
+    AvailableTicketNumberAssociation atna = ticketDefinition.getInterestingAtna();
+    if (atna != null) {
+      ticketDefinitionDTO.atnaId = atna.getId();
+      TicketPoolDefinition tpd = atna.getTicketPoolDefinition();
+      ticketDefinitionDTO.sightEventId = tpd.getSightEvent().getId();
+      ticketDefinitionDTO.poolId = tpd.getId();
+    }
 
     return ticketDefinitionDTO;
   }
