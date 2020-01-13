@@ -74,12 +74,9 @@ public class TicketPoolDefinitionAtnasDiffApplier {
   private void updateDiscount(AvailableTicketNumberAssociation atna, TicketDefinitionDTO dto) {
     Discount d = new Discount();
 
-    // isowner
     boolean isHplOwner = dto.discountIsHplOwner.booleanValue();
     d.setHplOwner(isHplOwner);
 
-    // hplpart
-    // partnerpart
     if (isHplOwner) {
       d.setHplPart(dto.discountHplPart.intValue());
       d.setPartnerPart(dto.discountPartnerPart.intValue());
@@ -88,23 +85,20 @@ public class TicketPoolDefinitionAtnasDiffApplier {
       d.setPartnerPart(dto.discountPartnerPart.intValue());
     }
 
-    // type
     if (dto.discountType.toString().equalsIgnoreCase(Discount.Type.FLAT.toString())) {
       d.setType(Discount.Type.FLAT);
       d.setValue(dto.discountValue);
     } else {
       d.setType(Discount.Type.PERCENT);
-      d.setValue(dto.price * dto.discountValue);
+      // percentage to fraction
+      d.setValue(dto.price * (dto.discountValue / 100));
     }
 
-    // percent
     if (Discount.Type.PERCENT.equals(d.getType())) {
       d.setPercent(dto.discountValue);
     }
 
-    // discountPrice
     d.setDiscountPrice(dto.price - d.getValue());
-
 
     validateDiscountValue(dto.price, d.getValue());
     validateDiscountParts(d.getHplPart(), d.getPartnerPart(), d.getValue());
