@@ -96,7 +96,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     if (!ticketPoolDefinition.getIsCyclic()) {
       ticketPoolService.createNew(ticketPoolDefinition, ticketPoolDefinition.getStartDate());
     }
-    tpdDTO = getForPartner(ticketPoolDefinition.getId(), currentUser);
+    tpdDTO = get(ticketPoolDefinition.getId(), currentUser);
     var tds = tpdDTO.ticketDefinitions;
     if (tds != null && !tds.isEmpty()) {
       tds.forEach(td -> td.poolId = ticketPoolDefinition.getId());
@@ -139,18 +139,23 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     }
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public List<TicketPoolDefinitionDTO> getForPartner(CurrentUser currentUser,
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
+  public List<TicketPoolDefinitionDTO> getList(CurrentUser currentUser,
       List<Long> sightEventIds) {
-    Long partner = ofNullable(currentUser.getPrincipal())
-        .map(partnerDao::findByUserEmail)
-        .map(Partner::getId)
-        .orElse(null);
     List<TicketPoolDefinition> tpds = null;
-    if (sightEventIds == null || sightEventIds.isEmpty()) {
-      tpds = tpdDao.findAllByPartner(partner);
+    if (currentUser.hasRole(ROLE_ADMIN)) {
+      if (sightEventIds == null || sightEventIds.isEmpty()) {
+        tpds = tpdDao.findAll();
+      } else {
+        tpds = tpdDao.findBySightEventIds(sightEventIds);
+      }
     } else {
-      tpds = tpdDao.findByPartnerAndSightEventIds(partner, sightEventIds);
+      Long partner = partnerDao.findByUserEmail(currentUser.getPrincipal()).getId();
+      if (sightEventIds == null || sightEventIds.isEmpty()) {
+        tpds = tpdDao.findAllByPartner(partner);
+      } else {
+        tpds = tpdDao.findByPartnerAndSightEventIds(partner, sightEventIds);
+      }
     }
     List<TicketPoolDefinitionDTO> dtos = fillAtnasAndMapToDto(tpds);
     return dtos;
@@ -176,15 +181,18 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     return dtos;
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public void update(TicketPoolDefinitionDTO dto,
-      CurrentUser currentUser) {
-    Long partnerId = ofNullable(currentUser.getPrincipal())
-        .map(partnerDao::findByUserEmail)
-        .map(Partner::getId)
-        .orElse(null);
-    TicketPoolDefinition tpd = tpdDao.findByIdForPartner(dto.id, partnerId);
-
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
+  public void update(TicketPoolDefinitionDTO dto, CurrentUser currentUser) {
+    TicketPoolDefinition tpd = null;
+    if (currentUser.hasRole(ROLE_ADMIN)) {
+      tpd = tpdDao.findById(dto.id);
+    } else {
+      Long partnerId = ofNullable(currentUser.getPrincipal())
+          .map(partnerDao::findByUserEmail)
+          .map(Partner::getId)
+          .orElse(null);
+      tpd = tpdDao.findByIdForPartner(dto.id, partnerId);
+    }
     tpd.setName(dto.name);
     int oldAvailableTicketsNumber = tpd.getAvailableTicketsNumber();
     tpd.setAvailableTicketsNumber(dto.availableTicketsNumber);
@@ -207,17 +215,25 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     quantityService.informPartnerAboutAtnasRunningOut(toInform);
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public TicketPoolDefinitionDTO getForPartner(Long id, CurrentUser currentUser) {
-    TicketPoolDefinition tpd = tpdDao
-        .findByIdForPartner(id, partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
+  public TicketPoolDefinitionDTO get(Long id, CurrentUser currentUser) {
+    TicketPoolDefinition tpd = null;
+    if (currentUser.hasRole(ROLE_ADMIN)) {
+      tpd = tpdDao.findById(id);
+    } else {
+      tpd = tpdDao
+          .findByIdForPartner(id, partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
+    }
     return fillAtnasAndMapToDto(List.of(tpd)).get(0);
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public void deleteTicketPoolDefinition(Long id, CurrentUser currentUser) {
-    tpdDao.deleteTicketPoolDefinition(id,
-        partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
+    if (!currentUser.hasRole(ROLE_ADMIN)) {
+      tpdDao.findByIdForPartner(id,
+          partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
+    }
+    tpdDao.deleteTicketPoolDefinition(id);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})

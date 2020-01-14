@@ -65,8 +65,8 @@ public class TicketPoolDefinitionDao {
         .setParameter("partnerId", partnerId).setParameter("id", id).getSingleResult();
   }
 
-  public void deleteTicketPoolDefinition(Long id, Long partnerId) {
-    TicketPoolDefinition dao = findByIdForPartner(id, partnerId);
+  public void deleteTicketPoolDefinition(Long id) {
+    TicketPoolDefinition dao = findById(id);
     dao.setDeleted(true);
     List<TicketPool> ticketPools = dao.getTicketPools();
     if (ticketPools != null && !ticketPools.isEmpty()) {
@@ -87,6 +87,13 @@ public class TicketPoolDefinitionDao {
         + "tpd.sightEvent.partner.id = :partnerId "
         + "and tpd.sightEvent.id in (:sightEventIds)", TicketPoolDefinition.class)
         .setParameter("partnerId", partnerId)
+        .setParameter("sightEventIds", sightEventIds)
+        .getResultList();
+  }
+
+  public List<TicketPoolDefinition> findBySightEventIds(List<Long> sightEventIds) {
+    return entityManager.createQuery("from TicketPoolDefinition tpd where "
+        + "tpd.sightEvent.id in (:sightEventIds)", TicketPoolDefinition.class)
         .setParameter("sightEventIds", sightEventIds)
         .getResultList();
   }
