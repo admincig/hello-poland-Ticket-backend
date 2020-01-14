@@ -32,7 +32,7 @@ import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 @Table(name = "TICKET_DEFINITIONS")
 @EqualsAndHashCode(exclude = {"atnas", "tickets"})
 @NoArgsConstructor
-@ToString(exclude = {"atnas", "tickets"})
+@ToString(exclude = {"atnas", "tickets", "interestingAtna"})
 public class TicketDefinition implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
