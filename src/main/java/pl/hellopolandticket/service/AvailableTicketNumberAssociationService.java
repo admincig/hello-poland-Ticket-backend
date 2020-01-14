@@ -124,6 +124,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       var tpdDTO = ModelObjectsToDTOConverter.ofTicketPoolDefinitionBasic(entry.getKey());
       var tdDTOs = new ArrayList<TicketDefinitionDTO>();
       for (AvailableTicketNumberAssociation a : entry.getValue()) {
+        a.getTicketDefinition().setInterestingAtna(a);
         var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
         if (tpdDTO.availableTicketsNumber < 0) {
           tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
