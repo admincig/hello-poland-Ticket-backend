@@ -125,14 +125,16 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       var tpdDTO = ModelObjectsToDTOConverter.ofTicketPoolDefinitionBasic(entry.getKey());
       var tdDTOs = new ArrayList<TicketDefinitionDTO>();
       for (AvailableTicketNumberAssociation a : entry.getValue()) {
-        a.getTicketDefinition().setInterestingAtna(a);
-        var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
-        if (tpdDTO.availableTicketsNumber < 0) {
-          tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
-        } else {
-          tdDTO.availableTicketsNumber = -1;
+        if (!a.isDeleted() && !a.getTicketDefinition().isDeleted()) {
+          a.getTicketDefinition().setInterestingAtna(a);
+          var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
+          if (tpdDTO.availableTicketsNumber < 0) {
+            tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
+          } else {
+            tdDTO.availableTicketsNumber = -1;
+          }
+          tdDTOs.add(tdDTO);
         }
-        tdDTOs.add(tdDTO);
       }
       tpdDTO.ticketDefinitions = tdDTOs;
       result.ticketPoolDefinitions.add(tpdDTO);
@@ -144,14 +146,16 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       var tpDTO = ModelObjectsToDTOConverter.ofTicketPool(entry.getKey());
       var tdDTOs = new ArrayList<TicketDefinitionDTO>();
       for (AvailableTicketNumberAssociation a : entry.getValue()) {
-        a.getTicketDefinition().setInterestingAtna(a.getParent());
-        var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
-        if (tpDTO.availableTicketsNumber < 0) {
-          tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
-        } else {
-          tdDTO.availableTicketsNumber = -1;
+        if (!a.isDeleted() && !a.getTicketDefinition().isDeleted()) {
+          a.getTicketDefinition().setInterestingAtna(a.getParent());
+          var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
+          if (tpDTO.availableTicketsNumber < 0) {
+            tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
+          } else {
+            tdDTO.availableTicketsNumber = -1;
+          }
+          tdDTOs.add(tdDTO);
         }
-        tdDTOs.add(tdDTO);
       }
       tpDTO.ticketDefinitions = tdDTOs;
       result.ticketPools.add(tpDTO);
