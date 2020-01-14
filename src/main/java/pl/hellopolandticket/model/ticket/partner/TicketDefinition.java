@@ -30,7 +30,7 @@ import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 @Setter
 @Entity
 @Table(name = "TICKET_DEFINITIONS")
-@EqualsAndHashCode(exclude = {"atnas", "tickets"})
+@EqualsAndHashCode(exclude = {"atnas", "tickets", "interestingAtna"})
 @NoArgsConstructor
 @ToString(exclude = {"atnas", "tickets", "interestingAtna"})
 public class TicketDefinition implements Serializable {
