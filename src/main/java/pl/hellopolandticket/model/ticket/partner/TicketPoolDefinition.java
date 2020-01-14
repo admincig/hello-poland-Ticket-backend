@@ -108,7 +108,11 @@ public class TicketPoolDefinition implements Serializable {
 
   public List<TicketDefinition> getTicketDefinitions() {
     return atnas.stream()
-        .map(AvailableTicketNumberAssociation::getTicketDefinition)
+        .map(atna -> {
+          TicketDefinition td = atna.getTicketDefinition();
+          td.setInterestingAtna(atna);
+          return td;
+        })
         .collect(Collectors.toList());
   }
 

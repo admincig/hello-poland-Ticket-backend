@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service;
 
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -44,7 +45,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   @Inject
   private TicketPoolService tpService;
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public void add(TicketPoolDefinition ticketPoolDefinition,
       List<TicketDefinitionDTO> tds) {
     if (tds != null && !tds.isEmpty()) {
@@ -62,7 +63,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     }
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public void add(TicketPool pool, TicketPoolDefinition ticketPoolDefinition) {
     var tds = ticketPoolDefinition.getTicketDefinitions();
     if (tds != null && !tds.isEmpty()) {
@@ -80,13 +81,13 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
     }
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public List<AvailableTicketNumberAssociation> getAvailabilityOfTicketsForNonCyclicTicketPool(
       TicketPool tp) {
     return dao.getNotZeroForTicketPool(tp);
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public AvailableTicketNumberAssociationDTO checkAvailabilityOfTickets(Long sightEventId,
       Date fromDate, Date toDate) {
     var se = seService.findSightEventById(sightEventId);
@@ -124,13 +125,16 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       var tpdDTO = ModelObjectsToDTOConverter.ofTicketPoolDefinitionBasic(entry.getKey());
       var tdDTOs = new ArrayList<TicketDefinitionDTO>();
       for (AvailableTicketNumberAssociation a : entry.getValue()) {
-        var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
-        if (tpdDTO.availableTicketsNumber < 0) {
-          tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
-        } else {
-          tdDTO.availableTicketsNumber = -1;
+        if (!a.isDeleted() && !a.getTicketDefinition().isDeleted()) {
+          a.getTicketDefinition().setInterestingAtna(a);
+          var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
+          if (tpdDTO.availableTicketsNumber < 0) {
+            tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
+          } else {
+            tdDTO.availableTicketsNumber = -1;
+          }
+          tdDTOs.add(tdDTO);
         }
-        tdDTOs.add(tdDTO);
       }
       tpdDTO.ticketDefinitions = tdDTOs;
       result.ticketPoolDefinitions.add(tpdDTO);
@@ -142,13 +146,16 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       var tpDTO = ModelObjectsToDTOConverter.ofTicketPool(entry.getKey());
       var tdDTOs = new ArrayList<TicketDefinitionDTO>();
       for (AvailableTicketNumberAssociation a : entry.getValue()) {
-        var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
-        if (tpDTO.availableTicketsNumber < 0) {
-          tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
-        } else {
-          tdDTO.availableTicketsNumber = -1;
+        if (!a.isDeleted() && !a.getTicketDefinition().isDeleted()) {
+          a.getTicketDefinition().setInterestingAtna(a.getParent());
+          var tdDTO = ModelObjectsToDTOConverter.ofTicketDefinition(a.getTicketDefinition());
+          if (tpDTO.availableTicketsNumber < 0) {
+            tdDTO.availableTicketsNumber = a.getAvailableTicketsNumber();
+          } else {
+            tdDTO.availableTicketsNumber = -1;
+          }
+          tdDTOs.add(tdDTO);
         }
-        tdDTOs.add(tdDTO);
       }
       tpDTO.ticketDefinitions = tdDTOs;
       result.ticketPools.add(tpDTO);
@@ -208,23 +215,23 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         .isEqual(tpd.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public List<AvailableTicketNumberAssociation> getForTicketPool(TicketPool tp) {
     return dao.getForTicketPool(tp);
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public List<AvailableTicketNumberAssociation> getForTicketPoolDefinition(
       TicketPoolDefinition tpd) {
     return dao.getForTicketPoolDefinition(tpd);
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public AvailableTicketNumberAssociation update(AvailableTicketNumberAssociation bo) {
     return dao.update(bo);
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public AvailableTicketNumberAssociation add(AvailableTicketNumberAssociation newAtna) {
     return dao.persist(newAtna);
   }

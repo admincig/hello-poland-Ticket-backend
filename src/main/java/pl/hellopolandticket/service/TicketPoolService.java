@@ -1,5 +1,6 @@
 package pl.hellopolandticket.service;
 
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.lang.System.Logger.Level;
 import java.time.Duration;
@@ -299,8 +300,9 @@ public class TicketPoolService extends ServiceSuperclass {
     return rlt.isBefore(slt) || rlt.isAfter(elt);
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public List<TicketPool> updatePoolsAvailableTicketsNumber(TicketPoolDefinition tpd, Integer oldAvailableTicketsNumber) {
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
+  public List<TicketPool> updatePoolsAvailableTicketsNumber(TicketPoolDefinition tpd,
+      Integer oldAvailableTicketsNumber) {
     List<TicketPool> pools = tpd.getTicketPools();
     return pools.stream()
         .filter(TicketPool::isInFuture)

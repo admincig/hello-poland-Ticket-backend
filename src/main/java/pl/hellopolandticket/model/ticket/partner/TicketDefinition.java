@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -29,9 +30,9 @@ import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 @Setter
 @Entity
 @Table(name = "TICKET_DEFINITIONS")
-@EqualsAndHashCode(exclude = {"atnas", "tickets"})
+@EqualsAndHashCode(exclude = {"atnas", "tickets", "interestingAtna"})
 @NoArgsConstructor
-@ToString(exclude = {"atnas", "tickets"})
+@ToString(exclude = {"atnas", "tickets", "interestingAtna"})
 public class TicketDefinition implements Serializable {
 
   private static final long serialVersionUID = -8863063758760873368L;
@@ -61,6 +62,9 @@ public class TicketDefinition implements Serializable {
   private List<Ticket> tickets;
 
   private boolean deleted;
+
+  @Transient
+  private AvailableTicketNumberAssociation interestingAtna;
 
   @Builder
   public TicketDefinition(String name, Integer price, Partner partner,

@@ -41,7 +41,7 @@ import pl.hellopolandticket.service.util.TicketPoolDefinitionAtnasComparer;
 public class TicketPoolDefinitionService extends ServiceSuperclass {
 
   @Inject
-  private TicketPoolDefinitionDao ticketPoolDefinitionDao;
+  private TicketPoolDefinitionDao tpdDao;
   @Inject
   private SightEventDao sightEventDao;
   @Inject
@@ -90,13 +90,13 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         .frequencyData(frequencyData).startDate(tpdDTO.startDate).endDate(tpdDTO.endDate)
         .entryStartDate(tpdDTO.entryStartDate).entryEndDate(tpdDTO.entryEndDate)
         .sightEvent(sightEvent).deleted(false).wholeDay(tpdDTO.wholeDay).build();
-    ticketPoolDefinitionDao.persist(ticketPoolDefinition);
+    tpdDao.persist(ticketPoolDefinition);
     atnaService.add(ticketPoolDefinition, tdDTOs);
     em.refresh(ticketPoolDefinition);
     if (!ticketPoolDefinition.getIsCyclic()) {
       ticketPoolService.createNew(ticketPoolDefinition, ticketPoolDefinition.getStartDate());
     }
-    tpdDTO = getForPartner(ticketPoolDefinition.getId(), currentUser);
+    tpdDTO = get(ticketPoolDefinition.getId(), currentUser);
     var tds = tpdDTO.ticketDefinitions;
     if (tds != null && !tds.isEmpty()) {
       tds.forEach(td -> td.poolId = ticketPoolDefinition.getId());
@@ -139,13 +139,25 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     }
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public List<TicketPoolDefinitionDTO> getAllForPartner(CurrentUser currentUser) {
-    List<TicketPoolDefinition> tpd =
-        ticketPoolDefinitionDao.findAllByPartner(ofNullable(currentUser.getPrincipal())
-            .map(principal -> partnerDao.findByUserEmail(principal)).map(Partner::getId)
-            .orElse(null));
-    List<TicketPoolDefinitionDTO> dtos = fillAtnasAndMapToDto(tpd);
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
+  public List<TicketPoolDefinitionDTO> getList(CurrentUser currentUser,
+      List<Long> sightEventIds) {
+    List<TicketPoolDefinition> tpds = null;
+    if (currentUser.hasRole(ROLE_ADMIN)) {
+      if (sightEventIds == null || sightEventIds.isEmpty()) {
+        tpds = tpdDao.findAll();
+      } else {
+        tpds = tpdDao.findBySightEventIds(sightEventIds);
+      }
+    } else {
+      Long partner = partnerDao.findByUserEmail(currentUser.getPrincipal()).getId();
+      if (sightEventIds == null || sightEventIds.isEmpty()) {
+        tpds = tpdDao.findAllByPartner(partner);
+      } else {
+        tpds = tpdDao.findByPartnerAndSightEventIds(partner, sightEventIds);
+      }
+    }
+    List<TicketPoolDefinitionDTO> dtos = fillAtnasAndMapToDto(tpds);
     return dtos;
   }
 
@@ -169,15 +181,18 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     return dtos;
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public void update(TicketPoolDefinitionDTO dto,
-      CurrentUser currentUser) {
-    Long partnerId = ofNullable(currentUser.getPrincipal())
-        .map(partnerDao::findByUserEmail)
-        .map(Partner::getId)
-        .orElse(null);
-    TicketPoolDefinition tpd = ticketPoolDefinitionDao.findByIdForPartner(dto.id, partnerId);
-
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
+  public void update(TicketPoolDefinitionDTO dto, CurrentUser currentUser) {
+    TicketPoolDefinition tpd = null;
+    if (currentUser.hasRole(ROLE_ADMIN)) {
+      tpd = tpdDao.findById(dto.id);
+    } else {
+      Long partnerId = ofNullable(currentUser.getPrincipal())
+          .map(partnerDao::findByUserEmail)
+          .map(Partner::getId)
+          .orElse(null);
+      tpd = tpdDao.findByIdForPartner(dto.id, partnerId);
+    }
     tpd.setName(dto.name);
     int oldAvailableTicketsNumber = tpd.getAvailableTicketsNumber();
     tpd.setAvailableTicketsNumber(dto.availableTicketsNumber);
@@ -200,17 +215,25 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     quantityService.informPartnerAboutAtnasRunningOut(toInform);
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public TicketPoolDefinitionDTO getForPartner(Long id, CurrentUser currentUser) {
-    TicketPoolDefinition tpd = ticketPoolDefinitionDao
-        .findByIdForPartner(id, partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
+  public TicketPoolDefinitionDTO get(Long id, CurrentUser currentUser) {
+    TicketPoolDefinition tpd = null;
+    if (currentUser.hasRole(ROLE_ADMIN)) {
+      tpd = tpdDao.findById(id);
+    } else {
+      tpd = tpdDao
+          .findByIdForPartner(id, partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
+    }
     return fillAtnasAndMapToDto(List.of(tpd)).get(0);
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public void deleteTicketPoolDefinition(Long id, CurrentUser currentUser) {
-    ticketPoolDefinitionDao.deleteTicketPoolDefinition(id,
-        partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
+    if (!currentUser.hasRole(ROLE_ADMIN)) {
+      tpdDao.findByIdForPartner(id,
+          partnerDao.findByUserEmail(currentUser.getPrincipal()).getId());
+    }
+    tpdDao.deleteTicketPoolDefinition(id);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
@@ -303,7 +326,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public List<TicketPoolDefinitionDTO> getWholeDay(List<Long> tpdIds) {
-    return ticketPoolDefinitionDao.getWholeDay(tpdIds).stream()
+    return tpdDao.getWholeDay(tpdIds).stream()
         .map(ModelObjectsToDTOConverter::ofTicketPoolDefinition).collect(Collectors.toList());
   }
 

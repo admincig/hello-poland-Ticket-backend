@@ -43,8 +43,9 @@ public class TicketPoolDefinitionRestService {
   }
 
   @GET
-  public Response getTicketPoolDefs() {
-    return Response.ok(ticketPoolDefinitionService.getAllForPartner(currentUser)).build();
+  public Response getTicketPoolDefs(@QueryParam("sightEventIds") List<Long> sightEventIds) {
+    return Response.ok(ticketPoolDefinitionService.getList(currentUser, sightEventIds))
+        .build();
   }
 
   @PUT
@@ -52,13 +53,13 @@ public class TicketPoolDefinitionRestService {
   public Response updateTicketPoolDef(@PathParam("id") Long id, TicketPoolDefinitionDTO dto) {
     dto.id = id;
     ticketPoolDefinitionService.update(dto, currentUser);
-    return getTicketPoolDefs();
+    return getTicketPoolDefs(null);
   }
 
   @GET
   @Path("/{id}")
   public Response getTicketPoolDef(@PathParam("id") Long id) {
-    return Response.ok(ticketPoolDefinitionService.getForPartner(id, currentUser)).build();
+    return Response.ok(ticketPoolDefinitionService.get(id, currentUser)).build();
   }
 
   @DELETE
