@@ -102,6 +102,7 @@ public class ModelObjectsToDTOConverter {
     ticketDefinitionDTO.id = ticketDefinition.getId();
     ticketDefinitionDTO.name = ticketDefinition.getName();
     ticketDefinitionDTO.price = ticketDefinition.getPrice();
+    ticketDefinitionDTO.partnerId = ticketDefinition.getPartner().getId();
     AvailableTicketNumberAssociation atna = ticketDefinition.getInterestingAtna();
     if (atna != null) {
       ticketDefinitionDTO.atnaId = atna.getId();
@@ -258,6 +259,7 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDefinitionDTO.sightEventId = ticketPoolDefinition.getSightEvent().getId();
     ticketPoolDefinitionDTO.deleted = ticketPoolDefinition.isDeleted();
     ticketPoolDefinitionDTO.wholeDay = ticketPoolDefinition.isWholeDay();
+    ticketPoolDefinitionDTO.partnerId = ticketPoolDefinition.getSightEvent().getPartner().getId();
     return ticketPoolDefinitionDTO;
   }
 
