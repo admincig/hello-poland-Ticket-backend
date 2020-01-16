@@ -168,7 +168,8 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       HashSet<AvailableTicketNumberAssociation> associationsTPD,
       HashSet<AvailableTicketNumberAssociation> associationsTP, LocalDate localDate) {
     se.getTicketPoolDefinitions().stream()
-        .filter(tpd -> checkDates(localDate, tpd) && !tpd.isDeleted()).forEach(tpd -> {
+        .filter(tpd -> checkDates(localDate, tpd) && !tpd.isDeleted())
+        .forEach(tpd -> {
           List<TicketPool> ticketPools = tpd.getTicketPools();
           tpd.getTicketPools().size();
           List<TicketPool> tps = getFilteredTpsByDates(localDate, ticketPools);
@@ -217,13 +218,13 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public List<AvailableTicketNumberAssociation> getForTicketPool(TicketPool tp) {
-    return dao.getForTicketPool(tp);
+    return dao.getUndeletedForTicketPool(tp);
   }
 
   @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public List<AvailableTicketNumberAssociation> getForTicketPoolDefinition(
       TicketPoolDefinition tpd) {
-    return dao.getForTicketPoolDefinition(tpd);
+    return dao.getUndeletedForTicketPoolDefinition(tpd);
   }
 
   @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
