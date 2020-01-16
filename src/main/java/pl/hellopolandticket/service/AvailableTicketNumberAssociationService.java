@@ -70,13 +70,15 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       for (TicketDefinition td : tds) {
         AvailableTicketNumberAssociation association =
             dao.findForTicketPoolDefinitionAndTicketDefinition(ticketPoolDefinition, td);
-        var bo = AvailableTicketNumberAssociation.builder()
-            .ticketDefinition(td)
-            .ticketPool(pool)
-            .availableTicketsNumber(association.getAvailableTicketsNumber())
-            .parent(association)
-            .build();
-        dao.persist(bo);
+        if (!association.isDeleted()) {
+          var bo = AvailableTicketNumberAssociation.builder()
+              .ticketDefinition(td)
+              .ticketPool(pool)
+              .availableTicketsNumber(association.getAvailableTicketsNumber())
+              .parent(association)
+              .build();
+          dao.persist(bo);
+        }
       }
     }
   }
