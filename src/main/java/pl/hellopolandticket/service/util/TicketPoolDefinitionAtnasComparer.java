@@ -42,11 +42,13 @@ public class TicketPoolDefinitionAtnasComparer {
       }
       TicketDefinition ticketDefinition = new TicketDefinition();
       ticketDefinition.setId(td.id);
-      result.toAdd.add(new AvailableTicketNumberAssociation(td.availableTicketsNumber,
-          ticketDefinition, tpd, null, null));
+      AvailableTicketNumberAssociation parentAtna =
+          new AvailableTicketNumberAssociation(td.availableTicketsNumber,
+              ticketDefinition, tpd, null, null);
+      result.toAdd.add(parentAtna);
       result.toAdd.addAll(tpd.getTicketPools().stream()
           .map(tp -> new AvailableTicketNumberAssociation(td.availableTicketsNumber,
-              ticketDefinition, null, tp, null))
+              ticketDefinition, null, tp, parentAtna))
           .collect(Collectors.toList()));
     }
     return result;
