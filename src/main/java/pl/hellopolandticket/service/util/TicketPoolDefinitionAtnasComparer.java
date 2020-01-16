@@ -2,6 +2,7 @@ package pl.hellopolandticket.service.util;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopoland.dto.TicketPoolDefinitionDTO;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
@@ -43,6 +44,10 @@ public class TicketPoolDefinitionAtnasComparer {
       ticketDefinition.setId(td.id);
       result.toAdd.add(new AvailableTicketNumberAssociation(td.availableTicketsNumber,
           ticketDefinition, tpd, null, null));
+      result.toAdd.addAll(tpd.getTicketPools().stream()
+          .map(tp -> new AvailableTicketNumberAssociation(td.availableTicketsNumber,
+              ticketDefinition, null, tp, null))
+          .collect(Collectors.toList()));
     }
     return result;
   }
