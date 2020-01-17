@@ -65,6 +65,7 @@ public class TicketDefinitionDao {
           .getResultStream()
           .map(atna -> {
             TicketDefinition td = atna.getTicketDefinition();
+            entityManager.detach(td);
             td.setInterestingAtna(atna);
             return td;
           })
