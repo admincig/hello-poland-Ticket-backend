@@ -3,6 +3,7 @@ package pl.hellopolandticket.model.util;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -73,6 +74,10 @@ public class AvailableTicketNumberAssociation implements Serializable, Limited {
   @Setter
   @OneToMany(mappedBy = "parent")
   private List<AvailableTicketNumberAssociation> children;
+
+  @Embedded
+  @Setter
+  private Discount discount;
 
   @Builder
   public AvailableTicketNumberAssociation(@NotNull Integer availableTicketsNumber,
