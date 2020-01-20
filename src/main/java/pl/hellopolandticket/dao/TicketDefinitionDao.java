@@ -37,8 +37,8 @@ public class TicketDefinitionDao {
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
   }
 
-  public void merge(TicketDefinition ticketDefinition) {
-    entityManager.merge(ticketDefinition);
+  public TicketDefinition merge(TicketDefinition ticketDefinition) {
+    return entityManager.merge(ticketDefinition);
   }
 
   public List<TicketDefinition> getUndeletedList(Partner partner) {
@@ -71,6 +71,10 @@ public class TicketDefinitionDao {
           })
           .collect(Collectors.toList());
     }
+  }
+
+  public void refresh(TicketDefinition ticketDefinition) {
+    entityManager.refresh(ticketDefinition);
   }
 
 }
