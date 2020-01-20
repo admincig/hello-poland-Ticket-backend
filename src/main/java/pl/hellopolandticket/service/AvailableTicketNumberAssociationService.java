@@ -236,7 +236,12 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public AvailableTicketNumberAssociation add(AvailableTicketNumberAssociation newAtna) {
-    return dao.persist(newAtna);
+    newAtna = dao.persist(newAtna);
+    newAtna.getTicketDefinition().getAtnas().add(newAtna);
+    if (newAtna.getTicketPoolDefinition() != null) {
+      newAtna.getTicketPoolDefinition().getAtnas().add(newAtna);
+    }
+    return newAtna;
   }
 
 }
