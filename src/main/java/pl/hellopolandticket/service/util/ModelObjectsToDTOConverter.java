@@ -11,6 +11,8 @@ import lombok.Builder;
 import pl.hellopoland.dto.AbstractErrorDTO;
 import pl.hellopoland.dto.ApplicationPropertyDTO;
 import pl.hellopoland.dto.CollectionWrapperDTO;
+import pl.hellopoland.dto.DiscountDTO;
+import pl.hellopoland.dto.DiscountTypeDTO;
 import pl.hellopoland.dto.EmailSendingReportDTO;
 import pl.hellopoland.dto.FrequencyDataDTO;
 import pl.hellopoland.dto.FrequencyTypeDTO;
@@ -42,6 +44,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
+import pl.hellopolandticket.model.util.Discount;
 import pl.hellopolandticket.security.CurrentUser;
 
 public class ModelObjectsToDTOConverter {
@@ -109,6 +112,14 @@ public class ModelObjectsToDTOConverter {
       TicketPoolDefinition tpd = atna.getTicketPoolDefinition();
       ticketDefinitionDTO.sightEventId = tpd.getSightEvent().getId();
       ticketDefinitionDTO.poolId = tpd.getId();
+      Discount discount = atna.getDiscount();
+      if (discount != null) {
+        ticketDefinitionDTO.discount = new DiscountDTO();
+        ticketDefinitionDTO.discount.type = DiscountTypeDTO.valueOf(discount.getType().name());
+        ticketDefinitionDTO.discount.value = discount.getValue();
+        ticketDefinitionDTO.discount.percent = discount.getPercent();
+        ticketDefinitionDTO.discount.price = ticketDefinition.getPrice() - discount.getValue();
+      }
     }
 
     return ticketDefinitionDTO;

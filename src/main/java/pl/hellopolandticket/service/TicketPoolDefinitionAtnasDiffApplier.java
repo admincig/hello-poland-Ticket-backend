@@ -1,7 +1,7 @@
 package pl.hellopolandticket.service;
 
 import java.util.Map.Entry;
-import pl.hellopoland.dto.TicketDefinitionDTO;
+import pl.hellopoland.dto.DiscountDTO;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.model.util.Discount;
 import pl.hellopolandticket.service.exception.conflict.ConflictingException;
@@ -49,21 +49,21 @@ public class TicketPoolDefinitionAtnasDiffApplier {
   }
 
   public void applyDiscountUpdate(TicketPoolDefinitionAtnasDiscountComparerResult diffs) {
-    for (Entry<AvailableTicketNumberAssociation, TicketDefinitionDTO> newDiscount : diffs.toAdd) {
+    for (Entry<AvailableTicketNumberAssociation, DiscountDTO> newDiscount : diffs.toAdd) {
       for (AvailableTicketNumberAssociation child : newDiscount.getKey().getChildren()) {
         updateDiscount(child, newDiscount.getValue());
       }
       updateDiscount(newDiscount.getKey(), newDiscount.getValue());
     }
 
-    for (Entry<AvailableTicketNumberAssociation, TicketDefinitionDTO> remove : diffs.toRemove) {
+    for (Entry<AvailableTicketNumberAssociation, DiscountDTO> remove : diffs.toRemove) {
       for (AvailableTicketNumberAssociation child : remove.getKey().getChildren()) {
         child.setDiscount(null);
       }
       remove.getKey().setDiscount(null); // zadziała?
     }
 
-    for (Entry<AvailableTicketNumberAssociation, TicketDefinitionDTO> modify : diffs.toModify) {
+    for (Entry<AvailableTicketNumberAssociation, DiscountDTO> modify : diffs.toModify) {
       for (AvailableTicketNumberAssociation child : modify.getKey().getChildren()) {
         updateDiscount(child, modify.getValue());
       }
@@ -71,31 +71,31 @@ public class TicketPoolDefinitionAtnasDiffApplier {
     }
   }
 
-  private void updateDiscount(AvailableTicketNumberAssociation atna, TicketDefinitionDTO dto) {
+  private void updateDiscount(AvailableTicketNumberAssociation atna, DiscountDTO dto) {
     Discount d = new Discount();
 
-    boolean isHplOwner = dto.discountIsHplOwner.booleanValue();
+    boolean isHplOwner = dto.isHplOwner.booleanValue();
     d.setHplOwner(isHplOwner);
 
     if (isHplOwner) {
-      d.setHplPart(dto.discountHplPart.intValue());
-      d.setPartnerPart(dto.discountPartnerPart.intValue());
+      d.setHplPart(dto.hplPart.intValue());
+      d.setPartnerPart(dto.partnerPart.intValue());
     } else {
       d.setHplPart(0);
-      d.setPartnerPart(dto.discountPartnerPart.intValue());
+      d.setPartnerPart(dto.partnerPart.intValue());
     }
 
-    if (dto.discountType.toString().equalsIgnoreCase(Discount.Type.FLAT.toString())) {
+    if (dto.type.toString().equalsIgnoreCase(Discount.Type.FLAT.toString())) {
       d.setType(Discount.Type.FLAT);
-      d.setValue(dto.discountValue);
+      d.setValue(dto.value);
     } else {
       d.setType(Discount.Type.PERCENT);
       // percentage to fraction
-      d.setValue(dto.price * (dto.discountValue / 100));
+      d.setValue(dto.price * (dto.value / 100));
     }
 
     if (Discount.Type.PERCENT.equals(d.getType())) {
-      d.setPercent(dto.discountValue);
+      d.setPercent(dto.value);
     }
 
     d.setDiscountPrice(dto.price - d.getValue());

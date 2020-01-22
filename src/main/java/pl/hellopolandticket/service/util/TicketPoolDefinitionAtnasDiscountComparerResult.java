@@ -3,7 +3,7 @@ package pl.hellopolandticket.service.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import pl.hellopoland.dto.TicketDefinitionDTO;
+import pl.hellopoland.dto.DiscountDTO;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 
 /**
@@ -11,10 +11,10 @@ import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
  */
 public class TicketPoolDefinitionAtnasDiscountComparerResult {
 
-  public List<Map.Entry<AvailableTicketNumberAssociation, TicketDefinitionDTO>> toRemove =
+  public List<Map.Entry<AvailableTicketNumberAssociation, DiscountDTO>> toRemove =
       new ArrayList<>();
-  public List<Map.Entry<AvailableTicketNumberAssociation, TicketDefinitionDTO>> toAdd =
+  public List<Map.Entry<AvailableTicketNumberAssociation, DiscountDTO>> toAdd =
       new ArrayList<>();
-  public List<Map.Entry<AvailableTicketNumberAssociation, TicketDefinitionDTO>> toModify =
+  public List<Map.Entry<AvailableTicketNumberAssociation, DiscountDTO>> toModify =
       new ArrayList<>();
 }
