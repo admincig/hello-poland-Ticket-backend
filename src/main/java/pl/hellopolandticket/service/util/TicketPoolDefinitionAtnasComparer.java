@@ -67,9 +67,7 @@ public class TicketPoolDefinitionAtnasComparer {
         Long ticketDefinitionId = atna.getTicketDefinition().getId();
         Integer ticketQuantity = atna.getAvailableTicketsNumber();
 
-        if (td.id.equals(ticketDefinitionId)
-            && validateDiscountCreation(td.discount)) {
-
+        if (td.id.equals(ticketDefinitionId) && validateDiscountCreation(td.discount)) {
           if (shouldDiscountBeAdded(ticketQuantity, atna.getDiscount(), td.discount)) {
             result.toAdd.add(Map.entry(atna, td.discount));
             continue outer;
@@ -109,11 +107,11 @@ public class TicketPoolDefinitionAtnasComparer {
   }
 
   private boolean validateDiscountCreation(DiscountDTO newDiscount) {
-    return newDiscount == null ||
-        ((newDiscount.value != null || newDiscount.percent != null)
-            && newDiscount.isHplOwner != null
-            && newDiscount.type != null
-            && newDiscount.hplPart != null
-            && newDiscount.partnerPart != null);
+    return newDiscount != null &&
+        (newDiscount.value != null || newDiscount.percent != null)
+        && newDiscount.isHplOwner != null
+        && newDiscount.type != null
+        && newDiscount.hplPart != null
+        && newDiscount.partnerPart != null;
   }
 }
