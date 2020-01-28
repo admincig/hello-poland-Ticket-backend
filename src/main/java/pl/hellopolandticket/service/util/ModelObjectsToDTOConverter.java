@@ -104,7 +104,7 @@ public class ModelObjectsToDTOConverter {
 
     ticketDefinitionDTO.id = ticketDefinition.getId();
     ticketDefinitionDTO.name = ticketDefinition.getName();
-    ticketDefinitionDTO.price = ticketDefinition.getPrice();
+    ticketDefinitionDTO.originalPrice = ticketDefinition.getPrice();
     ticketDefinitionDTO.partnerId = ticketDefinition.getPartner().getId();
     AvailableTicketNumberAssociation atna = ticketDefinition.getInterestingAtna();
     if (atna != null) {
@@ -122,6 +122,7 @@ public class ModelObjectsToDTOConverter {
       }
     }
 
+    ticketDefinitionDTO.calculatePrice();
     return ticketDefinitionDTO;
   }
 
