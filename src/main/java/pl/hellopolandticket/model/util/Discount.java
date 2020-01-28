@@ -12,11 +12,14 @@ import lombok.Setter;
 @Getter
 public class Discount {
 
-  @Column(name = "discount_is_hpl_owner")
-  boolean isHplOwner;
+  @Column(name = "discount_is_custom_comission")
+  boolean isCustomComission;
 
   @Column(name = "discount_value")
   int value;
+
+  @Column(name = "discount_amount")
+  int amount;
 
   @Column(name = "discount_percent")
   Integer percent;

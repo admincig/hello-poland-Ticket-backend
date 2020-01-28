@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import java.util.Map.Entry;
 import pl.hellopoland.dto.DiscountDTO;
+import pl.hellopoland.dto.DiscountTypeDTO;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.model.util.Discount;
 import pl.hellopolandticket.service.exception.conflict.ConflictingException;
@@ -73,48 +74,51 @@ public class TicketPoolDefinitionAtnasDiffApplier {
 
   private void updateDiscount(AvailableTicketNumberAssociation atna, DiscountDTO dto) {
     Discount d = new Discount();
+    boolean isCustomComission = Boolean.TRUE.equals(dto.isCustomCommision);
+    d.setCustomComission(isCustomComission);
+    d.setValue(dto.value);
 
-    boolean isHplOwner = dto.isHplOwner.booleanValue();
-    d.setHplOwner(isHplOwner);
+    int originalPrice = atna.getTicketDefinition().getPrice();
+    int amount, percent, newPrice;
 
-    if (isHplOwner) {
+    if (dto.type == DiscountTypeDTO.FLAT) {
+      d.setType(Discount.Type.FLAT);
+      amount = dto.value;
+      percent = (int) (1.0 * amount / originalPrice * 100);
+    } else {
+      d.setType(Discount.Type.PERCENT);
+      percent = dto.value;
+      amount = (int) (1.0 * originalPrice * percent / 100);
+    }
+    newPrice = originalPrice - amount;
+    d.setDiscountPrice(newPrice);
+    d.setPercent(percent);
+    d.setAmount(amount);
+
+
+    if (isCustomComission) {
       d.setHplPart(dto.hplPart.intValue());
       d.setPartnerPart(dto.partnerPart.intValue());
     } else {
       d.setHplPart(0);
-      d.setPartnerPart(dto.partnerPart.intValue());
+      d.setPartnerPart(amount);
     }
 
-    if (dto.type.toString().equalsIgnoreCase(Discount.Type.FLAT.toString())) {
-      d.setType(Discount.Type.FLAT);
-      d.setValue(dto.value);
-    } else {
-      d.setType(Discount.Type.PERCENT);
-      // percentage to fraction
-      d.setValue(dto.price * (dto.value / 100));
-    }
-
-    if (Discount.Type.PERCENT.equals(d.getType())) {
-      d.setPercent(dto.value);
-    }
-
-    d.setDiscountPrice(dto.price - d.getValue());
-
-    validateDiscountValue(dto.price, d.getValue());
-    validateDiscountParts(d.getHplPart(), d.getPartnerPart(), d.getValue());
+    validateDiscountValue(newPrice, amount);
+    validateDiscountParts(d.getHplPart(), d.getPartnerPart(), amount);
 
     atna.setDiscount(d);
   }
 
-  private void validateDiscountValue(int price, int discountValue) {
-    if (price < discountValue) {
+  private void validateDiscountValue(int price, int amount) {
+    if (price < amount) {
       throw new ConflictingException("Discount cannot be bigger than ticket price");
     }
   }
 
-  private void validateDiscountParts(int hplPart, int partnerPart, int value) {
-    if (hplPart + partnerPart != value) {
-      throw new ConflictingException("Sum of discount parts is not equal to discount value");
+  private void validateDiscountParts(int hplPart, int partnerPart, int amount) {
+    if (hplPart + partnerPart != amount) {
+      throw new ConflictingException("Sum of discount parts is not equal to discount amount");
     }
   }
 
