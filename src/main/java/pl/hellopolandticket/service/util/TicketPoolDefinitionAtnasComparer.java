@@ -108,10 +108,7 @@ public class TicketPoolDefinitionAtnasComparer {
 
   private boolean validateDiscountCreation(DiscountDTO newDiscount) {
     return newDiscount != null &&
-        (newDiscount.value != null || newDiscount.percent != null)
-        && newDiscount.isHplOwner != null
-        && newDiscount.type != null
-        && newDiscount.hplPart != null
-        && newDiscount.partnerPart != null;
+        newDiscount.value != null
+        && newDiscount.type != null;
   }
 }
