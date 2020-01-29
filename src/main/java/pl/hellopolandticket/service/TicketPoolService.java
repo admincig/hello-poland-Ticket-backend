@@ -56,7 +56,7 @@ public class TicketPoolService extends ServiceSuperclass {
     pool.setEndDate(endDate);
     ticketPoolDao.persist(pool);
     pool.recountEntryDates();
-    atnaService.add(pool, ticketPoolDefinition);
+    atnaService.createChildrenAtnas(ticketPoolDefinition, pool);
     return pool;
   }
 

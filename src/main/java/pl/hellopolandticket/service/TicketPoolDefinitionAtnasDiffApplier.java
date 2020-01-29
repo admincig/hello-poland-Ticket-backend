@@ -3,6 +3,7 @@ package pl.hellopolandticket.service;
 import java.util.Map.Entry;
 import pl.hellopoland.dto.DiscountDTO;
 import pl.hellopoland.dto.DiscountTypeDTO;
+import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.model.util.Discount;
 import pl.hellopolandticket.service.exception.conflict.ConflictingException;
@@ -51,8 +52,10 @@ public class TicketPoolDefinitionAtnasDiffApplier {
 
   public void applyDiscountUpdate(TicketPoolDefinitionAtnasDiscountComparerResult diffs) {
     for (Entry<AvailableTicketNumberAssociation, DiscountDTO> newDiscount : diffs.toAdd) {
-      for (AvailableTicketNumberAssociation child : newDiscount.getKey().getChildren()) {
-        updateDiscount(child, newDiscount.getValue());
+      if (newDiscount.getKey().getChildren() != null) {
+        for (AvailableTicketNumberAssociation child : newDiscount.getKey().getChildren()) {
+          updateDiscount(child, newDiscount.getValue());
+        }
       }
       updateDiscount(newDiscount.getKey(), newDiscount.getValue());
     }
@@ -78,7 +81,8 @@ public class TicketPoolDefinitionAtnasDiffApplier {
     d.setCustomComission(isCustomComission);
     d.setValue(dto.value);
 
-    int originalPrice = atna.getTicketDefinition().getPrice();
+    TicketDefinition td = atnaService.getTD(atna.getTicketDefinition().getId());
+    int originalPrice = td.getPrice();
     int amount, percent, newPrice;
 
     if (dto.type == DiscountTypeDTO.FLAT) {

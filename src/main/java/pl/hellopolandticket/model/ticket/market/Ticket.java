@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -31,9 +32,11 @@ import lombok.ToString;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
+import pl.hellopolandticket.model.util.Discount;
 import pl.hellopolandticket.service.exception.badrequest.CannotGenerateQrCodeException;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "TICKETS")
 @EqualsAndHashCode
@@ -48,61 +51,56 @@ public class Ticket implements Serializable {
   @Column(name = "TICKET_ID")
   private Long id;
 
-  @Setter
   @NotNull
   @Column(name = "NAME", nullable = false)
   private String name;
 
-  @Setter
   @NotNull
   @Column(name = "PRICE", nullable = false)
   private Integer price;
 
-  @Setter
   @NotNull
   @Column(name = "DATE", nullable = false)
   private Date date;
 
-  @Setter
   @NotNull
   @Enumerated(EnumType.STRING)
   @Column(name = "STATUS", nullable = false)
   private Status status = BOOKED;
 
-  @Setter
   @Column(name = "SERIAL_NUMBER", unique = true)
   private String serialNumber;
 
-  @Setter
   @NotNull
   @ManyToOne(cascade = PERSIST)
   @JoinColumn(name = "BOOKING", nullable = false)
   private Booking booking;
 
-  @Setter
   @NotNull
   @ManyToOne(optional = false)
   @JoinColumn(name = "TICKET_DEFINITION_ID", nullable = false)
   private TicketDefinition ticketDefinition;
 
-  @Setter
   @NotNull
   @ManyToOne(optional = false)
   @JoinColumn(name = "TICKET_POOL_ID", nullable = false)
   private TicketPool ticketPool;
 
-  @Setter
   @ManyToOne
   @JoinColumn(name = "TICKET_TAKER_ID")
   private User ticketTaker;
 
-  @Setter
   @Column(name = "PUNCHING_DATE_ID")
   private Date punchingDate;
 
+  @Embedded
+  private Discount discount;
+
+
   @Builder
   public Ticket(String name, Integer price, Date date, Status status, String serialNumber,
-      Booking booking, TicketPool ticketPool, TicketDefinition ticketDefinition) {
+      Booking booking, TicketPool ticketPool, TicketDefinition ticketDefinition,
+      Discount discount) {
     this.name = name;
     this.price = price;
     this.date = date;
@@ -111,6 +109,7 @@ public class Ticket implements Serializable {
     this.booking = booking;
     this.ticketPool = ticketPool;
     this.ticketDefinition = ticketDefinition;
+    this.discount = discount;
   }
 
   public ByteArrayOutputStream encodeSerialNumberAsQrCode(int qrCodeWidth, int qrCodeHeight) {

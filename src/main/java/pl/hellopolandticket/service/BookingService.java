@@ -172,10 +172,13 @@ public class BookingService extends ServiceSuperclass {
       TicketPool pool = ticketPoolService.find(poolDefinition, dto.date);
       if (pool == null) {
         pool = ticketPoolService.createNew(poolDefinition, dto.date);
+        em.refresh(ticketDefinition);
       }
       for (int i = 0; i < dto.numberOfTickets; i++) {
+        AvailableTicketNumberAssociation atna = ticketDefinition.getAtna(pool);
         Ticket ticket = Ticket.builder().name(ticketDefinition.getName())
             .price(ticketDefinition.getPrice()).date(pool.getStartDate()).status(BOOKED)
+            .discount(atna.getDiscount())
             .booking(booking).ticketDefinition(ticketDefinition).ticketPool(pool).build();
         bookedTickets.add(ticket);
       }

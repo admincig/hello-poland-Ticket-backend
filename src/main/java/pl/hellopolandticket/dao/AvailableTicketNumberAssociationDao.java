@@ -54,7 +54,7 @@ public class AvailableTicketNumberAssociationDao {
   public AvailableTicketNumberAssociation findForTicketPoolDefinitionAndTicketDefinition(
       TicketPoolDefinition tpd, TicketDefinition td) {
     return entityManager.createQuery(
-        "from AvailableTicketNumberAssociation a where a.ticketPoolDefinition = :tpd and a.ticketDefinition = :td",
+        "from AvailableTicketNumberAssociation a where a.deleted=false and a.ticketPoolDefinition = :tpd and a.ticketDefinition = :td",
         AvailableTicketNumberAssociation.class).setParameter("tpd", tpd).setParameter("td", td)
         .getResultStream().findFirst()
         .orElseThrow(() -> exceptionFactory.resourceNotFoundException());

@@ -114,20 +114,25 @@ public class ModelObjectsToDTOConverter {
       ticketDefinitionDTO.poolId = tpd.getId();
       Discount discount = atna.getDiscount();
       if (discount != null) {
-        ticketDefinitionDTO.discount = new DiscountDTO();
-        ticketDefinitionDTO.discount.type = DiscountTypeDTO.valueOf(discount.getType().name());
-        ticketDefinitionDTO.discount.isCustomCommission = discount.isCustomComission();
-        ticketDefinitionDTO.discount.value = discount.getValue();
-        ticketDefinitionDTO.discount.amount = discount.getAmount();
-        ticketDefinitionDTO.discount.percent = discount.getPercent();
-        ticketDefinitionDTO.discount.price = discount.getDiscountPrice();
-        ticketDefinitionDTO.discount.hplPart = discount.getHplPart();
-        ticketDefinitionDTO.discount.partnerPart = discount.getPartnerPart();
+        ticketDefinitionDTO.discount = ofDiscount(discount);
       }
     }
 
     ticketDefinitionDTO.calculatePrice();
     return ticketDefinitionDTO;
+  }
+
+  private static DiscountDTO ofDiscount(Discount discount) {
+    DiscountDTO dto = new DiscountDTO();
+    dto.type = DiscountTypeDTO.valueOf(discount.getType().name());
+    dto.isCustomCommission = discount.isCustomComission();
+    dto.value = discount.getValue();
+    dto.amount = discount.getAmount();
+    dto.percent = discount.getPercent();
+    dto.price = discount.getDiscountPrice();
+    dto.hplPart = discount.getHplPart();
+    dto.partnerPart = discount.getPartnerPart();
+    return dto;
   }
 
   public static TicketDTO ofTicket(Ticket ticket) {
@@ -143,6 +148,9 @@ public class ModelObjectsToDTOConverter {
     ticketDTO.bookingId = ticket.getBooking().getId();
     ticketDTO.booking = ofBookingBasic(ticket.getBooking());
     ticketDTO.wholeDay = ticket.getTicketPool().getTicketPoolDefinition().isWholeDay();
+    if (ticket.getDiscount() != null) {
+      ticketDTO.discount = ofDiscount(ticket.getDiscount());
+    }
     return ticketDTO;
   }
 

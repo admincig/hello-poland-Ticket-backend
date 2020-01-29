@@ -64,21 +64,20 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
-  public void add(TicketPool pool, TicketPoolDefinition ticketPoolDefinition) {
-    var tds = ticketPoolDefinition.getTicketDefinitions();
+  public void createChildrenAtnas(TicketPoolDefinition tpd, TicketPool pool) {
+    var tds = tpd.getTicketDefinitions();
     if (tds != null && !tds.isEmpty()) {
       for (TicketDefinition td : tds) {
         AvailableTicketNumberAssociation association =
-            dao.findForTicketPoolDefinitionAndTicketDefinition(ticketPoolDefinition, td);
-        if (!association.isDeleted()) {
-          var bo = AvailableTicketNumberAssociation.builder()
-              .ticketDefinition(td)
-              .ticketPool(pool)
-              .availableTicketsNumber(association.getAvailableTicketsNumber())
-              .parent(association)
-              .build();
-          dao.persist(bo);
-        }
+            dao.findForTicketPoolDefinitionAndTicketDefinition(tpd, td);
+        var bo = AvailableTicketNumberAssociation.builder()
+            .ticketDefinition(td)
+            .ticketPool(pool)
+            .availableTicketsNumber(association.getAvailableTicketsNumber())
+            .parent(association)
+            .discount(association.getDiscount())
+            .build();
+        dao.persist(bo);
       }
     }
   }
@@ -244,6 +243,16 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
       newAtna.getTicketPoolDefinition().getAtnas().add(newAtna);
     }
     return newAtna;
+  }
+
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
+  public AvailableTicketNumberAssociation get(Long id) {
+    return em.find(AvailableTicketNumberAssociation.class, id);
+  }
+
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
+  public TicketDefinition getTD(Long id) {
+    return em.find(TicketDefinition.class, id);
   }
 
 }

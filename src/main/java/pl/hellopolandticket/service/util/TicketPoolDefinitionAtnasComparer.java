@@ -2,6 +2,7 @@ package pl.hellopolandticket.service.util;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import pl.hellopoland.dto.DiscountDTO;
 import pl.hellopoland.dto.TicketDefinitionDTO;
@@ -23,34 +24,35 @@ public class TicketPoolDefinitionAtnasComparer {
       TicketPoolDefinitionDTO dto) {
     TicketPoolDefinitionAtnasComparerResult result = new TicketPoolDefinitionAtnasComparerResult();
     List<AvailableTicketNumberAssociation> atnas = tpd.getUndeletedAtnas();
-    outer: for (var atna : atnas) {
+    for (var atna : atnas) {
       Long ticketDefinitionId = atna.getTicketDefinition().getId();
       for (TicketDefinitionDTO td : dto.ticketDefinitions) {
         if (td.id.equals(ticketDefinitionId)) {
-          if (td.availableTicketsNumber != atna.getAvailableTicketsNumber()) {
+          if (Objects.equals(td.availableTicketsNumber, atna.getAvailableTicketsNumber())) {
             result.toModify.add(Map.entry(atna, td.availableTicketsNumber));
           }
-          continue outer;
+          break;
         }
       }
       result.toRemove.add(atna);
     }
-    outer: for (var td : dto.ticketDefinitions) {
+    for (var td : dto.ticketDefinitions) {
       for (var atna : atnas) {
         Long ticketDefinitionId = atna.getTicketDefinition().getId();
         if (td.id.equals(ticketDefinitionId)) {
-          continue outer;
+          break;
         }
       }
       TicketDefinition ticketDefinition = new TicketDefinition();
       ticketDefinition.setId(td.id);
+
       AvailableTicketNumberAssociation parentAtna =
           new AvailableTicketNumberAssociation(td.availableTicketsNumber,
-              ticketDefinition, tpd, null, null);
+              ticketDefinition, tpd, null, null, null);
       result.toAdd.add(parentAtna);
       result.toAdd.addAll(tpd.getTicketPools().stream()
           .map(tp -> new AvailableTicketNumberAssociation(td.availableTicketsNumber,
-              ticketDefinition, null, tp, parentAtna))
+              ticketDefinition, null, tp, parentAtna, null))
           .collect(Collectors.toList()));
     }
     return result;
@@ -62,7 +64,7 @@ public class TicketPoolDefinitionAtnasComparer {
         new TicketPoolDefinitionAtnasDiscountComparerResult();
 
     List<AvailableTicketNumberAssociation> atnas = tpd.getUndeletedAtnas();
-    outer: for (var atna : atnas) {
+    for (var atna : atnas) {
       for (TicketDefinitionDTO td : dto.ticketDefinitions) {
         Long ticketDefinitionId = atna.getTicketDefinition().getId();
         Integer ticketQuantity = atna.getAvailableTicketsNumber();
@@ -70,13 +72,13 @@ public class TicketPoolDefinitionAtnasComparer {
         if (td.id.equals(ticketDefinitionId) && validateDiscountCreation(td.discount)) {
           if (shouldDiscountBeAdded(ticketQuantity, atna.getDiscount(), td.discount)) {
             result.toAdd.add(Map.entry(atna, td.discount));
-            continue outer;
+            break;
           } else if (shouldDiscountBeModified(ticketQuantity, atna.getDiscount(), td.discount)) {
             result.toModify.add(Map.entry(atna, td.discount));
-            continue outer;
+            break;
           } else if (shouldDiscountBeDeleted(atna.getDiscount(), td.discount)) {
             result.toRemove.add(Map.entry(atna, td.discount));
-            continue outer;
+            break;
           }
         }
       }

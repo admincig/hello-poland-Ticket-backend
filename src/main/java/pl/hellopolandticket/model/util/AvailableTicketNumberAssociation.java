@@ -2,6 +2,7 @@ package pl.hellopolandticket.model.util;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -27,6 +28,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "AVAILABLE_TICKET_NUMBER_ASSOCIATION", uniqueConstraints = @UniqueConstraint(
     columnNames = {"TICKET_DEFINITION_ID", "TICKET_POOL_DEFINITION_ID", "TICKET_POOL_ID"}))
@@ -42,52 +44,45 @@ public class AvailableTicketNumberAssociation implements Serializable, Limited {
   // @Column(name = "AVAILABLE_TICKET_NUMBER_ASSOCIATION_ID")
   private Long id;
 
-  @Setter
   @NotNull
   @Column(name = "AVAILABLE_TICKETS_NUMBER", nullable = false)
   private Integer availableTicketsNumber;
 
-  @Setter
   @NotNull
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, cascade = CascadeType.REFRESH)
   @JoinColumn(name = "TICKET_DEFINITION_ID", nullable = false)
   private TicketDefinition ticketDefinition;
 
-  @Setter
   @ManyToOne
   @JoinColumn(name = "TICKET_POOL_DEFINITION_ID")
   private TicketPoolDefinition ticketPoolDefinition;
 
-  @Setter
   @ManyToOne
   @JoinColumn(name = "TICKET_POOL_ID")
   private TicketPool ticketPool;
 
-  @Setter
   @ManyToOne
   @JoinColumn(name = "PARENT_ID")
   private AvailableTicketNumberAssociation parent;
 
-  @Setter
   private boolean deleted;
 
-  @Setter
   @OneToMany(mappedBy = "parent")
   private List<AvailableTicketNumberAssociation> children;
 
   @Embedded
-  @Setter
   private Discount discount;
 
   @Builder
   public AvailableTicketNumberAssociation(@NotNull Integer availableTicketsNumber,
       @NotNull TicketDefinition ticketDefinition, TicketPoolDefinition ticketPoolDefinition,
-      TicketPool ticketPool, AvailableTicketNumberAssociation parent) {
+      TicketPool ticketPool, AvailableTicketNumberAssociation parent, Discount discount) {
     this.parent = parent;
     this.availableTicketsNumber = availableTicketsNumber;
     this.ticketDefinition = ticketDefinition;
     this.ticketPoolDefinition = ticketPoolDefinition;
     this.ticketPool = ticketPool;
+    this.discount = discount;
   }
 
 
