@@ -111,6 +111,9 @@ public class TicketPoolDefinitionAtnasDiffApplier {
   }
 
   private void validateDiscountValue(int price, int amount) {
+    if (amount < 0) {
+      throw new ConflictingException("Discount cannot be negative");
+    }
     if (price < amount) {
       throw new ConflictingException("Discount cannot be bigger than ticket price");
     }
