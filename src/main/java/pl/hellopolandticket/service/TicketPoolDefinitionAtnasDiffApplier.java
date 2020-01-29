@@ -74,7 +74,7 @@ public class TicketPoolDefinitionAtnasDiffApplier {
 
   private void updateDiscount(AvailableTicketNumberAssociation atna, DiscountDTO dto) {
     Discount d = new Discount();
-    boolean isCustomComission = Boolean.TRUE.equals(dto.isCustomCommision);
+    boolean isCustomComission = Boolean.TRUE.equals(dto.isCustomCommission);
     d.setCustomComission(isCustomComission);
     d.setValue(dto.value);
 

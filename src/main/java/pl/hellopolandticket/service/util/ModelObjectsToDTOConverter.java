@@ -116,7 +116,7 @@ public class ModelObjectsToDTOConverter {
       if (discount != null) {
         ticketDefinitionDTO.discount = new DiscountDTO();
         ticketDefinitionDTO.discount.type = DiscountTypeDTO.valueOf(discount.getType().name());
-        ticketDefinitionDTO.discount.isCustomCommision = discount.isCustomComission();
+        ticketDefinitionDTO.discount.isCustomCommission = discount.isCustomComission();
         ticketDefinitionDTO.discount.value = discount.getValue();
         ticketDefinitionDTO.discount.amount = discount.getAmount();
         ticketDefinitionDTO.discount.percent = discount.getPercent();
