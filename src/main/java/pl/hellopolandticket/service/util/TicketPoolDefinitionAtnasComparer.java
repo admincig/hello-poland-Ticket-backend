@@ -111,6 +111,16 @@ public class TicketPoolDefinitionAtnasComparer {
   private boolean validateDiscountCreation(DiscountDTO newDiscount) {
     return newDiscount != null &&
         newDiscount.value != null
-        && newDiscount.type != null;
+        && newDiscount.type != null
+        && validateCommissions(newDiscount);
+  }
+
+  private boolean validateCommissions(DiscountDTO newDiscount) {
+    return newDiscount.isCustomCommission == null
+        || !newDiscount.isCustomCommission
+        || !(newDiscount.hplPart == null
+            || newDiscount.partnerPart == null
+            || newDiscount.hplPart < 0
+            || newDiscount.partnerPart < 0);
   }
 }
