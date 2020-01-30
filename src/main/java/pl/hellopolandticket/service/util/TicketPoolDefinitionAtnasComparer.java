@@ -24,23 +24,23 @@ public class TicketPoolDefinitionAtnasComparer {
       TicketPoolDefinitionDTO dto) {
     TicketPoolDefinitionAtnasComparerResult result = new TicketPoolDefinitionAtnasComparerResult();
     List<AvailableTicketNumberAssociation> atnas = tpd.getUndeletedAtnas();
-    for (var atna : atnas) {
+    outer: for (var atna : atnas) {
       Long ticketDefinitionId = atna.getTicketDefinition().getId();
       for (TicketDefinitionDTO td : dto.ticketDefinitions) {
         if (td.id.equals(ticketDefinitionId)) {
-          if (Objects.equals(td.availableTicketsNumber, atna.getAvailableTicketsNumber())) {
+          if (!Objects.equals(td.availableTicketsNumber, atna.getAvailableTicketsNumber())) {
             result.toModify.add(Map.entry(atna, td.availableTicketsNumber));
           }
-          break;
+          continue outer;
         }
       }
       result.toRemove.add(atna);
     }
-    for (var td : dto.ticketDefinitions) {
+    outer: for (var td : dto.ticketDefinitions) {
       for (var atna : atnas) {
         Long ticketDefinitionId = atna.getTicketDefinition().getId();
         if (td.id.equals(ticketDefinitionId)) {
-          break;
+          continue outer;
         }
       }
       TicketDefinition ticketDefinition = new TicketDefinition();

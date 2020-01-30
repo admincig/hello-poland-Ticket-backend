@@ -53,7 +53,7 @@ public class TicketPoolDefinitionRestService {
   public Response updateTicketPoolDef(@PathParam("id") Long id, TicketPoolDefinitionDTO dto) {
     dto.id = id;
     ticketPoolDefinitionService.update(dto, currentUser);
-    return getTicketPoolDefs(null);
+    return getTicketPoolDef(id);
   }
 
   @GET
