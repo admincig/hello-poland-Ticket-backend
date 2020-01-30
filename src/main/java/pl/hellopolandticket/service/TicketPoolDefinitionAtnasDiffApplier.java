@@ -108,7 +108,7 @@ public class TicketPoolDefinitionAtnasDiffApplier {
       d.setPartnerPart(amount);
     }
 
-    validateDiscountValue(newPrice, amount);
+    validateDiscountValue(originalPrice, amount);
     validateDiscountParts(d.getHplPart(), d.getPartnerPart(), amount);
 
     atna.setDiscount(d);
