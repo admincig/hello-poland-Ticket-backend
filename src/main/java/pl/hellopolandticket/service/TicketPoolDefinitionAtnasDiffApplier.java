@@ -127,6 +127,9 @@ public class TicketPoolDefinitionAtnasDiffApplier {
     if (hplPart + partnerPart != amount) {
       throw new ConflictingException("Niepoprawny podział kosztów rabatu");
     }
+    if (hplPart < 0 || partnerPart < 0) {
+      throw new ConflictingException("W podziale nie można korzystać z wartości ujemnych");
+    }
   }
 
 }
