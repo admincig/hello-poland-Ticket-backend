@@ -88,7 +88,8 @@ public class TicketPoolDefinitionAtnasComparer {
   }
 
   private boolean shouldDiscountBeDeleted(Discount current, DiscountDTO newDiscount) {
-    return current != null && newDiscount == null;
+    return current != null
+        && (newDiscount == null || newDiscount.value == 0);
   }
 
   private boolean shouldDiscountBeModified(Discount current, DiscountDTO newDiscount) {
