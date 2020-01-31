@@ -64,7 +64,7 @@ public class TicketPoolDefinitionAtnasDiffApplier {
       for (AvailableTicketNumberAssociation child : remove.getKey().getChildren()) {
         child.setDiscount(null);
       }
-      remove.getKey().setDiscount(null); // zadziała?
+      remove.getKey().setDiscount(null);
     }
 
     for (Entry<AvailableTicketNumberAssociation, DiscountDTO> modify : diffs.toModify) {

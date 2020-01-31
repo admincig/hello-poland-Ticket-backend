@@ -70,14 +70,14 @@ public class TicketPoolDefinitionAtnasComparer {
         Integer ticketQuantity = atna.getAvailableTicketsNumber();
 
         if (td.id.equals(ticketDefinitionId) && validateDiscountCreation(td.discount)) {
-          if (shouldDiscountBeAdded(ticketQuantity, atna.getDiscount(), td.discount)) {
+          if (shouldDiscountBeDeleted(atna.getDiscount(), td.discount)) {
+            result.toRemove.add(Map.entry(atna, new DiscountDTO()));
+            break;
+          } else if (shouldDiscountBeAdded(ticketQuantity, atna.getDiscount(), td.discount)) {
             result.toAdd.add(Map.entry(atna, td.discount));
             break;
           } else if (shouldDiscountBeModified(ticketQuantity, atna.getDiscount(), td.discount)) {
             result.toModify.add(Map.entry(atna, td.discount));
-            break;
-          } else if (shouldDiscountBeDeleted(atna.getDiscount(), td.discount)) {
-            result.toRemove.add(Map.entry(atna, td.discount));
             break;
           }
         }
@@ -88,8 +88,7 @@ public class TicketPoolDefinitionAtnasComparer {
   }
 
   private boolean shouldDiscountBeDeleted(Discount current, DiscountDTO newDiscount) {
-    return newDiscount.value.intValue() == 0
-        && newDiscount.value != current.getValue();
+    return newDiscount == null;
   }
 
   private boolean shouldDiscountBeModified(Integer ticketQuantity, Discount current,
@@ -109,10 +108,10 @@ public class TicketPoolDefinitionAtnasComparer {
   }
 
   private boolean validateDiscountCreation(DiscountDTO newDiscount) {
-    return newDiscount != null &&
-        newDiscount.value != null
-        && newDiscount.type != null
-        && validateCommissions(newDiscount);
+    return newDiscount == null ||
+        (newDiscount.value != null
+            && newDiscount.type != null
+            && validateCommissions(newDiscount));
   }
 
   private boolean validateCommissions(DiscountDTO newDiscount) {
