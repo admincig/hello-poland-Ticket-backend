@@ -95,7 +95,9 @@ public class TicketPoolDefinitionAtnasComparer {
       DiscountDTO newDiscount) {
     return ticketQuantity != null
         && ticketQuantity != 0
-        && newDiscount.value.intValue() != current.getValue();
+        && (!Objects.equals(newDiscount.value, current.getValue())
+            || !Objects.equals(newDiscount.isCustomCommission, current.isCustomComission())
+            || !Objects.equals(newDiscount.partnerPart, current.getPartnerPart()));
   }
 
   private boolean shouldDiscountBeAdded(Integer ticketQuantity, Discount current,
