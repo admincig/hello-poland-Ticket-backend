@@ -103,7 +103,6 @@ public class TicketPoolDefinitionAtnasComparer {
     return ticketQuantity != null
         && ticketQuantity != 0
         && newDiscount != null
-        && newDiscount.value > 0
         && (current == null || current.getValue() == 0);
   }
 
