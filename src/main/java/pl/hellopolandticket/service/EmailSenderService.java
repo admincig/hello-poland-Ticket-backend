@@ -271,7 +271,11 @@ public class EmailSenderService extends ServiceSuperclass {
     variablesMap.put("qrCode", "<img src=\"cid:" + ticketCID + "\">");
     variablesMap.put("ticketName", ticket.name);
     variablesMap.put("ticketNumber", ticket.serialNumber);
-    variablesMap.put("ticketPrice", getHumanReadablePrice(ticket.price));
+    Integer price = ticket.price;
+    if (ticket.discount != null) {
+      price = ticket.discount.price;
+    }
+    variablesMap.put("ticketPrice", getHumanReadablePrice(price));
     Writer out = new StringWriter();
     template.process(variablesMap, out);
     return out.toString();
