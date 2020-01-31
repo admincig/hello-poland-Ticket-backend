@@ -116,16 +116,16 @@ public class TicketPoolDefinitionAtnasDiffApplier {
 
   private void validateDiscountValue(int price, int amount) {
     if (amount < 0) {
-      throw new ConflictingException("Discount cannot be negative");
+      throw new ConflictingException("Rabat nie może być ujemny");
     }
     if (price < amount) {
-      throw new ConflictingException("Discount cannot be bigger than ticket price");
+      throw new ConflictingException("Rabat nie może być większy od ceny biletu");
     }
   }
 
   private void validateDiscountParts(int hplPart, int partnerPart, int amount) {
     if (hplPart + partnerPart != amount) {
-      throw new ConflictingException("Sum of discount parts is not equal to discount amount");
+      throw new ConflictingException("Niepoprawny podział kosztów rabatu");
     }
   }
 
