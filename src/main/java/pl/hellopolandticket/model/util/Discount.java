@@ -1,11 +1,13 @@
 package pl.hellopolandticket.model.util;
 
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import lombok.Getter;
 import lombok.Setter;
+import pl.hellopoland.dto.DiscountDTO;
 
 @Embeddable
 @Setter
@@ -39,6 +41,14 @@ public class Discount {
 
   public static enum Type {
     PERCENT, FLAT;
+  }
+
+  public boolean equals(DiscountDTO other) {
+    return Objects.equals(hplPart, other.hplPart)
+        && Objects.equals(isCustomComission, other.isCustomCommission)
+        && Objects.equals(partnerPart, other.partnerPart)
+        && Objects.equals(type.toString(), other.type.toString())
+        && Objects.equals(value, other.value);
   }
 
 }

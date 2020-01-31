@@ -69,14 +69,14 @@ public class TicketPoolDefinitionAtnasComparer {
         Long ticketDefinitionId = atna.getTicketDefinition().getId();
         Integer ticketQuantity = atna.getAvailableTicketsNumber();
 
-        if (td.id.equals(ticketDefinitionId) && validateDiscountCreation(td.discount)) {
+        if (td.id.equals(ticketDefinitionId) && !ticketQuantity.equals(0)) {
           if (shouldDiscountBeDeleted(atna.getDiscount(), td.discount)) {
             result.toRemove.add(Map.entry(atna, new DiscountDTO()));
             break;
-          } else if (shouldDiscountBeAdded(ticketQuantity, atna.getDiscount(), td.discount)) {
+          } else if (shouldDiscountBeAdded(atna.getDiscount(), td.discount)) {
             result.toAdd.add(Map.entry(atna, td.discount));
             break;
-          } else if (shouldDiscountBeModified(ticketQuantity, atna.getDiscount(), td.discount)) {
+          } else if (shouldDiscountBeModified(atna.getDiscount(), td.discount)) {
             result.toModify.add(Map.entry(atna, td.discount));
             break;
           }
@@ -88,39 +88,18 @@ public class TicketPoolDefinitionAtnasComparer {
   }
 
   private boolean shouldDiscountBeDeleted(Discount current, DiscountDTO newDiscount) {
-    return newDiscount == null;
+    return current != null && newDiscount == null;
   }
 
-  private boolean shouldDiscountBeModified(Integer ticketQuantity, Discount current,
-      DiscountDTO newDiscount) {
-    return ticketQuantity != null
-        && ticketQuantity != 0
-        && (!Objects.equals(newDiscount.value, current.getValue())
-            || !Objects.equals(newDiscount.isCustomCommission, current.isCustomComission())
-            || !Objects.equals(newDiscount.partnerPart, current.getPartnerPart()));
-  }
-
-  private boolean shouldDiscountBeAdded(Integer ticketQuantity, Discount current,
-      DiscountDTO newDiscount) {
-    return ticketQuantity != null
-        && ticketQuantity != 0
+  private boolean shouldDiscountBeModified(Discount current, DiscountDTO newDiscount) {
+    return current != null
         && newDiscount != null
+        && !current.equals(newDiscount);
+  }
+
+  private boolean shouldDiscountBeAdded(Discount current, DiscountDTO newDiscount) {
+    return newDiscount != null
         && (current == null || current.getValue() == 0);
   }
 
-  private boolean validateDiscountCreation(DiscountDTO newDiscount) {
-    return newDiscount == null ||
-        (newDiscount.value != null
-            && newDiscount.type != null
-            && validateCommissions(newDiscount));
-  }
-
-  private boolean validateCommissions(DiscountDTO newDiscount) {
-    return newDiscount.isCustomCommission == null
-        || !newDiscount.isCustomCommission
-        || !(newDiscount.hplPart == null
-            || newDiscount.partnerPart == null
-            || newDiscount.hplPart < 0
-            || newDiscount.partnerPart < 0);
-  }
 }
