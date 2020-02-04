@@ -57,7 +57,7 @@ public class AvailableTicketNumberAssociationDao {
         "from AvailableTicketNumberAssociation a where a.deleted=false and a.ticketPoolDefinition = :tpd and a.ticketDefinition = :td",
         AvailableTicketNumberAssociation.class).setParameter("tpd", tpd).setParameter("td", td)
         .getResultStream().findFirst()
-        .orElseThrow(() -> exceptionFactory.resourceNotFoundException());
+        .orElseThrow(() -> exceptionFactory.nonRollbackResourceNotFoundException());
   }
 
   public AvailableTicketNumberAssociation findForTicketPoolAndTicketDefinition(TicketPool tp,
@@ -73,6 +73,10 @@ public class AvailableTicketNumberAssociationDao {
     entityManager.merge(bo);
     entityManager.flush();
     return bo;
+  }
+
+  public void flush() {
+    entityManager.flush();
   }
 
 }

@@ -11,6 +11,7 @@ import pl.hellopolandticket.service.exception.conflict.PunchingTicketForWrongSig
 import pl.hellopolandticket.service.exception.conflict.RequestedDateOutsideRequestedTicketDefinitionPoolException;
 import pl.hellopolandticket.service.exception.conflict.TicketConflictException;
 import pl.hellopolandticket.service.exception.conflict.WrongTicketStatusException;
+import pl.hellopolandticket.service.exception.notfound.NonRollbackResourceNotFoundException;
 import pl.hellopolandticket.service.exception.notfound.ResourceNotFoundException;
 import pl.hellopolandticket.service.exception.notfound.TicketNotFoundException;
 import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException;
@@ -60,6 +61,11 @@ public class ExceptionFactory {
 
   public ResourceNotFoundException resourceNotFoundException() {
     return new ResourceNotFoundException(
+        exceptionMessagesService.getMessage(ResourceNotFoundException.class.getSimpleName()));
+  }
+
+  public NonRollbackResourceNotFoundException nonRollbackResourceNotFoundException() {
+    return new NonRollbackResourceNotFoundException(
         exceptionMessagesService.getMessage(ResourceNotFoundException.class.getSimpleName()));
   }
 

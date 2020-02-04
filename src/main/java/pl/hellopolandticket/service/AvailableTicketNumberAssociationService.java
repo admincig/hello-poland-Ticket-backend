@@ -2,6 +2,7 @@ package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+import java.lang.System.Logger.Level;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -26,6 +27,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.service.exception.conflict.ConflictingException;
+import pl.hellopolandticket.service.exception.notfound.NonRollbackResourceNotFoundException;
 import pl.hellopolandticket.service.exception.preconditionfailed.CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
@@ -67,19 +69,32 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
   public void createChildrenAtnas(TicketPoolDefinition tpd, TicketPool pool) {
     var tds = tpd.getTicketDefinitions();
     if (tds != null && !tds.isEmpty()) {
-      for (TicketDefinition td : tds) {
-        AvailableTicketNumberAssociation association =
-            dao.findForTicketPoolDefinitionAndTicketDefinition(tpd, td);
-        var bo = AvailableTicketNumberAssociation.builder()
-            .ticketDefinition(td)
-            .ticketPool(pool)
-            .availableTicketsNumber(association.getAvailableTicketsNumber())
-            .parent(association)
-            .discount(association.getDiscount())
-            .build();
-        dao.persist(bo);
+      List<TicketDefinition> notDeleted =
+          tds.stream().filter(td -> !td.isDeleted()).collect(Collectors.toList());
+      if (!notDeleted.isEmpty()) {
+        for (TicketDefinition td : notDeleted) {
+          createAtna(tpd, pool, td);
+        }
       }
     }
+  }
+
+  private void createAtna(TicketPoolDefinition tpd, TicketPool pool, TicketDefinition td) {
+    AvailableTicketNumberAssociation association = null;
+    try {
+      association = dao.findForTicketPoolDefinitionAndTicketDefinition(tpd, td);
+    } catch (NonRollbackResourceNotFoundException e) {
+      logger.log(Level.DEBUG, "atna for td probably deleted");
+      return;
+    }
+    var bo = AvailableTicketNumberAssociation.builder()
+        .ticketDefinition(td)
+        .ticketPool(pool)
+        .availableTicketsNumber(association.getAvailableTicketsNumber())
+        .parent(association)
+        .discount(association.getDiscount())
+        .build();
+    dao.persist(bo);
   }
 
   @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
