@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -286,8 +287,22 @@ public class SightEventService extends ServiceSuperclass {
         .forEach(entry -> {
           SightEventPriceDTO dto = new SightEventPriceDTO();
           dto.id = entry.getKey().getId();
-          dto.price = entry.getValue().stream().flatMap(tpd -> tpd.getTicketDefinitions().stream())
-              .mapToInt(TicketDefinition::getPrice).min().getAsInt();
+          dto.price = Integer.MAX_VALUE;
+          var tpds = entry.getValue();
+          for (var tpd : tpds) {
+            var td = tpd.getTicketDefinitions().stream()
+                .min(Comparator.comparing(TicketDefinition::getPrice))
+                .get();
+            if (td.getPrice() < dto.price) {
+              dto.price = td.getPrice();
+              var atna = td.getAtna(tpd);
+              if (atna.getDiscount() != null) {
+                dto.discountPrice = atna.getDiscount().getDiscountPrice();
+              } else {
+                dto.discountPrice = null;
+              }
+            }
+          }
           result.add(dto);
         });
     return result;

@@ -94,6 +94,12 @@ public class TicketDefinition implements Serializable {
         .get();
   }
 
-
+  public AvailableTicketNumberAssociation getAtna(TicketPoolDefinition tpd) {
+    return this.atnas.stream()
+        .filter(atna -> atna.getTicketPoolDefinition() != null)
+        .filter(atna -> atna.getTicketPoolDefinition().getId().equals(tpd.getId()))
+        .findFirst()
+        .get();
+  }
 
 }
