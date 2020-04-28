@@ -290,8 +290,14 @@ public class SightEventService extends ServiceSuperclass {
           dto.price = Integer.MAX_VALUE;
           var tpds = entry.getValue();
           for (var tpd : tpds) {
-            var td = tpd.getTicketDefinitions().stream()
+            var ticketDefinitions = tpd.getTicketDefinitions();
+            var undeleted = ticketDefinitions.stream()
                 .filter(tdd -> !tdd.getAtna(tpd).isDeleted())
+                .collect(Collectors.toList());
+            if (undeleted.isEmpty()) {
+              continue;
+            }
+            var td = undeleted.stream()
                 .min(Comparator.comparing(TicketDefinition::getPrice))
                 .get();
             if (td.getPrice() < dto.price) {

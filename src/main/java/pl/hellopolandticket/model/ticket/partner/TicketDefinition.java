@@ -2,6 +2,10 @@ package pl.hellopolandticket.model.ticket.partner;
 
 import static javax.persistence.CascadeType.ALL;
 import java.io.Serializable;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -94,12 +98,20 @@ public class TicketDefinition implements Serializable {
         .get();
   }
 
+  @Transient
+  private transient Logger logger = System.getLogger("TicketDefinition-" + id);
+
   public AvailableTicketNumberAssociation getAtna(TicketPoolDefinition tpd) {
-    return this.atnas.stream()
+    var list = this.atnas.stream()
         .filter(atna -> atna.getTicketPoolDefinition() != null)
         .filter(atna -> atna.getTicketPoolDefinition().getId().equals(tpd.getId()))
-        .findFirst()
-        .get();
+        .collect(Collectors.toList());
+    if (list.size() > 1) {
+      Collections.sort(list, Comparator.comparing(AvailableTicketNumberAssociation::isDeleted));
+      logger.log(Level.DEBUG,
+          "Found more than one matching ATNA, sorting by isDeleted and returning first");
+    }
+    return list.get(0);
   }
 
 }
