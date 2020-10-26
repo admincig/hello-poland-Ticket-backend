@@ -1,0 +1,21 @@
+version: '3'
+services:
+  database:
+    container_name: hpt_database
+    image: postgres:alpine
+    volumes:
+      - ${FRM_HPT_DB_CREATE_SCRIPT_DIR}:${FRM_HPT_DOCKER_DB_ENTRYPOINT_DIR}/${FRM_HPT_DB_CREATE_SCRIPT}
+      - hellopoland-hpt-pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+  backend:
+    container_name: hpt_backend
+    image: "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}"
+    volumes:
+      - ${FRM_HPT_DOCKER_COMPOSE_LOCAL_RUNTIME_PROP_DIR}:/opt/local.runtime.properties
+    ports:
+      - 8365:8080
+    depends_on:
+      - database
+volumes:
+  hellopoland-hpt-pgdata:

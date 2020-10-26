@@ -1,16 +1,97 @@
 stages:
-    - build
+  - test
+  - build
+  - docker
+  - deploy
 
 variables:
-    JAVA_VERSION: "11"
+  JAVA_VERSION: "11"
 
-#
-# build stage tasks
-#
-build_backend:
-    stage: build
-    before_script:
-        - . envcfg
-        - envcfg -p
-    script:
-        - mvn -U clean verify
+Run tests:
+  stage: test
+  before_script:
+    - . envcfg
+    - envcfg -p
+  script:
+    - mvn clean test -Dtest=*Test,*Spec
+  tags:
+    - maven
+
+Build for test server:
+  stage: build
+  before_script:
+    - . envcfg
+    - envcfg -p
+  script:
+    - mvn -Dlocal.maven.build.properties=${FRM_HPT_TEST_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
+    - mvn -Dlocal.maven.build.properties=${FRM_HPT_TEST_MAVEN_LOCAL_PROPERTIES_DIR} -P copy-wildfly-files
+  tags:
+    - ${FRM_HPT_TEST_SERVER_EXECUTOR}
+  artifacts:
+    paths:
+      - target/helloticket.war
+  allow_failure: false
+
+Build for production server:
+  stage: build
+  before_script:
+    - . envcfg
+    - envcfg -p
+  script:
+    - mvn -Dlocal.maven.build.properties=${FRM_HPT_PROD_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
+    - mvn -Dlocal.maven.build.properties=${FRM_HPT_PROD_MAVEN_LOCAL_PROPERTIES_DIR} initialize -P copy-wildfly-files
+  tags:
+    - ${FRM_HPT_PROD_SERVER_EXECUTOR}
+  artifacts:
+    paths:
+      - target/helloticket.war
+  allow_failure: false
+
+Build and push docker TEST image:
+  stage: docker
+  before_script:
+    - . envcfg
+    - envcfg -p
+  script:
+    - docker build -t "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}" .
+    - docker push "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}"
+    - docker image rm "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}"
+  tags:
+    - docker
+  dependencies: [ ]
+
+Build and push docker PROD image:
+  stage: docker
+  before_script:
+    - . envcfg
+    - envcfg -p
+  script:
+    - docker build -t "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}" .
+    - docker push "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
+    - docker image rm "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
+  tags:
+    - docker
+  dependencies: [ ]
+
+Deploy on test server:
+  stage: deploy
+  script:
+    - docker-compose -p ${FRM_HPT_TEST_CONTAINER_NAME} pull
+    - set +e && docker-compose -p ${FRM_HPT_TEST_CONTAINER_NAME} stop && set -e
+    - docker-compose -p ${FRM_HPT_TEST_CONTAINER_NAME} up -d
+  tags:
+    - ${FRM_HPT_TEST_SERVER_EXECUTOR}
+  dependencies: [ ]
+  when: manual
+
+Deploy on prod server:
+  stage: deploy
+  script:
+    - ${FRM_HPT_PROD_DB_DUMP_SCRIPT_DIR}
+    - docker pull "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
+    - docker ps -aq --filter "name=${FRM_HPT_PROD_CONTAINER_NAME}" | grep -q . && docker stop "${FRM_HPT_PROD_CONTAINER_NAME}" && docker rm "${FRM_HPT_PROD_CONTAINER_NAME}"
+    - docker run -d --network="bridge" -p ${FRM_HPT_PROD_PORT}:8080 -v ${FRM_HPT_PROD_LOCAL_RUNTIME_PROP_DIR}:/opt/local.runtime.properties --name "${FRM_HPT_PROD_CONTAINER_NAME}" "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
+  tags:
+    - ${FRM_HPT_PROD_SERVER_EXECUTOR}
+  dependencies: [ ]
+  when: manual
