@@ -26,7 +26,7 @@ Build for test server:
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_TEST_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_TEST_MAVEN_LOCAL_PROPERTIES_DIR} -P copy-wildfly-files
   tags:
-    - ${FRM_HPT_TEST_SERVER_EXECUTOR}
+    - qs1-server
   artifacts:
     paths:
       - target/helloticket.war
@@ -41,7 +41,7 @@ Build for production server:
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_PROD_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_PROD_MAVEN_LOCAL_PROPERTIES_DIR} initialize -P copy-wildfly-files
   tags:
-    - ${FRM_HPT_PROD_SERVER_EXECUTOR}
+    - qs1-server
   artifacts:
     paths:
       - target/helloticket.war
@@ -80,7 +80,7 @@ Deploy on test server:
     - set +e && docker-compose -p ${FRM_HPT_TEST_CONTAINER_NAME} stop && set -e
     - docker-compose -p ${FRM_HPT_TEST_CONTAINER_NAME} up -d
   tags:
-    - ${FRM_HPT_TEST_SERVER_EXECUTOR}
+    - qs1-server
   dependencies: [ ]
   when: manual
 
@@ -92,6 +92,6 @@ Deploy on prod server:
     - docker ps -aq --filter "name=${FRM_HPT_PROD_CONTAINER_NAME}" | grep -q . && docker stop "${FRM_HPT_PROD_CONTAINER_NAME}" && docker rm "${FRM_HPT_PROD_CONTAINER_NAME}"
     - docker run -d --network="bridge" -p ${FRM_HPT_PROD_PORT}:8080 -v ${FRM_HPT_PROD_LOCAL_RUNTIME_PROP_DIR}:/opt/local.runtime.properties --name "${FRM_HPT_PROD_CONTAINER_NAME}" "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
   tags:
-    - ${FRM_HPT_PROD_SERVER_EXECUTOR}
+    - qs1-server
   dependencies: [ ]
   when: manual
