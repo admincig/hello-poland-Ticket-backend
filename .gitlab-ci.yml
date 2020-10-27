@@ -13,7 +13,7 @@ Run tests:
     - . envcfg
     - envcfg -p
   script:
-    - mvn clean test -Dtest=*Test,*Spec
+    - mvn clean test -DfailIfNoTests=false -Dtest=*Test,*Spec
   tags:
     - maven
 
