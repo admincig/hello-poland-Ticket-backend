@@ -26,7 +26,7 @@ Build for test server:
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_TEST_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_TEST_MAVEN_LOCAL_PROPERTIES_DIR} -P copy-wildfly-files
   tags:
-    - qs1-server
+    - maven
   artifacts:
     paths:
       - target/helloticket.war
@@ -41,7 +41,7 @@ Build for production server:
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_PROD_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_PROD_MAVEN_LOCAL_PROPERTIES_DIR} initialize -P copy-wildfly-files
   tags:
-    - qs1-server
+    - maven
   artifacts:
     paths:
       - target/helloticket.war
