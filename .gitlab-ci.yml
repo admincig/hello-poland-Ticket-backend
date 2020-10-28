@@ -24,7 +24,6 @@ Build for test server:
     - envcfg -p
   script:
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_TEST_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
-    - mvn -Dlocal.maven.build.properties=${FRM_HPT_TEST_MAVEN_LOCAL_PROPERTIES_DIR} -P copy-wildfly-files
   tags:
     - maven
   artifacts:
@@ -39,7 +38,6 @@ Build for production server:
     - envcfg -p
   script:
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_PROD_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
-    - mvn -Dlocal.maven.build.properties=${FRM_HPT_PROD_MAVEN_LOCAL_PROPERTIES_DIR} initialize -P copy-wildfly-files
   tags:
     - maven
   artifacts:
