@@ -83,7 +83,7 @@ public class BookingService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public BookingDTO createBooking(BookingDTO booking) {
     Booking bookingToPersist = Booking.builder().date(new Date()).customerName(booking.customerName)
-        .customerEmail(booking.customerEmail).build();
+        .customerEmail(booking.customerEmail).invoice(booking.invoice).build();
     logger.log(Logger.Level.INFO, "...........Start booking tickets..............");
     List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
     bookingToPersist.setTickets(tickets);
@@ -223,6 +223,7 @@ public class BookingService extends ServiceSuperclass {
         .p24Currency(booking.getP24Currency()).hash(booking.getSerialNumber())
         .customerName(booking.getCustomerName())
         .recipientEmail(applicationPropertyService.findByName("mail.ticket.copy").propertyValue)
+        .invoice(booking.getInvoice())
         .tickets(booking.getTickets().stream()
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
@@ -236,6 +237,7 @@ public class BookingService extends ServiceSuperclass {
       bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
           .p24Currency(booking.getP24Currency()).hash(booking.getSerialNumber())
           .customerName(booking.getCustomerName()).recipientEmail(entry.getKey().getEmail())
+          .invoice(booking.getInvoice())
           .tickets(entry.getValue().stream()
               .map(ticket -> ofTicketWithQrCode(ticket,
                   ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))

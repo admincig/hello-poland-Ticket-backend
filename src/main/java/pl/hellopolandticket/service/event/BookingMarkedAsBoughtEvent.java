@@ -27,4 +27,6 @@ public class BookingMarkedAsBoughtEvent implements Serializable {
   private Set<String> sightEventPdfAttachmentsPaths;
   private String replyToEmail;
   private Set<String> bccEmails;
+  private boolean invoice;
+
 }

@@ -78,6 +78,10 @@ public class Booking implements Serializable {
   @Column(name = "P24_CURRENCY")
   private String p24Currency;
 
+  @Setter
+  @Column(name = "INVOICE")
+  private Boolean invoice;
+
   @Deprecated
   @Setter
   @ElementCollection
@@ -85,10 +89,11 @@ public class Booking implements Serializable {
 
   @Builder
   public Booking(Date date, String customerName, String customerEmail,
-      Set<String> sightEventPdfAttachmentsPaths) {
+      Boolean invoice, Set<String> sightEventPdfAttachmentsPaths) {
     this.date = date;
     this.customerName = customerName;
     this.customerEmail = customerEmail;
+    this.invoice = invoice;
     this.sightEventPdfAttachmentsPaths = sightEventPdfAttachmentsPaths;
     this.serialNumber = generateUUID();
   }

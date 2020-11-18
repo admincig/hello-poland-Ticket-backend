@@ -143,7 +143,11 @@ public class EmailSenderService extends ServiceSuperclass {
         }
         message.setRecipients(BCC, addresses.toArray(new InternetAddress[bccEmails.size()]));
       }
-      message.setSubject(emailTemplate.getSubject(), "UTF-8");
+      String subject = emailTemplate.getSubject();
+      if (bookingMarkedAsBoughtEvent.isInvoice()) {
+        subject = "[Prośba o wystawienie faktury] " + subject;
+      }
+      message.setSubject(subject, "UTF-8");
       message.setContent(
           createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
               bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getHash(),
