@@ -56,7 +56,6 @@ Build and push docker TEST image:
     - docker image rm "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}"
   tags:
     - docker
-  dependencies: [ ]
 
 Build and push docker PROD image:
   stage: docker
@@ -69,7 +68,6 @@ Build and push docker PROD image:
     - docker image rm "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
   tags:
     - docker
-  dependencies: [ ]
 
 Deploy on test server:
   stage: deploy
