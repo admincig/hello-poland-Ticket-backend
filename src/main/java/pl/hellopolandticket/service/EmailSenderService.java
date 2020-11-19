@@ -1,45 +1,5 @@
 package pl.hellopolandticket.service;
 
-import static java.util.stream.Collectors.toList;
-import static javax.mail.Message.RecipientType.BCC;
-import static javax.mail.Message.RecipientType.TO;
-import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
-import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.lang.System.Logger.Level;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.TextStyle;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.IntStream;
-import javax.activation.DataHandler;
-import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.mail.Address;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
 import com.sun.mail.smtp.SMTPSendFailedException;
 import com.sun.mail.smtp.SMTPTransport;
 import freemarker.template.Configuration;
@@ -53,9 +13,33 @@ import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 import pl.hellopolandticket.service.util.EmailSendingReport;
 
+import javax.activation.DataHandler;
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
+import java.io.*;
+import java.lang.System.Logger.Level;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.TextStyle;
+import java.util.*;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.toList;
+import static javax.mail.Message.RecipientType.BCC;
+import static javax.mail.Message.RecipientType.TO;
+import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
+import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
+
 @RequestScoped
 public class EmailSenderService extends ServiceSuperclass {
-  private static final String MAIL_PERSONAL = "Bilety Hello Poland";
+  private static final String MAIL_PERSONAL_PROPERTY = "mail.personal";
   private static final String MAIL_USERNAME_PROPERTY = "mail.username";
   private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
   private static final String MAIL_SMTP_HOST_PROPERTY = "mail.smtp.host";
@@ -80,7 +64,9 @@ public class EmailSenderService extends ServiceSuperclass {
     var report = new EmailSendingReport();
     try {
       message
-          .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
+          .setFrom(
+              new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), System.getProperty(
+                  MAIL_PERSONAL_PROPERTY)));
       message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
       message.setSubject(subject, "UTF-8");
       var mimeBodyPart = new MimeBodyPart();
@@ -131,7 +117,8 @@ public class EmailSenderService extends ServiceSuperclass {
       Session session = createSessionForEmail();
       MimeMessage message = new MimeMessage(session);
       message
-          .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), MAIL_PERSONAL));
+          .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY),
+              System.getProperty(MAIL_PERSONAL_PROPERTY)));
       message.setRecipients(TO, new InternetAddress[] {new InternetAddress(recipientEmail)});
       if (replyToEmail != null) {
         message.setReplyTo(new InternetAddress[] {new InternetAddress(replyToEmail)});
