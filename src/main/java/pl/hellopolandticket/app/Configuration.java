@@ -12,14 +12,14 @@ import pl.hellopolandticket.security.password.PasswordEncoder;
 @Startup
 @Singleton
 // @Interceptors(value = LoggingHandler.class)
-@DataSourceDefinition(
-    name = "java:global/jdbc/hellopolandticketDS",
-    className = "org.postgresql.xa.PGXADataSource",
-    serverName = "database",
-    portNumber = 5432,
-    databaseName = "helloticket",
-    user = "helloticket",
-    password = "helloticket")
+//@DataSourceDefinition(
+//    name = "java:global/jdbc/hellopolandticketDS",
+//    className = "org.postgresql.xa.PGXADataSource",
+//    serverName = "database",
+//    portNumber = 5432,
+//    databaseName = "helloticket",
+//    user = "helloticket",
+//    password = "helloticket")
 public class Configuration {
 
   @Produces
