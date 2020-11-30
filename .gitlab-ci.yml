@@ -29,7 +29,7 @@ Build for test server:
   artifacts:
     paths:
       - target/helloticket.war
-  allow_failure: false
+  when: manual
 
 Build for production server:
   stage: build
@@ -43,7 +43,7 @@ Build for production server:
   artifacts:
     paths:
       - target/helloticket.war
-  allow_failure: false
+  when: manual
 
 Build for Wrocław ON production server:
   stage: build
@@ -57,7 +57,7 @@ Build for Wrocław ON production server:
   artifacts:
     paths:
       - target/helloticket.war
-  allow_failure: false
+  when: manual
 
 Build and push docker TEST image:
   stage: docker
@@ -70,6 +70,7 @@ Build and push docker TEST image:
     - docker image rm "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}"
   tags:
     - docker
+  when: manual
 
 Build and push docker PROD image:
   stage: docker
@@ -82,6 +83,7 @@ Build and push docker PROD image:
     - docker image rm "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
   tags:
     - docker
+  when: manual
 
 Build and push docker Wrocław ON PROD image:
   stage: docker
@@ -94,6 +96,7 @@ Build and push docker Wrocław ON PROD image:
     - docker image rm "${FRM_HPT_PROD2_DOCKER_BACKEND_IMAGE}"
   tags:
     - docker
+  when: manual
 
 Deploy on test server:
   stage: deploy
