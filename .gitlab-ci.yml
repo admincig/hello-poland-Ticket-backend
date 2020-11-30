@@ -24,11 +24,11 @@ Build for test server:
     - envcfg -p
   script:
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_TEST_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
+    - docker build -t "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}" .
+    - docker push "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}"
+    - docker image rm "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}"
   tags:
     - maven
-  artifacts:
-    paths:
-      - target/helloticket.war
   when: manual
 
 Build for production server:
@@ -38,11 +38,11 @@ Build for production server:
     - envcfg -p
   script:
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_PROD_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
+    - docker build -t "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}" .
+    - docker push "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
+    - docker image rm "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
   tags:
     - maven
-  artifacts:
-    paths:
-      - target/helloticket.war
   when: manual
 
 Build for Wrocław ON production server:
@@ -52,50 +52,11 @@ Build for Wrocław ON production server:
     - envcfg -p
   script:
     - mvn -Dlocal.maven.build.properties=${FRM_HPT_PROD2_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
-  tags:
-    - maven
-  artifacts:
-    paths:
-      - target/helloticket.war
-  when: manual
-
-Build and push docker TEST image:
-  stage: docker
-  before_script:
-    - . envcfg
-    - envcfg -p
-  script:
-    - docker build -t "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}" .
-    - docker push "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}"
-    - docker image rm "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}"
-  tags:
-    - docker
-  when: manual
-
-Build and push docker PROD image:
-  stage: docker
-  before_script:
-    - . envcfg
-    - envcfg -p
-  script:
-    - docker build -t "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}" .
-    - docker push "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
-    - docker image rm "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
-  tags:
-    - docker
-  when: manual
-
-Build and push docker Wrocław ON PROD image:
-  stage: docker
-  before_script:
-    - . envcfg
-    - envcfg -p
-  script:
     - docker build -t "${FRM_HPT_PROD2_DOCKER_BACKEND_IMAGE}" .
     - docker push "${FRM_HPT_PROD2_DOCKER_BACKEND_IMAGE}"
     - docker image rm "${FRM_HPT_PROD2_DOCKER_BACKEND_IMAGE}"
   tags:
-    - docker
+    - maven
   when: manual
 
 Deploy on test server:
@@ -106,7 +67,6 @@ Deploy on test server:
     - docker-compose -p ${FRM_HPT_TEST_CONTAINER_NAME} up -d
   tags:
     - qs1-server
-  dependencies: [ ]
   when: manual
 
 Deploy on Wrocław ON prod server:
@@ -118,5 +78,4 @@ Deploy on Wrocław ON prod server:
     - docker run -d --network="bridge" -p ${FRM_HPT_PROD2_PORT}:8080 -v ${FRM_HPT_PROD2_LOCAL_RUNTIME_PROP_DIR}:/opt/local.runtime.properties --name "${FRM_HPT_PROD2_CONTAINER_NAME}" "${FRM_HPT_PROD2_DOCKER_BACKEND_IMAGE}"
   tags:
     - hpl-prod
-  dependencies: [ ]
   when: manual
