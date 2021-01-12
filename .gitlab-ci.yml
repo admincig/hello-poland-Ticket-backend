@@ -1,21 +1,16 @@
 stages:
-  - test
   - build
   - docker
   - deploy
 
 variables:
   JAVA_VERSION: "11"
-
-Run tests:
-  stage: test
-  before_script:
-    - . envcfg
-    - envcfg -p
-  script:
-    - mvn clean test -DfailIfNoTests=false -Dtest=*Test,*Spec
-  tags:
-    - maven
+  TEST_IMAGE: docker.fream.pl/hello-poland/hpt/backend:_test_$CI_COMMIT_SHA
+  PROD_IMAGE: docker.fream.pl/hello-poland/hpt/backend:_prod_$CI_COMMIT_SHA
+  PROD2_IMAGE: docker.fream.pl/hello-poland/hpt/backend:_prod2_$CI_COMMIT_SHA
+  TEST_CONTAINER_NAME: hpt_test
+  PROD_CONTAINER_NAME: hpt
+  PROD2_CONTAINER_NAME: wroclaw_on_hpt
 
 Build for test server:
   stage: build
@@ -23,10 +18,10 @@ Build for test server:
     - . envcfg
     - envcfg -p
   script:
-    - mvn -Dlocal.maven.build.properties=${FRM_HPT_TEST_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
-    - docker build -t "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}" .
-    - docker push "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}"
-    - docker image rm "${FRM_HPT_TEST_DOCKER_BACKEND_IMAGE}"
+    - mvn -Dlocal.maven.build.properties=${TEST_MAVEN_PROPERTIES} -Dmaven.test.skip=true clean package -U
+    - docker build -t $TEST_IMAGE .
+    - docker push $TEST_IMAGE
+    - docker image rm $TEST_IMAGE
   tags:
     - maven
   when: manual
@@ -37,10 +32,10 @@ Build for production server:
     - . envcfg
     - envcfg -p
   script:
-    - mvn -Dlocal.maven.build.properties=${FRM_HPT_PROD_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
-    - docker build -t "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}" .
-    - docker push "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
-    - docker image rm "${FRM_HPT_PROD_DOCKER_BACKEND_IMAGE}"
+    - mvn -Dlocal.maven.build.properties=${PROD_MAVEN_PROPERTIES} -Dmaven.test.skip=true clean package -U
+    - docker build -t $PROD_IMAGE .
+    - docker push $PROD_IMAGE
+    - docker image rm $PROD_IMAGE
   tags:
     - maven
   when: manual
@@ -51,10 +46,10 @@ Build for Wrocław ON production server:
     - . envcfg
     - envcfg -p
   script:
-    - mvn -Dlocal.maven.build.properties=${FRM_HPT_PROD2_MAVEN_LOCAL_PROPERTIES_DIR} -Dmaven.test.skip=true clean package -U
-    - docker build -t "${FRM_HPT_PROD2_DOCKER_BACKEND_IMAGE}" .
-    - docker push "${FRM_HPT_PROD2_DOCKER_BACKEND_IMAGE}"
-    - docker image rm "${FRM_HPT_PROD2_DOCKER_BACKEND_IMAGE}"
+    - mvn -Dlocal.maven.build.properties=${PROD2_MAVEN_PROPERTIES} -Dmaven.test.skip=true clean package -U
+    - docker build -t $PROD2_IMAGE .
+    - docker push $PROD2_IMAGE
+    - docker image rm $PROD2_IMAGE
   tags:
     - maven
   when: manual
@@ -62,20 +57,30 @@ Build for Wrocław ON production server:
 Deploy on test server:
   stage: deploy
   script:
-    - docker-compose -p ${FRM_HPT_TEST_CONTAINER_NAME} pull
-    - set +e && docker-compose -p ${FRM_HPT_TEST_CONTAINER_NAME} stop && set -e
-    - docker-compose -p ${FRM_HPT_TEST_CONTAINER_NAME} up -d
+    - docker pull $TEST_IMAGE
+    - docker ps -aq --filter name=$TEST_CONTAINER_NAME | grep -q . && docker stop $TEST_CONTAINER_NAME && docker rm $TEST_CONTAINER_NAME
+    - docker run -d -p 127.0.0.1:8365:8080 -v ${TEST_RUNTIME_PROPERTIES}:/opt/local.runtime.properties --name $TEST_CONTAINER_NAME $TEST_IMAGE
   tags:
     - qs1-server
   when: manual
 
+Deploy on prod server:
+  stage: deploy
+  script:
+    - docker pull $PROD_IMAGE
+    - docker ps -aq --filter name=$PROD_CONTAINER_NAME | grep -q . && docker stop $PROD_CONTAINER_NAME && docker rm $PROD_CONTAINER_NAME
+    - docker run -d -p 127.0.0.1:8190:8080 -v ${PROD_RUNTIME_PROPERTIES}:/opt/local.runtime.properties --name $PROD_CONTAINER_NAME $PROD_IMAGE
+  tags:
+    - hpl-prod
+  when: manual
+
+
 Deploy on Wrocław ON prod server:
   stage: deploy
   script:
-#    - ${FRM_HPT_PROD_DB_DUMP_SCRIPT_DIR}
-    - docker pull "${FRM_HPT_PROD2_DOCKER_BACKEND_IMAGE}"
-    - docker ps -aq --filter "name=${FRM_HPT_PROD2_CONTAINER_NAME}" | grep -q . && docker stop "${FRM_HPT_PROD2_CONTAINER_NAME}" && docker rm "${FRM_HPT_PROD2_CONTAINER_NAME}"
-    - docker run -d --network="bridge" -p ${FRM_HPT_PROD2_PORT}:8080 -v ${FRM_HPT_PROD2_LOCAL_RUNTIME_PROP_DIR}:/opt/local.runtime.properties --name "${FRM_HPT_PROD2_CONTAINER_NAME}" "${FRM_HPT_PROD2_DOCKER_BACKEND_IMAGE}"
+    - docker pull $PROD2_IMAGE
+    - docker ps -aq --filter name=$PROD2_CONTAINER_NAME | grep -q . && docker stop $PROD2_CONTAINER_NAME && docker rm $PROD2_CONTAINER_NAME
+    - docker run -d -p 127.0.0.1:8580:8080 -v ${PROD2_RUNTIME_PROPERTIES}:/opt/local.runtime.properties --name $PROD2_CONTAINER_NAME $PROD2_IMAGE
   tags:
     - hpl-prod
   when: manual
