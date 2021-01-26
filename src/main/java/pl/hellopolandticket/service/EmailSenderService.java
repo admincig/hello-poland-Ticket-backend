@@ -25,6 +25,7 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.*;
 import java.lang.System.Logger.Level;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
@@ -66,7 +67,7 @@ public class EmailSenderService extends ServiceSuperclass {
       message
           .setFrom(
               new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY), System.getProperty(
-                  MAIL_PERSONAL_PROPERTY)));
+                  MAIL_PERSONAL_PROPERTY), "UTF-8"));
       message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
       message.setSubject(subject, "UTF-8");
       var mimeBodyPart = new MimeBodyPart();
