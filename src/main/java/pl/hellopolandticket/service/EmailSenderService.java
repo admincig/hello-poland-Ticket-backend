@@ -119,7 +119,7 @@ public class EmailSenderService extends ServiceSuperclass {
       MimeMessage message = new MimeMessage(session);
       message
           .setFrom(new InternetAddress(System.getProperty(MAIL_USERNAME_PROPERTY),
-              System.getProperty(MAIL_PERSONAL_PROPERTY)));
+              System.getProperty(MAIL_PERSONAL_PROPERTY), "UTF-8"));
       message.setRecipients(TO, new InternetAddress[] {new InternetAddress(recipientEmail)});
       if (replyToEmail != null) {
         message.setReplyTo(new InternetAddress[] {new InternetAddress(replyToEmail)});
