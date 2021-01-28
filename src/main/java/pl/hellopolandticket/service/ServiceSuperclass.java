@@ -1,8 +1,6 @@
 package pl.hellopolandticket.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.lang.System.Logger;
 import java.util.HashMap;
 import java.util.Properties;
@@ -20,18 +18,20 @@ public class ServiceSuperclass {
   protected static Properties properties;
   private static Logger staticLogger = System.getLogger(ServiceSuperclass.class.getName());
   protected Logger logger = System.getLogger(this.getClass().getName());
-  
+
   static {
-    try {
       properties = System.getProperties();
-      var copy = new HashMap<>(properties);
-      properties.clear();
-      properties.load(ServiceSuperclass.class.getResourceAsStream("/runtime.properties"));
-      if (copy.containsKey("local.runtime.properties")) {
-        properties
-            .load(new FileInputStream(new File((String) copy.get("local.runtime.properties"))));
+    try {
+      try (InputStream is = ServiceSuperclass.class.getResourceAsStream("/runtime.properties")) {
+        Reader reader = new InputStreamReader(is, "UTF-8");
+        properties.load(reader);
       }
-      properties.putAll(copy);
+      if (properties.containsKey("local.runtime.properties")) {
+        try (FileInputStream fis = new FileInputStream(new File((String) properties.get("local.runtime.properties")))) {
+          Reader reader = new InputStreamReader(fis, "UTF-8");
+          properties.load(reader);
+        }
+      }
       staticLogger.log(Logger.Level.DEBUG,
           properties.entrySet().stream().map(Object::toString).collect(Collectors.joining("\n")));
     } catch (IOException e) {
