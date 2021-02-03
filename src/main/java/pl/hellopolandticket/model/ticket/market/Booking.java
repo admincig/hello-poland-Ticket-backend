@@ -82,15 +82,20 @@ public class Booking implements Serializable {
   @Column(name = "INVOICE")
   private Boolean invoice;
 
+  @Setter
+  @Column(name = "BUYER_NOTES", columnDefinition = "varchar")
+  private String buyerNotes;
+
   @Deprecated
   @Setter
   @ElementCollection
   private Set<String> sightEventPdfAttachmentsPaths;
 
   @Builder
-  public Booking(Date date, String customerName, String customerEmail,
+  public Booking(Date date, String customerName, String buyerNotes, String customerEmail,
       Boolean invoice, Set<String> sightEventPdfAttachmentsPaths) {
     this.date = date;
+    this.buyerNotes = buyerNotes;
     this.customerName = customerName;
     this.customerEmail = customerEmail;
     this.invoice = invoice;

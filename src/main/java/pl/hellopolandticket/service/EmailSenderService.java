@@ -6,6 +6,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import org.apache.commons.lang3.StringUtils;
 import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.dao.EmailTemplateDao;
 import pl.hellopolandticket.model.config.EmailTemplate;
@@ -26,6 +27,7 @@ import javax.mail.util.ByteArrayDataSource;
 import java.io.*;
 import java.lang.System.Logger.Level;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
@@ -106,12 +108,12 @@ public class EmailSenderService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_ADMIN})
   public EmailSendingReport sendEmailWithQrCodes(
-      BookingMarkedAsBoughtEvent bookingMarkedAsBoughtEvent)
+      BookingMarkedAsBoughtEvent event)
       throws MessagingException, IOException, TemplateException {
     logger.log(Level.INFO, "........... Start sending email with qrCodes ..............");
-    String recipientEmail = bookingMarkedAsBoughtEvent.getRecipientEmail();
-    String replyToEmail = bookingMarkedAsBoughtEvent.getReplyToEmail();
-    Set<String> bccEmails = bookingMarkedAsBoughtEvent.getBccEmails();
+    String recipientEmail = event.getRecipientEmail();
+    String replyToEmail = event.getReplyToEmail();
+    Set<String> bccEmails = event.getBccEmails();
     var report = new EmailSendingReport();
     try {
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
@@ -132,14 +134,14 @@ public class EmailSenderService extends ServiceSuperclass {
         message.setRecipients(BCC, addresses.toArray(new InternetAddress[bccEmails.size()]));
       }
       String subject = emailTemplate.getSubject();
-      if (bookingMarkedAsBoughtEvent.isInvoice()) {
+      if (event.isInvoice()) {
         subject = "[Prośba o wystawienie faktury] " + subject;
       }
       message.setSubject(subject, "UTF-8");
       message.setContent(
-          createEmailContent(bookingMarkedAsBoughtEvent.getCustomerName(), emailTemplate,
-              bookingMarkedAsBoughtEvent.getTickets(), bookingMarkedAsBoughtEvent.getHash(),
-              bookingMarkedAsBoughtEvent.getSightEventPdfAttachmentsPaths()));
+          createEmailContent(event.getCustomerName(), event.getBuyerNotes(), emailTemplate,
+              event.getTickets(), event.getHash(),
+              event.getSightEventPdfAttachmentsPaths()));
       SMTPTransport transport = (SMTPTransport) session.getTransport("smtp");
       transport.connect();
       transport.setReportSuccess(true);
@@ -198,13 +200,13 @@ public class EmailSenderService extends ServiceSuperclass {
     };
   }
 
-  private Multipart createEmailContent(String username, EmailTemplate emailTemplate,
+  private Multipart createEmailContent(String username, String buyerNotes, EmailTemplate emailTemplate,
       List<TicketDTO> tickets, String hash, Set<String> sightEventPdfAttachmentsPaths)
       throws IOException, TemplateException, MessagingException {
 
     Multipart emailContent = new MimeMultipart("related");
     List<String> ticketCIDs = generateCIDs(tickets.size());
-    String bodyContent = fillQrCodeEmailTemplateWithData(emailTemplate.getTemplate(), username,
+    String bodyContent = fillQrCodeEmailTemplateWithData(emailTemplate.getTemplate(), username, buyerNotes,
         tickets, ticketCIDs, hash);
     MimeBodyPart emailBody = new MimeBodyPart();
     emailBody.setContent(bodyContent, "text/html; charset=utf-8");
@@ -226,7 +228,7 @@ public class EmailSenderService extends ServiceSuperclass {
         .collect(toList());
   }
 
-  private String fillQrCodeEmailTemplateWithData(String templateHtml, String username,
+  private String fillQrCodeEmailTemplateWithData(String templateHtml, String username, String buyerNotes,
       List<TicketDTO> tickets, List<String> ticketCIDs, String hash)
       throws IOException, TemplateException {
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_27);
@@ -237,6 +239,8 @@ public class EmailSenderService extends ServiceSuperclass {
     Template template = new Template("qrTemplate", new StringReader(templateHtml), cfg);
     Map<String, String> variablesMap = new HashMap<>();
     variablesMap.put("userName", username);
+    variablesMap.put("year", String.valueOf(LocalDate.now().getYear()));
+    variablesMap.put("buyerNotes", StringUtils.isBlank(buyerNotes) ? "" : ("Informacja od kupującego:<br>" + buyerNotes));
     StringBuilder ticketQrCodes = new StringBuilder();
     for (int i = 0; i < tickets.size(); i++) {
       TicketDTO ticket = tickets.get(i);

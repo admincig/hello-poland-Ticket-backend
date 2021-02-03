@@ -82,8 +82,13 @@ public class BookingService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public BookingDTO createBooking(BookingDTO booking) {
-    Booking bookingToPersist = Booking.builder().date(new Date()).customerName(booking.customerName)
-        .customerEmail(booking.customerEmail).invoice(booking.invoice).build();
+    Booking bookingToPersist = Booking.builder()
+        .date(new Date())
+        .customerName(booking.customerName)
+        .customerEmail(booking.customerEmail)
+        .invoice(booking.invoice)
+        .buyerNotes(booking.buyerNotes)
+        .build();
     logger.log(Logger.Level.INFO, "...........Start booking tickets..............");
     List<Ticket> tickets = bookTickets(booking.ticketBookings, bookingToPersist);
     bookingToPersist.setTickets(tickets);
@@ -210,40 +215,54 @@ public class BookingService extends ServiceSuperclass {
 
     // sending email to buyer:
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
-        .p24Currency(booking.getP24Currency()).hash(booking.getSerialNumber())
-        .customerName(booking.getCustomerName()).recipientEmail(booking.getCustomerEmail())
+        .p24Currency(booking.getP24Currency())
+        .hash(booking.getSerialNumber())
+        .customerName(booking.getCustomerName())
+        .recipientEmail(booking.getCustomerEmail())
+        .buyerNotes(booking.getBuyerNotes())
         .tickets(booking.getTickets().stream()
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
             .collect(toList()))
-        .sightEventPdfAttachmentsPaths(allPdfs).build());
+        .sightEventPdfAttachmentsPaths(allPdfs)
+        .build()
+    );
 
     // sending email to helpdesk:
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
-        .p24Currency(booking.getP24Currency()).hash(booking.getSerialNumber())
+        .p24Currency(booking.getP24Currency())
+        .hash(booking.getSerialNumber())
         .customerName(booking.getCustomerName())
         .recipientEmail(applicationPropertyService.findByName("mail.ticket.copy").propertyValue)
+        .buyerNotes(booking.getBuyerNotes())
         .invoice(booking.getInvoice())
         .tickets(booking.getTickets().stream()
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
             .collect(toList()))
-        .sightEventPdfAttachmentsPaths(allPdfs).build());
+        .sightEventPdfAttachmentsPaths(allPdfs)
+        .build()
+    );
 
     // sending email to partners:
     var ticketsByPartner = booking.getTickets().stream().collect(Collectors
         .groupingBy(t -> t.getTicketPool().getTicketPoolDefinition().getSightEvent().getPartner()));
     for (Entry<Partner, List<Ticket>> entry : ticketsByPartner.entrySet()) {
       bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
-          .p24Currency(booking.getP24Currency()).hash(booking.getSerialNumber())
-          .customerName(booking.getCustomerName()).recipientEmail(entry.getKey().getEmail())
+          .p24Currency(booking.getP24Currency())
+          .hash(booking.getSerialNumber())
+          .customerName(booking.getCustomerName())
+          .recipientEmail(entry.getKey().getEmail())
+          .buyerNotes(booking.getBuyerNotes())
           .invoice(booking.getInvoice())
           .tickets(entry.getValue().stream()
               .map(ticket -> ofTicketWithQrCode(ticket,
                   ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
               .collect(toList()))
           .sightEventPdfAttachmentsPaths(getDistinctPdfsForTickets(entry.getValue()))
-          .replyToEmail(booking.getCustomerEmail()).build());
+          .replyToEmail(booking.getCustomerEmail())
+          .build()
+      );
     }
   }
 
@@ -272,28 +291,37 @@ public class BookingService extends ServiceSuperclass {
           t -> t.getTicketPool().getTicketPoolDefinition().getSightEvent().getPartner()));
       for (Entry<Partner, List<Ticket>> entry : ticketsByPartner.entrySet()) {
         bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
-            .p24Currency(booking.getP24Currency()).hash(booking.getSerialNumber())
-            .customerName(booking.getCustomerName()).recipientEmail(entry.getKey().getEmail())
+            .p24Currency(booking.getP24Currency())
+            .hash(booking.getSerialNumber())
+            .customerName(booking.getCustomerName())
+            .buyerNotes(booking.getBuyerNotes())
+            .recipientEmail(entry.getKey().getEmail())
             .tickets(entry.getValue().stream()
                 .map(ticket -> ofTicketWithQrCode(ticket,
                     ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
                 .collect(toList()))
             .sightEventPdfAttachmentsPaths(getDistinctPdfsForTickets(entry.getValue()))
-            .replyToEmail(booking.getCustomerEmail()).build());
+            .replyToEmail(booking.getCustomerEmail())
+            .build()
+        );
       }
 
       // sending email to buyer and in bcc to helpdesk:
       try {
-        EmailSendingReport report = emailService.sendEmailWithQrCodes(BookingMarkedAsBoughtEvent
-            .builder().p24Currency(booking.getP24Currency()).hash(booking.getSerialNumber())
-            .customerName(booking.getCustomerName()).recipientEmail(booking.getCustomerEmail())
-            .bccEmails(
-                Set.of(applicationPropertyService.findByName("mail.ticket.copy").propertyValue))
+        EmailSendingReport report = emailService.sendEmailWithQrCodes(BookingMarkedAsBoughtEvent.builder()
+            .p24Currency(booking.getP24Currency())
+            .hash(booking.getSerialNumber())
+            .customerName(booking.getCustomerName())
+            .recipientEmail(booking.getCustomerEmail())
+            .buyerNotes(booking.getBuyerNotes())
+            .bccEmails(Set.of(applicationPropertyService.findByName("mail.ticket.copy").propertyValue))
             .tickets(tickets.stream()
                 .map(ticket -> ofTicketWithQrCode(ticket,
                     ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
                 .collect(toList()))
-            .sightEventPdfAttachmentsPaths(getDistinctPdfsForTickets(tickets)).build());
+            .sightEventPdfAttachmentsPaths(getDistinctPdfsForTickets(tickets))
+            .build()
+        );
         return ModelObjectsToDTOConverter.ofEmailSendingReport(report);
       } catch (Exception e) {
         logger.log(Level.ERROR, e.getLocalizedMessage());
@@ -307,16 +335,20 @@ public class BookingService extends ServiceSuperclass {
 
       // sending email to buyer and in bcc to helpdesk and partner
       try {
-        EmailSendingReport report = emailService.sendEmailWithQrCodes(BookingMarkedAsBoughtEvent
-            .builder().p24Currency(booking.getP24Currency()).hash(booking.getSerialNumber())
-            .customerName(booking.getCustomerName()).recipientEmail(booking.getCustomerEmail())
-            .bccEmails(Set.of(partner.getEmail(),
-                applicationPropertyService.findByName("mail.ticket.copy").propertyValue))
+        EmailSendingReport report = emailService.sendEmailWithQrCodes(BookingMarkedAsBoughtEvent.builder()
+            .p24Currency(booking.getP24Currency())
+            .hash(booking.getSerialNumber())
+            .customerName(booking.getCustomerName())
+            .recipientEmail(booking.getCustomerEmail())
+            .buyerNotes(booking.getBuyerNotes())
+            .bccEmails(Set.of(partner.getEmail(), applicationPropertyService.findByName("mail.ticket.copy").propertyValue))
             .tickets(tickets.stream()
                 .map(ticket -> ofTicketWithQrCode(ticket,
                     ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
                 .collect(toList()))
-            .sightEventPdfAttachmentsPaths(getDistinctPdfsForTickets(tickets)).build());
+            .sightEventPdfAttachmentsPaths(getDistinctPdfsForTickets(tickets))
+            .build()
+        );
         return ModelObjectsToDTOConverter.ofEmailSendingReport(report);
       } catch (Exception e) {
         logger.log(Level.ERROR, e.getLocalizedMessage());
