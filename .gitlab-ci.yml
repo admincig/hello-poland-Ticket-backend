@@ -9,7 +9,7 @@ variables:
   PROD_IMAGE: docker.fream.pl/hello-poland/hpt/backend:_prod_$CI_COMMIT_SHA
   PROD2_IMAGE: docker.fream.pl/hello-poland/hpt/backend:_prod2_$CI_COMMIT_SHA
   TEST_CONTAINER_NAME: hpt_test
-  PROD_CONTAINER_NAME: hpt
+  PROD_CONTAINER_NAME: hello_ticket
   PROD2_CONTAINER_NAME: wroclaw_on_hpt
 
 SonarQube analysis:
@@ -51,7 +51,7 @@ Build for production server:
     - . envcfg
     - envcfg -p
   script:
-    - mvn -Dlocal.maven.build.properties=${PROD_MAVEN_PROPERTIES} -Dmaven.test.skip=true clean package -U
+    - mvn -Dlocal.maven.build.properties=${PROD_HPT_MAVEN_PROPERTIES} -Dmaven.test.skip=true clean package -U
     - docker build -t $PROD_IMAGE .
     - docker push $PROD_IMAGE
     - docker image rm $PROD_IMAGE
@@ -65,7 +65,7 @@ Build for Wrocław ON production server:
     - . envcfg
     - envcfg -p
   script:
-    - mvn -Dlocal.maven.build.properties=${PROD2_MAVEN_PROPERTIES} -Dmaven.test.skip=true clean package -U
+    - mvn -Dlocal.maven.build.properties=${PROD2_HPT_MAVEN_PROPERTIES} -Dmaven.test.skip=true clean package -U
     - docker build -t $PROD2_IMAGE .
     - docker push $PROD2_IMAGE
     - docker image rm $PROD2_IMAGE
@@ -88,7 +88,7 @@ Deploy on prod server:
   script:
     - docker pull $PROD_IMAGE
     - docker ps -aq --filter name=$PROD_CONTAINER_NAME | grep -q . && docker stop $PROD_CONTAINER_NAME && docker rm $PROD_CONTAINER_NAME
-    - docker run -d -p 127.0.0.1:8190:8080 -v ${PROD_RUNTIME_PROPERTIES}:/opt/local.runtime.properties --name $PROD_CONTAINER_NAME $PROD_IMAGE
+    - docker run -d -p 127.0.0.1:8190:8080 -v ${PROD_HPT_RUNTIME_PROPERTIES}:/opt/local.runtime.properties --name $PROD_CONTAINER_NAME $PROD_IMAGE
   tags:
     - hpl-prod
   when: manual
@@ -99,7 +99,7 @@ Deploy on Wrocław ON prod server:
   script:
     - docker pull $PROD2_IMAGE
     - docker ps -aq --filter name=$PROD2_CONTAINER_NAME | grep -q . && docker stop $PROD2_CONTAINER_NAME && docker rm $PROD2_CONTAINER_NAME
-    - docker run -d -p 127.0.0.1:8580:8080 -v ${PROD2_RUNTIME_PROPERTIES}:/opt/local.runtime.properties --name $PROD2_CONTAINER_NAME $PROD2_IMAGE
+    - docker run -d -p 127.0.0.1:8580:8080 -v ${PROD2_HPT_RUNTIME_PROPERTIES}:/opt/local.runtime.properties --name $PROD2_CONTAINER_NAME $PROD2_IMAGE
   tags:
     - hpl-prod
   when: manual
