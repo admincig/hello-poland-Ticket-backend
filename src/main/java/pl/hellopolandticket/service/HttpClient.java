@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.lang.System.Logger.Level;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.ObservesAsync;
-import javax.json.bind.JsonbBuilder;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.json.bind.JsonbBuilder;
 import pl.hellopolandticket.service.event.HPLPushEvent;
 
 @ApplicationScoped

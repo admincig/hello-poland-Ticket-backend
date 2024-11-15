@@ -5,11 +5,11 @@ import java.lang.System.Logger;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.security.enterprise.SecurityContext;
+import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.security.enterprise.SecurityContext;
 import pl.hellopolandticket.app.LoggingHandler;
 import pl.hellopolandticket.model.auth.User;
 

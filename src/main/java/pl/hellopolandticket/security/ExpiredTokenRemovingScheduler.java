@@ -1,9 +1,9 @@
 package pl.hellopolandticket.security;
 
 import java.util.List;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.inject.Inject;
+import jakarta.ejb.Schedule;
+import jakarta.ejb.Singleton;
+import jakarta.inject.Inject;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
@@ -63,7 +63,7 @@ public class ExpiredTokenRemovingScheduler {
 
   private void validateTokenStillValid(String secretKey, ExpiredToken expiredToken) {
     try {
-      Jwts.parser().setSigningKey(secretKey).parse(expiredToken.getToken());
+      Jwts.parser().setSigningKey(secretKey).build().parse(expiredToken.getToken());
     } catch (ExpiredJwtException e) {
       expiredTokenDao.remove(expiredToken);
     }

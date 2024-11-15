@@ -1,7 +1,7 @@
 package pl.hellopolandticket.security.jwt;
 
 import java.util.Set;
-import javax.security.enterprise.credential.Credential;
+import jakarta.security.enterprise.credential.Credential;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 

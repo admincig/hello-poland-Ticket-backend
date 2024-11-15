@@ -6,8 +6,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.security.Keys;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -54,11 +57,12 @@ public class TokenProvider {
     long now = (new Date()).getTime();
     long accessTokenValidity = getTokenValidity(JWT_ACCESS_TOKEN_VALIDITY_PROPERTY);
     String accessTokenSecretKey = getTokenSecretKey(JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY);
-
-    return Jwts.builder().setSubject(username)
-        .claim(AUTHORITIES_KEY, authorities.stream().collect(joining(",")))
+    JwtBuilder builder = Jwts.builder();
+    return builder
+        .subject(username)
+        .claim(AUTHORITIES_KEY, String.join(",", authorities))
         .signWith(SignatureAlgorithm.HS512, accessTokenSecretKey)
-        .setExpiration(new Date(now + accessTokenValidity)).compact();
+        .expiration(new Date(now + accessTokenValidity)).compact();
   }
 
   private String createRefreshToken(String username, Set<String> authorities) {
@@ -83,14 +87,14 @@ public class TokenProvider {
   private void validateAccessToken(String token) {
     String accessTokenSecretKey = getTokenSecretKey(JWT_ACCESS_TOKEN_SECRET_KEY_PROPERTY);
 
-    Jwts.parser().setSigningKey(accessTokenSecretKey).parseClaimsJws(token);
+    Jwts.parser().setSigningKey(accessTokenSecretKey).build().parseSignedClaims(token);
 
   }
 
   private void validateRefreshToken(String token) {
     String refreshTokenSecretKey = getTokenSecretKey(JWT_REFRESH_TOKEN_SECRET_KEY_PROPERTY);
 
-    Jwts.parser().setSigningKey(refreshTokenSecretKey).parseClaimsJws(token);
+    Jwts.parser().setSigningKey(refreshTokenSecretKey).build().parseSignedClaims(token);
   }
 
   private JwtCredential getAccessTokenCredential(String token) {
@@ -106,7 +110,7 @@ public class TokenProvider {
   }
 
   private JwtCredential getCredential(String token, String secretKey) {
-    Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+    Claims claims = Jwts.parser().setSigningKey(secretKey).build().parseSignedClaims(token).getPayload();
 
     Set<String> authorities = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
         .collect(Collectors.toSet());

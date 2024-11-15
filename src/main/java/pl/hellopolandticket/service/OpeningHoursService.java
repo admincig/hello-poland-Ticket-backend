@@ -3,10 +3,10 @@ package pl.hellopolandticket.service;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import pl.hellopolandticket.dao.OpeningHoursDao;
 import pl.hellopolandticket.model.sightevent.OpeningHours;
 

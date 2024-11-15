@@ -1,9 +1,8 @@
 package pl.hellopolandticket.app;
 
-import javax.annotation.sql.DataSourceDefinition;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.enterprise.inject.Produces;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
+import jakarta.enterprise.inject.Produces;
 import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.security.password.PasswordEncoder;
 

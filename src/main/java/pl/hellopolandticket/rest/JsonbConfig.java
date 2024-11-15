@@ -1,9 +1,9 @@
 package pl.hellopolandticket.rest;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.ws.rs.ext.ContextResolver;
+import jakarta.ws.rs.ext.Provider;
 
 @Provider
 public class JsonbConfig implements ContextResolver<Jsonb> {
@@ -12,7 +12,7 @@ public class JsonbConfig implements ContextResolver<Jsonb> {
 
   public static Jsonb getInstance() {
     if (instance == null) {
-      var config = new javax.json.bind.JsonbConfig().withAdapters(new LocalTimeCustomAdapter(),
+      var config = new jakarta.json.bind.JsonbConfig().withAdapters(new LocalTimeCustomAdapter(),
           new DateCustomAdapter());
       instance = JsonbBuilder.create(config);
     }

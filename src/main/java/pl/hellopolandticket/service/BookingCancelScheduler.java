@@ -5,10 +5,10 @@ import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import java.lang.System.Logger.Level;
 import java.util.Calendar;
 import java.util.List;
-import javax.annotation.security.RunAs;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.inject.Inject;
+import jakarta.annotation.security.RunAs;
+import jakarta.ejb.Schedule;
+import jakarta.ejb.Singleton;
+import jakarta.inject.Inject;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.model.ticket.market.Booking;
 

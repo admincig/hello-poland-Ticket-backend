@@ -3,8 +3,8 @@ package pl.hellopolandticket.rest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.ext.ParamConverter;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.ext.ParamConverter;
 import pl.hellopolandticket.annotation.DateFormat;
 import pl.hellopolandticket.annotation.DateTimeFormat;
 

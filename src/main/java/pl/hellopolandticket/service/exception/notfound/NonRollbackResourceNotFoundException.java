@@ -1,6 +1,6 @@
 package pl.hellopolandticket.service.exception.notfound;
 
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 
 @ApplicationException(rollback = false)
 public class NonRollbackResourceNotFoundException extends NotFoundBaseException {

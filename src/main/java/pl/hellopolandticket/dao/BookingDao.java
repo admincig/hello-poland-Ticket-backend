@@ -3,11 +3,11 @@ package pl.hellopolandticket.dao;
 import static pl.hellopolandticket.model.ticket.market.Status.BOOKED;
 import java.util.Date;
 import java.util.List;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import pl.hellopolandticket.model.ticket.market.Booking;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 

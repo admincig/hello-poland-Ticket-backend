@@ -4,11 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import pl.hellopolandticket.service.EmailSenderService;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
 
 @Slf4j
 @Stateless

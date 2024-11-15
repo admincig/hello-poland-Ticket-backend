@@ -1,6 +1,6 @@
 package pl.hellopolandticket.service.exception.badrequest;
 
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 
 @ApplicationException(rollback = true)
 public class BadRequestException extends BadRequestBaseException {

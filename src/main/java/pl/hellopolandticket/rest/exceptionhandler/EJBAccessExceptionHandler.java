@@ -1,13 +1,13 @@
 package pl.hellopolandticket.rest.exceptionhandler;
 
 import java.lang.System.Logger.Level;
-import javax.ejb.EJBAccessException;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+import jakarta.ejb.EJBAccessException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 
 @Provider
 public class EJBAccessExceptionHandler implements ExceptionMapper<EJBAccessException> {

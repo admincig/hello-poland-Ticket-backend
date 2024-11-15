@@ -2,7 +2,7 @@ package pl.hellopolandticket.rest;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.json.bind.adapter.JsonbAdapter;
+import jakarta.json.bind.adapter.JsonbAdapter;
 
 public class DateCustomAdapter implements JsonbAdapter<Date, String> {
 

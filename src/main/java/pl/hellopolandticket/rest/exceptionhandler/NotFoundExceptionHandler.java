@@ -1,9 +1,9 @@
 package pl.hellopolandticket.rest.exceptionhandler;
 
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 import pl.hellopolandticket.service.exception.notfound.NotFoundBaseException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 

@@ -5,7 +5,7 @@
 
     <assembly-descriptor>
         <application-exception>
-            <exception-class>javax.ejb.EJBAccessException</exception-class>
+            <exception-class>jakarta.ejb.EJBAccessException</exception-class>
             <rollback>true</rollback>
         </application-exception>
     </assembly-descriptor>

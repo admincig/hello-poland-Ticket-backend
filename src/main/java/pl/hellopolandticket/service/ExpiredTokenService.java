@@ -1,8 +1,8 @@
 package pl.hellopolandticket.service;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import pl.hellopolandticket.dao.ExpiredTokenDao;
 import pl.hellopolandticket.model.auth.ExpiredToken;
 

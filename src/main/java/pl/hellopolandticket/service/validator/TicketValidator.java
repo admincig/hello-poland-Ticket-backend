@@ -7,8 +7,8 @@ import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTic
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.market.Ticket;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;

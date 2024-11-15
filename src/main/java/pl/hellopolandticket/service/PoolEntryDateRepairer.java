@@ -2,14 +2,14 @@ package pl.hellopolandticket.service;
 
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import java.lang.System.Logger.Level;
-import javax.annotation.PostConstruct;
-import javax.annotation.security.RunAs;
-import javax.ejb.Lock;
-import javax.ejb.LockType;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.inject.Inject;
-import javax.persistence.NoResultException;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.security.RunAs;
+import jakarta.ejb.Lock;
+import jakarta.ejb.LockType;
+import jakarta.ejb.Schedule;
+import jakarta.ejb.Singleton;
+import jakarta.inject.Inject;
+import jakarta.persistence.NoResultException;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 
 @Singleton

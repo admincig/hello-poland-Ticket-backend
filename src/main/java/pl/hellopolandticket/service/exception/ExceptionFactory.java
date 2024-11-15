@@ -1,7 +1,7 @@
 package pl.hellopolandticket.service.exception;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.service.exception.badrequest.EmailSendingException;
 import pl.hellopolandticket.service.exception.badrequest.EmailSendingRollbackException;

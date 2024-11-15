@@ -1,0 +1,5 @@
+# CLI script to enable elytron for the quickstart application in the application server
+embed-server --std-out=echo
+# Disable 'integrated-jaspi' as the app will be managing it's own identities
+/subsystem=undertow/application-security-domain=other:write-attribute(name=integrated-jaspi, value=false)
+stop-embedded-server

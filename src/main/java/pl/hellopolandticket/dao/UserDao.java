@@ -2,12 +2,12 @@ package pl.hellopolandticket.dao;
 
 import java.util.List;
 import java.util.Optional;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.service.exception.ExceptionFactory;

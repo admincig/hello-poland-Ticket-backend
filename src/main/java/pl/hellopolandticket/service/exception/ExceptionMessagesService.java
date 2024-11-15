@@ -2,7 +2,7 @@ package pl.hellopolandticket.service.exception;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
-import javax.enterprise.context.RequestScoped;
+import jakarta.enterprise.context.RequestScoped;
 import pl.hellopolandticket.app.Utf8ResourceBundleControl;
 import pl.hellopolandticket.service.ServiceSuperclass;
 

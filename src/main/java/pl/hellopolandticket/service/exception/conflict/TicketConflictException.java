@@ -1,6 +1,6 @@
 package pl.hellopolandticket.service.exception.conflict;
 
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 
 @ApplicationException(rollback = true)
 public class TicketConflictException extends ConflictBaseException {

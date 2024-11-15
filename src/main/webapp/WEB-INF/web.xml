@@ -8,11 +8,11 @@
     <data-source>
         <name>java:module/helloticketDS</name>
         <class-name>org.postgresql.xa.PGXADataSource</class-name>
-        <server-name>${javax.persistence.jdbc.host}</server-name>
-        <port-number>${javax.persistence.jdbc.port}</port-number>
-        <database-name>${javax.persistence.jdbc.database}</database-name>
-        <user>${javax.persistence.jdbc.user}</user>
-        <password>${javax.persistence.jdbc.password}</password>
+        <server-name>${jakarta.persistence.jdbc.host}</server-name>
+        <port-number>${jakarta.persistence.jdbc.port}</port-number>
+        <database-name>${jakarta.persistence.jdbc.database}</database-name>
+        <user>${jakarta.persistence.jdbc.user}</user>
+        <password>${jakarta.persistence.jdbc.password}</password>
     </data-source>
     <session-config>
         <session-timeout>60</session-timeout>

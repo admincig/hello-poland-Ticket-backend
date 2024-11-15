@@ -1,8 +1,8 @@
 package pl.hellopolandticket.service.validator;
 
 import java.util.Date;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
 @RequestScoped

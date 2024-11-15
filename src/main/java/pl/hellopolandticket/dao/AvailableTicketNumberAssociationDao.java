@@ -1,11 +1,11 @@
 package pl.hellopolandticket.dao;
 
 import java.util.List;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;

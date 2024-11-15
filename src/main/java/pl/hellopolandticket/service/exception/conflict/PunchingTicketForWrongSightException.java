@@ -1,6 +1,6 @@
 package pl.hellopolandticket.service.exception.conflict;
 
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 import pl.hellopolandticket.service.exception.preconditionfailed.PreconditionFailedBaseException;
 
 @ApplicationException(rollback = true)

@@ -1,13 +1,13 @@
 package pl.hellopolandticket.rest;
 
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofCurrentUser;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.security.enterprise.SecurityContext;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.security.enterprise.SecurityContext;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
 import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 

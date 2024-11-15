@@ -1,4 +1,7 @@
-FROM docker.fream.pl/wildfly:16-adoptopenjdk-11-openj9
-RUN touch /opt/local.runtime.properties
+FROM quay.io/wildfly/wildfly:34.0.0.Final-jdk11
+RUN touch /opt/jboss/wildfly/standalone/deployments/local.runtime.properties
+COPY configure-elytron.cli /opt/jboss/wildfly/bin/configure-elytron.cli
+RUN wildfly/bin/jboss-cli.sh --file=wildfly/bin/configure-elytron.cli
+
 COPY target/helloticket.war /opt/jboss/wildfly/standalone/deployments/
-CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-Dlocal.runtime.properties=/opt/local.runtime.properties", "-b", "0.0.0.0"]
+CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-Dlocal.runtime.properties=/opt/jboss/wildfly/standalone/deployments/local.runtime.properties", "-b", "0.0.0.0"]

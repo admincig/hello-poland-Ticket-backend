@@ -1,6 +1,6 @@
 package pl.hellopolandticket.service.exception.conflict;
 
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 import lombok.Builder;
 import lombok.Getter;
 import pl.hellopoland.dto.booking.TicketDTO;

@@ -1,3 +1,4 @@
+.DS_Store
 .sts4-cache
 # Created by https://www.gitignore.io/api/maven,eclipse,windows
 
@@ -102,3 +103,4 @@ $RECYCLE.BIN/
 
 derby.log
 hellopolandticket-test
+dolejnik.config.properties

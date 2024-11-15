@@ -1,12 +1,12 @@
 package pl.hellopolandticket.service;
 
-import com.sun.mail.smtp.SMTPSendFailedException;
-import com.sun.mail.smtp.SMTPTransport;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.angus.mail.smtp.SMTPSendFailedException;
+import org.eclipse.angus.mail.smtp.SMTPTransport;
 import pl.hellopoland.dto.booking.TicketDTO;
 import pl.hellopolandticket.dao.EmailTemplateDao;
 import pl.hellopolandticket.model.config.EmailTemplate;
@@ -14,16 +14,16 @@ import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 import pl.hellopolandticket.service.util.EmailSendingReport;
 
-import javax.activation.DataHandler;
-import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
+import jakarta.activation.DataHandler;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
 import java.io.*;
 import java.lang.System.Logger.Level;
 import java.nio.charset.Charset;
@@ -35,8 +35,8 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
-import static javax.mail.Message.RecipientType.BCC;
-import static javax.mail.Message.RecipientType.TO;
+import static jakarta.mail.Message.RecipientType.BCC;
+import static jakarta.mail.Message.RecipientType.TO;
 import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 

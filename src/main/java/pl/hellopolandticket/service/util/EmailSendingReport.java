@@ -1,6 +1,6 @@
 package pl.hellopolandticket.service.util;
 
-import javax.mail.Address;
+import jakarta.mail.Address;
 
 public class EmailSendingReport {
   public Address[] validSentAddresses;
