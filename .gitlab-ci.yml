@@ -4,7 +4,7 @@ stages:
   - deploy
 
 variables:
-  JAVA_VERSION: "11"
+  JAVA_VERSION: "21"
   TEST_IMAGE: docker.fream.pl/hello-poland/hpt/backend:_test_$CI_COMMIT_SHA
   PROD_IMAGE: docker.fream.pl/hello-poland/hpt/backend:_prod_$CI_COMMIT_SHA
   PROD2_IMAGE: docker.fream.pl/hello-poland/hpt/backend:_prod2_$CI_COMMIT_SHA
@@ -14,7 +14,7 @@ variables:
 
 SonarQube analysis:
   stage: sonarqube-check
-  image: maven:3-adoptopenjdk-11-openj9
+  image: maven:3-eclipse-temurin-21
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
