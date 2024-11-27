@@ -43,7 +43,7 @@ Build for test server:
     - docker push $TEST_IMAGE
     - docker image rm $TEST_IMAGE
   tags:
-    - maven
+    - shell-executor
   when: manual
 
 Build for production server:
@@ -57,7 +57,7 @@ Build for production server:
     - docker push $PROD_IMAGE
     - docker image rm $PROD_IMAGE
   tags:
-    - maven
+    - shell-executor
   when: manual
 
 Build for Wrocław ON production server:
@@ -71,7 +71,7 @@ Build for Wrocław ON production server:
     - docker push $PROD2_IMAGE
     - docker image rm $PROD2_IMAGE
   tags:
-    - maven
+    - shell-executor
   when: manual
 
 Deploy on test server:
