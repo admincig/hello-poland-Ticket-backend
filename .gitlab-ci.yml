@@ -5,6 +5,7 @@ stages:
 
 variables:
   JAVA_VERSION: "21"
+  MAVEN_VERSION: "3.9"
   TEST_IMAGE: docker.fream.pl/hello-poland/hpt/backend:_test_$CI_COMMIT_SHA
   PROD_IMAGE: docker.fream.pl/hello-poland/hpt/backend:_prod_$CI_COMMIT_SHA
   PROD2_IMAGE: docker.fream.pl/hello-poland/hpt/backend:_prod2_$CI_COMMIT_SHA
