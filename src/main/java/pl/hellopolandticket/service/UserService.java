@@ -12,6 +12,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
 import pl.hellopoland.dto.UserAuthDTO;
 import pl.hellopoland.dto.UserDTO;
 import pl.hellopolandticket.dao.UserDao;
@@ -78,9 +79,9 @@ public class UserService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public void changePassword(UserAuthDTO userAuthDTO, Long userId) {
     User user = userId == null ? getLoggedUser() : findUserById(userId);
-    // if (!passwordEncoder.matches(userAuthDTO.oldPassword, user.getPassword())) {
-    // throw new ConflictingException("Incorrect old password.");
-    // }
+    if (StringUtils.isNotBlank(userAuthDTO.login) && !StringUtils.equals(user.getEmail(), userAuthDTO.login)) {
+      user.setEmail(userAuthDTO.login);
+    }
     user.setPassword(passwordEncoder.encode(userAuthDTO.password));
   }
 
