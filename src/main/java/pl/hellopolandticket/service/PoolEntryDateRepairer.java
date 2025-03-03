@@ -40,7 +40,7 @@ public class PoolEntryDateRepairer extends ServiceSuperclass {
       persistent = false)
   @Lock(LockType.WRITE)
   public void run() {
-    logger.log(Level.INFO, "PoolEntryDateRepairer start");
+    logger.log(Level.TRACE, "PoolEntryDateRepairer start");
 
     if (lastId < maxId) {
       logger.log(Level.INFO,
@@ -55,7 +55,7 @@ public class PoolEntryDateRepairer extends ServiceSuperclass {
           "Stop processing " + batch + " TicketPoolDefinitions. Last id = " + lastId);
 
     }
-    logger.log(Level.INFO, "PoolEntryDateRepairer end");
+    logger.log(Level.TRACE, "PoolEntryDateRepairer end");
   }
 
 }

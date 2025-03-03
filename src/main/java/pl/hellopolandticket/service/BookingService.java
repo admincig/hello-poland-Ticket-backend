@@ -215,7 +215,8 @@ public class BookingService extends ServiceSuperclass {
 
     // sending email to buyer:
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
-        .p24Currency(booking.getP24Currency())
+        .currency(booking.getP24Currency())
+        .paymentId(booking.getP24OrderId())
         .hash(booking.getSerialNumber())
         .customerName(booking.getCustomerName())
         .recipientEmail(booking.getCustomerEmail())
@@ -230,7 +231,8 @@ public class BookingService extends ServiceSuperclass {
 
     // sending email to helpdesk:
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
-        .p24Currency(booking.getP24Currency())
+        .currency(booking.getP24Currency())
+        .paymentId(booking.getP24OrderId())
         .hash(booking.getSerialNumber())
         .customerName(booking.getCustomerName())
         .recipientEmail(applicationPropertyService.findByName("mail.ticket.copy").propertyValue)
@@ -249,7 +251,8 @@ public class BookingService extends ServiceSuperclass {
         .groupingBy(t -> t.getTicketPool().getTicketPoolDefinition().getSightEvent().getPartner()));
     for (Entry<Partner, List<Ticket>> entry : ticketsByPartner.entrySet()) {
       bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
-          .p24Currency(booking.getP24Currency())
+          .currency(booking.getP24Currency())
+          .paymentId(booking.getP24OrderId())
           .hash(booking.getSerialNumber())
           .customerName(booking.getCustomerName())
           .recipientEmail(entry.getKey().getEmail())
@@ -291,7 +294,8 @@ public class BookingService extends ServiceSuperclass {
           t -> t.getTicketPool().getTicketPoolDefinition().getSightEvent().getPartner()));
       for (Entry<Partner, List<Ticket>> entry : ticketsByPartner.entrySet()) {
         bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
-            .p24Currency(booking.getP24Currency())
+            .currency(booking.getP24Currency())
+            .paymentId(booking.getP24OrderId())
             .hash(booking.getSerialNumber())
             .customerName(booking.getCustomerName())
             .buyerNotes(booking.getBuyerNotes())
@@ -309,7 +313,8 @@ public class BookingService extends ServiceSuperclass {
       // sending email to buyer and in bcc to helpdesk:
       try {
         EmailSendingReport report = emailService.sendEmailWithQrCodes(BookingMarkedAsBoughtEvent.builder()
-            .p24Currency(booking.getP24Currency())
+            .currency(booking.getP24Currency())
+            .paymentId(booking.getP24OrderId())
             .hash(booking.getSerialNumber())
             .customerName(booking.getCustomerName())
             .recipientEmail(booking.getCustomerEmail())
@@ -336,7 +341,8 @@ public class BookingService extends ServiceSuperclass {
       // sending email to buyer and in bcc to helpdesk and partner
       try {
         EmailSendingReport report = emailService.sendEmailWithQrCodes(BookingMarkedAsBoughtEvent.builder()
-            .p24Currency(booking.getP24Currency())
+            .currency(booking.getP24Currency())
+            .paymentId(booking.getP24OrderId())
             .hash(booking.getSerialNumber())
             .customerName(booking.getCustomerName())
             .recipientEmail(booking.getCustomerEmail())
