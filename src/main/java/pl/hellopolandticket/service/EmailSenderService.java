@@ -239,14 +239,13 @@ public class EmailSenderService extends ServiceSuperclass {
     Template template = new Template("qrTemplate", new StringReader(templateHtml), cfg);
     Map<String, String> variablesMap = new HashMap<>();
     variablesMap.put("userName", username);
-    variablesMap.put("paymentId", paymentId);
     variablesMap.put("year", String.valueOf(LocalDate.now().getYear()));
     variablesMap.put("buyerNotes", StringUtils.isBlank(buyerNotes) ? "" : ("Informacja od kupującego:<br>" + buyerNotes));
     StringBuilder ticketQrCodes = new StringBuilder();
     for (int i = 0; i < tickets.size(); i++) {
       TicketDTO ticket = tickets.get(i);
       EmailTemplate ticketTemplate = emailTemplateDao.findByName("ticketQrCodeTemplate");
-      String ticketQR = fillTicketQrCodeTemplate(ticketTemplate, ticket, ticketCIDs.get(i), hash, cfg);
+      String ticketQR = fillTicketQrCodeTemplate(ticketTemplate, ticket, ticketCIDs.get(i), paymentId, cfg);
       ticketQrCodes.append("<p>").append(ticketQR).append("</p>");
     }
     variablesMap.put("qrCodes", ticketQrCodes.toString());
@@ -256,11 +255,12 @@ public class EmailSenderService extends ServiceSuperclass {
   }
 
   private String fillTicketQrCodeTemplate(EmailTemplate ticketTemplate, TicketDTO ticket,
-      String ticketCID, String hash, Configuration cfg)
+      String ticketCID, String paymentId, Configuration cfg)
       throws IOException, TemplateException {
     Template template =
         new Template("ticketQRTemplate", new StringReader(ticketTemplate.getTemplate()), cfg);
     Map<String, String> variablesMap = new HashMap<>();
+    variablesMap.put("paymentId", paymentId);
     variablesMap.put("sightEventName", getSigthEventName(ticket));
     variablesMap.put("sightEventDate", makeDateHuman(ticket.date, ticket.wholeDay));
     variablesMap.put("qrCode", "<img src=\"cid:" + ticketCID + "\">");
