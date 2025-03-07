@@ -385,7 +385,7 @@ public class BookingService extends ServiceSuperclass {
             "NoAvailableTicketsException: TicketPool id=[" + pool.getId()
                 + "], TicketDefinition id=[" + ticketDefinition.getId() + "], numberOfTickets="
                 + numberOfTickets);
-        throw new NoAvailableTicketsException();
+        throw new NoAvailableTicketsException("Brak dostępnych biletów: " + ticketDefinition.getName());
       }
       return;
     } else if (poolAvailableTicketNumber > 0 && availableTicketsNumber == -1) {
@@ -397,7 +397,7 @@ public class BookingService extends ServiceSuperclass {
             "NoAvailableTicketsException: TicketPool id=[" + pool.getId()
                 + "], TicketDefinition id=[" + ticketDefinition.getId() + "], numberOfTickets="
                 + numberOfTickets);
-        throw new NoAvailableTicketsException();
+        throw new NoAvailableTicketsException("Brak dostępnych biletów: " + ticketDefinition.getName());
       }
       return;
     } else if (poolAvailableTicketNumber > 0 && availableTicketsNumber > 0) {
@@ -412,14 +412,14 @@ public class BookingService extends ServiceSuperclass {
             "NoAvailableTicketsException: TicketPool id=[" + pool.getId()
                 + "], TicketDefinition id=[" + ticketDefinition.getId() + "], numberOfTickets="
                 + numberOfTickets);
-        throw new NoAvailableTicketsException();
+        throw new NoAvailableTicketsException("Brak dostępnych biletów: " + ticketDefinition.getName());
       }
       return;
     }
     logger.log(Logger.Level.ERROR,
         "NoAvailableTicketsException: TicketPool id=[" + pool.getId() + "], TicketDefinition id=["
             + ticketDefinition.getId() + "], numberOfTickets=" + numberOfTickets);
-    throw new NoAvailableTicketsException();
+    throw new NoAvailableTicketsException("Brak dostępnych biletów: " + ticketDefinition.getName());
   }
 
 }
