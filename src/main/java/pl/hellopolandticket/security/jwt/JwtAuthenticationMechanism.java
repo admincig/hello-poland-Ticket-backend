@@ -25,6 +25,7 @@ import jakarta.security.enterprise.identitystore.IdentityStoreHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.HttpHeaders;
+import org.apache.commons.lang3.StringUtils;
 import pl.hellopoland.dto.UserAuthDTO;
 import pl.hellopolandticket.dao.UserDao;
 import pl.hellopolandticket.model.auth.User;
@@ -68,14 +69,9 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     if (isAuthRequest(request)) {
       Optional<UserAuthDTO> userAuthDTO = extractUserAuthDTO(request);
-
-      String login = userAuthDTO.map(u -> u.login).orElse(null);
-      String password = userAuthDTO.map(u -> u.password).orElse(null);
-
-      String accessToken = userAuthDTO.map(u -> u.accessToken).orElse(null);
-      String refreshToken = userAuthDTO.map(u -> u.refreshToken).orElse(null);
-
       if (isLoginRequest(request)) {
+        String login = userAuthDTO.map(u -> u.login).orElse(null);
+        String password = userAuthDTO.map(u -> u.password).orElse(null);
         if (hasProperDataToLogin(login, password)) {
           authenticationStatus = login(login, password, context);
         } else {
@@ -83,7 +79,9 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
         }
       } else if (isRefreshingRequest(authorizationToken, request)) {
         authenticationStatus = validateRefreshToken(authorizationToken, context);
-      } else if (isLogoutRequest(accessToken, refreshToken, request)) {
+      } else if (isLogoutRequest(request)) {
+        String accessToken = userAuthDTO.map(u -> u.accessToken).or(() -> Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION)).map(h -> h.replace(AUTHORIZATION_PREFIX, ""))).orElse(null);
+        String refreshToken = userAuthDTO.map(u -> u.refreshToken).orElse(null);
         authenticationStatus = logout(accessToken, refreshToken, context);
       }
     } else if (authorizationToken != null) {
@@ -172,10 +170,8 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
         && request.getRequestURI().endsWith(REFRESH_TOKEN_REQUEST_PATH);
   }
 
-  private boolean isLogoutRequest(String accessToken, String refreshToken,
-      HttpServletRequest request) {
-    return accessToken != null && refreshToken != null
-        && AUTHENTICATION_METHOD.equals(request.getMethod())
+  private boolean isLogoutRequest(HttpServletRequest request) {
+    return AUTHENTICATION_METHOD.equals(request.getMethod())
         && request.getRequestURI().endsWith(LOGOUT_REQUEST_PATH);
   }
 
@@ -196,8 +192,12 @@ public class JwtAuthenticationMechanism implements HttpAuthenticationMechanism {
 
   private AuthenticationStatus logout(String accessToken, String refreshToken,
       HttpMessageContext context) {
-    addOldTokenToExpiredTokensList(accessToken);
-    addOldTokenToExpiredTokensList(refreshToken);
+    if (StringUtils.isNotBlank(accessToken)) {
+      addOldTokenToExpiredTokensList(accessToken);
+    }
+    if (StringUtils.isNotBlank(refreshToken)) {
+      addOldTokenToExpiredTokensList(refreshToken);
+    }
 
     return context.doNothing();
   }
