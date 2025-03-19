@@ -36,7 +36,7 @@ public class PartnerRestService extends RestServiceSuperclass {
   @GET
   @Path("/ushers")
   public Response getUshers() {
-    return Response.ok(userService.getUshersForCurrnetPartner(currentUser)).build();
+    return Response.ok(userService.getUshersForCurrentPartner(currentUser)).build();
   }
 
   @GET
@@ -49,7 +49,7 @@ public class PartnerRestService extends RestServiceSuperclass {
   @Path("/ushers/{id}")
   public Response updateUsher(@PathParam("id") long userId, UserDTO usher) {
     usher.id = userId;
-    return Response.ok(userService.updateUserForCurrnetPartner(usher)).build();
+    return Response.ok(userService.updateUserForCurrentPartner(usher)).build();
   }
 
   @GET

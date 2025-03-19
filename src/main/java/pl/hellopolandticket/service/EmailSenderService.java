@@ -26,7 +26,6 @@ import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.util.ByteArrayDataSource;
 import java.io.*;
 import java.lang.System.Logger.Level;
-import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -140,7 +139,7 @@ public class EmailSenderService extends ServiceSuperclass {
       message.setSubject(subject, "UTF-8");
       message.setContent(
           createEmailContent(event.getCustomerName(), event.getBuyerNotes(), emailTemplate,
-              event.getTickets(), event.getHash(), event.getPaymentId(),
+              event.getTickets(), event.getPaymentId(),
               event.getSightEventPdfAttachmentsPaths()));
       SMTPTransport transport = (SMTPTransport) session.getTransport("smtp");
       transport.connect();
@@ -201,13 +200,13 @@ public class EmailSenderService extends ServiceSuperclass {
   }
 
   private Multipart createEmailContent(String username, String buyerNotes, EmailTemplate emailTemplate,
-      List<TicketDTO> tickets, String hash, String paymentId, Set<String> sightEventPdfAttachmentsPaths)
+      List<TicketDTO> tickets, String paymentId, Set<String> sightEventPdfAttachmentsPaths)
       throws IOException, TemplateException, MessagingException {
 
     Multipart emailContent = new MimeMultipart("related");
     List<String> ticketCIDs = generateCIDs(tickets.size());
     String bodyContent = fillQrCodeEmailTemplateWithData(emailTemplate.getTemplate(), username, buyerNotes,
-        tickets, ticketCIDs, hash, paymentId);
+        tickets, ticketCIDs, paymentId);
     MimeBodyPart emailBody = new MimeBodyPart();
     emailBody.setContent(bodyContent, "text/html; charset=utf-8");
     emailContent.addBodyPart(emailBody);
@@ -229,7 +228,7 @@ public class EmailSenderService extends ServiceSuperclass {
   }
 
   private String fillQrCodeEmailTemplateWithData(String templateHtml, String username, String buyerNotes,
-      List<TicketDTO> tickets, List<String> ticketCIDs, String hash, String paymentId)
+      List<TicketDTO> tickets, List<String> ticketCIDs, String paymentId)
       throws IOException, TemplateException {
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_27);
     cfg.setDefaultEncoding("UTF-8");

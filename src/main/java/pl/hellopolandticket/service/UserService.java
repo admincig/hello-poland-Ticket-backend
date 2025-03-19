@@ -86,14 +86,14 @@ public class UserService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public List<UserDTO> getUshersForCurrnetPartner(CurrentUser currentUser) {
+  public List<UserDTO> getUshersForCurrentPartner(CurrentUser currentUser) {
     User loggedUser = findUserByEmail(currentUser.getPrincipal());
     return userDao.getUsersByCurrentUserAndRole(loggedUser, Role.ROLE_USHER).stream()
         .map(ModelObjectsToDTOConverter::ofUser).collect(Collectors.toList());
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public UserDTO updateUserForCurrnetPartner(UserDTO userDTO) {
+  public UserDTO updateUserForCurrentPartner(UserDTO userDTO) {
     User user = userDao.getUserForCurrnetPartner(userDTO.id, getLoggedUser().getPartner());
     user.setName(userDTO.name);
     return ofUser(userDao.updateUser(user));
@@ -106,8 +106,8 @@ public class UserService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public UserDTO createUsher(UserDTO usher) {
-    User user =
-        User.createUsher(usher.name, usher.email, usher.password, getLoggedUser().getPartner());
+    String hashedPassword = passwordEncoder.encode(usher.password);
+    User user = User.createUsher(usher.name, usher.email, hashedPassword, getLoggedUser().getPartner());
     return ofUser(userDao.persist(user));
   }
 
