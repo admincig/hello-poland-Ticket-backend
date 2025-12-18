@@ -33,6 +33,7 @@ import pl.hellopolandticket.dao.SightEventDao;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.OpeningHours;
+import pl.hellopolandticket.model.sightevent.PdfAttachment;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.sightevent.SightEventLocation;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
@@ -242,10 +243,13 @@ public class SightEventService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public SightEventDTO uploadPdf(Long sightEventId, FileDescriptorDTO pdf) {
     var se = sightEventDao.findById(sightEventId);
-    // temporary only one pdf for SightEvent:
-    // se.getPdfAttachmentsPaths().add(pdf.path);
-    se.setPdfAttachmentsPaths(Set.of(pdf.path));
-    return ofSightEventBasic(se);
+      PdfAttachment a = new PdfAttachment();
+      a.setPath(pdf.path);
+      a.setOriginalName(pdf.originalName);
+      se.setPdfAttachmentsPaths(Set.of(a));
+
+
+      return ofSightEventBasic(se);
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})

@@ -11,13 +11,8 @@ import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofBoo
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofTicketWithQrCode;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.LocalBean;
@@ -34,6 +29,7 @@ import pl.hellopolandticket.dao.TicketDefinitionDao;
 import pl.hellopolandticket.dao.TicketPoolDefinitionDao;
 import pl.hellopolandticket.model.auth.User;
 import pl.hellopolandticket.model.partner.Partner;
+import pl.hellopolandticket.model.sightevent.PdfAttachment;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.ticket.market.Booking;
 import pl.hellopolandticket.model.ticket.market.Ticket;
@@ -211,7 +207,7 @@ public class BookingService extends ServiceSuperclass {
         valueOf(applicationPropertyService.findByName(TICKET_QR_CODE_WIDTH_PROPERTY).propertyValue);
     int qrCodeHeight = valueOf(
         applicationPropertyService.findByName(TICKET_QR_CODE_HEIGHT_PROPERTY).propertyValue);
-    var allPdfs = getDistinctPdfsForTickets(booking.getTickets());
+    var allPdfs = getDistinctPdfAttachmentMapForTickets(booking.getTickets());
 
     // sending email to buyer:
     bookingMarkedAsBoughtEvent.fireAsync(BookingMarkedAsBoughtEvent.builder()
@@ -225,7 +221,7 @@ public class BookingService extends ServiceSuperclass {
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
             .collect(toList()))
-        .sightEventPdfAttachmentsPaths(allPdfs)
+        .sightEventPdfAttachments(allPdfs)
         .build()
     );
 
@@ -242,7 +238,7 @@ public class BookingService extends ServiceSuperclass {
             .map(ticket -> ofTicketWithQrCode(ticket,
                 ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
             .collect(toList()))
-        .sightEventPdfAttachmentsPaths(allPdfs)
+        .sightEventPdfAttachments(allPdfs)
         .build()
     );
 
@@ -262,22 +258,51 @@ public class BookingService extends ServiceSuperclass {
               .map(ticket -> ofTicketWithQrCode(ticket,
                   ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
               .collect(toList()))
-          .sightEventPdfAttachmentsPaths(getDistinctPdfsForTickets(entry.getValue()))
-          .replyToEmail(booking.getCustomerEmail())
+              .sightEventPdfAttachments(getDistinctPdfAttachmentMapForTickets(entry.getValue()))
+              .replyToEmail(booking.getCustomerEmail())
           .build()
       );
     }
   }
 
-  private Set<String> getDistinctPdfsForTickets(List<Ticket> tickets) {
-    return tickets.stream().map(Ticket::getTicketPool).map(TicketPool::getTicketPoolDefinition)
-        .map(TicketPoolDefinition::getSightEvent)
-        .filter(se -> se.getPdfAttachmentsPaths() != null && !se.getPdfAttachmentsPaths().isEmpty())
-        .map(SightEvent::getPdfAttachmentsPaths).flatMap(Collection::stream).distinct()
-        .collect(Collectors.toSet());
-  }
+    private Set<String> getDistinctPdfsForTickets(List<Ticket> tickets) {
+        return tickets.stream()
+                .map(Ticket::getTicketPool)
+                .map(TicketPool::getTicketPoolDefinition)
+                .map(TicketPoolDefinition::getSightEvent)
+                .filter(se -> se.getPdfAttachmentsPaths() != null && !se.getPdfAttachmentsPaths().isEmpty())
+                .flatMap(se -> se.getPdfAttachmentsPaths().stream())
+                .map(PdfAttachment::getPath)
+                .distinct()
+                .collect(Collectors.toSet());
+    }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_ADMIN})
+    private Set<PdfAttachment> getDistinctPdfAttachmentsForTickets(List<Ticket> tickets) {
+        return tickets.stream()
+                .map(Ticket::getTicketPool)
+                .map(TicketPool::getTicketPoolDefinition)
+                .map(TicketPoolDefinition::getSightEvent)
+                .filter(se -> se.getPdfAttachmentsPaths() != null && !se.getPdfAttachmentsPaths().isEmpty())
+                .flatMap(se -> se.getPdfAttachmentsPaths().stream())
+                .distinct()
+                .collect(Collectors.toSet());
+    }
+    private Map<String, String> getDistinctPdfAttachmentMapForTickets(List<Ticket> tickets) {
+        return tickets.stream()
+                .map(Ticket::getTicketPool)
+                .map(TicketPool::getTicketPoolDefinition)
+                .map(TicketPoolDefinition::getSightEvent)
+                .filter(se -> se.getPdfAttachmentsPaths() != null && !se.getPdfAttachmentsPaths().isEmpty())
+                .flatMap(se -> se.getPdfAttachmentsPaths().stream())
+                .collect(Collectors.toMap(
+                        PdfAttachment::getPath,
+                        a -> a.getOriginalName(),          // może być null
+                        (a, b) -> a                        // gdy duplikat path, zostaw pierwsze
+                ));
+    }
+
+
+    @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_ADMIN})
   public EmailSendingReportDTO sendTicketCopy(String serialNumber) {
     var booking = bookingDao.findBySerialNumber(serialNumber);
     int qrCodeWidth =

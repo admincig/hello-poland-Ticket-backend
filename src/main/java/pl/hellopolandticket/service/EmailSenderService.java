@@ -4,6 +4,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import jakarta.mail.internet.*;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.angus.mail.smtp.SMTPSendFailedException;
 import org.eclipse.angus.mail.smtp.SMTPTransport;
@@ -19,13 +20,11 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.mail.*;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeBodyPart;
-import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.util.ByteArrayDataSource;
 import java.io.*;
 import java.lang.System.Logger.Level;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -139,8 +138,7 @@ public class EmailSenderService extends ServiceSuperclass {
       message.setSubject(subject, "UTF-8");
       message.setContent(
           createEmailContent(event.getCustomerName(), event.getBuyerNotes(), emailTemplate,
-              event.getTickets(), event.getPaymentId(),
-              event.getSightEventPdfAttachmentsPaths()));
+              event.getTickets(), event.getPaymentId(), event.getSightEventPdfAttachments()));
       SMTPTransport transport = (SMTPTransport) session.getTransport("smtp");
       transport.connect();
       transport.setReportSuccess(true);
@@ -200,7 +198,7 @@ public class EmailSenderService extends ServiceSuperclass {
   }
 
   private Multipart createEmailContent(String username, String buyerNotes, EmailTemplate emailTemplate,
-      List<TicketDTO> tickets, String paymentId, Set<String> sightEventPdfAttachmentsPaths)
+      List<TicketDTO> tickets, String paymentId, Map<String, String> sightEventPdfAttachments)
       throws IOException, TemplateException, MessagingException {
 
     Multipart emailContent = new MimeMultipart("related");
@@ -215,9 +213,13 @@ public class EmailSenderService extends ServiceSuperclass {
       emailContent
           .addBodyPart(createTicketQrCodeAttachment(tickets.get(i).qrCode, ticketCIDs.get(i)));
     }
-    for (String pdfPath : sightEventPdfAttachmentsPaths) {
-      emailContent.addBodyPart(attachFile(pdfPath));
-    }
+      if (sightEventPdfAttachments != null) {
+          for (var e : sightEventPdfAttachments.entrySet()) {
+              String pdfPath = e.getKey();
+              String originalName = e.getValue();
+              emailContent.addBodyPart(attachFile(pdfPath, originalName)); // <-- używa Twojej metody
+          }
+      }
 
     return emailContent;
   }
@@ -297,11 +299,40 @@ public class EmailSenderService extends ServiceSuperclass {
     return imagePart;
   }
 
-  private MimeBodyPart attachFile(String filePath) throws MessagingException, IOException {
-    MimeBodyPart attachmentPart = new MimeBodyPart();
-    attachmentPart.attachFile(filePath);
-    return attachmentPart;
-  }
+     private MimeBodyPart attachFile(String filePath, String preferredName)
+            throws MessagingException, IOException {
+
+        MimeBodyPart attachmentPart = new MimeBodyPart();
+        attachmentPart.attachFile(filePath);
+
+        // fallback: hashowy filename z dysku
+        String fallback = Paths.get(filePath).getFileName().toString();
+
+        // wybierz nazwę: originalName jeśli jest, inaczej fallback
+        String name = (preferredName != null && !preferredName.isBlank()) ? preferredName : fallback;
+
+        // minimalna higiena nazwy (żeby nie rozwalić nagłówków)
+        name = name.replaceAll("[\\r\\n\\\\/]", "_");
+
+        // jeśli preferredName nie ma rozszerzenia, a plik na dysku ma, to dopnij rozszerzenie
+        String ext = "";
+        int dot = fallback.lastIndexOf('.');
+        if (dot > 0 && dot < fallback.length() - 1) ext = fallback.substring(dot); // ".pdf"
+        if (!ext.isBlank() && !name.toLowerCase().endsWith(ext.toLowerCase())) {
+            name = name + ext;
+        }
+
+        // finalna nazwa w mailu
+        String finalName = name;
+
+        // poprawne kodowanie nazwy w nagłówku maila
+        attachmentPart.setFileName(MimeUtility.encodeText(finalName, StandardCharsets.UTF_8.name(), null));
+        return attachmentPart;
+    }
+
+    private MimeBodyPart attachFile(String filePath) throws MessagingException, IOException {
+        return attachFile(filePath, null);
+    }
 
   private String makeDateHuman(Date date, boolean wholeDay) {
     LocalDateTime ldt = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();

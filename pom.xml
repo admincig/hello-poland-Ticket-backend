@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.hellopoland</groupId>
 	<artifactId>helloticket</artifactId>
-	<version>2.0.0</version>
+	<version>2.0.1</version>
 	<name>Hello Poland Ticket</name>
 	<description>Hello Poland Ticket backend project</description>
 	<packaging>war</packaging>
@@ -16,6 +16,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<local.maven.build.properties>src/main/resources/maven.build.properties</local.maven.build.properties>
 		<maven.war.filteringDeploymentDescriptors>true</maven.war.filteringDeploymentDescriptors>
+        <lombok.version>1.18.38</lombok.version>
 	</properties>
 
 	<dependencyManagement>
@@ -23,7 +24,7 @@
 			<dependency>
 				<groupId>pl.hellopoland</groupId>
 				<artifactId>hellopoland-dto</artifactId>
-				<version>1.3.0</version>
+				<version>1.3.3</version>
 			</dependency>
 			<!-- https://mvnrepository.com/artifact/org.wildfly/wildfly-standard-ee-bom -->
 			<dependency>
@@ -50,7 +51,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.34</version>
+			<version>1.18.38</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -122,14 +123,14 @@
 	</dependencies>
 
 	<repositories>
-		<repository>
+		<!--<repository>
 			<id>fream-nexus-releases</id>
 			<url>https://packages.fream.pl/repository/maven-fream-releases</url>
 		</repository>
 		<repository>
 			<id>fream-nexus-snapshots</id>
 			<url>https://packages.fream.pl/repository/maven-fream-snapshots</url>
-		</repository>
+		</repository>-->
 		<repository>
 			<id>maven_central</id>
 			<name>Maven Central</name>
@@ -187,6 +188,42 @@
 					</webResources>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.9.10</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <gitPropertiesPath>${project.build.outputDirectory}</gitPropertiesPath>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+
 		</plugins>
 		<resources>
 			<resource>

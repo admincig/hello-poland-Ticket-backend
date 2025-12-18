@@ -110,7 +110,7 @@ public class SightEvent implements Serializable {
 
   @Setter
   @ElementCollection
-  private Set<String> pdfAttachmentsPaths;
+  private Set<PdfAttachment> pdfAttachmentsPaths;
 
   @Builder
   public SightEvent(String name, Date date, String description, String lead, Integer duration,
