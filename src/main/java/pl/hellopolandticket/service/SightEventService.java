@@ -92,7 +92,9 @@ public class SightEventService extends ServiceSuperclass {
         .orElseGet(() -> partnerDao.findByUserEmail(principal));
 
     return partner.getSightEvents().stream()
-        .map(se -> ModelObjectsToDTOConverter.ofSightEvent(se, null)).collect(toList());
+            .filter(se -> Boolean.TRUE.equals(se.getActive()))
+            .filter(se -> Boolean.TRUE.equals(se.getPublished()))
+            .map(se -> ModelObjectsToDTOConverter.ofSightEvent(se, null)).collect(toList());
   }
 
   public PushDTO findAllAndConvertToPushDTOObject(CurrentUser currentUser) {
