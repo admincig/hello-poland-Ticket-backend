@@ -24,97 +24,141 @@ public class ExceptionFactory {
   private ExceptionMessagesService exceptionMessagesService;
 
   public EmailSendingException emailSendingException() {
-    return new EmailSendingException(
+      EmailSendingException ex = new EmailSendingException(
         exceptionMessagesService.getMessage(EmailSendingException.class.getSimpleName()));
+
+      ex.setErrorKey(EmailSendingException.class.getSimpleName());
+      return ex;
+
   }
 
   public EmailSendingRollbackException emailSendingRollbackException() {
-    return new EmailSendingRollbackException(
+      EmailSendingRollbackException ex = new EmailSendingRollbackException(
         exceptionMessagesService.getMessage(EmailSendingRollbackException.class.getSimpleName()));
+      ex.setErrorKey(EmailSendingRollbackException.class.getSimpleName());
+      return ex;
   }
 
   public NotBookedException notBookedException() {
-    return new NotBookedException(
+      NotBookedException ex = new NotBookedException(
         exceptionMessagesService.getMessage(NotBookedException.class.getSimpleName()));
+
+      ex.setErrorKey(NotBookedException.class.getSimpleName());
+      return ex;
   }
 
   public PunchingTicketForWrongSightException punchingTicketForWrongSightException() {
-    return new PunchingTicketForWrongSightException(exceptionMessagesService
+      PunchingTicketForWrongSightException ex = new PunchingTicketForWrongSightException(exceptionMessagesService
         .getMessage(PunchingTicketForWrongSightException.class.getSimpleName()));
+      ex.setErrorKey(PunchingTicketForWrongSightException.class.getSimpleName());
+      return ex;
   }
 
   public WrongTicketStatusException wrongTicketStatusException(TicketDTO ticket) {
-    return new WrongTicketStatusException(
+      WrongTicketStatusException ex = new WrongTicketStatusException(
         exceptionMessagesService.getMessage(WrongTicketStatusException.class.getSimpleName()),
         ticket);
+      ex.setErrorKey(WrongTicketStatusException.class.getSimpleName());
+      return ex;
   }
 
-  public WrongTicketStatusException ticketAlreadyPunchedException(TicketDTO ticket) {
-    return new WrongTicketStatusException(
-        exceptionMessagesService.getMessage("TicketAlreadyPunchedException"), ticket);
-  }
+    public WrongTicketStatusException ticketAlreadyPunchedException(TicketDTO ticket) {
+        WrongTicketStatusException ex =
+                new WrongTicketStatusException(
+                        exceptionMessagesService.getMessage("TicketAlreadyPunchedException"),
+                        ticket
+                );
+        ex.setErrorKey("TicketAlreadyPunchedException");
+        return ex;
+    }
 
   public WrongTicketStatusException ticketInvalidException(TicketDTO ticket) {
-    return new WrongTicketStatusException(
+    WrongTicketStatusException ex = new WrongTicketStatusException(
         exceptionMessagesService.getMessage("TicketInvalidException"), ticket);
+    ex.setErrorKey("TicketInvalidException");
+    return ex;
   }
 
   public ResourceNotFoundException resourceNotFoundException() {
-    return new ResourceNotFoundException(
+      ResourceNotFoundException ex =  new ResourceNotFoundException(
         exceptionMessagesService.getMessage(ResourceNotFoundException.class.getSimpleName()));
+      ex.setErrorKey(ResourceNotFoundException.class.getSimpleName());
+      return ex;
   }
 
   public NonRollbackResourceNotFoundException nonRollbackResourceNotFoundException() {
-    return new NonRollbackResourceNotFoundException(
+      NonRollbackResourceNotFoundException ex = new NonRollbackResourceNotFoundException(
         exceptionMessagesService.getMessage(ResourceNotFoundException.class.getSimpleName()));
+      ex.setErrorKey(ResourceNotFoundException.class.getSimpleName());
+      return ex;
   }
 
   public TicketNotFoundException ticketNotFoundException() {
-    return new TicketNotFoundException(
+      TicketNotFoundException ex = new TicketNotFoundException(
         exceptionMessagesService.getMessage(TicketNotFoundException.class.getSimpleName()));
+      ex.setErrorKey(TicketNotFoundException.class.getSimpleName());
+      return ex;
   }
 
   public TicketConflictException ticketForAnotherDateException() {
-    return new TicketConflictException(
+      TicketConflictException ex =  new TicketConflictException(
         exceptionMessagesService.getMessage("TicketForAnotherDateException"));
+      ex.setErrorKey("TicketForAnotherDateException");
+      return ex;
   }
 
   public TicketConflictException ticketTakerWithoutAccessToSightException() {
-    return new TicketConflictException(
+      TicketConflictException ex= new TicketConflictException(
         exceptionMessagesService.getMessage("TicketTakerWithoutAccessToSightException"));
+      ex.setErrorKey("TicketTakerWithoutAccessToSightException");
+      return ex;
+
   }
 
   public TicketConflictException ticketBeforeEntryStartDateException() {
-    return new TicketConflictException(
+      TicketConflictException ex = new TicketConflictException(
         exceptionMessagesService.getMessage("TicketBeforeEntryStartDateException"));
+      ex.setErrorKey("TicketBeforeEntryStartDateException");
+      return ex;
   }
 
   public TicketConflictException ticketAfterEntryEndDateException() {
-    return new TicketConflictException(
+      TicketConflictException ex = new TicketConflictException(
         exceptionMessagesService.getMessage("TicketAfterEntryEndDateException"));
+      ex.setErrorKey("TicketAfterEntryEndDateException");
+      return ex;
   }
 
   public TicketConflictException ticketDefinitionHasNoPoolException() {
-    return new TicketConflictException(
+      TicketConflictException ex =  new TicketConflictException(
         exceptionMessagesService.getMessage("TicketDefinitionHasNoPoolException"));
+      ex.setErrorKey("TicketDefinitionHasNoPoolException");
+      return ex;
   }
 
   public RequestedDateOutsideRequestedTicketDefinitionPoolException requestedDateOutsideRequestedTicketDefinitionPoolException() {
-    return new RequestedDateOutsideRequestedTicketDefinitionPoolException(
+      RequestedDateOutsideRequestedTicketDefinitionPoolException ex =  new RequestedDateOutsideRequestedTicketDefinitionPoolException(
         exceptionMessagesService.getMessage(
             RequestedDateOutsideRequestedTicketDefinitionPoolException.class.getSimpleName()));
+      ex.setErrorKey(RequestedDateOutsideRequestedTicketDefinitionPoolException.class.getSimpleName());
+      return ex;
   }
 
   public CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException cannotCreateTicketPoolForNotCyclicalPoolDefinitionException() {
-    return new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
+      CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException ex = new CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException(
         exceptionMessagesService
             .getMessage(CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class
                 .getSimpleName()));
+      ex.setErrorKey(CannotCreateTicketPoolForNotCyclicalPoolDefinitionNonRollbackException.class.getSimpleName());
+      return ex;
   }
 
   public EventDoesNotTakePlaceOnChosenDateException eventDoesNotTakePlaceOnChosenDateException() {
-    return new EventDoesNotTakePlaceOnChosenDateException(exceptionMessagesService
+      EventDoesNotTakePlaceOnChosenDateException ex = new EventDoesNotTakePlaceOnChosenDateException(exceptionMessagesService
         .getMessage(EventDoesNotTakePlaceOnChosenDateException.class.getSimpleName()));
+
+      ex.setErrorKey(EventDoesNotTakePlaceOnChosenDateException.class.getSimpleName());
+    return  ex;
   }
 
 }

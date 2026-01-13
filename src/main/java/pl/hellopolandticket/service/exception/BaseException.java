@@ -13,4 +13,7 @@ public abstract class BaseException extends RuntimeException {
   private static final long serialVersionUID = -7539460397637784208L;
 
   protected String message;
+  protected String errorKey;
+
+  public String getErrorKey() { return errorKey; }
 }

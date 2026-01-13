@@ -49,6 +49,7 @@ import pl.hellopolandticket.security.CurrentUser;
 
 public class ModelObjectsToDTOConverter {
 
+
   public static SightEventDTO ofSightEvent(SightEvent sightEvent, Long sightId) {
     SightEventDTO sightEventDTO = ofSightEventBasic(sightEvent);
     sightEventDTO.description = sightEvent.getDescription();
@@ -233,10 +234,11 @@ public class ModelObjectsToDTOConverter {
 
   @Builder(builderMethodName = "abstractErrorDTOBuilder")
   public static AbstractErrorDTO abstractErrorDTO(Class<? extends Exception> exception,
-      String message, Object object) {
+      String message, String code,Object object) {
     AbstractErrorDTO abstractErrorDTO = new AbstractErrorDTO();
     abstractErrorDTO.exception = exception.getSimpleName();
     abstractErrorDTO.message = message;
+    abstractErrorDTO.code = code;
     abstractErrorDTO.object = object;
     return abstractErrorDTO;
   }
