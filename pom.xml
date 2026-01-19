@@ -242,5 +242,22 @@
 			</resource>
 		</resources>
 	</build>
+    <profiles>
+        <profile>
+            <id>tst</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <local.maven.build.properties>src/main/resources/maven.build.tst.properties</local.maven.build.properties>
+            </properties>
+        </profile>
 
+        <profile>
+            <id>prod</id>
+            <properties>
+                <local.maven.build.properties>src/main/resources/maven.build.prod.properties</local.maven.build.properties>
+            </properties>
+        </profile>
+    </profiles>
 </project>
