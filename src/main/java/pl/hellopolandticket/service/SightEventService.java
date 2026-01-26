@@ -92,8 +92,7 @@ public class SightEventService extends ServiceSuperclass {
               .filter(se -> Boolean.TRUE.equals(se.getPublished()))
               .filter(se -> Boolean.FALSE.equals(se.getBlocked()))
               .filter(se ->
-                      se.getTicketPoolDefinitions() != null
-                              && se.getTicketPoolDefinitions().stream()
+                      se.getTicketPoolDefinitions() != null && se.getTicketPoolDefinitions().stream()
                               .anyMatch(tpd ->
                                       !tpd.isDeleted()
                                               && tpd.getTicketPools() != null
@@ -104,29 +103,6 @@ public class SightEventService extends ServiceSuperclass {
               .collect(toList());
   }
 
-/*
-    @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_USHER})
-    public List<SightEventDTO> findForPartner(String principal) {
-        Partner partner = ofNullable(partnerDao.findByName(principal))
-                .orElseGet(() -> partnerDao.findByUserEmail(principal));
-
-        // Widok zgodny z partnerem: konfiguracja (TPD + TicketDefinitions),
-        // bez ticket_pools i bez pokazywania deleted TPD.
-        List<SightEvent> sightEvents = em.createQuery(
-                        "select distinct se from SightEvent se "
-                                + " join fetch se.ticketPoolDefinitions tpd "
-                                + " join fetch tpd.ticketDefinitions td "
-                                + " where se.partner = :partner "
-                                + "   and tpd.deleted = false",
-                        SightEvent.class)
-                .setParameter("partner", partner)
-                .getResultList();
-
-        return sightEvents.stream()
-                .map(se -> ModelObjectsToDTOConverter.ofSightEvent(se, null))
-                .collect(toList());
-    }
-*/
 
     public PushDTO findAllAndConvertToPushDTOObject(CurrentUser currentUser) {
     User user = userService.findUserByEmail(currentUser.getPrincipal());
