@@ -87,11 +87,6 @@ public class SightEventService extends ServiceSuperclass {
     Partner partner = ofNullable(partnerDao.findByName(principal))
         .orElseGet(() -> partnerDao.findByUserEmail(principal));
 
-    /*return partner.getSightEvents().stream()
-            .filter(se -> Boolean.TRUE.equals(se.getActive()))
-            .filter(se -> Boolean.TRUE.equals(se.getPublished()))
-            .map(se -> ModelObjectsToDTOConverter.ofSightEvent(se, null)).collect(toList());
-    */
       return partner.getSightEvents().stream()
               .filter(se -> Boolean.TRUE.equals(se.getActive()))
               .filter(se -> Boolean.TRUE.equals(se.getPublished()))
