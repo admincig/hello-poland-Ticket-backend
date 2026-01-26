@@ -25,6 +25,19 @@ public class PoolEntryDateRepairer extends ServiceSuperclass {
 
   private final int batch = 100;
 
+    private boolean isDisabled() {
+        // 1) -Dpool.entry.date.repairer.enabled=true/false
+        String v = System.getProperty("pool.entry.date.repairer.enabled");
+        if (v != null) return !Boolean.parseBoolean(v);
+
+        // 2) ENV: POOL_ENTRY_DATE_REPAIRER_ENABLED=true/false
+        v = System.getenv("POOL_ENTRY_DATE_REPAIRER_ENABLED");
+        if (v != null) return !Boolean.parseBoolean(v);
+
+        // domyślnie WYŁĄCZONE (hotfix)
+        return true;
+    }
+
   @PostConstruct
   public void init() {
     try {
@@ -36,26 +49,41 @@ public class PoolEntryDateRepairer extends ServiceSuperclass {
     }
   }
 
-  @Schedule(hour = "*", minute = "*/5", second = "0", year = "*", dayOfMonth = "*", dayOfWeek = "*",
+  @Schedule(hour = "5", minute = "15", second = "0", year = "*", dayOfMonth = "*", dayOfWeek = "*",
       persistent = false)
   @Lock(LockType.WRITE)
   public void run() {
-    logger.log(Level.TRACE, "PoolEntryDateRepairer start");
+      if (isDisabled()) {
+          logger.log(Level.INFO, "PoolEntryDateRepairer DISABLED");
+          return;
+      }
 
-    if (lastId < maxId) {
-      logger.log(Level.INFO,
-          "Start processing " + batch + " TicketPoolDefinitions. First id > " + lastId);
-      var tpds = em
-          .createQuery("from TicketPoolDefinition where id > :lastId order by id asc",
-              TicketPoolDefinition.class)
-          .setParameter("lastId", lastId).setMaxResults(batch).getResultList();
+      logger.log(Level.TRACE, "PoolEntryDateRepairer start");
+
+      if (lastId >= maxId) {
+          logger.log(Level.INFO, "PoolEntryDateRepairer finished (lastId=" + lastId + ", maxId=" + maxId + ")");
+          return;
+      }
+
+      logger.log(Level.INFO, "Start processing " + batch + " TicketPoolDefinitions. First id > " + lastId);
+
+      var tpds = em.createQuery(
+                      "from TicketPoolDefinition where id > :lastId order by id asc",
+                      TicketPoolDefinition.class)
+              .setParameter("lastId", lastId)
+              .setMaxResults(batch)
+              .getResultList();
+
+      if (tpds.isEmpty()) {
+          logger.log(Level.INFO, "No TicketPoolDefinitions found for lastId=" + lastId + " (maxId=" + maxId + ")");
+          return;
+      }
+
       tpdService.repairEntryDates(tpds);
       lastId = tpds.get(tpds.size() - 1).getId();
-      logger.log(Level.INFO,
-          "Stop processing " + batch + " TicketPoolDefinitions. Last id = " + lastId);
 
-    }
-    logger.log(Level.TRACE, "PoolEntryDateRepairer end");
+      logger.log(Level.INFO, "Stop processing " + tpds.size() + " TicketPoolDefinitions. Last id = " + lastId);
+      logger.log(Level.TRACE, "PoolEntryDateRepairer end");
   }
 
 }

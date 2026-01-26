@@ -5,17 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -29,9 +20,9 @@ import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 @Getter
 @Entity
 @Table(name = "SIGHT_EVENTS")
-@EqualsAndHashCode(exclude = {"ticketPoolDefinitions", "openingHours"})
 @NoArgsConstructor
-@ToString(exclude = {"ticketPoolDefinitions", "openingHours"})
+@ToString(exclude = {"ticketPoolDefinitions", "openingHours", "pdfAttachmentsPaths"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SightEvent implements Serializable {
 
   private static final long serialVersionUID = 5345966403908441388L;
@@ -39,6 +30,7 @@ public class SightEvent implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "SIGHT_EVENT_ID")
+  @EqualsAndHashCode.Include
   private Long id;
 
   @Setter
@@ -109,7 +101,7 @@ public class SightEvent implements Serializable {
   private Boolean blocked = false;
 
   @Setter
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.LAZY)
   private Set<PdfAttachment> pdfAttachmentsPaths;
 
   @Builder

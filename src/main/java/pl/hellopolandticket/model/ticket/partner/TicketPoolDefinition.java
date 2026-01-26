@@ -5,17 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
-import jakarta.persistence.Table;
+
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -25,13 +16,14 @@ import lombok.Setter;
 import lombok.ToString;
 import pl.hellopolandticket.model.sightevent.SightEvent;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
+import pl.hellopolandticket.service.TicketDefWithAtna;
 
 @Getter
 @Entity
 @Table(name = "TICKET_POOL_DEFINITIONS")
-@EqualsAndHashCode(exclude = {"atnas", "ticketPools"})
 @NoArgsConstructor
 @ToString(exclude = {"atnas", "ticketPools"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TicketPoolDefinition implements Serializable {
 
   private static final long serialVersionUID = 8904209837208814831L;
@@ -43,6 +35,7 @@ public class TicketPoolDefinition implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "TICKET_POOL_DEFINITION_ID")
+  @EqualsAndHashCode.Include
   private Long id;
 
   @Setter
@@ -83,7 +76,7 @@ public class TicketPoolDefinition implements Serializable {
 
   @Setter
   @NotNull
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "SIGHT_EVENT_ID", nullable = false)
   private SightEvent sightEvent;
 
@@ -106,21 +99,29 @@ public class TicketPoolDefinition implements Serializable {
   @Column(name = "WHOLEDAY", nullable = false)
   private boolean wholeDay;
 
-  public List<TicketDefinition> getTicketDefinitions() {
-    return atnas.stream()
-        .map(atna -> {
-          TicketDefinition td = atna.getTicketDefinition();
-          td.setInterestingAtna(atna);
-          return td;
-        })
-        .collect(Collectors.toList());
-  }
+
+    public List<TicketDefinition> getTicketDefinitions() {
+        return atnas.stream()
+                .map(AvailableTicketNumberAssociation::getTicketDefinition)
+                .toList();
+    }
 
   public List<AvailableTicketNumberAssociation> getUndeletedAtnas() {
     return this.getAtnas().stream().filter(atna -> !atna.isDeleted()).collect(Collectors.toList());
   }
 
-  @Builder
+    public List<TicketDefWithAtna> getTicketDefsWithAtna() {
+        return atnas.stream()
+                .filter(atna -> !atna.isDeleted())
+                .map(atna -> new TicketDefWithAtna(
+                        atna.getTicketDefinition(),
+                        atna
+                ))
+                .toList();
+    }
+
+
+    @Builder
   public TicketPoolDefinition(String name, Integer availableTicketsNumber, Boolean isCyclic,
       FrequencyData frequencyData, Date startDate, Date endDate, Date entryStartDate,
       Date entryEndDate, SightEvent sightEvent, boolean deleted, boolean wholeDay) {

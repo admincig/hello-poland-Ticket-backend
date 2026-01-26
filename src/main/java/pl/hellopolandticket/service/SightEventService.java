@@ -10,12 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import jakarta.annotation.security.RolesAllowed;
@@ -86,18 +81,59 @@ public class SightEventService extends ServiceSuperclass {
     return sightEventDao.findById(sightEventId);
   }
 
+
   @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_USHER})
   public List<SightEventDTO> findForPartner(String principal) {
     Partner partner = ofNullable(partnerDao.findByName(principal))
         .orElseGet(() -> partnerDao.findByUserEmail(principal));
 
-    return partner.getSightEvents().stream()
+    /*return partner.getSightEvents().stream()
             .filter(se -> Boolean.TRUE.equals(se.getActive()))
             .filter(se -> Boolean.TRUE.equals(se.getPublished()))
             .map(se -> ModelObjectsToDTOConverter.ofSightEvent(se, null)).collect(toList());
+    */
+      return partner.getSightEvents().stream()
+              .filter(se -> Boolean.TRUE.equals(se.getActive()))
+              .filter(se -> Boolean.TRUE.equals(se.getPublished()))
+              .filter(se -> Boolean.FALSE.equals(se.getBlocked()))
+              .filter(se ->
+                      se.getTicketPoolDefinitions() != null
+                              && se.getTicketPoolDefinitions().stream()
+                              .anyMatch(tpd ->
+                                      !tpd.isDeleted()
+                                              && tpd.getTicketPools() != null
+                                              && !tpd.getTicketPools().isEmpty()
+                              )
+              )
+              .map(se -> ModelObjectsToDTOConverter.ofSightEvent(se, null))
+              .collect(toList());
   }
 
-  public PushDTO findAllAndConvertToPushDTOObject(CurrentUser currentUser) {
+/*
+    @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_USHER})
+    public List<SightEventDTO> findForPartner(String principal) {
+        Partner partner = ofNullable(partnerDao.findByName(principal))
+                .orElseGet(() -> partnerDao.findByUserEmail(principal));
+
+        // Widok zgodny z partnerem: konfiguracja (TPD + TicketDefinitions),
+        // bez ticket_pools i bez pokazywania deleted TPD.
+        List<SightEvent> sightEvents = em.createQuery(
+                        "select distinct se from SightEvent se "
+                                + " join fetch se.ticketPoolDefinitions tpd "
+                                + " join fetch tpd.ticketDefinitions td "
+                                + " where se.partner = :partner "
+                                + "   and tpd.deleted = false",
+                        SightEvent.class)
+                .setParameter("partner", partner)
+                .getResultList();
+
+        return sightEvents.stream()
+                .map(se -> ModelObjectsToDTOConverter.ofSightEvent(se, null))
+                .collect(toList());
+    }
+*/
+
+    public PushDTO findAllAndConvertToPushDTOObject(CurrentUser currentUser) {
     User user = userService.findUserByEmail(currentUser.getPrincipal());
 
     Partner partner = user.getPartner();
@@ -281,44 +317,43 @@ public class SightEventService extends ServiceSuperclass {
     return result;
   }
 
-  @RolesAllowed({ROLE_EXTERNAL_USER})
-  public Set<SightEventPriceDTO> getSightEventsIdsInDateRange(Set<Long> sightEventIds,
-      Date fromDate,
-      Date toDate) {
-    Set<SightEventPriceDTO> result = new HashSet<>();
-    ticketPoolDefService.getAvailable(sightEventIds, fromDate, toDate)
-        .stream()
-        .collect(Collectors.groupingBy(TicketPoolDefinition::getSightEvent))
-        .entrySet()
-        .forEach(entry -> {
-          SightEventPriceDTO dto = new SightEventPriceDTO();
-          dto.id = entry.getKey().getId();
-          dto.price = Integer.MAX_VALUE;
-          var tpds = entry.getValue();
-          for (var tpd : tpds) {
-            var ticketDefinitions = tpd.getTicketDefinitions();
-            var undeleted = ticketDefinitions.stream()
-                .filter(tdd -> !tdd.getAtna(tpd).isDeleted())
-                .collect(Collectors.toList());
-            if (undeleted.isEmpty()) {
-              continue;
-            }
-            var td = undeleted.stream()
-                .min(Comparator.comparing(TicketDefinition::getPrice))
-                .get();
-            if (td.getPrice() < dto.price) {
-              dto.price = td.getPrice();
-              var atna = td.getAtna(tpd);
-              if (atna.getDiscount() != null) {
-                dto.discountPrice = atna.getDiscount().getDiscountPrice();
-              } else {
-                dto.discountPrice = null;
-              }
-            }
-          }
-          result.add(dto);
-        });
-    return result;
-  }
+    @RolesAllowed({ROLE_EXTERNAL_USER})
+    public Set<SightEventPriceDTO> getSightEventsIdsInDateRange(Set<Long> sightEventIds,
+                                                                Date fromDate, Date toDate) {
+
+        Map<Long, SightEventPriceDTO> result = new HashMap<>();
+
+        ticketPoolDefService.getAvailable(sightEventIds, fromDate, toDate)
+                .stream()
+                .collect(Collectors.groupingBy(tpd -> tpd.getSightEvent().getId()))
+                .forEach((sightEventId, tpds) -> {
+
+                    SightEventPriceDTO dto = new SightEventPriceDTO();
+                    dto.id = sightEventId;
+                    dto.price = Integer.MAX_VALUE;
+
+                    for (var tpd : tpds) {
+                        var best = tpd.getTicketDefsWithAtna().stream()
+                                .min(Comparator.comparing(x -> x.ticketDefinition().getPrice()));
+
+                        if (best.isEmpty()) continue;
+
+                        var td = best.get().ticketDefinition();
+                        var atna = best.get().atna();
+
+                        if (td.getPrice() < dto.price) {
+                            dto.price = td.getPrice();
+                            dto.discountPrice = (atna.getDiscount() != null)
+                                    ? atna.getDiscount().getDiscountPrice()
+                                    : null;
+                        }
+                    }
+
+                    result.put(dto.id, dto);
+                });
+
+        return new HashSet<>(result.values());
+    }
+
 
 }
