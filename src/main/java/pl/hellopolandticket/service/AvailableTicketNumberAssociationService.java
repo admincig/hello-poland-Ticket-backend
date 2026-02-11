@@ -92,7 +92,7 @@ public class AvailableTicketNumberAssociationService extends ServiceSuperclass {
         .ticketPool(pool)
         .availableTicketsNumber(association.getAvailableTicketsNumber())
         .parent(association)
-        .discount(association.getDiscount())
+        .discount(association.getEffectiveDiscount())
         .build();
     dao.persist(bo);
   }

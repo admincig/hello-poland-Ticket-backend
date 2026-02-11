@@ -70,13 +70,13 @@ public class TicketPoolDefinitionAtnasComparer {
         Integer ticketQuantity = atna.getAvailableTicketsNumber();
 
         if (td.id.equals(ticketDefinitionId) && !ticketQuantity.equals(0)) {
-          if (shouldDiscountBeDeleted(atna.getDiscount(), td.discount)) {
+          if (shouldDiscountBeDeleted(atna.getEffectiveDiscount(), td.discount)) {
             result.toRemove.add(Map.entry(atna, new DiscountDTO()));
             break;
-          } else if (shouldDiscountBeAdded(atna.getDiscount(), td.discount)) {
+          } else if (shouldDiscountBeAdded(atna.getEffectiveDiscount(), td.discount)) {
             result.toAdd.add(Map.entry(atna, td.discount));
             break;
-          } else if (shouldDiscountBeModified(atna.getDiscount(), td.discount)) {
+          } else if (shouldDiscountBeModified(atna.getEffectiveDiscount(), td.discount)) {
             result.toModify.add(Map.entry(atna, td.discount));
             break;
           }

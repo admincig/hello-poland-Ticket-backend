@@ -113,7 +113,7 @@ public class ModelObjectsToDTOConverter {
       TicketPoolDefinition tpd = atna.getTicketPoolDefinition();
       ticketDefinitionDTO.sightEventId = tpd.getSightEvent().getId();
       ticketDefinitionDTO.poolId = tpd.getId();
-      Discount discount = atna.getDiscount();
+      Discount discount = atna.getEffectiveDiscount();
       if (discount != null) {
         ticketDefinitionDTO.discount = ofDiscount(discount);
       }
@@ -123,7 +123,7 @@ public class ModelObjectsToDTOConverter {
     return ticketDefinitionDTO;
   }
 
-  private static DiscountDTO ofDiscount(Discount discount) {
+  public static DiscountDTO ofDiscount(Discount discount) {
     DiscountDTO dto = new DiscountDTO();
     dto.type = DiscountTypeDTO.valueOf(discount.getType().name());
     dto.isCustomCommission = discount.isCustomComission();
@@ -265,6 +265,10 @@ public class ModelObjectsToDTOConverter {
         ofNullable(ticketPool.getTicketPoolDefinition()).map(tpd -> tpd.getId()).orElse(null);
     ticketPoolDTO.wholeDay = ticketPool.isWholeDay();
     ticketPoolDTO.isCyclic = ticketPool.getTicketPoolDefinition().getIsCyclic();
+    ticketPoolDTO.ticketDefinitions =
+              ticketPool.getTicketPoolDefinition().getTicketDefinitions().stream()
+                      .map(td -> ofTicketDefinitionForPool(td, ticketPool))
+                      .collect(toList());
     return ticketPoolDTO;
   }
 
@@ -337,5 +341,34 @@ public class ModelObjectsToDTOConverter {
     }
     return dto;
   }
+
+    public static TicketDefinitionDTO ofTicketDefinitionForPool(
+            TicketDefinition ticketDefinition,
+            TicketPool ticketPool
+    ) {
+        TicketDefinitionDTO dto = new TicketDefinitionDTO();
+
+        dto.id = ticketDefinition.getId();
+        dto.name = ticketDefinition.getName();
+        dto.originalPrice = ticketDefinition.getPrice();
+        dto.partnerId = ticketDefinition.getPartner().getId();
+
+        AvailableTicketNumberAssociation atna =
+                ticketDefinition.getInterestingAtnaForPool(ticketPool.getId());
+
+        if (atna != null) {
+            dto.atnaId = atna.getId();
+            dto.sightEventId = ticketPool.getTicketPoolDefinition().getSightEvent().getId();
+            dto.poolId = ticketPool.getId();
+
+            Discount discount = atna.getEffectiveDiscount();
+            if (discount != null) {
+                dto.discount = ofDiscount(discount);
+            }
+        }
+
+        dto.calculatePrice();
+        return dto;
+    }
 
 }

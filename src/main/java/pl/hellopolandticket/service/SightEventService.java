@@ -314,8 +314,8 @@ public class SightEventService extends ServiceSuperclass {
 
                         if (td.getPrice() < dto.price) {
                             dto.price = td.getPrice();
-                            dto.discountPrice = (atna.getDiscount() != null)
-                                    ? atna.getDiscount().getDiscountPrice()
+                            dto.discountPrice = (atna.getEffectiveDiscount() != null)
+                                    ? atna.getEffectiveDiscount().getDiscountPrice()
                                     : null;
                         }
                     }

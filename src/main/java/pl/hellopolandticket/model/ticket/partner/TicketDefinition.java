@@ -114,4 +114,29 @@ public class TicketDefinition implements Serializable {
     return list.get(0);
   }
 
+    public AvailableTicketNumberAssociation getInterestingAtnaForPool(Long ticketPoolId) {
+        if (atnas == null || atnas.isEmpty()) {
+            return null;
+        }
+
+        // 1️⃣ Override dla konkretnej puli (WYGRYWA)
+        for (AvailableTicketNumberAssociation atna : atnas) {
+            if (!atna.isDeleted()
+                    && atna.getTicketPool() != null
+                    && ticketPoolId != null
+                    && ticketPoolId.equals(atna.getTicketPool().getId())) {
+                return atna;
+            }
+        }
+
+        // 2️⃣ Fallback: ATNA dla definicji puli (ROOT)
+        return atnas.stream()
+                .filter(a -> !a.isDeleted())
+                .filter(a -> a.getTicketPoolDefinition() != null)
+                .findFirst()
+                .orElse(null);
+    }
+
+
+
 }

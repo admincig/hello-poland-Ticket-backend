@@ -103,4 +103,15 @@ public class AvailableTicketNumberAssociation implements Serializable, Limited {
     return Math.max(0, parent.getAvailableTicketsNumber() - getBoughtTicketsCount());
   }
 
+    public Discount getEffectiveDiscount() {
+        if (discount != null) {
+            return discount;
+        }
+        if (parent != null) {
+            return parent.getEffectiveDiscount();
+        }
+        return null;
+    }
+
+
 }

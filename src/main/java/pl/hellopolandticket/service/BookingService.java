@@ -179,7 +179,7 @@ public class BookingService extends ServiceSuperclass {
         AvailableTicketNumberAssociation atna = ticketDefinition.getAtna(pool);
         Ticket ticket = Ticket.builder().name(ticketDefinition.getName())
             .price(ticketDefinition.getPrice()).date(pool.getStartDate()).status(BOOKED)
-            .discount(atna.getDiscount())
+            .discount(atna.getEffectiveDiscount())
             .booking(booking).ticketDefinition(ticketDefinition).ticketPool(pool).build();
         bookedTickets.add(ticket);
       }

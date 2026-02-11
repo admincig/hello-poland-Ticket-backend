@@ -18,6 +18,8 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
+import pl.hellopoland.dto.DiscountDTO;
+import pl.hellopoland.dto.DiscountTypeDTO;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopoland.dto.TicketPoolDefinitionDTO;
 import pl.hellopolandticket.dao.PartnerDao;
@@ -173,6 +175,12 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
           TicketDefinitionDTO tdDto = ModelObjectsToDTOConverter.ofTicketDefinition(td);
           tdDto.poolId = tpd.getId();
           tdDto.availableTicketsNumber = atna.getAvailableTicketsNumber();
+            var discount = atna.getEffectiveDiscount();
+            if (discount != null) {
+                tdDto.discount = ModelObjectsToDTOConverter.ofDiscount(discount);
+            }
+
+
           tpdDto.ticketDefinitions.add(tdDto);
         }
       }
