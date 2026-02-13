@@ -61,8 +61,18 @@ public class TicketDefinitionService extends ServiceSuperclass {
       Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
       bos = ticketDefinitionDao.getUndeletedList(partner);
     }
-    return bos.stream().map(ModelObjectsToDTOConverter::ofTicketDefinition)
-        .collect(Collectors.toList());
+      return bos.stream()
+              .map(td -> {
+                  td.setInterestingAtna(
+                          td.getAtnasConnectedToPoolDefinitions().stream()
+                                  .filter(a -> !a.isDeleted())
+                                  .findFirst()
+                                  .orElse(null)
+                  );
+                  return ModelObjectsToDTOConverter.ofTicketDefinition(td);
+              })
+              .collect(Collectors.toList());
+
   }
 
   @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})

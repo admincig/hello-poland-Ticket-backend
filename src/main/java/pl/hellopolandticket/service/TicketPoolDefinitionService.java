@@ -179,9 +179,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
             if (discount != null) {
                 tdDto.discount = ModelObjectsToDTOConverter.ofDiscount(discount);
             }
-
-
-          tpdDto.ticketDefinitions.add(tdDto);
+            tdDto.calculatePrice();
+            tpdDto.ticketDefinitions.add(tdDto);
         }
       }
       dtos.add(tpdDto);

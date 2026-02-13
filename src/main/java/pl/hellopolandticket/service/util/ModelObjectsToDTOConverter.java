@@ -113,10 +113,11 @@ public class ModelObjectsToDTOConverter {
       TicketPoolDefinition tpd = atna.getTicketPoolDefinition();
       ticketDefinitionDTO.sightEventId = tpd.getSightEvent().getId();
       ticketDefinitionDTO.poolId = tpd.getId();
-      Discount discount = atna.getEffectiveDiscount();
-      if (discount != null) {
-        ticketDefinitionDTO.discount = ofDiscount(discount);
-      }
+        Discount discount = atna.getEffectiveDiscount();
+        if (discount != null) {
+            ticketDefinitionDTO.discount = ofDiscount(discount);
+        }
+
     }
 
     ticketDefinitionDTO.calculatePrice();
@@ -293,16 +294,24 @@ public class ModelObjectsToDTOConverter {
     return ticketPoolDefinitionDTO;
   }
 
-  public static TicketPoolDefinitionDTO ofTicketPoolDefinition(
-      TicketPoolDefinition ticketPoolDefinition) {
-    TicketPoolDefinitionDTO ticketPoolDefinitionDTO =
-        ofTicketPoolDefinitionBasic(ticketPoolDefinition);
-    ticketPoolDefinitionDTO.ticketDefinitions = ticketPoolDefinition.getTicketDefinitions().stream()
-        .map(ModelObjectsToDTOConverter::ofTicketDefinition).collect(toList());
-    return ticketPoolDefinitionDTO;
-  }
+    public static TicketPoolDefinitionDTO ofTicketPoolDefinition(
+            TicketPoolDefinition ticketPoolDefinition) {
 
-  private static FrequencyDataDTO ofFrequencyData(FrequencyData frequencyData) {
+        TicketPoolDefinitionDTO dto =
+                ofTicketPoolDefinitionBasic(ticketPoolDefinition);
+
+        dto.ticketDefinitions =
+                ticketPoolDefinition.getTicketDefinitions().stream()
+                        .map(ModelObjectsToDTOConverter::ofTicketDefinition)
+                        .collect(toList());
+
+
+        return dto;
+    }
+
+
+
+    private static FrequencyDataDTO ofFrequencyData(FrequencyData frequencyData) {
     if (frequencyData != null && frequencyData.getFrequencyType() != null) {
       FrequencyDataDTO frequencyDataDTO = new FrequencyDataDTO();
       frequencyDataDTO.frequencyType =
@@ -366,7 +375,6 @@ public class ModelObjectsToDTOConverter {
                 dto.discount = ofDiscount(discount);
             }
         }
-
         dto.calculatePrice();
         return dto;
     }
