@@ -1,6 +1,8 @@
 package pl.hellopolandticket.rest;
 
 import java.util.List;
+
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -60,6 +62,12 @@ public class TicketDefinitionRestService {
   @Path("/{id}")
   public Response get(@PathParam("id") Long id) {
     return Response.ok(ticketDefinitionService.get(id, currentUser)).build();
+  }
+  @GET
+  @Path("/market")
+  @PermitAll
+  public Response getListForMarket(@QueryParam("atnaIds") List<Long> atnaIds) {
+        return Response.ok(ticketDefinitionService.getListForMarket(atnaIds)).build();
   }
 
 }

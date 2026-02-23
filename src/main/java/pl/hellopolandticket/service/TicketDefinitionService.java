@@ -10,6 +10,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.ForbiddenException;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopolandticket.dao.PartnerDao;
@@ -52,7 +53,8 @@ public class TicketDefinitionService extends ServiceSuperclass {
     return ticketDefinitionDTO;
   }
 
-  @PermitAll
+    @PermitAll
+    @Transactional
   public List<TicketDefinitionDTO> getList(List<Long> atnaIds, CurrentUser currentUser) {
     List<TicketDefinition> bos = null;
     if (currentUser == null || currentUser.hasRole(Role.ROLE_ADMIN)) {
@@ -121,4 +123,10 @@ public class TicketDefinitionService extends ServiceSuperclass {
     return ModelObjectsToDTOConverter.ofTicketDefinition(td);
   }
 
+  @PermitAll
+  public List<TicketDefinitionDTO> getListForMarket(List<Long> atnaIds) {
+        return ticketDefinitionDao.getUndeletedList(atnaIds).stream()
+                .map(ModelObjectsToDTOConverter::ofTicketDefinition)
+                .collect(Collectors.toList());
+  }
 }
