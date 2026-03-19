@@ -112,6 +112,14 @@ public class EmailSenderService extends ServiceSuperclass {
     String recipientEmail = event.getRecipientEmail();
     String replyToEmail = event.getReplyToEmail();
     Set<String> bccEmails = event.getBccEmails();
+    String backupEmail = System.getProperty("mail.ticket.backup");
+      if (backupEmail != null && !backupEmail.isBlank()) {
+          if (bccEmails == null) {
+              bccEmails = new HashSet<>();
+          }
+          bccEmails.add(backupEmail);
+    }
+
     var report = new EmailSendingReport();
     try {
       EmailTemplate emailTemplate = emailTemplateDao.findByName("ticketQrCodeEmailTemplate");
