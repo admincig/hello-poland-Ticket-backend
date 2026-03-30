@@ -111,14 +111,13 @@ public class EmailSenderService extends ServiceSuperclass {
     logger.log(Level.INFO, "........... Start sending email with qrCodes ..............");
     String recipientEmail = event.getRecipientEmail();
     String replyToEmail = event.getReplyToEmail();
-    Set<String> bccEmails = event.getBccEmails();
-    String backupEmail = System.getProperty("mail.ticket.backup");
+      Set<String> bccEmails =
+              event.getBccEmails() == null ? new HashSet<>() : new HashSet<>(event.getBccEmails());
+
+      String backupEmail = System.getProperty("mail.ticket.backup");
       if (backupEmail != null && !backupEmail.isBlank()) {
-          if (bccEmails == null) {
-              bccEmails = new HashSet<>();
-          }
           bccEmails.add(backupEmail);
-    }
+      }
 
     var report = new EmailSendingReport();
     try {
@@ -168,8 +167,8 @@ public class EmailSenderService extends ServiceSuperclass {
         report.invalidAddresses = e.getInvalidAddresses();
       }
     } catch (Exception e) {
-      logger.log(Level.ERROR, e.getLocalizedMessage());
-      throw e;
+        logger.log(Level.ERROR, "Email sending failed", e);
+        throw e;
     }
     logger.log(Level.INFO, "........... End sending email with qrCodes ..............");
     return report;

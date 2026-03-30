@@ -58,4 +58,10 @@ public class PartnerRestService extends RestServiceSuperclass {
     return Response.ok(bookingService.sendTicketCopy(serialNumber)).build();
   }
 
+  @GET
+  @Path("/sales")
+  public Response getSales() {
+        return Response.ok(bookingService.getSalesForCurrentPartner(currentUser)).build();
+   }
+
 }

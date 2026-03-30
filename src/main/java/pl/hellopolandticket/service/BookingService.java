@@ -19,9 +19,11 @@ import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import pl.hellopoland.dto.*;
 import pl.hellopoland.dto.EmailSendingReportDTO;
 import pl.hellopoland.dto.booking.BookingDTO;
 import pl.hellopoland.dto.booking.TicketOrderDTO;
+import pl.hellopoland.dto.SalesRowDTO;
 import pl.hellopolandticket.dao.AvailableTicketNumberAssociationDao;
 import pl.hellopolandticket.dao.BookingDao;
 import pl.hellopolandticket.dao.TicketDao;
@@ -37,6 +39,7 @@ import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
+import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.event.BookingMarkedAsBoughtEvent;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 import pl.hellopolandticket.service.exception.badrequest.EmailSendingException;
@@ -301,7 +304,6 @@ public class BookingService extends ServiceSuperclass {
                 ));
     }
 
-
     @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_ADMIN})
   public EmailSendingReportDTO sendTicketCopy(String serialNumber) {
     var booking = bookingDao.findBySerialNumber(serialNumber);
@@ -344,7 +346,7 @@ public class BookingService extends ServiceSuperclass {
             .customerName(booking.getCustomerName())
             .recipientEmail(booking.getCustomerEmail())
             .buyerNotes(booking.getBuyerNotes())
-            .bccEmails(Set.of(applicationPropertyService.findByName("mail.ticket.copy").propertyValue))
+            .bccEmails(new HashSet<>(Set.of(applicationPropertyService.findByName("mail.ticket.copy").propertyValue)))
             .tickets(tickets.stream()
                 .map(ticket -> ofTicketWithQrCode(ticket,
                     ticket.encodeSerialNumberAsQrCode(qrCodeWidth, qrCodeHeight)))
@@ -382,8 +384,8 @@ public class BookingService extends ServiceSuperclass {
         );
         return ModelObjectsToDTOConverter.ofEmailSendingReport(report);
       } catch (Exception e) {
-        logger.log(Level.ERROR, e.getLocalizedMessage());
-        throw new EmailSendingException("Wystąpił błąd podczas wysyłania maila z kopią biletów.");
+          logger.log(Level.ERROR, "sendTicketCopy failed", e);
+          throw new EmailSendingException("Wystąpił błąd podczas wysyłania maila z kopią biletów.");
       }
     }
   }
@@ -448,4 +450,20 @@ public class BookingService extends ServiceSuperclass {
     throw new NoAvailableTicketsException(noAvailableTicketsErrorMsg);
   }
 
+    public List<SalesRowDTO> getSalesForCurrentPartner(CurrentUser currentUser) {
+        return em.createQuery("""
+      SELECT new pl.hellopolandticket.rest.partner.SalesRowDTO(
+        b.bookingId,
+        b.date,
+        b.customerName,
+        b.customerEmail,
+        b.status,
+        b.serialNumber
+      )
+      FROM Booking b
+      WHERE b.date >= CURRENT_TIMESTAMP - 7
+      ORDER BY b.date DESC
+      """, SalesRowDTO.class)
+                .getResultList();
+    }
 }
