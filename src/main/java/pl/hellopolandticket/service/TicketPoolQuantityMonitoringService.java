@@ -53,7 +53,9 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
 
   private boolean shouldInform(Limited limited) {
     int left = limited.getTicketsLeftToBuyCount();
-    return left >= 0 && left <= 3;
+    //return left >= 0 && left <= 3;
+      return left==0;
+
   }
 
   private void constructAndSendEmail(TicketPool ticketPool) {
@@ -72,28 +74,47 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
     });
   }
 
-  private void constructAndSendEmail(AvailableTicketNumberAssociation atna) {
-    TicketsRunningOutEmailConstructor emailConstructor =
-        new TicketsRunningOutEmailConstructor(atna);
-    TicketPool pool = atna.getTicketPool();
-    recipientsToInformAboutTicketsRunningOut(pool).forEach(recipient -> {
-      try {
-        emailService.sendSimpleEmail(recipient, emailConstructor.getTitle(),
-            emailConstructor.getContent());
-        logger.log(Logger.Level.INFO,
-            "Informing " + recipient + " about tickets from ticket pool[id="
-                + pool.getId() + "] running out.");
-      } catch (MessagingException | UnsupportedEncodingException e) {
-        throw exceptionFactory.emailSendingRollbackException();
-      }
-    });
-  }
+    private void constructAndSendEmail(AvailableTicketNumberAssociation atna) {
+        TicketPool pool = atna.getTicketPool();
 
-  private Set<String> recipientsToInformAboutTicketsRunningOut(TicketPool ticketPool) {
-    Set<String> all = new HashSet<>();
-    all.add(properties.getProperty("mail.hellopoland.biuro"));
-    all.add(ticketPool.getTicketPoolDefinition().getSightEvent().getPartner().getEmail());
-    return all;
-  }
+        // jeśli cała pula jest już wyprzedana, to mail z poola wystarczy
+        if (shouldInform(pool)) {
+            logger.log(Logger.Level.INFO,
+                    "Skipping ATNA notification because ticket pool[id=" + pool.getId()
+                            + "] is already sold out.");
+            return;
+        }
+
+        TicketsRunningOutEmailConstructor emailConstructor =
+                new TicketsRunningOutEmailConstructor(atna);
+
+        recipientsToInformAboutTicketsRunningOut(pool).forEach(recipient -> {
+            try {
+                emailService.sendSimpleEmail(recipient, emailConstructor.getTitle(),
+                        emailConstructor.getContent());
+                logger.log(Logger.Level.INFO,
+                        "Informing " + recipient + " about tickets from ticket pool[id="
+                                + pool.getId() + "] running out.");
+            } catch (MessagingException | UnsupportedEncodingException e) {
+                throw exceptionFactory.emailSendingRollbackException();
+            }
+        });
+    }
+
+    private Set<String> recipientsToInformAboutTicketsRunningOut(TicketPool ticketPool) {
+        Set<String> all = new HashSet<>();
+
+        String helpdeskEmail = properties.getProperty("mail.hellopoland.helpdesk");
+        if (helpdeskEmail != null && !helpdeskEmail.isBlank()) {
+            all.add(helpdeskEmail);
+        }
+
+        String partnerEmail = ticketPool.getTicketPoolDefinition().getSightEvent().getPartner().getEmail();
+        if (partnerEmail != null && !partnerEmail.isBlank()) {
+            all.add(partnerEmail);
+        }
+
+        return all;
+    }
 
 }
