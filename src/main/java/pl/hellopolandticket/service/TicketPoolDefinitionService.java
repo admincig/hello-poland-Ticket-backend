@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,6 +25,7 @@ import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopoland.dto.TicketPoolDefinitionDTO;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightEventDao;
+import pl.hellopolandticket.dao.TicketDefinitionDao;
 import pl.hellopolandticket.dao.TicketPoolDefinitionDao;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.sightevent.SightEvent;
@@ -54,6 +56,10 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   private AvailableTicketNumberAssociationService atnaService;
   @Inject
   private TicketPoolQuantityMonitoringService quantityService;
+  @Inject
+  private TicketDefinitionDao ticketDefinitionDao;
+  @Inject
+  private TicketTypeService ticketTypeService;
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketPoolDefinitionDTO add(TicketPoolDefinitionDTO tpdDTO, CurrentUser currentUser) {
@@ -64,6 +70,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
           "TicketPoolDefinition [id=" + tpdDTO.id + "] must have ticket definitions");
       throw new BadRequestException("TicketPoolDefinition must have ticket definitions.");
     }
+    validateNormalTicketPresence(tdDTOs);
     for (TicketDefinitionDTO td : tdDTOs) {
       if (td.availableTicketsNumber != -1 && tpdDTO.availableTicketsNumber != -1) {
         logger.log(Level.ERROR,
@@ -200,6 +207,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
           .orElse(null);
       tpd = tpdDao.findByIdForPartner(dto.id, partnerId);
     }
+    validateNormalTicketPresence(dto.ticketDefinitions);
     tpd.setName(dto.name);
     int oldAvailableTicketsNumber = tpd.getAvailableTicketsNumber();
     tpd.setAvailableTicketsNumber(dto.availableTicketsNumber);
@@ -207,6 +215,17 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     List<TicketPool> pools =
         ticketPoolService.updatePoolsAvailableTicketsNumber(tpd, oldAvailableTicketsNumber);
     quantityService.informPartnerAboutPoolsRunningOut(pools.stream());
+  }
+
+  private void validateNormalTicketPresence(List<TicketDefinitionDTO> ticketDefinitions) {
+    boolean hasNormalTicket = ticketDefinitions != null && ticketDefinitions.stream()
+        .filter(td -> td != null && td.id != null)
+        .map(td -> ticketDefinitionDao.findById(td.id))
+        .filter(Objects::nonNull)
+        .anyMatch(td -> ticketTypeService.isNormalTicketType(td.getTicketType()));
+    if (!hasNormalTicket) {
+      throw new BadRequestException("Oferta musi zawierać bilet typu Normalny.");
+    }
   }
 
   private void updateAtnas(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {

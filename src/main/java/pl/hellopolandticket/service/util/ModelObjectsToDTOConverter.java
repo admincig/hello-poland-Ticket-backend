@@ -23,6 +23,7 @@ import pl.hellopoland.dto.PartnerDTO;
 import pl.hellopoland.dto.SightEventDTO;
 import pl.hellopoland.dto.StatusDTO;
 import pl.hellopoland.dto.TicketDefinitionDTO;
+import pl.hellopoland.dto.TicketTypeDTO;
 import pl.hellopoland.dto.TicketPoolDTO;
 import pl.hellopoland.dto.TicketPoolDefinitionDTO;
 import pl.hellopoland.dto.TicketPoolInfoDTO;
@@ -43,6 +44,7 @@ import pl.hellopolandticket.model.ticket.partner.FrequencyData;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
+import pl.hellopolandticket.model.ticket.partner.TicketType;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.model.util.Discount;
 import pl.hellopolandticket.security.CurrentUser;
@@ -107,6 +109,8 @@ public class ModelObjectsToDTOConverter {
     ticketDefinitionDTO.name = ticketDefinition.getName();
     ticketDefinitionDTO.originalPrice = ticketDefinition.getPrice();
     ticketDefinitionDTO.partnerId = ticketDefinition.getPartner().getId();
+    ticketDefinitionDTO.ticketTypeId = ticketDefinition.getTicketType().getId();
+    ticketDefinitionDTO.ticketType = ofTicketType(ticketDefinition.getTicketType());
     AvailableTicketNumberAssociation atna = ticketDefinition.getInterestingAtna();
     if (atna != null) {
       ticketDefinitionDTO.atnaId = atna.getId();
@@ -122,6 +126,17 @@ public class ModelObjectsToDTOConverter {
 
     ticketDefinitionDTO.calculatePrice();
     return ticketDefinitionDTO;
+  }
+
+  public static TicketTypeDTO ofTicketType(TicketType ticketType) {
+    TicketTypeDTO dto = new TicketTypeDTO();
+    dto.id = ticketType.getId();
+    dto.code = ticketType.getCode();
+    dto.label = ticketType.getLabel();
+    dto.eligibleForPriceFrom = ticketType.isEligibleForPriceFrom();
+    dto.active = ticketType.isActive();
+    dto.sortOrder = ticketType.getSortOrder();
+    return dto;
   }
 
   public static DiscountDTO ofDiscount(Discount discount) {
@@ -361,6 +376,8 @@ public class ModelObjectsToDTOConverter {
         dto.name = ticketDefinition.getName();
         dto.originalPrice = ticketDefinition.getPrice();
         dto.partnerId = ticketDefinition.getPartner().getId();
+        dto.ticketTypeId = ticketDefinition.getTicketType().getId();
+        dto.ticketType = ofTicketType(ticketDefinition.getTicketType());
 
         AvailableTicketNumberAssociation atna =
                 ticketDefinition.getInterestingAtnaForPool(ticketPool.getId());

@@ -16,6 +16,7 @@ import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.mail.MessagingException;
+import jakarta.persistence.PersistenceException;
 import org.apache.commons.lang3.RandomStringUtils;
 import pl.hellopoland.dto.PartnerDTO;
 import pl.hellopoland.dto.RoleDTO;
@@ -42,8 +43,20 @@ public class PartnerService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_ADMIN, ROLE_SALESMAN})
   public PartnerDTO save(PartnerDTO partner) {
+    if (partnerDao.findByName(partner.name) != null || partnerDao.findByEmail(partner.email) != null) {
+      throw exceptionFactory.partnerAlreadyExistsException();
+    }
+
     Partner partnerToPersist = Partner.builder().name(partner.name).email(partner.email).build();
-    partnerDao.persist(partnerToPersist);
+    try {
+      partnerDao.persist(partnerToPersist);
+      partnerDao.flush();
+    } catch (PersistenceException e) {
+      if (isConstraintViolation(e)) {
+        throw exceptionFactory.partnerAlreadyExistsException();
+      }
+      throw e;
+    }
     User user = createHiddenUser(partner.name, partner.email,
         Set.of(ROLE_EXTERNAL_USER, ROLE_USHER), partnerToPersist);
     user.setPassword(passwordEncoder.encode(partner.password));
@@ -65,6 +78,18 @@ public class PartnerService extends ServiceSuperclass {
 
   private boolean isAtLeastOneUsher(List<UserDTO> usersDTOs) {
     return usersDTOs.stream().anyMatch(user -> user.roles.contains(RoleDTO.USHER));
+  }
+
+  private boolean isConstraintViolation(Throwable throwable) {
+    Throwable current = throwable;
+    while (current != null) {
+      if ("org.hibernate.exception.ConstraintViolationException"
+          .equals(current.getClass().getName())) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   private void saveUshers(List<UserDTO> users, Partner partner) {

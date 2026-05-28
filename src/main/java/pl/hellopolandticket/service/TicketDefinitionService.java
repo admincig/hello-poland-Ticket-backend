@@ -4,6 +4,7 @@ import static pl.hellopolandticket.model.auth.Role.ROLE_ADMIN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER;
 import java.lang.System.Logger.Level;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -18,8 +19,12 @@ import pl.hellopolandticket.dao.TicketDefinitionDao;
 import pl.hellopolandticket.model.auth.Role;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
+import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
+import pl.hellopolandticket.model.ticket.partner.TicketType;
+import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.exception.badrequest.BadRequestException;
+import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 import pl.hellopolandticket.service.util.TicketPoolDefinitionAtnasComparerResult;
 
@@ -36,6 +41,9 @@ public class TicketDefinitionService extends ServiceSuperclass {
   @Inject
   private AvailableTicketNumberAssociationService atnaService;
 
+  @Inject
+  private TicketTypeService ticketTypeService;
+
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public TicketDefinitionDTO add(TicketDefinitionDTO ticketDefinitionDTO, CurrentUser currentUser) {
     if (ticketDefinitionDTO.price < 0) {
@@ -43,13 +51,19 @@ public class TicketDefinitionService extends ServiceSuperclass {
           + "]. The ticket price must be greater than 0");
       throw new BadRequestException("The ticket price must be greater than 0");
     }
+    if (ticketDefinitionDTO.ticketTypeId == null) {
+      throw new BadRequestException("Ticket type is required.");
+    }
     Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
+    TicketType ticketType = ticketTypeService.getActiveTicketTypeOrThrow(
+        ticketDefinitionDTO.ticketTypeId);
 
     TicketDefinition ticketDefinition = TicketDefinition.builder().name(ticketDefinitionDTO.name)
-        .price(ticketDefinitionDTO.price).partner(partner).build();
+        .price(ticketDefinitionDTO.price).ticketType(ticketType).partner(partner).build();
     ticketDefinitionDao.persist(ticketDefinition);
 
     ticketDefinitionDTO.id = ticketDefinition.getId();
+    ticketDefinitionDTO.ticketType = ModelObjectsToDTOConverter.ofTicketType(ticketType);
     return ticketDefinitionDTO;
   }
 
@@ -86,6 +100,7 @@ public class TicketDefinitionService extends ServiceSuperclass {
         throw new ForbiddenException();
       }
     }
+    validateNormalTicketRemoval(td);
     td.setDeleted(true);
     TicketPoolDefinitionAtnasComparerResult diffs = new TicketPoolDefinitionAtnasComparerResult();
     diffs.toRemove.addAll(td.getAtnasConnectedToPoolDefinitions());
@@ -99,6 +114,9 @@ public class TicketDefinitionService extends ServiceSuperclass {
           + "]. The ticket price must be greater than 0");
       throw new BadRequestException("The ticket price must be greater than 0");
     }
+    if (dto.ticketTypeId == null) {
+      throw new BadRequestException("Ticket type is required.");
+    }
     TicketDefinition td = ticketDefinitionDao.findById(dto.id);
     if (!currentUser.hasRole(Role.ROLE_ADMIN)) {
       Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
@@ -106,8 +124,14 @@ public class TicketDefinitionService extends ServiceSuperclass {
         throw new ForbiddenException();
       }
     }
+    TicketType newTicketType = ticketTypeService.getActiveTicketTypeOrThrow(dto.ticketTypeId);
+    if (ticketTypeService.isNormalTicketType(td.getTicketType())
+        && !ticketTypeService.isNormalTicketType(newTicketType)) {
+      validateNormalTicketRemoval(td);
+    }
     td.setName(dto.name);
     td.setPrice(dto.price);
+    td.setTicketType(newTicketType);
     return getList(null, currentUser);
   }
 
@@ -128,5 +152,32 @@ public class TicketDefinitionService extends ServiceSuperclass {
         return ticketDefinitionDao.getUndeletedList(atnaIds).stream()
                 .map(ModelObjectsToDTOConverter::ofTicketDefinition)
                 .collect(Collectors.toList());
+  }
+
+  private void validateNormalTicketRemoval(TicketDefinition ticketDefinition) {
+    if (!ticketTypeService.isNormalTicketType(ticketDefinition.getTicketType())) {
+      return;
+    }
+
+    List<TicketPoolDefinition> affectedPoolDefinitions = ticketDefinition
+        .getAtnasConnectedToPoolDefinitions().stream()
+        .filter(atna -> !atna.isDeleted())
+        .map(AvailableTicketNumberAssociation::getTicketPoolDefinition)
+        .filter(Objects::nonNull)
+        .filter(tpd -> !tpd.isDeleted() && Boolean.TRUE.equals(tpd.getSightEvent().getActive()))
+        .distinct()
+        .collect(Collectors.toList());
+
+    for (TicketPoolDefinition tpd : affectedPoolDefinitions) {
+      boolean hasAnotherNormalTicket = tpd.getUndeletedAtnas().stream()
+          .map(AvailableTicketNumberAssociation::getTicketDefinition)
+          .filter(td -> !td.isDeleted())
+          .anyMatch(td -> !Objects.equals(td.getId(), ticketDefinition.getId())
+              && ticketTypeService.isNormalTicketType(td.getTicketType()));
+      if (!hasAnotherNormalTicket) {
+        throw new ConflictingException(
+            "Nie można usunąć lub zmienić typu ostatniego biletu Normalny przypisanego do oferty.");
+      }
+    }
   }
 }

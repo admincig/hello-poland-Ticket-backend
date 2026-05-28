@@ -32,9 +32,22 @@ public class PartnerDao {
     return partner;
   }
 
+  public void flush() {
+    entityManager.flush();
+  }
+
   public Partner findByName(String name) {
     return entityManager.createQuery("from Partner partner where partner.name=:name", Partner.class)
         .setParameter("name", name).getResultStream().findFirst().orElse(null);
+  }
+
+  public Partner findByEmail(String email) {
+    return entityManager
+        .createQuery("from Partner partner where lower(partner.email)=:email", Partner.class)
+        .setParameter("email", email.toLowerCase())
+        .getResultStream()
+        .findFirst()
+        .orElse(null);
   }
 
   public void removeNewCreatedPartner(Partner partner) {

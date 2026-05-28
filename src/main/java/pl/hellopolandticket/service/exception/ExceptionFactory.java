@@ -9,6 +9,7 @@ import pl.hellopolandticket.service.exception.conflict.EventDoesNotTakePlaceOnCh
 import pl.hellopolandticket.service.exception.conflict.NotBookedException;
 import pl.hellopolandticket.service.exception.conflict.PunchingTicketForWrongSightException;
 import pl.hellopolandticket.service.exception.conflict.RequestedDateOutsideRequestedTicketDefinitionPoolException;
+import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.exception.conflict.TicketConflictException;
 import pl.hellopolandticket.service.exception.conflict.WrongTicketStatusException;
 import pl.hellopolandticket.service.exception.notfound.NonRollbackResourceNotFoundException;
@@ -159,6 +160,13 @@ public class ExceptionFactory {
 
       ex.setErrorKey(EventDoesNotTakePlaceOnChosenDateException.class.getSimpleName());
     return  ex;
+  }
+
+  public ConflictingException partnerAlreadyExistsException() {
+    ConflictingException ex = new ConflictingException(
+        exceptionMessagesService.getMessage("PartnerAlreadyExistsException"));
+    ex.setErrorKey("PartnerAlreadyExistsException");
+    return ex;
   }
 
 }

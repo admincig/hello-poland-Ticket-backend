@@ -56,6 +56,11 @@ public class TicketDefinition implements Serializable {
 
   @NotNull
   @ManyToOne
+  @JoinColumn(name = "TICKET_TYPE_ID", nullable = false)
+  private TicketType ticketType;
+
+  @NotNull
+  @ManyToOne
   @JoinColumn(name = "PARTNER_ID", nullable = false)
   private Partner partner;
 
@@ -71,10 +76,11 @@ public class TicketDefinition implements Serializable {
   private AvailableTicketNumberAssociation interestingAtna;
 
   @Builder
-  public TicketDefinition(String name, Integer price, Partner partner,
+  public TicketDefinition(String name, Integer price, TicketType ticketType, Partner partner,
       List<TicketPoolDefinition> ticketPoolDefinitions) {
     this.name = name;
     this.price = price;
+    this.ticketType = ticketType;
     this.partner = partner;
   }
 

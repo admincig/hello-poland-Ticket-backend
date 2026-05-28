@@ -2,11 +2,7 @@ package pl.hellopolandticket.rest;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import pl.hellopoland.dto.UserDTO;
 import pl.hellopolandticket.model.auth.Role;
@@ -51,6 +47,14 @@ public class PartnerRestService extends RestServiceSuperclass {
     usher.id = userId;
     return Response.ok(userService.updateUserForCurrentPartner(usher)).build();
   }
+
+  @DELETE
+  @Path("/ushers/{id}")
+  public Response deleteUsher(@PathParam("id") long userId) {
+        userService.deleteUsherForCurrentPartner(userId);
+        return Response.noContent().build();
+  }
+
 
   @GET
   @Path("/bookings/{serialNumber}/sendTicketCopy")

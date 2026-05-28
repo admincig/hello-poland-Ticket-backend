@@ -23,6 +23,7 @@ import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.security.password.PasswordEncoder;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
+import pl.hellopolandticket.service.exception.conflict.UsherEmailMatchesPartnerEmailException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
 @Stateless
@@ -106,9 +107,26 @@ public class UserService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public UserDTO createUsher(UserDTO usher) {
+    User loggedUser = getLoggedUser();
+    if (loggedUser != null && StringUtils.equalsIgnoreCase(StringUtils.trim(usher.email), loggedUser.getEmail())) {
+      throw new UsherEmailMatchesPartnerEmailException();
+    }
+
     String hashedPassword = passwordEncoder.encode(usher.password);
-    User user = User.createUsher(usher.name, usher.email, hashedPassword, getLoggedUser().getPartner());
+    User user = User.createUsher(usher.name, usher.email, hashedPassword, loggedUser.getPartner());
     return ofUser(userDao.persist(user));
   }
+
+    @RolesAllowed({ROLE_EXTERNAL_USER})
+    public void deleteUsherForCurrentPartner(long userId) {
+        User user = userDao.getUserByRoleForCurrentPartner(
+                userId,
+                getLoggedUser().getPartner(),
+                Role.ROLE_USHER
+        );
+
+        user.setHidden(true);
+        user.setToken(null);
+    }
 
 }
