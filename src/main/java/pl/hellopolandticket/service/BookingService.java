@@ -19,6 +19,8 @@ import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import pl.hellopoland.dto.*;
 import pl.hellopoland.dto.EmailSendingReportDTO;
 import pl.hellopoland.dto.booking.BookingDTO;
@@ -307,6 +309,31 @@ public class BookingService extends ServiceSuperclass {
     @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_ADMIN})
   public EmailSendingReportDTO sendTicketCopy(String serialNumber) {
     var booking = bookingDao.findBySerialNumber(serialNumber);
+    return sendTicketCopy(booking, booking.getCustomerEmail());
+  }
+
+  @RolesAllowed(ROLE_ADMIN)
+  public EmailSendingReportDTO sendTicketCopyToEmail(String serialNumber, String recipientEmail) {
+    var booking = bookingDao.findBySerialNumber(serialNumber);
+    return sendTicketCopy(booking, validateRecipientEmail(recipientEmail));
+  }
+
+  private String validateRecipientEmail(String email) {
+    if (email == null || email.isBlank()) {
+      throw new EmailSendingException("Podaj poprawny adres e-mail.");
+    }
+
+    String normalizedEmail = email.trim();
+    try {
+      InternetAddress address = new InternetAddress(normalizedEmail, true);
+      address.validate();
+      return address.getAddress();
+    } catch (AddressException e) {
+      throw new EmailSendingException("Podaj poprawny adres e-mail.");
+    }
+  }
+
+  private EmailSendingReportDTO sendTicketCopy(Booking booking, String recipientEmail) {
     int qrCodeWidth =
         valueOf(applicationPropertyService.findByName(TICKET_QR_CODE_WIDTH_PROPERTY).propertyValue);
     int qrCodeHeight = valueOf(
@@ -344,7 +371,7 @@ public class BookingService extends ServiceSuperclass {
             .paymentId(booking.getP24OrderId())
             .hash(booking.getSerialNumber())
             .customerName(booking.getCustomerName())
-            .recipientEmail(booking.getCustomerEmail())
+            .recipientEmail(recipientEmail)
             .buyerNotes(booking.getBuyerNotes())
             .bccEmails(new HashSet<>(Set.of(applicationPropertyService.findByName("mail.ticket.copy").propertyValue)))
             .tickets(tickets.stream()
@@ -372,7 +399,7 @@ public class BookingService extends ServiceSuperclass {
             .paymentId(booking.getP24OrderId())
             .hash(booking.getSerialNumber())
             .customerName(booking.getCustomerName())
-            .recipientEmail(booking.getCustomerEmail())
+            .recipientEmail(recipientEmail)
             .buyerNotes(booking.getBuyerNotes())
             .bccEmails(Set.of(partner.getEmail(), applicationPropertyService.findByName("mail.ticket.copy").propertyValue))
             .tickets(tickets.stream()

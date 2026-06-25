@@ -24,7 +24,14 @@ public class BadRequestExceptionHandler implements ExceptionMapper<BadRequestBas
                         ? ((BaseException) e).getErrorKey()
                         : e.getClass().getSimpleName();
 
+        String message = exceptionMessagesService.getMessage(errorKey);
+        if (e instanceof BaseException && ((BaseException) e).getMessage() != null
+                && !((BaseException) e).getMessage().isBlank()
+                && ("BadRequestException".equals(errorKey) || "UNKNOWN_ERROR".equals(message))) {
+            message = ((BaseException) e).getMessage();
+        }
+
         return Response.status(BAD_REQUEST).entity(ModelObjectsToDTOConverter.abstractErrorDTOBuilder()
-        .exception(e.getClass()).message(exceptionMessagesService.getMessage(errorKey)).code(exceptionMessagesService.getCode(errorKey)).build()).build();
+        .exception(e.getClass()).message(message).code(exceptionMessagesService.getCode(errorKey)).build()).build();
   }
 }

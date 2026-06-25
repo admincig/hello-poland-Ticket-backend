@@ -38,7 +38,7 @@ public class SightEventLocation implements Serializable {
   @Column(name = "COUNTRY")
   private String country;
 
-  @Column(name = "DIRECTIONS")
+  @Column(name = "DIRECTIONS", length = 1000)
   private String directions;
 
   @Builder

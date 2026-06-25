@@ -44,6 +44,9 @@ import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 @LocalBean
 public class SightEventService extends ServiceSuperclass {
 
+  private static final int SIGHT_EVENT_DESCRIPTION_MAX_LENGTH = 2500;
+  private static final int SIGHT_EVENT_DIRECTIONS_MAX_LENGTH = 1000;
+
   @Inject
   private SightEventDao sightEventDao;
 
@@ -133,6 +136,8 @@ public class SightEventService extends ServiceSuperclass {
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public SightEventDTO addSightEvent(SightEventDTO sightEventDTO, CurrentUser currentUser) {
+    validateSightEventTextLengths(sightEventDTO);
+
     SightEventLocation sightEventLocation =
         ofNullable(sightEventDTO.location).map(this::ofLocation).orElse(null);
 
@@ -193,8 +198,12 @@ public class SightEventService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})
-  public SightEventDTO updateSightEvent(Long sightId, SightEventDTO sightEventDTO) {
-    SightEvent sightEvent = sightEventDao.findById(sightId);
+  public SightEventDTO updateSightEvent(Long sightId, SightEventDTO sightEventDTO,
+      CurrentUser currentUser) {
+    validateSightEventTextLengths(sightEventDTO);
+
+    Partner partner = partnerDao.findByUserEmail(currentUser.getPrincipal());
+    SightEvent sightEvent = sightEventDao.findByIdAndPartner(sightId, partner);
     sightEvent.setDescription(sightEventDTO.description);
     sightEvent.setEmail(sightEventDTO.email);
     sightEvent.setPhone(sightEventDTO.phone);
@@ -244,6 +253,27 @@ public class SightEventService extends ServiceSuperclass {
       throw new BadRequestException(
           "Opublikowana oferta musi zawierac bilet typu Normalny.");
     }
+  }
+
+  private void validateSightEventTextLengths(SightEventDTO sightEventDTO) {
+    if (sightEventDTO == null) {
+      return;
+    }
+
+    if (isLongerThan(sightEventDTO.description, SIGHT_EVENT_DESCRIPTION_MAX_LENGTH)) {
+      throw new BadRequestException("Opis oferty może mieć maksymalnie "
+          + SIGHT_EVENT_DESCRIPTION_MAX_LENGTH + " znaków.");
+    }
+
+    if (sightEventDTO.location != null
+        && isLongerThan(sightEventDTO.location.directions, SIGHT_EVENT_DIRECTIONS_MAX_LENGTH)) {
+      throw new BadRequestException("Wskazówki dojazdu mogą mieć maksymalnie "
+          + SIGHT_EVENT_DIRECTIONS_MAX_LENGTH + " znaków.");
+    }
+  }
+
+  private boolean isLongerThan(String value, int maxLength) {
+    return value != null && value.length() > maxLength;
   }
 
   @RolesAllowed({ROLE_EXTERNAL_USER})

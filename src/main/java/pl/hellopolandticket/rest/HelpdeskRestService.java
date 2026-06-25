@@ -9,6 +9,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 import pl.hellopoland.dto.PartnerDTO;
+import pl.hellopolandticket.rest.dto.TicketEmailRequest;
 import pl.hellopolandticket.service.BookingService;
 import pl.hellopolandticket.service.PartnerService;
 
@@ -38,6 +39,15 @@ public class HelpdeskRestService extends RestServiceSuperclass {
   @Path("/bookings/{serialNumber}/sendTicketCopy")
   public Response sendTicketCopy(@PathParam("serialNumber") String serialNumber) {
     return Response.ok(bookingService.sendTicketCopy(serialNumber)).build();
+  }
+
+  @POST
+  @Path("/bookings/{serialNumber}/sendTicketCopyToEmail")
+  public Response sendTicketCopyToEmail(@PathParam("serialNumber") String serialNumber,
+      TicketEmailRequest request) {
+    return Response.ok(
+        bookingService.sendTicketCopyToEmail(serialNumber, request == null ? null : request.email))
+        .build();
   }
 
 }

@@ -79,7 +79,7 @@ public class SightEventRestService extends RestServiceSuperclass {
   @PUT
   @Path("/{id}")
   public Response updateSightEvent(@PathParam("id") Long id, SightEventDTO sightEvent) {
-    return Response.ok(sightEventService.updateSightEvent(id, sightEvent)).build();
+    return Response.ok(sightEventService.updateSightEvent(id, sightEvent, currentUser)).build();
   }
 
   @GET
