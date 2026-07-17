@@ -43,6 +43,11 @@ public class TicketTypeService extends ServiceSuperclass {
   }
 
   @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
+  public boolean isSpecialTicketType(TicketType ticketType) {
+    return ticketType != null && TicketType.SPECJALNY_CODE.equals(ticketType.getCode());
+  }
+
+  @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
   public boolean isPreferredPriceFromNormalTicketType(TicketType ticketType) {
     return isNormalTicketType(ticketType);
   }

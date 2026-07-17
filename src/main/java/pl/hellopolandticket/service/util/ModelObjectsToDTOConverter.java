@@ -27,6 +27,7 @@ import pl.hellopoland.dto.TicketTypeDTO;
 import pl.hellopoland.dto.TicketPoolDTO;
 import pl.hellopoland.dto.TicketPoolDefinitionDTO;
 import pl.hellopoland.dto.TicketPoolInfoDTO;
+import pl.hellopoland.dto.TicketPoolTypeDTO;
 import pl.hellopoland.dto.UserAuthDTO;
 import pl.hellopoland.dto.UserDTO;
 import pl.hellopoland.dto.booking.BookingDTO;
@@ -270,6 +271,7 @@ public class ModelObjectsToDTOConverter {
 
   public static TicketPoolDTO ofTicketPool(TicketPool ticketPool) {
     TicketPoolDTO ticketPoolDTO = new TicketPoolDTO();
+    TicketPoolDefinition ticketPoolDefinition = ticketPool.getTicketPoolDefinition();
     ticketPoolDTO.id = ticketPool.getId();
     ticketPoolDTO.name = ticketPool.getName();
     ticketPoolDTO.availableTicketsNumber = ticketPool.getAvailableTicketsNumber();
@@ -278,11 +280,14 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDTO.entryStartDate = ticketPool.getEntryStartDate();
     ticketPoolDTO.entryEndDate = ticketPool.getEntryEndDate();
     ticketPoolDTO.ticketPoolDefinitionId =
-        ofNullable(ticketPool.getTicketPoolDefinition()).map(tpd -> tpd.getId()).orElse(null);
+        ofNullable(ticketPoolDefinition).map(tpd -> tpd.getId()).orElse(null);
     ticketPoolDTO.wholeDay = ticketPool.isWholeDay();
-    ticketPoolDTO.isCyclic = ticketPool.getTicketPoolDefinition().getIsCyclic();
+    ticketPoolDTO.isCyclic = ticketPoolDefinition.getIsCyclic();
+    ticketPoolDTO.poolType = ofTicketPoolType(ticketPoolDefinition);
+    ticketPoolDTO.visibleForPartner = ticketPoolDefinition.isVisibleForPartner();
+    ticketPoolDTO.visibleOnPortal = ticketPoolDefinition.isVisibleOnPortal();
     ticketPoolDTO.ticketDefinitions =
-              ticketPool.getTicketPoolDefinition().getTicketDefinitions().stream()
+              ticketPoolDefinition.getTicketDefinitions().stream()
                       .map(td -> ofTicketDefinitionForPool(td, ticketPool))
                       .collect(toList());
     return ticketPoolDTO;
@@ -305,8 +310,17 @@ public class ModelObjectsToDTOConverter {
     ticketPoolDefinitionDTO.sightEventId = ticketPoolDefinition.getSightEvent().getId();
     ticketPoolDefinitionDTO.deleted = ticketPoolDefinition.isDeleted();
     ticketPoolDefinitionDTO.wholeDay = ticketPoolDefinition.isWholeDay();
+    ticketPoolDefinitionDTO.poolType = ofTicketPoolType(ticketPoolDefinition);
+    ticketPoolDefinitionDTO.visibleForPartner = ticketPoolDefinition.isVisibleForPartner();
+    ticketPoolDefinitionDTO.visibleOnPortal = ticketPoolDefinition.isVisibleOnPortal();
     ticketPoolDefinitionDTO.partnerId = ticketPoolDefinition.getSightEvent().getPartner().getId();
     return ticketPoolDefinitionDTO;
+  }
+
+  private static TicketPoolTypeDTO ofTicketPoolType(TicketPoolDefinition ticketPoolDefinition) {
+    return ofNullable(ticketPoolDefinition.getPoolType())
+        .map(poolType -> TicketPoolTypeDTO.valueOf(poolType.name()))
+        .orElse(TicketPoolTypeDTO.STANDARD);
   }
 
     public static TicketPoolDefinitionDTO ofTicketPoolDefinition(

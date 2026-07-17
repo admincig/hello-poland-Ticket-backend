@@ -28,6 +28,7 @@ public class TicketType implements Serializable {
   public static final String NORMALNY_CODE = "NORMALNY";
   public static final String ULGOWY_CODE = "ULGOWY";
   public static final String ULGOWY_STUDENT_UCZEN_CODE = "ULGOWY_STUDENT_UCZEN";
+  public static final String SPECJALNY_CODE = "SPECJALNY";
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

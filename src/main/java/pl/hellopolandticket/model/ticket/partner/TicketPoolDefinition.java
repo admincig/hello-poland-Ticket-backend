@@ -99,6 +99,21 @@ public class TicketPoolDefinition implements Serializable {
   @Column(name = "WHOLEDAY", nullable = false)
   private boolean wholeDay;
 
+  @Setter
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(name = "POOL_TYPE", nullable = false)
+  private TicketPoolType poolType;
+
+  @Setter
+  @NotNull
+  @Column(name = "VISIBLE_FOR_PARTNER", nullable = false)
+  private boolean visibleForPartner;
+
+  @Setter
+  @NotNull
+  @Column(name = "VISIBLE_ON_PORTAL", nullable = false)
+  private boolean visibleOnPortal;
 
     public List<TicketDefinition> getTicketDefinitions() {
         return atnas.stream()
@@ -124,7 +139,8 @@ public class TicketPoolDefinition implements Serializable {
     @Builder
   public TicketPoolDefinition(String name, Integer availableTicketsNumber, Boolean isCyclic,
       FrequencyData frequencyData, Date startDate, Date endDate, Date entryStartDate,
-      Date entryEndDate, SightEvent sightEvent, boolean deleted, boolean wholeDay) {
+      Date entryEndDate, SightEvent sightEvent, boolean deleted, boolean wholeDay,
+      TicketPoolType poolType, Boolean visibleForPartner, Boolean visibleOnPortal) {
     this.name = name;
     this.isCyclic = isCyclic;
     this.frequencyData = frequencyData;
@@ -135,6 +151,9 @@ public class TicketPoolDefinition implements Serializable {
     this.sightEvent = sightEvent;
     this.deleted = deleted;
     this.wholeDay = wholeDay;
+    this.poolType = poolType == null ? TicketPoolType.STANDARD : poolType;
+    this.visibleForPartner = visibleForPartner == null || visibleForPartner;
+    this.visibleOnPortal = visibleOnPortal == null || visibleOnPortal;
     this.availableTicketsNumber =
         availableTicketsNumber == null ? UNLIMITED_NUMBER_OF_AVAILABLE_TICKETS_VALUE
             : availableTicketsNumber;

@@ -23,6 +23,7 @@ import pl.hellopoland.dto.DiscountDTO;
 import pl.hellopoland.dto.DiscountTypeDTO;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopoland.dto.TicketPoolDefinitionDTO;
+import pl.hellopoland.dto.TicketPoolTypeDTO;
 import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.SightEventDao;
 import pl.hellopolandticket.dao.TicketDefinitionDao;
@@ -34,6 +35,7 @@ import pl.hellopolandticket.model.ticket.partner.FrequencyType;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPool;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
+import pl.hellopolandticket.model.ticket.partner.TicketPoolType;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.service.exception.badrequest.BadRequestException;
 import pl.hellopolandticket.service.exception.conflict.ConflictingException;
@@ -70,7 +72,8 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
           "TicketPoolDefinition [id=" + tpdDTO.id + "] must have ticket definitions");
       throw new BadRequestException("TicketPoolDefinition must have ticket definitions.");
     }
-    validateNormalTicketPresence(tdDTOs);
+    TicketPoolType poolType = toTicketPoolType(tpdDTO.poolType);
+    validateTicketTypes(poolType, tdDTOs);
     for (TicketDefinitionDTO td : tdDTOs) {
       if (td.availableTicketsNumber != -1 && tpdDTO.availableTicketsNumber != -1) {
         logger.log(Level.ERROR,
@@ -98,7 +101,10 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
         .availableTicketsNumber(tpdDTO.availableTicketsNumber).isCyclic(tpdDTO.isCyclic)
         .frequencyData(frequencyData).startDate(tpdDTO.startDate).endDate(tpdDTO.endDate)
         .entryStartDate(tpdDTO.entryStartDate).entryEndDate(tpdDTO.entryEndDate)
-        .sightEvent(sightEvent).deleted(false).wholeDay(tpdDTO.wholeDay).build();
+        .sightEvent(sightEvent).deleted(false).wholeDay(tpdDTO.wholeDay)
+        .poolType(poolType)
+        .visibleForPartner(defaultVisible(tpdDTO.visibleForPartner))
+        .visibleOnPortal(defaultVisible(tpdDTO.visibleOnPortal)).build();
     tpdDao.persist(ticketPoolDefinition);
     atnaService.add(ticketPoolDefinition, tdDTOs);
     em.refresh(ticketPoolDefinition);
@@ -207,8 +213,18 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
           .orElse(null);
       tpd = tpdDao.findByIdForPartner(dto.id, partnerId);
     }
-    validateNormalTicketPresence(dto.ticketDefinitions);
+    TicketPoolType poolType =
+        dto.poolType == null ? defaultTicketPoolType(tpd.getPoolType())
+            : toTicketPoolType(dto.poolType);
+    validateTicketTypes(poolType, dto.ticketDefinitions);
     tpd.setName(dto.name);
+    tpd.setPoolType(poolType);
+    if (dto.visibleForPartner != null) {
+      tpd.setVisibleForPartner(dto.visibleForPartner);
+    }
+    if (dto.visibleOnPortal != null) {
+      tpd.setVisibleOnPortal(dto.visibleOnPortal);
+    }
     int oldAvailableTicketsNumber = tpd.getAvailableTicketsNumber();
     tpd.setAvailableTicketsNumber(dto.availableTicketsNumber);
     updateAtnas(tpd, dto);
@@ -217,15 +233,50 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     quantityService.informPartnerAboutPoolsRunningOut(pools.stream());
   }
 
-  private void validateNormalTicketPresence(List<TicketDefinitionDTO> ticketDefinitions) {
-    boolean hasNormalTicket = ticketDefinitions != null && ticketDefinitions.stream()
+  private void validateTicketTypes(TicketPoolType poolType,
+      List<TicketDefinitionDTO> ticketDefinitions) {
+    if (ticketDefinitions == null || ticketDefinitions.isEmpty()) {
+      throw new BadRequestException("TicketPoolDefinition must have ticket definitions.");
+    }
+    List<TicketDefinition> definitions = ticketDefinitions.stream()
         .filter(td -> td != null && td.id != null)
         .map(td -> ticketDefinitionDao.findById(td.id))
         .filter(Objects::nonNull)
+        .collect(Collectors.toList());
+    if (TicketPoolType.PROMOTIONAL.equals(poolType)) {
+      boolean containsOnlySpecialTickets = !definitions.isEmpty() && definitions.stream()
+          .allMatch(td -> ticketTypeService.isSpecialTicketType(td.getTicketType()));
+      if (!containsOnlySpecialTickets) {
+        throw new BadRequestException(
+            "Promotional ticket pool can contain only special tickets.");
+      }
+      return;
+    }
+
+    boolean hasSpecialTicket = definitions.stream()
+        .anyMatch(td -> ticketTypeService.isSpecialTicketType(td.getTicketType()));
+    if (hasSpecialTicket) {
+      throw new BadRequestException(
+          "Special tickets can be assigned only to promotional ticket pools.");
+    }
+
+    boolean hasNormalTicket = definitions.stream()
         .anyMatch(td -> ticketTypeService.isNormalTicketType(td.getTicketType()));
     if (!hasNormalTicket) {
       throw new BadRequestException("Oferta musi zawierać bilet typu Normalny.");
     }
+  }
+
+  private TicketPoolType toTicketPoolType(TicketPoolTypeDTO poolType) {
+    return poolType == null ? TicketPoolType.STANDARD : TicketPoolType.valueOf(poolType.name());
+  }
+
+  private TicketPoolType defaultTicketPoolType(TicketPoolType poolType) {
+    return poolType == null ? TicketPoolType.STANDARD : poolType;
+  }
+
+  private boolean defaultVisible(Boolean visible) {
+    return visible == null || visible;
   }
 
   private void updateAtnas(TicketPoolDefinition tpd, TicketPoolDefinitionDTO dto) {

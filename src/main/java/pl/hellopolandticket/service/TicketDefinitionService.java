@@ -20,6 +20,7 @@ import pl.hellopolandticket.model.auth.Role;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.model.ticket.partner.TicketDefinition;
 import pl.hellopolandticket.model.ticket.partner.TicketPoolDefinition;
+import pl.hellopolandticket.model.ticket.partner.TicketPoolType;
 import pl.hellopolandticket.model.ticket.partner.TicketType;
 import pl.hellopolandticket.model.util.AvailableTicketNumberAssociation;
 import pl.hellopolandticket.security.CurrentUser;
@@ -129,6 +130,7 @@ public class TicketDefinitionService extends ServiceSuperclass {
         && !ticketTypeService.isNormalTicketType(newTicketType)) {
       validateNormalTicketRemoval(td);
     }
+    validateTicketTypeChangeForPoolTypes(td, newTicketType);
     td.setName(dto.name);
     td.setPrice(dto.price);
     td.setTicketType(newTicketType);
@@ -177,6 +179,31 @@ public class TicketDefinitionService extends ServiceSuperclass {
       if (!hasAnotherNormalTicket) {
         throw new ConflictingException(
             "Nie można usunąć lub zmienić typu ostatniego biletu Normalny przypisanego do oferty.");
+      }
+    }
+  }
+
+  private void validateTicketTypeChangeForPoolTypes(TicketDefinition ticketDefinition,
+      TicketType newTicketType) {
+    List<TicketPoolDefinition> affectedPoolDefinitions = ticketDefinition
+        .getAtnasConnectedToPoolDefinitions().stream()
+        .filter(atna -> !atna.isDeleted())
+        .map(AvailableTicketNumberAssociation::getTicketPoolDefinition)
+        .filter(Objects::nonNull)
+        .filter(tpd -> !tpd.isDeleted())
+        .distinct()
+        .collect(Collectors.toList());
+
+    boolean isSpecialTicket = ticketTypeService.isSpecialTicketType(newTicketType);
+    for (TicketPoolDefinition tpd : affectedPoolDefinitions) {
+      boolean isPromotionalPool = TicketPoolType.PROMOTIONAL.equals(tpd.getPoolType());
+      if (isPromotionalPool && !isSpecialTicket) {
+        throw new ConflictingException(
+            "Ticket assigned to promotional pool must be special.");
+      }
+      if (!isPromotionalPool && isSpecialTicket) {
+        throw new ConflictingException(
+            "Special ticket can be assigned only to promotional pool.");
       }
     }
   }
