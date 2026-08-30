@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
@@ -26,6 +27,12 @@ public class HelpdeskRestService extends RestServiceSuperclass {
   @Path("/partners")
   public Response addPartner(PartnerDTO partner) {
     return Response.ok(partnerService.save(partner)).build();
+  }
+
+  @PUT
+  @Path("/partners/{id}")
+  public Response updatePartner(@PathParam("id") Long partnerId, PartnerDTO partner) {
+    return Response.ok(partnerService.update(partnerId, partner)).build();
   }
 
   @DELETE

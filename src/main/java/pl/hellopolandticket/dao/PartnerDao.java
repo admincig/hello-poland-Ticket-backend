@@ -5,6 +5,7 @@ import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.util.Optional;
 import pl.hellopolandticket.model.partner.Partner;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
 
@@ -17,6 +18,10 @@ public class PartnerDao {
 
   @Inject
   private ExceptionFactory exceptionFactory;
+
+  public Optional<Partner> findById(Long id) {
+    return Optional.ofNullable(entityManager.find(Partner.class, id));
+  }
 
   public Partner findByUserEmail(String email) {
     return entityManager

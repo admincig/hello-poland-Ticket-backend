@@ -6,6 +6,8 @@ import static pl.hellopolandticket.model.auth.Role.ROLE_SALESMAN;
 import static pl.hellopolandticket.model.auth.Role.ROLE_USHER;
 import static pl.hellopolandticket.service.util.ModelObjectsToDTOConverter.ofUser;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -15,6 +17,7 @@ import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import pl.hellopoland.dto.UserAuthDTO;
 import pl.hellopoland.dto.UserDTO;
+import pl.hellopolandticket.dao.PartnerDao;
 import pl.hellopolandticket.dao.UserDao;
 import pl.hellopolandticket.model.auth.Role;
 import pl.hellopolandticket.model.auth.User;
@@ -23,6 +26,7 @@ import pl.hellopolandticket.security.Authenticated;
 import pl.hellopolandticket.security.CurrentUser;
 import pl.hellopolandticket.security.password.PasswordEncoder;
 import pl.hellopolandticket.service.exception.ExceptionFactory;
+import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 import pl.hellopolandticket.service.exception.conflict.UsherEmailMatchesPartnerEmailException;
 import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 
@@ -31,6 +35,8 @@ import pl.hellopolandticket.service.util.ModelObjectsToDTOConverter;
 public class UserService extends ServiceSuperclass {
   @Inject
   private UserDao userDao;
+  @Inject
+  private PartnerDao partnerDao;
   @Inject
   private ExceptionFactory exceptionFactory;
   @Inject
@@ -80,8 +86,23 @@ public class UserService extends ServiceSuperclass {
   @RolesAllowed({ROLE_EXTERNAL_USER})
   public void changePassword(UserAuthDTO userAuthDTO, Long userId) {
     User user = userId == null ? getLoggedUser() : findUserById(userId);
-    if (StringUtils.isNotBlank(userAuthDTO.login) && !StringUtils.equals(user.getEmail(), userAuthDTO.login)) {
-      user.setEmail(userAuthDTO.login);
+    if (StringUtils.isNotBlank(userAuthDTO.login)) {
+      String email = StringUtils.trim(userAuthDTO.login).toLowerCase(Locale.ROOT);
+      userDao.findByEmail(email)
+          .filter(existingUser -> !Objects.equals(existingUser.getId(), user.getId()))
+          .ifPresent(existingUser -> {
+            throw new ConflictingException("Użytkownik już istnieje w systemie");
+          });
+
+      if (userId == null && user.getPartner() != null && user.hasRole(ROLE_EXTERNAL_USER)) {
+        Partner partnerWithEmail = partnerDao.findByEmail(email);
+        if (partnerWithEmail != null
+            && !Objects.equals(partnerWithEmail.getId(), user.getPartner().getId())) {
+          throw exceptionFactory.partnerAlreadyExistsException();
+        }
+        user.getPartner().setEmail(email);
+      }
+      user.setEmail(email);
     }
     user.setPassword(passwordEncoder.encode(userAuthDTO.password));
   }

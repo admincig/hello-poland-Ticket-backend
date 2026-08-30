@@ -47,6 +47,7 @@ public class EmailSenderService extends ServiceSuperclass {
   private static final String MAIL_SMTP_PORT_PROPERTY = "mail.smtp.port";
   private static final String MAIL_SMTP_AUTH_PROPERTY = "mail.smtp.auth";
   private static final String MAIL_SMTP_STARTTLS_ENABLE_PROPERTY = "mail.smtp.starttls.enable";
+  private static final String MAIL_REDIRECT_ALL_TO_PROPERTY = "mail.redirect.all.to";
   private static final String MAIL_SMTP_SOCKET_FACTORY_CLASS_PROPERTY =
       "mail.smtp.socketFactory.class";
 
@@ -104,20 +105,42 @@ public class EmailSenderService extends ServiceSuperclass {
     return report;
   }
 
+  @RolesAllowed({ROLE_EXTERNAL_USER})
+  public EmailSendingReport sendSystemEmail(String recipientEmail, String subject, String msg)
+      throws MessagingException, UnsupportedEncodingException {
+    return sendSimpleEmail(redirectRecipientIfConfigured(recipientEmail), subject, msg);
+  }
+
   @RolesAllowed({ROLE_EXTERNAL_USER, ROLE_ADMIN})
   public EmailSendingReport sendEmailWithQrCodes(
       BookingMarkedAsBoughtEvent event)
       throws MessagingException, IOException, TemplateException {
     logger.log(Level.INFO, "........... Start sending email with qrCodes ..............");
+    String redirectEmail = getMailRedirectEmail();
     String recipientEmail = event.getRecipientEmail();
     String replyToEmail = event.getReplyToEmail();
-      Set<String> bccEmails =
-              event.getBccEmails() == null ? new HashSet<>() : new HashSet<>(event.getBccEmails());
+    Set<String> bccEmails = event.getBccEmails() == null
+        ? new HashSet<>() : new HashSet<>(event.getBccEmails());
 
+    if (redirectEmail == null) {
       String backupEmail = System.getProperty("mail.ticket.backup");
       if (backupEmail != null && !backupEmail.isBlank()) {
-          bccEmails.add(backupEmail);
+        bccEmails.add(backupEmail);
       }
+    } else {
+      bccEmails.clear();
+
+      if (replyToEmail != null) {
+        logger.log(Level.INFO, "Redirecting ticket notification recipient from "
+            + recipientEmail + " to " + redirectEmail);
+        recipientEmail = redirectEmail;
+        replyToEmail = null;
+      } else if (!redirectEmail.equalsIgnoreCase(recipientEmail)) {
+        logger.log(Level.INFO, "Keeping ticket recipient " + recipientEmail
+            + " and redirecting ticket copies to " + redirectEmail);
+        bccEmails.add(redirectEmail);
+      }
+    }
 
     var report = new EmailSendingReport();
     try {
@@ -172,6 +195,22 @@ public class EmailSenderService extends ServiceSuperclass {
     }
     logger.log(Level.INFO, "........... End sending email with qrCodes ..............");
     return report;
+  }
+
+  private String redirectRecipientIfConfigured(String recipientEmail) {
+    String redirectEmail = getMailRedirectEmail();
+    if (redirectEmail == null) {
+      return recipientEmail;
+    }
+
+    logger.log(Level.INFO,
+        "Redirecting email recipient from " + recipientEmail + " to " + redirectEmail);
+    return redirectEmail;
+  }
+
+  private String getMailRedirectEmail() {
+    String redirectEmail = System.getProperty(MAIL_REDIRECT_ALL_TO_PROPERTY);
+    return StringUtils.isBlank(redirectEmail) ? null : redirectEmail.trim();
   }
 
   private Session createSessionForEmail() {

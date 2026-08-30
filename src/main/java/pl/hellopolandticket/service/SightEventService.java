@@ -103,8 +103,9 @@ public class SightEventService extends ServiceSuperclass {
                       se.getTicketPoolDefinitions() != null && se.getTicketPoolDefinitions().stream()
                               .anyMatch(tpd ->
                                       !tpd.isDeleted()
-                                              && tpd.getTicketPools() != null
-                                              && !tpd.getTicketPools().isEmpty()
+                                              && (Boolean.TRUE.equals(tpd.getIsCyclic())
+                                              || (tpd.getTicketPools() != null
+                                              && !tpd.getTicketPools().isEmpty()))
                               )
               )
               .map(se -> ModelObjectsToDTOConverter.ofSightEvent(se, null))

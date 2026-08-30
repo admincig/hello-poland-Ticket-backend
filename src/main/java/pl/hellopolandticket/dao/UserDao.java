@@ -31,6 +31,16 @@
             .setParameter("email", email.toLowerCase()).getResultStream().findFirst();
       }
 
+      public Optional<User> findExternalUserForPartner(Partner partner) {
+        return entityManager.createQuery(
+                "from User user where user.partner = :partner "
+                    + "and :role in elements(user.authorities)", User.class)
+            .setParameter("partner", partner)
+            .setParameter("role", pl.hellopolandticket.model.auth.Role.ROLE_EXTERNAL_USER)
+            .getResultStream()
+            .findFirst();
+      }
+
       public User findByEmailOrThrowException(String email) {
         return entityManager.createQuery("from User user where lower(user.email) = :email", User.class)
             .setParameter("email", email.toLowerCase()).getResultStream().findFirst()

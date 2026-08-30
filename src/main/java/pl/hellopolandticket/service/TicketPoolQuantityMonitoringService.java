@@ -63,7 +63,7 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
         new TicketsRunningOutEmailConstructor(ticketPool);
     recipientsToInformAboutTicketsRunningOut(ticketPool).forEach(recipient -> {
       try {
-        emailService.sendSimpleEmail(recipient, emailConstructor.getTitle(),
+        emailService.sendSystemEmail(recipient, emailConstructor.getTitle(),
             emailConstructor.getContent());
         logger.log(Logger.Level.INFO,
             "Informing " + recipient + " about tickets from ticket pool[id="
@@ -90,7 +90,7 @@ public class TicketPoolQuantityMonitoringService extends ServiceSuperclass {
 
         recipientsToInformAboutTicketsRunningOut(pool).forEach(recipient -> {
             try {
-                emailService.sendSimpleEmail(recipient, emailConstructor.getTitle(),
+                emailService.sendSystemEmail(recipient, emailConstructor.getTitle(),
                         emailConstructor.getContent());
                 logger.log(Logger.Level.INFO,
                         "Informing " + recipient + " about tickets from ticket pool[id="

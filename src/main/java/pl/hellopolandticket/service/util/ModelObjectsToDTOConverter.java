@@ -219,6 +219,7 @@ public class ModelObjectsToDTOConverter {
     PartnerDTO partnerDTO = new PartnerDTO();
     partnerDTO.id = partner.getId();
     partnerDTO.name = partner.getName();
+    partnerDTO.email = partner.getEmail();
     partnerDTO.users = Optional.ofNullable(partner.getUsers()).orElse(Collections.emptyList())
         .stream().map(ModelObjectsToDTOConverter::ofUser).collect(toList());
     partnerDTO.sightEvents =

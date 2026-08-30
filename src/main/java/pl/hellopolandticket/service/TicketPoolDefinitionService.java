@@ -21,6 +21,7 @@ import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import pl.hellopoland.dto.DiscountDTO;
 import pl.hellopoland.dto.DiscountTypeDTO;
+import pl.hellopoland.dto.FrequencyTypeDTO;
 import pl.hellopoland.dto.TicketDefinitionDTO;
 import pl.hellopoland.dto.TicketPoolDefinitionDTO;
 import pl.hellopoland.dto.TicketPoolTypeDTO;
@@ -85,18 +86,7 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     SightEvent sightEvent = sightEventDao.findByIdAndPartner(tpdDTO.sightEventId,
         partnerDao.findByUserEmail(currentUser.getPrincipal()));
     var tpdSd = tpdDTO.startDate;
-    FrequencyData frequencyData =
-        tpdDTO.isCyclic
-            ? ofNullable(tpdDTO.frequencyData)
-                .map(frequencyDataDTO -> FrequencyData.builder()
-                    .frequencyType(FrequencyType.valueOf(frequencyDataDTO.frequencyType.name()))
-                    .daysOfWeek(frequencyDataDTO.daysOfWeek)
-                    .startDate(
-                        frequencyDataDTO.startDate != null ? frequencyDataDTO.startDate : tpdSd)
-                    .endDate(frequencyDataDTO.endDate).frequency(frequencyDataDTO.frequency)
-                    .build())
-                .orElse(new FrequencyData())
-            : null;
+    FrequencyData frequencyData = toFrequencyData(tpdDTO, tpdSd);
     TicketPoolDefinition ticketPoolDefinition = TicketPoolDefinition.builder().name(tpdDTO.name)
         .availableTicketsNumber(tpdDTO.availableTicketsNumber).isCyclic(tpdDTO.isCyclic)
         .frequencyData(frequencyData).startDate(tpdDTO.startDate).endDate(tpdDTO.endDate)
@@ -121,37 +111,72 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
   }
 
   private void validateDates(TicketPoolDefinitionDTO tpdDTO) {
+    if (tpdDTO.startDate == null || tpdDTO.endDate == null) {
+      throw new BadRequestException("Termin rozpoczęcia i zakończenia puli jest wymagany.");
+    }
     if (tpdDTO.endDate != null && tpdDTO.startDate.after(tpdDTO.endDate)) {
       logger.log(Level.ERROR,
           "Ticket pool definition's  [id=" + tpdDTO.id + "] startDate after endDate.");
-      throw new ConflictingException("Ticket pool definition's startDate after endDate.");
+      throw new BadRequestException(
+          "Termin rozpoczęcia puli nie może być późniejszy niż termin zakończenia.");
     }
     if (tpdDTO.entryEndDate != null && tpdDTO.entryStartDate != null
         && tpdDTO.entryStartDate.after(tpdDTO.entryEndDate)) {
       logger.log(Level.ERROR,
           "Ticket pool definition's  [id=" + tpdDTO.id + "] entryStartDate after entryEndDate.");
-      throw new ConflictingException("Ticket pool definition's entryStartDate after entryEndDate.");
+      throw new BadRequestException(
+          "Początek sprzedaży nie może być późniejszy niż koniec sprzedaży.");
     }
     if (tpdDTO.entryStartDate != null && tpdDTO.startDate != null
         && tpdDTO.entryStartDate.after(tpdDTO.startDate)) {
       logger.log(Level.ERROR,
           "Ticket pool definition's  [id=" + tpdDTO.id + "] entryStartDate after startDate.");
-      throw new ConflictingException("Ticket pool definition's entryStartDate after startDate.");
+      throw new BadRequestException(
+          "Początek sprzedaży nie może być późniejszy niż początek puli.");
     }
     var frequencyData = tpdDTO.frequencyData;
     if (frequencyData != null && frequencyData.endDate != null
         && tpdDTO.startDate.after(frequencyData.endDate)) {
       logger.log(Level.ERROR,
           "Ticket pool definition's  [id=" + tpdDTO.id + "] startDate after frequency endDate.");
-      throw new ConflictingException("Ticket pool definition's startDate after frequency endDate.");
+      throw new BadRequestException("Początek puli nie może być późniejszy niż koniec powtarzania.");
     }
     if (frequencyData != null && frequencyData.endDate != null && frequencyData.startDate != null
         && frequencyData.startDate.after(frequencyData.endDate)) {
       logger.log(Level.ERROR, "Ticket pool definition's  [id=" + tpdDTO.id
           + "] frequency startDate after frequency endDate.");
-      throw new ConflictingException(
-          "Ticket pool definition's frequency startDate after frequency endDate.");
+      throw new BadRequestException(
+          "Początek powtarzania nie może być późniejszy niż koniec powtarzania.");
     }
+    if (Boolean.TRUE.equals(tpdDTO.isCyclic)) {
+      if (tpdDTO.frequencyData == null || tpdDTO.frequencyData.frequencyType == null) {
+        throw new BadRequestException("Dla puli cyklicznej należy określić sposób powtarzania.");
+      }
+      if (tpdDTO.frequencyData.frequency == null || tpdDTO.frequencyData.frequency < 1) {
+        throw new BadRequestException("Częstotliwość powtarzania musi być większa od zera.");
+      }
+      if (tpdDTO.frequencyData.frequencyType == FrequencyTypeDTO.WEEKLY
+          && (tpdDTO.frequencyData.daysOfWeek == null
+              || tpdDTO.frequencyData.daysOfWeek.isEmpty())) {
+        throw new BadRequestException(
+            "Dla powtarzania tygodniowego wybierz co najmniej jeden dzień tygodnia.");
+      }
+    }
+  }
+
+  private FrequencyData toFrequencyData(TicketPoolDefinitionDTO dto, Date startDate) {
+    if (!Boolean.TRUE.equals(dto.isCyclic)) {
+      return null;
+    }
+
+    return FrequencyData.builder()
+        .frequencyType(FrequencyType.valueOf(dto.frequencyData.frequencyType.name()))
+        .daysOfWeek(dto.frequencyData.daysOfWeek)
+        .daysOfMonth(dto.frequencyData.daysOfMonth)
+        .startDate(startDate)
+        .endDate(dto.frequencyData.endDate)
+        .frequency(dto.frequencyData.frequency)
+        .build();
   }
 
   @RolesAllowed({ROLE_ADMIN, ROLE_EXTERNAL_USER})
@@ -216,9 +241,17 @@ public class TicketPoolDefinitionService extends ServiceSuperclass {
     TicketPoolType poolType =
         dto.poolType == null ? defaultTicketPoolType(tpd.getPoolType())
             : toTicketPoolType(dto.poolType);
+    validateDates(dto);
     validateTicketTypes(poolType, dto.ticketDefinitions);
     tpd.setName(dto.name);
     tpd.setPoolType(poolType);
+    tpd.setIsCyclic(Boolean.TRUE.equals(dto.isCyclic));
+    tpd.setFrequencyData(toFrequencyData(dto, dto.startDate));
+    tpd.setStartDate(dto.startDate);
+    tpd.setEndDate(dto.endDate);
+    tpd.setEntryStartDate(dto.entryStartDate != null ? dto.entryStartDate : dto.startDate);
+    tpd.setEntryEndDate(dto.entryEndDate != null ? dto.entryEndDate : dto.endDate);
+    tpd.setWholeDay(dto.wholeDay);
     if (dto.visibleForPartner != null) {
       tpd.setVisibleForPartner(dto.visibleForPartner);
     }
