@@ -6,6 +6,15 @@ w tym pliku. Zmiany przygotowywane do następnego wydania zapisujemy w sekcji
 
 ## Unreleased
 
+## 2.0.20.4 — 2026-09-02
+
+### Zmieniono
+
+- Wiadomości z wygenerowanymi hasłami bileterów partnera trafiają do konfigurowalnej
+  skrzynki technicznej i respektują `mail.redirect.all.to` na TST.
+- Domyślna techniczna kopia wiadomości `mail.ticket.copy` wskazuje
+  `orders@hello-poland.pl`.
+
 ## 2.0.20.3 — 2026-08-30
 
 ### Dodano
@@ -27,4 +36,3 @@ w tym pliku. Zmiany przygotowywane do następnego wydania zapisujemy w sekcji
 - Rozjazd adresu logowania i adresu używanego przez HT do wysyłania potwierdzeń partnerowi.
 - Widoczność wydarzeń posiadających cykliczną pulę, zanim zostaną utworzone jej konkretne wystąpienia.
 - Komunikat błędu zwracany dla niedostępnego terminu biletu.
-

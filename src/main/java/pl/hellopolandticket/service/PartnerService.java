@@ -36,6 +36,9 @@ import pl.hellopolandticket.service.exception.conflict.ConflictingException;
 @Stateless
 @LocalBean
 public class PartnerService extends ServiceSuperclass {
+  private static final String PARTNER_CREDENTIALS_RECIPIENT_PROPERTY =
+      "mail.partner.credentials.recipient";
+
   @Inject
   private PartnerDao partnerDao;
   @Inject
@@ -149,15 +152,27 @@ public class PartnerService extends ServiceSuperclass {
       userService.save(usher);
       emailPassword.put(u.email, pass);
     });
-    // sending emails to ushers (with theirs login and password):
+    // sending generated credentials to the internal technical mailbox:
+    String credentialsRecipient = getPartnerCredentialsRecipient();
     emailPassword.forEach((key, value) -> {
       try {
-        emailService.sendSimpleEmail(key, "Nowe konto w Hello Poland. Bileter",
-            "Twój login to " + key + ", hasło to " + value);
+        emailService.sendSystemEmail(credentialsRecipient,
+            "Nowe konto partnera w Hello Poland. Bileter",
+            "Partner: " + partner.getName() + "\nLogin: " + key + "\nHasło: " + value);
       } catch (MessagingException | UnsupportedEncodingException e) {
         throw exceptionFactory.emailSendingRollbackException();
       }
     });
+  }
+
+  private String getPartnerCredentialsRecipient() {
+    String recipient = StringUtils.trimToNull(
+        properties.getProperty(PARTNER_CREDENTIALS_RECIPIENT_PROPERTY));
+    if (recipient == null) {
+      throw new ConflictingException(
+          "Brak konfiguracji: " + PARTNER_CREDENTIALS_RECIPIENT_PROPERTY);
+    }
+    return recipient;
   }
 
 }
